@@ -15,7 +15,7 @@ class boun_mesh:
 
 
     def write_netcdf(self):
-        print("PATH = ", self.path)
+        
         ncfile = nc.netcdf_file(self.path, 'w')
         ncfile.createDimension('x',self.x)
         ncfile.createDimension('y',self.y)
@@ -23,6 +23,21 @@ class boun_mesh:
         ncfile.createDimension('time',self.time)
         ncfile.createDimension('waterpoints',self.water_points)
         ncfile.createDimension('dim3',3)
+        
+        navlon = ncfile.createVariable('nav_lon', 'f', ('y','x'))
+        navlon = self.nav_lon
+        navlat = ncfile.createVariable('nav_lat', 'f', ('y','x'))
+        navlat = self.nav_lat
+        navlev = ncfile.createVariable('nav_lev', 'f', 'z')
+        navlev = self.nav_lev
+#         for i in range(0,self.nudg):
+#             name = "re" + self.vnudg[i][0]
+#             navlev = ncfile.createVariable(name, 'd', ('time','z','y','x'))
+#             navlev = self.nav_lev
+#             for jn=1:nudg
+#     name=(['re' vnudg(jn,:)]);
+#     rstid(jn)    = mexcdf('VARDEF', cdfid, name, 'DOUBLE', 4, [timdimid levdimid latdimid londimid] );
+# end
         ncfile.close()
 # dimensions:
 #     x = 362 ;
@@ -107,34 +122,37 @@ class mesh:
         bm.y = self.y
         bm.z = self.z
         bm.time = self.time
-        
-        vnudg = elab.variables
+        bm.nav_lon = self.nav_lon
+        bm.nav_lat = self.nav_lat
+        bm.nav_lev = self.nav_lev
+         
+        bm.vnudg = elab.variables
         rdpmin = elab.rdpmin
         rdpmax = elab.rdpmax
         self.glamt = self.glamt.reshape(self.y,self.x)
-        nudg = len(vnudg)
+        bm.nudg = len(bm.vnudg)
         tmask_dimension = self.tmask.shape
         bm.jpk = tmask_dimension[1]
         bm.jpjglo = tmask_dimension[2]
         bm.jpiglo = tmask_dimension[3]
         
-        bm.resto = np.zeros((nudg,bm.jpk,bm.jpjglo,bm.jpiglo));
+        bm.resto = np.zeros((bm.nudg,bm.jpk,bm.jpjglo,bm.jpiglo));
         
         for jk in range(1,bm.jpk):
             
-            for jn in range(0,nudg):
+            for jn in range(0,bm.nudg):
                 for jj in range(0,bm.jpjglo):
                     for ji in range(0,bm.jpiglo): 
                                        
-                        if (self.glamt[jj][ji] < vnudg[jn][1]):
+                        if (self.glamt[jj][ji] < bm.vnudg[jn][1]):
                             
                             bm.resto[jn,jk,jj,ji]=1./(rdpmin*86400.);
         
-            for jn in range(0,nudg):
+            for jn in range(0,bm.nudg):
                 for jj in range(0,bm.jpjglo):
                     for ji in range(0,bm.jpiglo):
-                        if (self.glamt[jj][ji] > vnudg[jn][1]) and (self.glamt[jj][ji] <= elab.end_nudging):
-                            reltim = rdpmin + (rdpmax-rdpmin)*(self.glamt[jj][ji]-vnudg[jn][1])/(elab.end_nudging-vnudg[jn][1]);
+                        if (self.glamt[jj][ji] > bm.vnudg[jn][1]) and (self.glamt[jj][ji] <= elab.end_nudging):
+                            reltim = rdpmin + (rdpmax-rdpmin)*(self.glamt[jj][ji]-bm.vnudg[jn][1])/(elab.end_nudging-bm.vnudg[jn][1]);
                             bm.resto[jn,jk,jj,ji] = 1./(reltim*86400.);
         
         
