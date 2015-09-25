@@ -2,6 +2,10 @@
 import numpy as np
 from scipy.io import netcdf as nc
 
+class river:
+    pass
+    
+
 
 class boun_mesh:
 
@@ -70,10 +74,10 @@ class sub_mesh:
         
     def atmosphere(self):
         
-        tmask_dimension = self._mesh_father.tmask.shape
-        jpk = tmask_dimension[1]
-        jpj = tmask_dimension[2]
-        jpi = tmask_dimension[3]
+        
+        jpk = self._mesh_father.tmask_dimension[1]
+        jpj = self._mesh_father.tmask_dimension[2]
+        jpi = self._mesh_father.tmask_dimension[3]
         
         self.eas = self.eas + self.aeg + self.adn + self.ads;
        
@@ -153,6 +157,10 @@ class mesh:
             b = self.ncfile.variables[i][:].copy()
             setattr(self, i, b)
         self.ncfile.close()
+        
+        self.tmask_dimension = self.tmask.shape
+        
+        
     def generate_boundmask(self):
 
         """ This fuction generate boundmask """
@@ -164,10 +172,9 @@ class mesh:
         rdpmax = self.input_data.rdpmax
         self.glamt = self.glamt.reshape(self.y,self.x)
         bm.nudg = len(bm.vnudg)
-        tmask_dimension = self.tmask.shape
-        bm.jpk = tmask_dimension[1]
-        bm.jpjglo = tmask_dimension[2]
-        bm.jpiglo = tmask_dimension[3]
+        bm.jpk = self.tmask_dimension[1]
+        bm.jpjglo = self.tmask_dimension[2]
+        bm.jpiglo = self.tmask_dimension[3]
         
         bm.resto = np.zeros((bm.nudg,bm.jpk,bm.jpjglo,bm.jpiglo));
         
@@ -206,6 +213,10 @@ class mesh:
 
         bm.idx[self.tmask[0] == 0] = 0;
         
+        
+        
+    def bc(self):
+        pass
         
         
         
