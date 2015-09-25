@@ -1,9 +1,40 @@
 
 import numpy as np
 from scipy.io import netcdf as nc
+from bclib.io_lib import excel_obj as xlsobj
 
-class river:
-    pass
+
+class gibilterra:
+    def __init__(self):
+        pass
+    
+class river_data:
+    
+    def __init__(self,mesh,file_river,file_runoff):
+        self.path_river = file_river
+        self.path_runoff = file_runoff
+        self._mesh_father = mesh 
+        self._extract_information()
+        
+    def _extract_information(self):
+        print(self.path_river)
+        print(self.path_runoff)
+        work_sheet  = self._mesh_father.input_data.river_data_sheet
+        
+        range_montly = range(7,19)
+        range_coord  = [1,2]
+        
+        river_excel_file = xlsobj.xlsx(self.path_river)
+        montly_mod = river_excel_file.read_spreadsheet_allrow("monthly",range_montly)
+        coordr = river_excel_file.read_spreadsheet_allrow("monthly",range_coord)
+        range_coord  = [1]
+        a = river_excel_file.read_spreadsheet_allcols("monthly",range_coord)
+        #roundoff_excel_file = xlsobj.xlsx(self.path_river)
+        
+        
+        
+    
+    
     
 
 
@@ -60,10 +91,10 @@ class sub_mesh:
     def __init__(self,mesh,ncfile):
         self.path = ncfile
         self._mesh_father = mesh
-        self.extract_information()
+        self._extract_information()
 
 
-    def extract_information(self):
+    def _extract_information(self):
         self.ncfile = nc.netcdf_file(self.path, 'r')
         for i in self.ncfile.dimensions:
             setattr(self, i, self.ncfile.dimensions[i])
@@ -145,11 +176,12 @@ class mesh:
     def __init__(self,input):# ncf_mesh,ncf_submesh,ncf_bounmesh):
         self.input_data = input
         self.path = self.input_data.file_mask
-        self.extract_information()
+        self._extract_information()
         self.submesh = sub_mesh(self,self.input_data.file_submask)
         self.bounmesh = boun_mesh(self,self.input_data.file_bmask)
+        self.river = river_data(self,self.input_data.file_river,self.input_data.file_runoff)
 
-    def extract_information(self):
+    def _extract_information(self):
         self.ncfile = nc.netcdf_file(self.path, 'r')
         for i in self.ncfile.dimensions:
             setattr(self, i, self.ncfile.dimensions[i])

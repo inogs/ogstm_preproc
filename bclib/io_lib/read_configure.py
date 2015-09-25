@@ -24,13 +24,14 @@ class elaboration:
             print("stringa")
 
 
-        self.read_parameter_section()
-        self.read_filepath_section()
-        self.read_atmosphere()
-        self.read_variable()
-        self.read_mask()
+        self._read_parameter_section()
+        self._read_filepath_section()
+        self._read_atmosphere()
+        self._read_variable()
+        self._read_river()
+        self._read_mask()
 
-    def read_parameter_section(self):
+    def _read_parameter_section(self):
         """ Set general elaboration parameter """
         self.name = self.init_configure["nameElaboration"]
         param = self.init_configure["parameter"]
@@ -42,7 +43,7 @@ class elaboration:
         self.co2_start = param["CO2_start"]
         self.co2_end = param["CO2_end"]
 
-    def read_filepath_section(self):
+    def _read_filepath_section(self):
         """ Set general file path parameter """
         file_path = self.init_configure["filepath"]
         # for i in file_path:
@@ -53,15 +54,21 @@ class elaboration:
         self.file_co2 = file_path["file_co2"]
         self.dir_out = file_path["dir_out"]
 
-    def read_atmosphere(self):
+    def _read_atmosphere(self):
         """ Set general atmosphere parameter """
         atm = self.init_configure["atmosphere"]
         self.n3n_wes = atm["N3n_wes"]
         self.n3n_eas = atm["N3n_eas"]
         self.po4_wes = atm["P04_wes"]
         self.po4_eas = atm["P04_eas"]
+        
+    def _read_river(self):
+        riv = self.init_configure["river"]
+        self.river_data_sheet = []
+        for i in riv["sheet_array"]:
+            self.river_data_sheet.append(i["name"])
 
-    def read_variable(self):
+    def _read_variable(self):
         """ Set variables and their parameter """
         var = self.init_configure["variables"]
         self.rdpmax = var["rdpmax"]
@@ -71,7 +78,7 @@ class elaboration:
         for i in var["var_array"]:
             self.variables.append([i["name"],i["end_max"]])
 
-    def read_mask(self):
+    def _read_mask(self):
         """ Set mask parameter """
         msk =  self.init_configure["mask"]
         self.name_mask = msk["nameMask"]

@@ -32,6 +32,19 @@ def test_json():
           "P04_wes":527,
           "P04_eas":668
         },
+        
+        "river" :
+        {
+          "sheet_array":
+          [
+            {"name":"km3_per_yr"},
+            {"name":"no3_kt_yr"},
+            {"name":"po4_kt_yr"},
+            {"name":"dic_kt_yr"},
+            {"name":"alk_Gmol_yr"}
+
+          ]
+        },
 
         "variables" :
         {
@@ -77,6 +90,8 @@ def test_json():
 
     test_lon_np_array = np.arange(-8.78125,-8.78125+362*0.125,0.125)
     test_lat_np_array = np.arange(30.15620,30.15620+128*0.125,0.125)
-
+    datasheet = ["km3_per_yr","no3_kt_yr","po4_kt_yr","dic_kt_yr","alk_Gmol_yr"]
+    
     assert (json_rid.lon_np_array == test_lon_np_array).all()
     assert (json_rid.lat_np_array == test_lat_np_array).all()
+    assert json_rid.river_data_sheet == datasheet

@@ -13,7 +13,7 @@ print(" 18 sett 2015 ")
 elab = rconf.elaboration()
 
 mesh = maskobj.mesh(elab)
-mesh.submesh.atmosphere()
+#mesh.submesh.atmosphere()
 # co2  = co2obj.co2atm(elab.file_co2)
 #mesh.generate_boundmask()
 #mesh.bounmesh.write_netcdf()
