@@ -4,7 +4,7 @@ from scipy.io import netcdf as nc
 from bclib.io_lib import excel_obj as xlsobj
 
 
-class gibilterra:
+class lateral_bc:
     def __init__(self):
         pass
     
@@ -27,8 +27,9 @@ class river_data:
         river_excel_file = xlsobj.xlsx(self.path_river)
         montly_mod = river_excel_file.read_spreadsheet_allrow("monthly",range_montly)
         coordr = river_excel_file.read_spreadsheet_allrow("monthly",range_coord)
-        range_coord  = [1]
-        a = river_excel_file.read_spreadsheet_allcols("monthly",range_coord)
+        x_range_coord  = [1]
+        y_range = range(6,47)
+        years = river_excel_file.read_spreadsheet_range("km3_per_yr",x_range_coord,y_range)
         #roundoff_excel_file = xlsobj.xlsx(self.path_river)
         
         

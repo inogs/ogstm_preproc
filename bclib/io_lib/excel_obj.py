@@ -1,6 +1,5 @@
 import numpy as np
 from openpyxl import load_workbook
-
 class xlsx:
     """
         Class xls
@@ -19,22 +18,18 @@ class xlsx:
                          
         for x in range(2,n):
             for y in y_range:
-                print(x,y)
                 a[x-2][y-y_range[0]] = ws.cell(row = x , column = y).value
                 
          
         return a   
     
-    def read_spreadsheet_allcols(self,worsheet,x_range):
-                
+    def read_spreadsheet_range(self,worsheet,x_range,y_range):
+                      
         ws = self.wb[worsheet]
-        n = len(ws.rows[1])
-        a = np.zeros((len(x_range),n)) 
-                         
+        a = np.zeros((len(x_range),len(y_range))) 
+                          
         for x in x_range:
-            for y in range(2,n):
-                print(x,y)
-                a[x-x_range[0]][y-1] = ws.cell(row = x , column = y).value
-                
-         
+            for y in y_range:
+                a[x-x_range[0]][y-y_range[0]] = ws.cell(row = x , column = y).value
+                 
         return a   
