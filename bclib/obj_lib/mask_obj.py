@@ -25,12 +25,25 @@ class river_data:
         range_coord  = [1,2]
         
         river_excel_file = xlsobj.xlsx(self.path_river)
-        montly_mod = river_excel_file.read_spreadsheet_allrow("monthly",range_montly)
-        coordr = river_excel_file.read_spreadsheet_allrow("monthly",range_coord)
-        x_range_coord  = [1]
-        y_range = range(6,47)
-        years = river_excel_file.read_spreadsheet_range("km3_per_yr",x_range_coord,y_range)
-        #roundoff_excel_file = xlsobj.xlsx(self.path_river)
+        self.river_montly_mod = river_excel_file.read_spreadsheet_allrow("monthly",range_montly)
+        self.river_coordr = river_excel_file.read_spreadsheet_allrow("monthly",range_coord)
+        self.nRivers = len(self.river_coordr[:])
+        for data_t in self._mesh_father.input_data.river_data_sheet:
+            x_range_coord  = [1]
+            y_range = range(7,48)
+            self.river_years = river_excel_file.read_spreadsheet_range(data_t,x_range_coord,y_range,"i")
+            count = 0
+            x_range = range(2,39)
+            ry = river_excel_file.read_spreadsheet_range(data_t,x_range,y_range)
+            for y in self.river_years[0][:]:
+                name = data_t+"_"+str(y)
+                print(name)
+#                 print(count)
+#                 print(np.shape(ry))
+#                 print(self.river_years[0,:])
+#                 print(ry[:,count])
+                setattr(self, name, ry[:,count])
+                count = count +1
         
         
         
