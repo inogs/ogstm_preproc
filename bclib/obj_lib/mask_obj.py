@@ -37,14 +37,27 @@ class river_data:
             ry = river_excel_file.read_spreadsheet_range(data_t,x_range,y_range)
             for y in self.river_years[0][:]:
                 name = data_t+"_"+str(y)
-                print(name)
-#                 print(count)
-#                 print(np.shape(ry))
-#                 print(self.river_years[0,:])
-#                 print(ry[:,count])
-                setattr(self, name, ry[:,count])
+                print("river_"+name)
+                setattr(self,"river_"+name, ry[:,count])
                 count = count +1
         
+        roundoff_excel_file = xlsobj.xlsx(self.path_runoff)
+        self.roundoff_montly_mod = river_excel_file.read_spreadsheet_allrow("monthly",range_montly)
+        self.roundoff_coordr = river_excel_file.read_spreadsheet_allrow("monthly",range_coord)
+        self.nRoundoff = len(self.river_coordr[:])
+        for data_t in self._mesh_father.input_data.river_data_sheet:
+            x_range_coord  = [1]
+            y_range = range(7,48)
+            self.roundoff_years = river_excel_file.read_spreadsheet_range(data_t,x_range_coord,y_range,"i")
+            count = 0
+            x_range = range(2,39)
+            ry = roundoff_excel_file.read_spreadsheet_range(data_t,x_range,y_range)
+            for y in self.river_years[0][:]:
+                name = data_t+"_"+str(y)
+                print("roundoff_"+name)
+                setattr(self,"roundoff_"+name, ry[:,count])
+                count = count +1
+            
         
         
     

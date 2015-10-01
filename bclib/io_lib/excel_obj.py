@@ -36,3 +36,7 @@ class xlsx:
                 a[x-x_range[0]][y-y_range[0]] = ws.cell(row = x , column = y).value
                  
         return a   
+    
+    
+    
+    
