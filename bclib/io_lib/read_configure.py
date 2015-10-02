@@ -1,7 +1,7 @@
 import json
 import numpy as np
 import os.path
-
+import logging
 
 class elaboration:
 
@@ -19,9 +19,10 @@ class elaboration:
 
         if os.path.isfile(json_input) :
             self.init_configure = json.loads(open(json_input).read())
+            logging.debug("INPUT = File json ")
         else :
             self.init_configure = json.loads(json_input)
-            print("stringa")
+            logging.debug("INPUT = string json")
 
 
         self._read_parameter_section()
