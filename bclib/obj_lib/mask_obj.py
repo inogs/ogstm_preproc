@@ -33,8 +33,8 @@ class river_data:
         logging.info("river_data builded") 
         
     def _extract_information(self):
-        print(self.path_river)
-        print(self.path_runoff)
+        logging.debug(self.path_river)
+        logging.debug(self.path_runoff)
         work_sheet  = self._mesh_father.input_data.river_data_sheet
         
         range_montly = range(7,19)
@@ -70,7 +70,7 @@ class river_data:
             ry = roundoff_excel_file.read_spreadsheet_range(data_t,x_range,y_range)
             for y in self.river_years[0][:]:
                 name = data_t+"_"+str(y)
-                print("roundoff_"+name)
+                logging.debug("roundoff_"+name)
                 setattr(self,"roundoff_"+name, ry[:,count])
                 count = count +1
             
