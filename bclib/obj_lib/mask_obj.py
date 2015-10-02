@@ -44,11 +44,61 @@ class river_data:
 #                 print(ry[:,count])
                 setattr(self, name, ry[:,count])
                 count = count +1
+    
+    def _coast_line_mask(self, mask):
+        [rows, cols] = np.nonzero(mask)
+        # [rows, cols] = find(mask);
+        nSea = len(rows);
+        coast=bool(mask);
         
+        for i in range(1,nSea):
+            row=rows[i]
+            col=cols[i]
         
+            irows=[-1, 0, 1] + row
+            icols=[-1, 0, 1] + col
+            localmask = mask[irows,icols]
+            
+            coast[row,col] = sum(localmask[:]) < 9
+        return coast    
+                   
+    def map_contribute_on_sea(self):
+        mask1 = self._mesh_father.tmask[0,1,:,:]
+        mask2 = self._mesh_father.tmask[0,2,:,:]
+        coast = self._coast_line_mask(mask1) and self._coast_line_mask(mask2)
+        
+        loncm = self._mesh_father.nav_lon(coast)
+        latcm = self._mesh_father.nav_lat(coast)
+        
+        [coastline_row_index, coastline_col_index] = np.nonzero(coast)
+        georef4 = np.array(coastline_row_index, coastline_col_index, loncm, latcm) 
+        
+        data_types = self._mesh_father.input_data.river_data_sheet
+        n_data_types = len(data_types)
+        
+        georef = np.zeros(self.nRivers,5)
+        for jr in range (1,self.nRivers):
+            lon_river = self.river_coordr(jr,1)
+            lat_river = self.river_coordr(jr,2)
+            dist = (loncm-lon_river)**2 + (latcm-lat_river)**2
+            ind = np.amin(dist)
+            # w = np.min(dist)
+            georef[jr,:]=np.array(jr,georef4[ind,:])
+        river_georef = georef
+        
+        m=np.zeros(self.nRivers,12)
         
     
-    
+
+
+
+
+
+
+
+
+
+
     
 
 
