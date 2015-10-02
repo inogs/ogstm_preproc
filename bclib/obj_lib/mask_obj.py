@@ -8,6 +8,7 @@ class lateral_bc:
     
     def __init__(self,file_nutrients):
         self.path = file_nutrients
+        self._extract_information()
     
     def _extract_information(self):
         self.ncfile = nc.netcdf_file(self.path, 'r')
@@ -219,8 +220,9 @@ class mesh:
         self._extract_information()
         self.submesh = sub_mesh(self,self.input_data.file_submask)
         self.bounmesh = boun_mesh(self,self.input_data.file_bmask)
-        self.river = river_data(self,self.input_data.file_river,self.input_data.file_runoff)
         self.gibilterra = lateral_bc(self.input_data.file_nutrients)
+        self.river = river_data(self,self.input_data.file_river,self.input_data.file_runoff)
+        
 
     def _extract_information(self):
         self.ncfile = nc.netcdf_file(self.path, 'r')
