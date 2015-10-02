@@ -1,9 +1,7 @@
 import numpy as np
 import scipy.io.netcdf as nc
-from scipy.linalg._cython_wrapper_generators import dims
 from bclib.obj_lib import mask_obj
 import datetime
-from DateTime.DateTime import long
 from matplotlib.dates import seconds
 from scipy.constants.constants import atmosphere
 from bclib.obj_lib.mask_obj import sub_mesh
@@ -60,7 +58,7 @@ class co2atm:
         co2datenumber = []
         for d in giorni:
             #if long(d) <= datetime.datetime.max.toordinal():
-            co2datenumber.append(datetime.datetime.fromordinal(long(d)))
+            co2datenumber.append(datetime.datetime.fromordinal(int(d)))
               
         co2datestr = []
         for dn in co2datenumber:
