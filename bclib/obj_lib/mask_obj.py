@@ -5,8 +5,21 @@ from bclib.io_lib import excel_obj as xlsobj
 
 
 class lateral_bc:
-    def __init__(self):
-        pass
+    
+    def __init__(self,file_nutrients):
+        self.path = file_nutrients
+    
+    def _extract_information(self):
+        self.ncfile = nc.netcdf_file(self.path, 'r')
+        for i in self.ncfile.dimensions:
+            setattr(self, i, self.ncfile.dimensions[i])
+        for i in self.ncfile.variables:
+            b = self.ncfile.variables[i][:].copy()
+            setattr(self, i, b)
+        self.ncfile.close()
+    
+    
+        
     
 class river_data:
     
@@ -207,6 +220,7 @@ class mesh:
         self.submesh = sub_mesh(self,self.input_data.file_submask)
         self.bounmesh = boun_mesh(self,self.input_data.file_bmask)
         self.river = river_data(self,self.input_data.file_river,self.input_data.file_runoff)
+        self.gibilterra = lateral_bc(self.input_data.file_nutrients)
 
     def _extract_information(self):
         self.ncfile = nc.netcdf_file(self.path, 'r')
