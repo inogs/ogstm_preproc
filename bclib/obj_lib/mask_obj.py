@@ -2,13 +2,14 @@
 import numpy as np
 from scipy.io import netcdf as nc
 from bclib.io_lib import excel_obj as xlsobj
-
+import logging
 
 class lateral_bc:
     
     def __init__(self,file_nutrients):
         self.path = file_nutrients
         self._extract_information()
+        logging.info("lateral_bc builded") 
     
     def _extract_information(self):
         self.ncfile = nc.netcdf_file(self.path, 'r')
@@ -29,6 +30,7 @@ class river_data:
         self.path_runoff = file_runoff
         self._mesh_father = mesh 
         self._extract_information()
+        logging.info("river_data builded") 
         
     def _extract_information(self):
         print(self.path_river)
@@ -51,7 +53,7 @@ class river_data:
             ry = river_excel_file.read_spreadsheet_range(data_t,x_range,y_range)
             for y in self.river_years[0][:]:
                 name = data_t+"_"+str(y)
-                print("river_"+name)
+                logging.debug("river_"+name) 
                 setattr(self,"river_"+name, ry[:,count])
                 count = count +1
         
@@ -89,6 +91,7 @@ class boun_mesh:
     def __init__(self,mesh,ncfile):
         self.path = ncfile
         self._mesh_father = mesh 
+        logging.info("bounmesh builded") 
 
     def write_netcdf(self):
         
@@ -118,6 +121,7 @@ class boun_mesh:
         idx_rev_wnc = ncfile.createVariable('index_inv', 'i', ('waterpoints', 'dim3'))
         idx_rev_wnc = np.transpose(self.idx, (2, 1, 0)).shape  
         ncfile.close()
+        logging.info("bounmesh nc file writed") 
         
      
     
@@ -133,7 +137,7 @@ class sub_mesh:
         self.path = ncfile
         self._mesh_father = mesh
         self._extract_information()
-
+        logging.info("submesh builded") 
 
     def _extract_information(self):
         self.ncfile = nc.netcdf_file(self.path, 'r')
@@ -205,7 +209,7 @@ class sub_mesh:
                 if (self.eas[0,jj,ji] == 1):
                     counter=counter+1 ;
                     self.atm[counter,:]=[jr,ji,jj,lon[jj,ji],lat[jj,ji],a.n3n_eas/Neas,a.po4_eas/Neas]; 
-
+        logging.info("atmosphere finish calculation") 
         
 
 class mesh:
@@ -222,7 +226,7 @@ class mesh:
         self.bounmesh = boun_mesh(self,self.input_data.file_bmask)
         self.gibilterra = lateral_bc(self.input_data.file_nutrients)
         self.river = river_data(self,self.input_data.file_river,self.input_data.file_runoff)
-        
+        logging.info("mesh builded") 
 
     def _extract_information(self):
         self.ncfile = nc.netcdf_file(self.path, 'r')
@@ -287,6 +291,7 @@ class mesh:
         
 
         bm.idx[self.tmask[0] == 0] = 0;
+        logging.info("bounmesh generation ended") 
         
         
         
