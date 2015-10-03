@@ -43,8 +43,10 @@ class river_data:
         river_excel_file = xlsobj.xlsx(self.path_river)
         self.river_montly_mod = river_excel_file.read_spreadsheet_allrow("monthly",range_montly)
         self.river_coordr = river_excel_file.read_spreadsheet_allrow("monthly",range_coord)
-        self.nRivers = len(self.river_coordr[:])
+        self.nrivers = len(self.river_coordr[:])
+        self.river_collected_data = {}
         for data_t in self._mesh_father.input_data.river_data_sheet:
+            river_sheet_collected_data = {}
             x_range_coord  = [1]
             y_range = range(7,48)
             self.river_years = river_excel_file.read_spreadsheet_range(data_t,x_range_coord,y_range,"i")
@@ -52,15 +54,18 @@ class river_data:
             x_range = range(2,39)
             ry = river_excel_file.read_spreadsheet_range(data_t,x_range,y_range)
             for y in self.river_years[0][:]:
-                name = data_t+"_"+str(y)
-                logging.debug("river_"+name) 
-                setattr(self,"river_"+name, ry[:,count])
-                count = count +1
+                river_sheet_collected_data[str(y)] = ry[:,count].copy()
+                logging.debug(str(y))
+            self.river_collected_data[data_t] =  river_sheet_collected_data.copy()    
+        logging.debug("End river data collection")
+              
         roundoff_excel_file = xlsobj.xlsx(self.path_runoff)
         self.roundoff_montly_mod = river_excel_file.read_spreadsheet_allrow("monthly",range_montly)
         self.roundoff_coordr = river_excel_file.read_spreadsheet_allrow("monthly",range_coord)
         self.nRoundoff = len(self.river_coordr[:])
+        self.roundoff_collected_data = {}
         for data_t in self._mesh_father.input_data.river_data_sheet:
+            roundoff_sheet_collected_data = {}
             x_range_coord  = [1]
             y_range = range(7,48)
             self.roundoff_years = river_excel_file.read_spreadsheet_range(data_t,x_range_coord,y_range,"i")
@@ -68,11 +73,10 @@ class river_data:
             x_range = range(2,39)
             ry = roundoff_excel_file.read_spreadsheet_range(data_t,x_range,y_range)
             for y in self.river_years[0][:]:
-                name = data_t+"_"+str(y)
-                logging.debug("roundoff_"+name)
-                setattr(self,"roundoff_"+name, ry[:,count])
-                count = count +1
-                    
+                roundoff_sheet_collected_data[str(y)] = ry[:,count].copy()
+            self.roundoff_collected_data[data_t] = roundoff_sheet_collected_data.copy()
+        logging.debug("End roundoff data collection")
+            
     def _coast_line_mask(self, mask):
         [rows, cols] = np.nonzero(mask)
         # [rows, cols] = find(mask);
@@ -275,6 +279,7 @@ class mesh:
         self.gibilterra = lateral_bc(self.input_data.file_nutrients)
         self.river = river_data(self,self.input_data.file_river,self.input_data.file_runoff)
         logging.info("mesh builded") 
+        
 
     def _extract_information(self):
         self.ncfile = nc.netcdf_file(self.path, 'r')
@@ -286,6 +291,8 @@ class mesh:
         self.ncfile.close()
         
         self.tmask_dimension = self.tmask.shape
+        
+        
         
         
     def generate_boundmask(self):
