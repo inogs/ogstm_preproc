@@ -118,6 +118,34 @@ class river_data:
         river_georef = georef
         
         m=np.zeros(self.nRivers,12)
+        self.river_data={}
+        
+        for data_type in data_types :
+            years_data={}
+            for ic in self.river_years :
+                for r in range (1,self.nRivers) :
+                    ry = self.river.river_collected_data["data_type"]["ic"][r]
+                    m[r,:] =  (self.river_montly_mod[r,:]/100)*12*ry
+                years_data[str(ic)]=m.copy()
+            river_data[data_type]=years_data.copy() 
+        
+        n_coast_cells = len(loncm)
+        
+        indexes = np.zeros(n_coast_cells,1)
+        georef = np.zeros(self.nRivers,5)
+        
+        m=np.zeros(self.nRivers,12)
+        self.river_data={}
+        
+        for data_type in data_types :
+            years_data={}
+            for ic in self.river_years :
+                for r in range (1,self.nRivers) :
+                    ry = self.river.river_collected_data["data_type"]["ic"][r]
+                    m[r,:] =  (self.river_montly_mod[r,:]/100)*12*ry
+                years_data[str(ic)]=m.copy()
+            river_data[data_type]=years_data.copy()                    
+        
         
     
 
