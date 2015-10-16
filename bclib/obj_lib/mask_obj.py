@@ -12,6 +12,8 @@ class lateral_bc:
     def __init__(self,file_nutrients):
         self.path = file_nutrients
         self._extract_information()
+        self.season = (["0215-12:00:00","0515-12:00:00",
+                        "0815-12:00:00","1115-12:00:00"])
         logging.info("lateral_bc builded") 
     
     def _extract_information(self):
@@ -22,7 +24,7 @@ class lateral_bc:
             b = self.ncfile.variables[i][:].copy()
             setattr(self, i, b)
         self.ncfile.close()
-    
+           
     
         
     
@@ -86,7 +88,7 @@ class river_data:
         # [rows, cols] = find(mask);
         nSea = len(rows);
         coast = np.zeros(np.size(mask),dtype = np.bool)
-        coast=mask;
+        coast=mask
         
         for i in range(0,nSea):
             row=rows[i]
@@ -122,7 +124,7 @@ class river_data:
         georef4 = np.matrix((coastline_row_index, coastline_col_index, loncm, latcm)).T 
         
         data_types = self._mesh_father.input_data.river_data_sheet
-        n_data_types = len(data_types)
+        #n_data_types = len(data_types)
         
         ### river contributes
         georef = np.zeros((self.nrivers,5))
@@ -209,21 +211,7 @@ class river_data:
                         self.river_data[dt][str(yr)][k,:] )
                  
             
-        
-
-        
-    
-
-
-
-
-
-
-
-
-
-
-    
+        self.river_runoff_data = self.runoff_data
 
 
 class boun_mesh:
@@ -267,7 +255,7 @@ class boun_mesh:
         idx_rev_wnc = np.transpose(self.idx, (2, 1, 0)).shape  
         ncfile.close()
         logging.info("bounmesh nc file writed") 
-        
+
      
     
 
@@ -444,8 +432,233 @@ class mesh:
         
         
     def bc(self):
-        pass
         
+        jpk = self.tmask_dimension[1]
+        jpj = self.tmask_dimension[2]
+        jpi = self.tmask_dimension[3]
+        n_coast_cell = self.river.n_coast_cells
+        area = self.e1t * self.e2t
+        jpt_gib = 4
+        nvar_gib = 6
+        index = self.bounmesh.idx
+        
+        for yr in self.river.river_years:
+            
+            for time in range(1,4):
+                name_file = yr+self.gibilterra.season[time]
+                for jn in self.input_data.variables:
+                    aux = self.bounmesh.resto[jn][:]
+                    isNudg = np.ones(aux.shape,dtype=int)
+                    for k in range(aux.shape[0]):
+                        for j in range(aux.shape[1]):
+                            for i in range(aux.shape[2]):
+                                if (aux[k,j,i]==0 and aux[k,j,i] < 1e+19):   # da controllare
+                                    isNudg[i,j,k] = 0
+                    count = 0
+                    npi=sum(isNudg);
+                    idx=np.zeros(npi); 
+                    data=np.zeros(npi);
+                    
+                    if jn == 1:
+                        for jk in range(1,jpk):
+                            for jj in range(1,jpj):
+                                for ji in range(1,jpi):
+                                    if isNudg(jk,jj,ji):
+                                        count =  count +1;
+                                        idx[count] = index[jk,jj,ji];
+                                        data[count] = self.gibilterra.Phos(time,jk,jj,ji);
+                                        
+                    if jn == 2:
+                        for jk in range(1,jpk):
+                            for jj in range(1,jpj):
+                                for ji in range(1,jpi):
+                                    if isNudg(jk,jj,ji):
+                                        count =  count +1;
+                                        idx[count] = index[jk,jj,ji];
+                                        data[count] = self.gibilterra.Phos(time,jk,jj,ji); 
+                    
+                    if jn == 3:
+                        for jk in range(1,jpk):
+                            for jj in range(1,jpj):
+                                for ji in range(1,jpi):
+                                    if isNudg(jk,jj,ji):
+                                        count =  count +1;
+                                        idx[count] = index[jk,jj,ji];
+                                        data[count] = self.gibilterra.Phos(time,jk,jj,ji);
+                    
+                    if jn == 4:
+                        for jk in range(1,jpk):
+                            for jj in range(1,jpj):
+                                for ji in range(1,jpi):
+                                    if isNudg(jk,jj,ji):
+                                        count =  count +1;
+                                        idx[count] = index[jk,jj,ji];
+                                        data[count] = self.gibilterra.Phos(time,jk,jj,ji);
+                    
+                    if jn == 5:
+                        for jk in range(1,jpk):
+                            for jj in range(1,jpj):
+                                for ji in range(1,jpi):
+                                    if isNudg(jk,jj,ji):
+                                        count =  count +1;
+                                        idx[count] = index[jk,jj,ji];
+                                        data[count] = self.gibilterra.Phos(time,jk,jj,ji);
+                                        
+                    if jn == 6:
+                        for jk in range(1,jpk):
+                            for jj in range(1,jpj):
+                                for ji in range(1,jpi):
+                                    if isNudg(jk,jj,ji):
+                                        count =  count +1;
+                                        idx[count] = index[jk,jj,ji];
+                                        data[count] = self.gibilterra.Phos(time,jk,jj,ji);
+                                        
+                    if jn == 7:
+                        for jk in range(1,jpk):
+                            for jj in range(1,jpj):
+                                for ji in range(1,jpi):
+                                    if isNudg(jk,jj,ji):
+                                        count =  count +1;
+                                        idx[count] = index[jk,jj,ji];
+                                        data[count] = 0.0025;  
+
+         #  field_name = ['gib_idxt_' vnudg(jn,:) ];
+         #  field_data = ['gib_' vnudg(jn,:) ];
+         #  S.DIMS.(field_name)=count;
+         #  S.(field_name).value=idx;S.(field_name).type='INT' ;
+         #  S.(field_data).value=data;S.(field_data).type='DOUBLE' ;
+#        filename = ['OUTPUT_DATA/GIB_' timeSTR(I,:) '.nc'];
+#     ncwrite(filename,S)
+
+            jpt_riv = 12
+            index_riv_a = np.zeros(( 2 * n_coast_cell, 1), dtype = np.int);
+            phos_riv_a  = np.zeros(( 2 * n_coast_cell,  jpt_riv));
+            ntra_riv_a  = np.zeros(( 2 * n_coast_cell,  jpt_riv));
+            sili_riv_a  = np.zeros(( 2 * n_coast_cell,  jpt_riv));
+            alka_riv_a  = np.zeros(( 2 * n_coast_cell,  jpt_riv));
+            dicc_riv_a  = np.zeros(( 2 * n_coast_cell,  jpt_riv));
+            w= 1.0e+12;
+            t = 1/(365 * 86400)
+            n = 1/14;  
+            totN = 0;
+            p = 1/31;
+            totP = 0;
+            s = 1/28;
+            totS = 0; 
+            totA = 0; 
+            totD = 0;
+            
+            for jc in range(n_coast_cell):
+                jc2  = jc + n_coast_cell;
+                ji  = self.river.river_georef(jc,2);
+                jj  = self.river.river_georef(jc,3);
+                Vol2cells = area[jj,ji]*(self.e3t(1)+self.e3t(2));
+                cn = w*t*n/Vol2cells;
+                cp = w*t*p/Vol2cells;
+                cs = w*t*s/Vol2cells; 
+                ca = w*t  /Vol2cells; 
+                cc = w*t  /Vol2cells; 
+                totN = totN + sum(self.river.river_runoff_data["no3_kt_yr"][str(yr)][jc,:],2)/12;
+                totP = totP + sum(self.river.river_runoff_data["po4_kt_yr"][str(yr)][jc,:],2)/12;
+                totS = totS + sum(self.river.river_runoff_data["sic_kt_yr"][str(yr)][jc,:],2)/12;
+                totA = totA + sum(self.river.river_runoff_data["alk_Gmol_yr"][str(yr)][jc,:],2)/12;
+                totD = totD + sum(self.river.river_runoff_data["dic_kt_yr"][str(yr)][jc,:],2)/12;
+                index_riv_a[jc]  = index[1,jj,ji];
+                ntra_riv_a[jc,:] = self.river.river_runoff_data["no3_kt_yr"][str(yr)][jc,:]*cn;
+                phos_riv_a[jc,:] = self.river.river_runoff_data["po4_kt_yr"][str(yr)][jc,:]*cp;
+                sili_riv_a[jc,:] = self.river.river_runoff_data["sic_kt_yr"][str(yr)][jc,:]*cs;
+                alka_riv_a[jc,:] = self.river.river_runoff_data["alk_Gmol_yr"][str(yr)][jc,:]*ca;
+                dicc_riv_a[jc,:] = self.river.river_runoff_data["dic_kt_yr"][str(yr)][jc,:]*cc;
+                index_riv_a[jc2]  = index[2,jj,ji];
+                ntra_riv_a[jc2,:] = self.river.river_runoff_data["no3_kt_yr"][str(yr)][jc,:]*cn;
+                phos_riv_a[jc2,:] = self.river.river_runoff_data["po4_kt_yr"][str(yr)][jc,:]*cp;
+                sili_riv_a[jc2,:] = self.river.river_runoff_data["sic_kt_yr"][str(yr)][jc,:]*cs;
+                alka_riv_a[jc2,:] = self.river.river_runoff_data["alk_Gmol_yr"][str(yr)][jc,:]*ca;
+                dicc_riv_a[jc2,:] = self.river.river_runoff_data["dic_kt_yr"][str(yr)][jc,:]*cc;
+            
+            idxt_riv,ix = np.sort(index_riv_a,1);
+            n3n_riv = ntra_riv_a[ix,:];
+            n1p_riv = phos_riv_a[ix,:];  
+            o3h_riv = alka_riv_a[ix,:];
+            o3c_riv = dicc_riv_a[ix,:];
+            n5s_riv = sili_riv_a[ix,:]; 
+            count_riv = 2 * n_coast_cell;
+ 
+# for I=1:12
+#     clear S
+#     month= num2str(I,'%02d');
+#     timestr = ['2000' month '15-00:00:00'] ;
+# 
+#     S.DIMS.riv_idxt = count_riv ;
+#     S.Attributes    = Attributes;
+#     S.Attributes.Type                     = 'Terrestrial Inputs' ;
+#     S.Attributes.Month                    = datestr(datenum(timestr,'yyyymmdd-hh:MM:ss'),'mmm') ;
+#     S.Attributes.RIV_P_MassBalance_kTON_y = totPriv ;
+#     S.Attributes.RIV_N_MassBalance_kTON_y = totNriv ;
+#     S.Attributes.RIV_S_MassBalance_kTON_y = totSriv ;
+#     S.Attributes.RIV_A_MassBalance_kTON_y = totAriv ;
+#     S.Attributes.RIV_D_MassBalance_kTON_y = totDriv ;
+#     
+#     
+#     S.riv_idxt.value = double(idxt_riv); S.riv_idxt.type = 'INT' ; 
+#     S.riv_N1p.value  = N1p_riv(:,I)    ; S.riv_N1p.type  = 'DOUBLE' ;
+#     S.riv_N3n.value  = N3n_riv(:,I)    ; S.riv_N3n.type  = 'DOUBLE' ;
+#     S.riv_N5s.value  = N5s_riv(:,I)    ; S.riv_N5s.type  = 'DOUBLE' ;
+#     S.riv_O3c.value  = O3c_riv(:,I)    ; S.riv_O3c.type  = 'DOUBLE' ;
+#     S.riv_O3h.value  = O3h_riv(:,I)    ; S.riv_O3h.type  = 'DOUBLE' ;
+#     
+#     timestr(1:4)=yyyy;
+#     filename = ['OUTPUT_DATA/TIN_' timestr '.nc']; 
+#     ncwrite(filename,S)
+#     
+
+            jpt_atm = 1;
+            atm = self.submesh.atm
+            count_atm = atm.shape[0];
+            index_atm_a = np.zeros(count_atm, dtype = np.int);
+            phos_atm_a  = np.zeros((count_atm,jpt_atm));
+            ntra_atm_a  = np.zeros((count_atm,jpt_atm));
+            w = 1.0e+09;
+            t = 1/(365 * 86400);
+            totP = 0;
+            totN = 0;
+            totN_KTy =0; 
+            totP_KTy =0; 
+            for jn in range(1,count_atm):
+                ji  = atm[jn,2];
+                jj  = atm[jn,3];
+                jk  = 1;
+                VolCell1=area[jj,ji]*self.e3t[1];
+                totN = totN + atm[jn,6]*VolCell1;
+                totP = totP + atm[jn,7]*VolCell1;
+                  
+                totN_KTy = totN_KTy + atm[jn,6]*(1.e-3/n)*VolCell1;
+                totP_KTy = totP_KTy + atm[jn,7]*(1.e-3/p)*VolCell1;
+                cn = w*t;
+                cp = w*t;
+                index_atm_a[jn] = self.bounmesh.idx[jk,jj,ji];
+                ntra_atm_a[jn,:] = atm[jn,6]*cn;
+                phos_atm_a[jn,:] = atm[jn,7]*cp;
+
+# clear S
+# S.DIMS.atm_idxt = count_atm; 
+# S.Attributes                          = Attributes; 
+# S.Attributes.ATM_P_MassBalance_kTON_y = totP_KTy ; 
+# S.Attributes.ATM_N_MassBalance_kTON_y = totN_KTy ; 
+# S.Attributes.ATM_P_MassBalance_Mmol_y = totP ; 
+# S.Attributes.ATM_N_MassBalance_Mmol_y = totN ;
+# S.Attributes.Type                     = 'Atmospherical Inputs' ;
+# S.Attributes.Time                     = 'Year' ;
+# 
+# S.atm_idxt.value = double(index_atm_a ) ; S.atm_idxt.type = 'INT';  
+# S.atm_N1p.value  = phos_atm_a           ; S.atm_N1p.type = 'DOUBLE' ;
+# S.atm_N3n.value  = ntra_atm_a           ; S.atm_N3n.type = 'DOUBLE' ;
+# %S.atm_O2o.value  =  dox_atm_a           ; S.atm_O2o.type = 'DOUBLE' ;
+# %S.atm_N5s.value  = sica_atm_a           ; S.atm_N5s.type = 'DOUBLE' ;
+# 
+# filename = ['OUTPUT_DATA/ATM_' yyyy '0630-00:00:00.nc'];
+# ncwrite(filename,S); 
+
         
         
         
