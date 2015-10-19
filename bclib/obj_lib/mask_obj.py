@@ -2,16 +2,18 @@
 import numpy as np
 import numpy.matlib as npmat
 from scipy.io import netcdf as nc
+from scipy import interpolate as npint
 from bclib.io_lib import excel_obj as xlsobj
 import logging
 from numpy import dtype
-from IPython.parallel.controller.scheduler import numpy
 
 class lateral_bc:
     
-    def __init__(self,file_nutrients):
+    def __init__(self,mesh,file_nutrients):
         self.path = file_nutrients
+        self._mesh_father = mesh 
         self._extract_information()
+        self._convert_information()
         self.season = (["0215-12:00:00","0515-12:00:00",
                         "0815-12:00:00","1115-12:00:00"])
         logging.info("lateral_bc builded") 
@@ -24,6 +26,83 @@ class lateral_bc:
             b = self.ncfile.variables[i][:].copy()
             setattr(self, i, b)
         self.ncfile.close()
+        
+    def _convert_information(self):
+        jpt = 4
+        size_nutrients = np.zeros(5)
+        size_nutrients[0] = jpt
+        size_nutrients[1:5] = self._mesh_father.tmask_dimension
+        print(size_nutrients)
+        self.phos = np.zeros(size_nutrients)
+        self.ntra = np.zeros(size_nutrients)
+        self.dox = np.zeros(size_nutrients)
+        self.sica = np.zeros(size_nutrients)
+        self.dic = np.zeros(size_nutrients)
+        self.alk = np.zeros(size_nutrients)
+        tmask4d = np.zeros(size_nutrients)
+        
+        n_lev = size_nutrients[2]
+        # vp_phos = zeros(4,nLev); 
+        vp_ntra = np.zeros((4,n_lev)); 
+        vp_sica = np.zeros((4,n_lev)); 
+        vp_dox  = np.zeros((4,n_lev)); 
+        vp_dic  = np.zeros((4,n_lev));
+        vp_alk  = np.zeros((4,n_lev));
+        nav_lev_in=np.matrix((0,self.nav_lev_in,5500)); 
+        vp_phos_in=np.matrix((self.N1p[:,1],self.N1p,self.N1p[:,self.lev1-1]));
+        vp_ntra_in=np.matrix((self.N3n[:,1],self.N3n,self.N3n[:,self.lev1-1]));
+        vp_sica_in=np.matrix((self.N5s[:,1],self.N5s,self.N5s[:,self.lev1-1]));
+        vp_dox_in =np.matrix((self.O2o[ :,1],self.O2o,self.O2o[:,self.lev1-1]));
+        end = self.ALKDIC.shape[0]
+        nav_lev_in2 =[ 0,self.ALKDIC[:,1].T,5500];
+        vp_dic_in   =np.matrix(self.ALKDIC[1,3],self.ALKDIC[:,3].T,self.ALKDIC[end-1,3]); 
+        vp_alk_in   =np.matrix(self.ALKDIC[1,2],self.ALKDIC[:,2].T,self.ALKDIC[end-1,2]);
+#  
+        vp_phos = np.zeros(4,self._mesh_father.nav_lev)
+        vp_ntra = np.zeros(4,self._mesh_father.nav_lev)
+        vp_dox = np.zeros(4,self._mesh_father.nav_lev)
+        vp_sica = np.zeros(4,self._mesh_father.nav_lev)
+        vp_dic = np.zeros(4,self._mesh_father.nav_lev)
+        vp_alk = np.zeros(4,self._mesh_father.nav_lev)
+        
+        for i in range(4):
+            jj= not np.isnan(vp_phos_in[i,:]);
+            vp_phos[i,:] = npint.interp1d(nav_lev_in[jj],vp_phos_in[i,jj]);
+            jj=not np.isnan(vp_ntra_in[i,:]);  
+            vp_ntra[i,:] = npint.interp1d(nav_lev_in[jj],vp_ntra_in[i,jj]);
+            jj=not np.isnan(vp_dox_in[i,:]);
+            vp_dox[i,:] = npint.interp1d(nav_lev_in[jj],vp_dox_in[ i,jj]);
+            jj=not np.isnan(vp_sica_in[i,:]);
+            vp_sica[i,:] = npint.interp1d(nav_lev_in[jj],vp_sica_in[i,jj]);
+            jj=not np.isnan(vp_dic_in[:]);
+            vp_dic[i,:]  = npint.interp1d(nav_lev_in2(jj),vp_dic_in(jj));
+            jj=not np.isnan(vp_alk_in[:]); 
+            vp_alk[i,:]  = npint.interp1d(nav_lev_in2[jj],vp_alk_in[jj]);
+
+# 
+# %Loop on time seasonal
+            for jt in range(jpt):
+                for jk in range(n_lev):
+                    self.phos[jt,jk,:,:] = vp_phos(jt,jk);
+                    self.ntra[jt,jk,:,:] = vp_ntra(jt,jk);
+                    self.dox[jt,jk,:,:] = vp_dox( jt,jk);
+                    self.sica[jt,jk,:,:] = vp_sica(jt,jk);
+                    self.dic[jt,jk,:,:]  = vp_dic(jt,jk);
+                    self.alk[jt,jk,:,:]  = vp_alk(jt,jk);
+
+ 
+            for jt in range(jpt):
+                    tmask4d[jt,:,:,:]=self._mesh_father.tmask[:,:,:];
+                    
+                    
+            self.phos[tmask4d == 0]=1.e+20;
+            self.ntra[tmask4d == 0]=1.e+20;
+            self.dox[tmask4d == 0]=1.e+20;
+            self.sica[tmask4d == 0]=1.e+20;
+            self.dic[tmask4d == 0]=1.e+20;
+            self.alk[ tmask4d == 0]=1.e+20;
+
+    
            
     
         
@@ -357,7 +436,7 @@ class mesh:
         self._extract_information()
         self.submesh = sub_mesh(self,self.input_data.file_submask)
         self.bounmesh = boun_mesh(self,self.input_data.file_bmask)
-        self.gibilterra = lateral_bc(self.input_data.file_nutrients)
+        self.gibilterra = lateral_bc(self,self.input_data.file_nutrients)
         self.river = river_data(self,self.input_data.file_river,self.input_data.file_runoff)
         logging.info("mesh builded") 
         
@@ -445,17 +524,18 @@ class mesh:
         for yr in self.river.river_years:
             
             for time in range(1,4):
-                name_file = yr+self.gibilterra.season[time]
-                for jn in self.input_data.variables:
+                name_file = str(yr)+self.gibilterra.season[time]
+                for jn in range(self.bounmesh.nudg):
                     aux = self.bounmesh.resto[jn][:]
-                    isNudg = np.ones(aux.shape,dtype=int)
+                    isNudg = np.zeros(aux.shape,dtype=int)
+                    
                     for k in range(aux.shape[0]):
                         for j in range(aux.shape[1]):
                             for i in range(aux.shape[2]):
-                                if (aux[k,j,i]==0 and aux[k,j,i] < 1e+19):   # da controllare
-                                    isNudg[i,j,k] = 0
+                                if (aux[k,j,i]!=0 and aux[k,j,i] < 1e+19):   # da controllare
+                                    isNudg[k,j,i] = 1
                     count = 0
-                    npi=sum(isNudg);
+                    npi=np.sum(isNudg);
                     idx=np.zeros(npi); 
                     data=np.zeros(npi);
                     
@@ -463,61 +543,61 @@ class mesh:
                         for jk in range(1,jpk):
                             for jj in range(1,jpj):
                                 for ji in range(1,jpi):
-                                    if isNudg(jk,jj,ji):
+                                    if isNudg[jk,jj,ji]:
                                         count =  count +1;
                                         idx[count] = index[jk,jj,ji];
-                                        data[count] = self.gibilterra.Phos(time,jk,jj,ji);
+                                        data[count] = self.gibilterra.phos[time,jk,jj,ji];
                                         
                     if jn == 2:
                         for jk in range(1,jpk):
                             for jj in range(1,jpj):
                                 for ji in range(1,jpi):
-                                    if isNudg(jk,jj,ji):
+                                    if isNudg[jk,jj,ji]:
                                         count =  count +1;
                                         idx[count] = index[jk,jj,ji];
-                                        data[count] = self.gibilterra.Phos(time,jk,jj,ji); 
+                                        data[count] = self.gibilterra.ntra[time,jk,jj,ji]; 
                     
                     if jn == 3:
                         for jk in range(1,jpk):
                             for jj in range(1,jpj):
                                 for ji in range(1,jpi):
-                                    if isNudg(jk,jj,ji):
+                                    if isNudg[jk,jj,ji]:
                                         count =  count +1;
                                         idx[count] = index[jk,jj,ji];
-                                        data[count] = self.gibilterra.Phos(time,jk,jj,ji);
+                                        data[count] = self.gibilterra.dox[time,jk,jj,ji];
                     
                     if jn == 4:
                         for jk in range(1,jpk):
                             for jj in range(1,jpj):
                                 for ji in range(1,jpi):
-                                    if isNudg(jk,jj,ji):
+                                    if isNudg[jk,jj,ji]:
                                         count =  count +1;
                                         idx[count] = index[jk,jj,ji];
-                                        data[count] = self.gibilterra.Phos(time,jk,jj,ji);
+                                        data[count] = self.gibilterra.sica[time,jk,jj,ji];
                     
                     if jn == 5:
                         for jk in range(1,jpk):
                             for jj in range(1,jpj):
                                 for ji in range(1,jpi):
-                                    if isNudg(jk,jj,ji):
+                                    if isNudg[jk,jj,ji]:
                                         count =  count +1;
                                         idx[count] = index[jk,jj,ji];
-                                        data[count] = self.gibilterra.Phos(time,jk,jj,ji);
+                                        data[count] = self.gibilterra.dic[time,jk,jj,ji];
                                         
                     if jn == 6:
                         for jk in range(1,jpk):
                             for jj in range(1,jpj):
                                 for ji in range(1,jpi):
-                                    if isNudg(jk,jj,ji):
+                                    if isNudg[jk,jj,ji]:
                                         count =  count +1;
                                         idx[count] = index[jk,jj,ji];
-                                        data[count] = self.gibilterra.Phos(time,jk,jj,ji);
+                                        data[count] = self.gibilterra.alk[time,jk,jj,ji];
                                         
                     if jn == 7:
                         for jk in range(1,jpk):
                             for jj in range(1,jpj):
                                 for ji in range(1,jpi):
-                                    if isNudg(jk,jj,ji):
+                                    if isNudg[jk,jj,ji]:
                                         count =  count +1;
                                         idx[count] = index[jk,jj,ji];
                                         data[count] = 0.0025;  
