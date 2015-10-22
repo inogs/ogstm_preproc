@@ -68,13 +68,16 @@ class co2atm:
         
         count = 0
         
-        l_tmask = bool(mesh.tmask.all())
+        #l_tmask = bool(mesh.tmask.all()) WRONG!!!
+        l_tmask = mesh.tmask.astype(np.bool)
+
 
         for yCO2 in co2datestr:
         
             fileOUT = self.input_data.dir_out + "/CO2_" + yCO2 + ".nc"
             map_co2 = np.dot(np.ones([self.input_data.jpj, self.input_data.jpi]), rcp85[count])
-            map_co2[not(l_tmask)] = np.nan
+            for ciccio in l_tmask:
+                map_co2[not(ciccio)] = np.nan
             ncfile = nc.netcdf_file(fileOUT, 'w')
             ncfile.createDimension('lon', self.input_data.jpi)
             ncfile.createDimension('lat', self.input_data.jpj)
@@ -86,4 +89,6 @@ class co2atm:
             setattr(ncfile, 'comment', "Uniform value")
             ncfile.close()
             count +=1
+            
+            
         
