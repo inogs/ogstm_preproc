@@ -69,20 +69,33 @@ class co2atm:
         count = 0
         
         #l_tmask = bool(mesh.tmask.all()) WRONG!!!
-        l_tmask = mesh.tmask.astype(np.bool)
+#         for i in range(mesh.tmask[0,0][:].shape[0]):
+#             for j in range(mesh.tmask[0,0][:].shape[1]):
+#                 if mesh.tmask[0,0][i,j] > 0:
+#                     print(i,j,mesh.tmask[0,0][i,j])
+#                     print(i,j,mesh.tmask[0,0][i,j].astype(np.bool))
+            
+        l_tmask = ~ mesh.tmask[0,0][:].astype(np.bool)
+        
+#         for i in range(l_tmask[:].shape[0]):
+#             for j in range(l_tmask[:].shape[1]):
+#                 if l_tmask[i,j] == False:
+#                     print(i,j,l_tmask[i,j])
+                    
 
 
         for yCO2 in co2datestr:
         
             fileOUT = self.input_data.dir_out + "/CO2_" + yCO2 + ".nc"
+            
             map_co2 = np.dot(np.ones([self.input_data.jpj, self.input_data.jpi]), rcp85[count])
-            for ciccio in l_tmask:
-                map_co2[not(ciccio)] = np.nan
+            map_co2[l_tmask] = np.nan
+            
             ncfile = nc.netcdf_file(fileOUT, 'w')
             ncfile.createDimension('lon', self.input_data.jpi)
             ncfile.createDimension('lat', self.input_data.jpj)
-            g = ncfile.createVariable('co2', 'f', ('lon','lat'))
-            g = map_co2
+            g = ncfile.createVariable('co2','f', ('lat','lon'))
+            g[:] = map_co2[:]
             #g.longname = "CO2 content" WRONG!
             setattr(self, 'longname', "CO2 content")
             setattr(ncfile, 'date', datetime.datetime.now().strftime(date_format))
