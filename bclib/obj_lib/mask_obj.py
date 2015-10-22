@@ -215,13 +215,13 @@ class river_data:
             dist = (loncm-lon_river)**2 + (latcm-lat_river)**2
             ind = np.argmin(dist)
             # w = np.min(dist)
-            print("ind ",ind)
-            print("jr ",jr)
-            print("georef",georef.shape)
+#             print("ind ",ind)
+#             print("jr ",jr)
+#             print("georef",georef.shape)
             georef[jr,0]=jr
             for i in range(1,5):
                 georef[jr,i]=georef4[ind,i-1]
-            print("georef4",np.size(georef4))
+#             print("georef4",np.size(georef4))
         self.river_georef = georef
         
         m=np.zeros((self.nrivers,12))
@@ -231,8 +231,8 @@ class river_data:
             years_data={}
             for ic in self.river_years :
                 for r in range(0,self.nrivers-2) :
-                    print(r)
-                    print(self.river_collected_data[data_type][str(ic)].shape)
+#                     print(r)
+#                     print(self.river_collected_data[data_type][str(ic)].shape)
                     ry = self.river_collected_data[data_type][str(ic)][r]
                     m[r,:] =  (self.river_montly_mod[r,:]/100)*12*ry
                 years_data[str(ic)]=m.copy()
@@ -517,8 +517,10 @@ class mesh:
         jpk = self.tmask_dimension[1]
         jpj = self.tmask_dimension[2]
         jpi = self.tmask_dimension[3]
-        n_coast_cell = self.river.n_coast_cells
+        n_coast_cell = self.river.river_georef.shape[0]
         area = self.e1t * self.e2t
+        area = area[0,0][:]
+        print(area.shape)
         jpt_gib = 4
         nvar_gib = 6
         index = self.bounmesh.idx
@@ -542,67 +544,65 @@ class mesh:
                     data=np.zeros(npi);
                     
                     if jn == 1:
-                        for jk in range(1,jpk):
-                            for jj in range(1,jpj):
-                                for ji in range(1,jpi):
+                        for jk in range(jpk):
+                            for jj in range(jpj):
+                                for ji in range(jpi):
                                     if isNudg[jk,jj,ji]:
-                                        count =  count +1;
                                         idx[count] = index[jk,jj,ji];
                                         data[count] = self.gibilterra.phos[time,jk,jj,ji];
+                                        count =  count +1;
                                         
                     if jn == 2:
-                        for jk in range(1,jpk):
-                            for jj in range(1,jpj):
-                                for ji in range(1,jpi):
+                        for jk in range(jpk):
+                            for jj in range(jpj):
+                                for ji in range(jpi):
                                     if isNudg[jk,jj,ji]:
-                                        count =  count +1;
                                         idx[count] = index[jk,jj,ji];
-                                        data[count] = self.gibilterra.ntra[time,jk,jj,ji]; 
+                                        data[count] = self.gibilterra.ntra[time,jk,jj,ji];
+                                        count =  count +1; 
                     
                     if jn == 3:
-                        for jk in range(1,jpk):
-                            for jj in range(1,jpj):
-                                for ji in range(1,jpi):
+                        for jk in range(jpk):
+                            for jj in range(jpj):
+                                for ji in range(jpi):
                                     if isNudg[jk,jj,ji]:
-                                        count =  count +1;
                                         idx[count] = index[jk,jj,ji];
                                         data[count] = self.gibilterra.dox[time,jk,jj,ji];
+                                        count =  count +1;
                     
                     if jn == 4:
-                        for jk in range(1,jpk):
-                            for jj in range(1,jpj):
-                                for ji in range(1,jpi):
+                        for jk in range(jpk):
+                            for jj in range(jpj):
+                                for ji in range(jpi):
                                     if isNudg[jk,jj,ji]:
-                                        count =  count +1;
                                         idx[count] = index[jk,jj,ji];
                                         data[count] = self.gibilterra.sica[time,jk,jj,ji];
+                                        count =  count +1;
                     
                     if jn == 5:
-                        for jk in range(1,jpk):
-                            for jj in range(1,jpj):
-                                for ji in range(1,jpi):
+                        for jk in range(jpk):
+                            for jj in range(jpj):
+                                for ji in range(jpi):
                                     if isNudg[jk,jj,ji]:
-                                        count =  count +1;
                                         idx[count] = index[jk,jj,ji];
                                         data[count] = self.gibilterra.dic[time,jk,jj,ji];
-                                        
-                    if jn == 6:
-                        for jk in range(1,jpk):
-                            for jj in range(1,jpj):
-                                for ji in range(1,jpi):
-                                    if isNudg[jk,jj,ji]:
                                         count =  count +1;
+                    if jn == 6:
+                        for jk in range(jpk):
+                            for jj in range(jpj):
+                                for ji in range(jpi):
+                                    if isNudg[jk,jj,ji]:
                                         idx[count] = index[jk,jj,ji];
                                         data[count] = self.gibilterra.alk[time,jk,jj,ji];
-                                        
-                    if jn == 7:
-                        for jk in range(1,jpk):
-                            for jj in range(1,jpj):
-                                for ji in range(1,jpi):
-                                    if isNudg[jk,jj,ji]:
                                         count =  count +1;
+                    if jn == 7:
+                        for jk in range(jpk):
+                            for jj in range(jpj):
+                                for ji in range(jpi):
+                                    if isNudg[jk,jj,ji]:
                                         idx[count] = index[jk,jj,ji];
-                                        data[count] = 0.0025;  
+                                        data[count] = 0.0025;
+                                        count =  count +1;  
 
          #  field_name = ['gib_idxt_' vnudg(jn,:) ];
          #  field_data = ['gib_' vnudg(jn,:) ];
@@ -632,9 +632,11 @@ class mesh:
             
             for jc in range(n_coast_cell):
                 jc2  = jc + n_coast_cell;
-                ji  = self.river.river_georef(jc,2);
-                jj  = self.river.river_georef(jc,3);
-                Vol2cells = area[jj,ji]*(self.e3t(1)+self.e3t(2));
+                
+                print(self.river.river_georef.shape)
+                ji  = self.river.river_georef[jc,2];
+                jj  = self.river.river_georef[jc,3];
+                Vol2cells = area[jj,ji]*(self.e3t[0,0][:]+self.e3t[0,1][:]);
                 cn = w*t*n/Vol2cells;
                 cp = w*t*p/Vol2cells;
                 cs = w*t*s/Vol2cells; 
@@ -657,8 +659,10 @@ class mesh:
                 sili_riv_a[jc2,:] = self.river.river_runoff_data["sic_kt_yr"][str(yr)][jc,:]*cs;
                 alka_riv_a[jc2,:] = self.river.river_runoff_data["alk_Gmol_yr"][str(yr)][jc,:]*ca;
                 dicc_riv_a[jc2,:] = self.river.river_runoff_data["dic_kt_yr"][str(yr)][jc,:]*cc;
-            
-            idxt_riv,ix = np.sort(index_riv_a,1);
+            print(index)
+            print("------------------------------------------------")
+            print(index_riv_a)
+            ix = np.sort(index_riv_a,1);
             n3n_riv = ntra_riv_a[ix,:];
             n1p_riv = phos_riv_a[ix,:];  
             o3h_riv = alka_riv_a[ix,:];
