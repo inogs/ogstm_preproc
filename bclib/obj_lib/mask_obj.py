@@ -1,4 +1,5 @@
 import numpy as np
+import code
 import numpy.matlib as npmat
 from scipy.io import netcdf as nc
 from scipy import interpolate as npint
@@ -6,6 +7,7 @@ from bclib.io_lib import excel_obj as xlsobj
 import logging
 from numpy import dtype
 from matplotlib.pyplot import axis
+from calendar import month
 
 class lateral_bc:
     
@@ -215,14 +217,9 @@ class river_data:
             lat_river = self.river_coordr[jr,1]
             dist = (loncm-lon_river)**2 + (latcm-lat_river)**2
             ind = np.argmin(dist)
-            # w = np.min(dist)
-#             print("ind ",ind)
-#             print("jr ",jr)
-#             print("georef",georef.shape)
             georef[jr,0]=jr
             for i in range(1,5):
                 georef[jr,i]=georef4[ind,i-1]
-#             print("georef4",np.size(georef4))
         self.river_georef = georef
         
         m=np.zeros((self.nrivers,12))
@@ -231,9 +228,7 @@ class river_data:
         for data_type in data_types :
             years_data={}
             for ic in self.river_years :
-                for r in range(0,self.nrivers-2) :
-#                     print(r)
-#                     print(self.river_collected_data[data_type][str(ic)].shape)
+                for r in range(0,self.nrivers-2):
                     ry = self.river_collected_data[data_type][str(ic)][r]
                     m[r,:] =  (self.river_montly_mod[r,:]/100)*12*ry
                 years_data[str(ic)]=m.copy()
@@ -506,12 +501,10 @@ class mesh:
             for jj in range(bm.jpjglo):
                 for ji in range(bm.jpiglo):
                     if self.tmask[0,jk,jj,ji] == 1.0:
-                      #  print("ok",jk,jj,ji)
                         bm.idx[jk,jj,ji] = count;
                         bm.idx_inv[count,0]=jk;
                         bm.idx_inv[count,1]=jj;
                         bm.idx_inv[count,2]=ji;
-                      #  print(bm.idx_inv[count,:])
                         count=count+1;
         
 
@@ -530,15 +523,16 @@ class mesh:
         n_coast_cell = self.river.river_georef.shape[0]
         area = self.e1t * self.e2t
         area = area[0,0][:]
-        print(area.shape)
         jpt_gib = 4
         nvar_gib = 6
         index = self.bounmesh.idx
         
         for yr in self.river.river_years:
             logging.info(str(yr))
-            for time in range(1,4):
-                name_file = str(yr)+self.gibilterra.season[time]
+
+            for time in range(4):
+                name_file = self.input_data.dir_out+"/GIB_"+str(yr)+self.gibilterra.season[time]
+                ncfile = nc.netcdf_file(name_file, 'w')
                 for jn in range(self.bounmesh.nudg):
                     aux = self.bounmesh.resto[jn][:]
                     isNudg = np.zeros(aux.shape,dtype=int)
@@ -612,15 +606,18 @@ class mesh:
                                     if isNudg[jk,jj,ji]:
                                         idx[count] = index[jk,jj,ji];
                                         data[count] = 0.0025;
-                                        count =  count +1;  
-
-         #  field_name = ['gib_idxt_' vnudg(jn,:) ];
-         #  field_data = ['gib_' vnudg(jn,:) ];
-         #  S.DIMS.(field_name)=count;
-         #  S.(field_name).value=idx;S.(field_name).type='INT' ;
-         #  S.(field_data).value=data;S.(field_data).type='DOUBLE' ;
-#        filename = ['OUTPUT_DATA/GIB_' timeSTR(I,:) '.nc'];
-#     ncwrite(filename,S)
+                                        count =  count +1;
+                    
+#                     name_dimension = ("gib_idxt_"+self.bounmesh.vnudg[jn][0])
+#                     name_var = ("gib"+self.bounmesh.vnudg[jn][0])
+#                     ncfile.createDimension(name_dimension,count)
+#                     code.interact(local=locals())
+#                     navlon_wnc = ncfile.createVariable(name_dimension, 'i', (name_dimension))
+#                     navlon_wnc[:] = idx[:]
+#                     navlon_wnc_d = ncfile.createVariable(name_var, 'f', (name_dimension))
+#                     navlon_wnc_d[:] = data[:]
+                ncfile.close()        
+                
             logging.info("--finish nutrients netcdf write")
             
             jpt_riv = 12
@@ -669,10 +666,7 @@ class mesh:
                 sili_riv_a[jc2,:] = self.river.river_runoff_data["sic_kt_yr"][str(yr)][jc,:]*cs;
                 alka_riv_a[jc2,:] = self.river.river_runoff_data["alk_Gmol_yr"][str(yr)][jc,:]*ca;
                 dicc_riv_a[jc2,:] = self.river.river_runoff_data["dic_kt_yr"][str(yr)][jc,:]*cc;
-            #code.interact(local=locals())
-#             print(index)
-#             print("------------------------------------------------")
-#             print(index_riv_a)
+            
             idxt_riv = np.sort(index_riv_a,1);
             ix = index_riv_a.argsort(axis=1);
             n3n_riv = ntra_riv_a[ix,:];
@@ -681,6 +675,21 @@ class mesh:
             o3c_riv = dicc_riv_a[ix,:];
             n5s_riv = sili_riv_a[ix,:]; 
             count_riv = 2 * n_coast_cell;
+            for mth in range(12):
+                name_file = self.input_data.dir_out+"/TIN_"+str(yr)+str(mth+1)+"15-00:00:00.nc"
+                ncfile = nc.netcdf_file(name_file, 'w')
+                ncfile.createDimension("riv_idxt",count_riv)
+                riv_a_n3n = ncfile.createVariable("riv_N3n", 'i', ("riv_idxt"))
+                riv_a_n3n[:] = n3n_riv[:,mth]
+                riv_a_n1p = ncfile.createVariable("riv_N1p", 'i', ("riv_idxt"))
+                riv_a_n1p[:] = n1p_riv[:,mth]
+                riv_a_n5s = ncfile.createVariable("riv_N5s", 'i', ("riv_idxt"))
+                riv_a_n5s[:] = n5s_riv[:,mth]
+                riv_a_o3c = ncfile.createVariable("riv_O3c", 'i', ("riv_idxt"))
+                riv_a_o3c[:] = o3c_riv[:,mth]
+                riv_a_o3h = ncfile.createVariable("riv_O3h", 'i', ("riv_idxt"))
+                riv_a_o3h[:] = o3h_riv[:,mth]
+                ncfile.close()
             logging.info("--finish river netcdf write")
  
 # for I=1:12
