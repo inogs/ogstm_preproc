@@ -1,4 +1,3 @@
-
 import numpy as np
 import numpy.matlib as npmat
 from scipy.io import netcdf as nc
@@ -6,6 +5,7 @@ from scipy import interpolate as npint
 from bclib.io_lib import excel_obj as xlsobj
 import logging
 from numpy import dtype
+from matplotlib.pyplot import axis
 
 class lateral_bc:
     
@@ -182,6 +182,7 @@ class river_data:
         return coast    
                    
     def map_contribute_on_sea(self):
+        logging.info("Start calc river and runoff calculation")
         mask1 = self._mesh_father.tmask[0,1,:,:]
         mask2 = self._mesh_father.tmask[0,2,:,:]
         x,y = self._mesh_father.tmask[0,1][:].shape
@@ -293,6 +294,7 @@ class river_data:
                  
             
         self.river_runoff_data = self.runoff_data
+        logging.info("End calc river and runoff calculation")
 
 
 class boun_mesh:
@@ -308,32 +310,33 @@ class boun_mesh:
         logging.info("bounmesh builded") 
 
     def write_netcdf(self):
-        
+        logging.info("Start bounmesh nc file write")
+        time = 1
         ncfile = nc.netcdf_file(self.path, 'w')
         ncfile.createDimension('x',self._mesh_father.x)
         ncfile.createDimension('y',self._mesh_father.y)
         ncfile.createDimension('z',self._mesh_father.z)
-        ncfile.createDimension('time',self._mesh_father.time)
+        ncfile.createDimension('time',time)
         ncfile.createDimension('waterpoints',self.water_points)
         ncfile.createDimension('dim3',3)
         
         navlon_wnc = ncfile.createVariable('nav_lon', 'f', ('y','x'))
-        navlon_wnc = self._mesh_father.nav_lon
+        navlon_wnc[:] = self._mesh_father.nav_lon[:]
         navlat_wnc = ncfile.createVariable('nav_lat', 'f', ('y','x'))
-        navlat_wnc = self._mesh_father.nav_lat
+        navlat_wnc[:] = self._mesh_father.nav_lat[:]
         navlev_wnc = ncfile.createVariable('nav_lev', 'f', 'z')
-        navlev_wnc = self._mesh_father.nav_lev
+        navlev_wnc[:] = self._mesh_father.nav_lev[:]
         for i in range(0,self.nudg):
             corrf =[1.,1.,1.,1.,1.01,1.01,1.];
             aux= self.resto[i,:,:,:]*corrf[i];
             np.transpose(aux, (2, 1, 0)).shape
             name = "re" + self.vnudg[i][0]
             resto_wnc = ncfile.createVariable(name, 'd', ('time','z','y','x'))
-            resto_wnc = aux
+            resto_wnc[0,:] = aux
         idx_inv_wnc = ncfile.createVariable('index', 'i', ('time','z','y','x'))
-        idx_inv_wnc = self.idx_inv
+        idx_inv_wnc[0,:] = self.idx # self.idx[:]
         idx_rev_wnc = ncfile.createVariable('index_inv', 'i', ('waterpoints', 'dim3'))
-        idx_rev_wnc = np.transpose(self.idx, (2, 1, 0)).shape  
+        idx_rev_wnc[:] = self.idx_inv   
         ncfile.close()
         logging.info("bounmesh nc file writed") 
 
@@ -364,7 +367,7 @@ class sub_mesh:
         
     def atmosphere(self):
         
-        
+        logging.info("Atmosphere start calculation")        
         jpk = self._mesh_father.tmask_dimension[1]
         jpj = self._mesh_father.tmask_dimension[2]
         jpi = self._mesh_father.tmask_dimension[3]
@@ -423,7 +426,7 @@ class sub_mesh:
                 if (self.eas[0,jj,ji] == 1):
                     counter=counter+1 ;
                     self.atm[counter,:]=[jr,ji,jj,lon[jj,ji],lat[jj,ji],a.n3n_eas/Neas,a.po4_eas/Neas]; 
-        logging.info("atmosphere finish calculation") 
+        logging.info("Atmosphere finish calculation") 
         
 
 class mesh:
@@ -440,6 +443,7 @@ class mesh:
         self.bounmesh = boun_mesh(self,self.input_data.file_bmask)
         self.gibilterra = lateral_bc(self,self.input_data.file_nutrients)
         self.river = river_data(self,self.input_data.file_river,self.input_data.file_runoff)
+
         logging.info("mesh builded") 
         
 
@@ -498,13 +502,17 @@ class mesh:
         bm.water_points = np.sum(self.tmask)
         bm.idx_inv = np.zeros((bm.water_points,3),dtype=np.int);
         
-        for jk in range(1,bm.jpk):
-            for jj in range(1,bm.jpjglo):
-                for ji in range(1,bm.jpiglo):
-                    if self.tmask[0,jk,jj,ji] == 1:
-                        count=count+1;
+        for jk in range(bm.jpk):
+            for jj in range(bm.jpjglo):
+                for ji in range(bm.jpiglo):
+                    if self.tmask[0,jk,jj,ji] == 1.0:
+                      #  print("ok",jk,jj,ji)
                         bm.idx[jk,jj,ji] = count;
-                        bm.idx_inv[count,:]=[jk,jj,ji];
+                        bm.idx_inv[count,0]=jk;
+                        bm.idx_inv[count,1]=jj;
+                        bm.idx_inv[count,2]=ji;
+                      #  print(bm.idx_inv[count,:])
+                        count=count+1;
         
 
         bm.idx[self.tmask[0] == 0] = 0;
@@ -514,6 +522,8 @@ class mesh:
         
     def bc(self):
         
+        logging.info("BC generation file start")
+                
         jpk = self.tmask_dimension[1]
         jpj = self.tmask_dimension[2]
         jpi = self.tmask_dimension[3]
@@ -526,7 +536,7 @@ class mesh:
         index = self.bounmesh.idx
         
         for yr in self.river.river_years:
-            
+            logging.info(str(yr))
             for time in range(1,4):
                 name_file = str(yr)+self.gibilterra.season[time]
                 for jn in range(self.bounmesh.nudg):
@@ -540,7 +550,7 @@ class mesh:
                                     isNudg[k,j,i] = 1
                     count = 0
                     npi=np.sum(isNudg);
-                    idx=np.zeros(npi); 
+                    idx=np.zeros(npi,dtype=np.int); 
                     data=np.zeros(npi);
                     
                     if jn == 1:
@@ -611,7 +621,8 @@ class mesh:
          #  S.(field_data).value=data;S.(field_data).type='DOUBLE' ;
 #        filename = ['OUTPUT_DATA/GIB_' timeSTR(I,:) '.nc'];
 #     ncwrite(filename,S)
-
+            logging.info("--finish nutrients netcdf write")
+            
             jpt_riv = 12
             index_riv_a = np.zeros(( 2 * n_coast_cell, 1), dtype = np.int);
             phos_riv_a  = np.zeros(( 2 * n_coast_cell,  jpt_riv));
@@ -633,7 +644,6 @@ class mesh:
             for jc in range(n_coast_cell):
                 jc2  = jc + n_coast_cell;
                 
-                print(self.river.river_georef.shape)
                 ji  = self.river.river_georef[jc,2];
                 jj  = self.river.river_georef[jc,3];
                 Vol2cells = area[jj,ji]*(self.e3t[0,0][:]+self.e3t[0,1][:]);
@@ -647,28 +657,31 @@ class mesh:
                 totS = totS + sum(self.river.river_runoff_data["sic_kt_yr"][str(yr)][jc,:],2)/12;
                 totA = totA + sum(self.river.river_runoff_data["alk_Gmol_yr"][str(yr)][jc,:],2)/12;
                 totD = totD + sum(self.river.river_runoff_data["dic_kt_yr"][str(yr)][jc,:],2)/12;
-                index_riv_a[jc]  = index[1,jj,ji];
+                index_riv_a[jc]  = index[0,jj,ji];
                 ntra_riv_a[jc,:] = self.river.river_runoff_data["no3_kt_yr"][str(yr)][jc,:]*cn;
                 phos_riv_a[jc,:] = self.river.river_runoff_data["po4_kt_yr"][str(yr)][jc,:]*cp;
                 sili_riv_a[jc,:] = self.river.river_runoff_data["sic_kt_yr"][str(yr)][jc,:]*cs;
                 alka_riv_a[jc,:] = self.river.river_runoff_data["alk_Gmol_yr"][str(yr)][jc,:]*ca;
                 dicc_riv_a[jc,:] = self.river.river_runoff_data["dic_kt_yr"][str(yr)][jc,:]*cc;
-                index_riv_a[jc2]  = index[2,jj,ji];
+                index_riv_a[jc2]  = index[1,jj,ji];
                 ntra_riv_a[jc2,:] = self.river.river_runoff_data["no3_kt_yr"][str(yr)][jc,:]*cn;
                 phos_riv_a[jc2,:] = self.river.river_runoff_data["po4_kt_yr"][str(yr)][jc,:]*cp;
                 sili_riv_a[jc2,:] = self.river.river_runoff_data["sic_kt_yr"][str(yr)][jc,:]*cs;
                 alka_riv_a[jc2,:] = self.river.river_runoff_data["alk_Gmol_yr"][str(yr)][jc,:]*ca;
                 dicc_riv_a[jc2,:] = self.river.river_runoff_data["dic_kt_yr"][str(yr)][jc,:]*cc;
-            print(index)
-            print("------------------------------------------------")
-            print(index_riv_a)
-            ix = np.sort(index_riv_a,1);
+            #code.interact(local=locals())
+#             print(index)
+#             print("------------------------------------------------")
+#             print(index_riv_a)
+            idxt_riv = np.sort(index_riv_a,1);
+            ix = index_riv_a.argsort(axis=1);
             n3n_riv = ntra_riv_a[ix,:];
             n1p_riv = phos_riv_a[ix,:];  
             o3h_riv = alka_riv_a[ix,:];
             o3c_riv = dicc_riv_a[ix,:];
             n5s_riv = sili_riv_a[ix,:]; 
             count_riv = 2 * n_coast_cell;
+            logging.info("--finish river netcdf write")
  
 # for I=1:12
 #     clear S
@@ -710,21 +723,22 @@ class mesh:
             totN = 0;
             totN_KTy =0; 
             totP_KTy =0; 
-            for jn in range(1,count_atm):
-                ji  = atm[jn,2];
-                jj  = atm[jn,3];
+            for jn in range(count_atm):
+                ji  = atm[jn,1];
+                jj  = atm[jn,2];
                 jk  = 1;
-                VolCell1=area[jj,ji]*self.e3t[1];
-                totN = totN + atm[jn,6]*VolCell1;
-                totP = totP + atm[jn,7]*VolCell1;
+                VolCell1=area[jj,ji]*self.e3t[0,0];
+                totN = totN + atm[jn,5]*VolCell1;
+                totP = totP + atm[jn,6]*VolCell1;
                   
-                totN_KTy = totN_KTy + atm[jn,6]*(1.e-3/n)*VolCell1;
-                totP_KTy = totP_KTy + atm[jn,7]*(1.e-3/p)*VolCell1;
+                totN_KTy = totN_KTy + atm[jn,5]*(1.e-3/n)*VolCell1;
+                totP_KTy = totP_KTy + atm[jn,6]*(1.e-3/p)*VolCell1;
                 cn = w*t;
                 cp = w*t;
                 index_atm_a[jn] = self.bounmesh.idx[jk,jj,ji];
-                ntra_atm_a[jn,:] = atm[jn,6]*cn;
-                phos_atm_a[jn,:] = atm[jn,7]*cp;
+                ntra_atm_a[jn,:] = atm[jn,5]*cn;
+                phos_atm_a[jn,:] = atm[jn,6]*cp;
+                logging.info("--finish atmosphere netcdf write")
 
 # clear S
 # S.DIMS.atm_idxt = count_atm; 
