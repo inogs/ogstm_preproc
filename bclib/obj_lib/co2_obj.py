@@ -5,12 +5,11 @@ import datetime
 from matplotlib.dates import seconds
 from scipy.constants.constants import atmosphere
 from bclib.obj_lib.mask_obj import sub_mesh
-#from ctypes.wintypes import BOOLEAN
 
 class co2atm:
     """
         Class co2
-
+        author : mdepasquale
     """
 
     def __init__(self, input_data):
@@ -53,11 +52,9 @@ class co2atm:
         for sec in time:    
             giorni.append(total_days + sec/factor)
         
-        #print(total_days, nnb, nb) it was just a check of the numbers
                     
         co2datenumber = []
         for d in giorni:
-            #if long(d) <= datetime.datetime.max.toordinal():
             co2datenumber.append(datetime.datetime.fromordinal(int(d)))
               
         co2datestr = []
@@ -67,23 +64,9 @@ class co2atm:
         
         
         count = 0
-        
-        #l_tmask = bool(mesh.tmask.all()) WRONG!!!
-#         for i in range(mesh.tmask[0,0][:].shape[0]):
-#             for j in range(mesh.tmask[0,0][:].shape[1]):
-#                 if mesh.tmask[0,0][i,j] > 0:
-#                     print(i,j,mesh.tmask[0,0][i,j])
-#                     print(i,j,mesh.tmask[0,0][i,j].astype(np.bool))
             
         l_tmask = ~ mesh.tmask[0,0][:].astype(np.bool)
         
-#         for i in range(l_tmask[:].shape[0]):
-#             for j in range(l_tmask[:].shape[1]):
-#                 if l_tmask[i,j] == False:
-#                     print(i,j,l_tmask[i,j])
-                    
-
-
         for yCO2 in co2datestr:
         
             fileOUT = self.input_data.dir_out + "/CO2_" + yCO2 + ".nc"
@@ -96,7 +79,6 @@ class co2atm:
             ncfile.createDimension('lat', self.input_data.jpj)
             g = ncfile.createVariable('co2','f', ('lat','lon'))
             g[:] = map_co2[:]
-            #g.longname = "CO2 content" WRONG!
             setattr(self, 'longname', "CO2 content")
             setattr(ncfile, 'date', datetime.datetime.now().strftime(date_format))
             setattr(ncfile, 'comment', "Uniform value")

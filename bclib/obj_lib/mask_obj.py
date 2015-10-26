@@ -1,13 +1,8 @@
 import numpy as np
-import code
 import numpy.matlib as npmat
 from scipy.io import netcdf as nc
-from scipy import interpolate as npint
 from bclib.io_lib import excel_obj as xlsobj
 import logging
-from numpy import dtype
-from matplotlib.pyplot import axis
-from calendar import month
 
 class lateral_bc:
     
@@ -134,6 +129,7 @@ class river_data:
         self.river_coordr = river_excel_file.read_spreadsheet_allrow("monthly",range_coord)
         self.nrivers = len(self.river_coordr[:])
         self.river_collected_data = {}
+        logging.debug("--Start river data collection")
         for data_t in self._mesh_father.input_data.river_data_sheet:
             river_sheet_collected_data = {}
             x_range_coord  = [1]
@@ -145,15 +141,15 @@ class river_data:
             ry = river_excel_file.read_spreadsheet_range(data_t,x_range,y_range)
             for y in self.river_years[:]:
                 river_sheet_collected_data[str(y)] = ry[:,count].copy()
-                logging.debug(str(y))
             self.river_collected_data[data_t] =  river_sheet_collected_data.copy()    
-        logging.debug("End river data collection")
+        logging.debug("--End river data collection")
               
         runoff_excel_file = xlsobj.xlsx(self.path_runoff)
         self.runoff_montly_mod = river_excel_file.read_spreadsheet_allrow("monthly",range_montly)
         self.runoff_coordr = river_excel_file.read_spreadsheet_allrow("monthly",range_coord)
         self.nrunoff = len(self.river_coordr[:])
         self.runoff_collected_data = {}
+        logging.debug("--Start runoff data collection")
         for data_t in self._mesh_father.input_data.river_data_sheet:
             runoff_sheet_collected_data = {}
             x_range_coord  = [1]
@@ -165,11 +161,10 @@ class river_data:
             for y in self.river_years[:]:
                 runoff_sheet_collected_data[str(y)] = ry[:,count].copy()
             self.runoff_collected_data[data_t] = runoff_sheet_collected_data.copy()
-        logging.debug("End runoff data collection")
+        logging.debug("--End runoff data collection")
             
     def _coast_line_mask(self, mask):
         [rows, cols] = np.nonzero(mask)
-        # [rows, cols] = find(mask);
         nSea = len(rows);
         coast=mask.astype(np.bool)
         
@@ -184,6 +179,10 @@ class river_data:
         return coast    
                    
     def map_contribute_on_sea(self):
+        """
+            Map contributes of terrestrial input on sea
+            author : gcoidessa,icelic
+        """
         logging.info("Start calc river and runoff calculation")
         mask1 = self._mesh_father.tmask[0,1,:,:]
         mask2 = self._mesh_father.tmask[0,2,:,:]
@@ -194,21 +193,14 @@ class river_data:
         for i in range(x):
             for j in range(y):
                 coast[i,j] = a[i,j] and b[i,j]
-        #coast = (self._coast_line_mask(mask1) and self._coast_line_mask(mask2))
         
         loncm = self._mesh_father.nav_lon[coast]
         latcm = self._mesh_father.nav_lat[coast]
         coastline_row_index,coastline_col_index = np.nonzero(coast)
-#         coastline_row_index = []
-#         coastline_col_index = []
-#         for i in coastline_idx: 
-#             coastline_row_index.append(i[0])
-#             coastline_col_index.append(i[1])
         
         georef4 = np.matrix((coastline_row_index, coastline_col_index, loncm, latcm)).T 
         
         data_types = self._mesh_father.input_data.river_data_sheet
-        #n_data_types = len(data_types)
         
         ### river contributes
         georef = np.zeros((self.nrivers,5))
@@ -246,12 +238,10 @@ class river_data:
             dist =( (self.runoff_coordr[:,0]-lon_coast_cell)**2
                      + (self.runoff_coordr[:,1]-lat_coast_cell)**2 )
             ind = np.argmin(dist)
-            # w = np.min(dist)
             indexes[i] = ind
             georef[i,0]=i
             for ii in range(1,5):
                 georef[i,ii]=georef4[i,ii-1]
-            #georef[i,:]=np.array(ind ,georef4[i,:])
         self.runoff_georef = georef
         
         
@@ -331,7 +321,8 @@ class boun_mesh:
         idx_inv_wnc = ncfile.createVariable('index', 'i', ('time','z','y','x'))
         idx_inv_wnc[0,:] = self.idx # self.idx[:]
         idx_rev_wnc = ncfile.createVariable('index_inv', 'i', ('waterpoints', 'dim3'))
-        idx_rev_wnc[:] = self.idx_inv   
+        idx_l_inv = self.idx_inv +1
+        idx_rev_wnc[:] = idx_l_inv 
         ncfile.close()
         logging.info("bounmesh nc file writed") 
 
@@ -531,8 +522,8 @@ class mesh:
             logging.info(str(yr))
 
             for time in range(4):
-                name_file = self.input_data.dir_out+"/GIB_"+str(yr)+self.gibilterra.season[time]
-                ncfile = nc.netcdf_file(name_file, 'w')
+                name_file = self.input_data.dir_out+"/GIB_"+str(yr)+self.gibilterra.season[time]+".nc"
+                ncfile = nc.netcdf_file(name_file, 'w')                
                 for jn in range(self.bounmesh.nudg):
                     aux = self.bounmesh.resto[jn][:]
                     isNudg = np.zeros(aux.shape,dtype=int)
@@ -546,7 +537,7 @@ class mesh:
                     npi=np.sum(isNudg);
                     idx=np.zeros(npi,dtype=np.int); 
                     data=np.zeros(npi);
-                    
+
                     if jn == 1:
                         for jk in range(jpk):
                             for jj in range(jpj):
@@ -555,6 +546,12 @@ class mesh:
                                         idx[count] = index[jk,jj,ji];
                                         data[count] = self.gibilterra.phos[time,jk,jj,ji];
                                         count =  count +1;
+                        
+                        ncfile.createDimension('gib_idxt_N1p',count)
+                        idx_n1p = ncfile.createVariable('gib_idxt_N1p', 'i', ('gib_idxt_N1p',))
+                        idx_n1p[:] = idx[:]
+                        data_n1p = ncfile.createVariable('gib_N1p', 'f',('gib_idxt_N1p',))
+                        data_n1p[:] = data[:]
                                         
                     if jn == 2:
                         for jk in range(jpk):
@@ -563,7 +560,13 @@ class mesh:
                                     if isNudg[jk,jj,ji]:
                                         idx[count] = index[jk,jj,ji];
                                         data[count] = self.gibilterra.ntra[time,jk,jj,ji];
-                                        count =  count +1; 
+                                        count =  count +1;
+                                        
+                        ncfile.createDimension('gib_idxt_N3n',count)
+                        idx_n3n = ncfile.createVariable('gib_idxt_N3n', 'i', ('gib_idxt_N3n',))
+                        idx_n3n[:] = idx[:]
+                        data_n3n = ncfile.createVariable('gib_N3n', 'f',('gib_idxt_N3n',))
+                        data_n3n[:] = data[:] 
                     
                     if jn == 3:
                         for jk in range(jpk):
@@ -573,6 +576,12 @@ class mesh:
                                         idx[count] = index[jk,jj,ji];
                                         data[count] = self.gibilterra.dox[time,jk,jj,ji];
                                         count =  count +1;
+                                        
+                        ncfile.createDimension('gib_idxt_O2o',count)
+                        idx_o2o = ncfile.createVariable('gib_idxt_O2o', 'i', ('gib_idxt_O2o',))
+                        idx_o2o[:] = idx[:]
+                        data_o2o = ncfile.createVariable('gib_O2o', 'f',('gib_idxt_O2o',))
+                        data_o2o[:] = data[:]
                     
                     if jn == 4:
                         for jk in range(jpk):
@@ -582,6 +591,12 @@ class mesh:
                                         idx[count] = index[jk,jj,ji];
                                         data[count] = self.gibilterra.sica[time,jk,jj,ji];
                                         count =  count +1;
+                                        
+                        ncfile.createDimension('gib_idxt_N5s',count)
+                        idx_n3n = ncfile.createVariable('gib_idxt_N5s', 'i', ('gib_idxt_N5s',))
+                        idx_n3n[:] = idx[:]
+                        data_n5s = ncfile.createVariable('gib_N5s', 'f',('gib_idxt_N5s',))
+                        data_n5s[:] = data[:]
                     
                     if jn == 5:
                         for jk in range(jpk):
@@ -591,6 +606,13 @@ class mesh:
                                         idx[count] = index[jk,jj,ji];
                                         data[count] = self.gibilterra.dic[time,jk,jj,ji];
                                         count =  count +1;
+                                        
+                        ncfile.createDimension('gib_idxt_O3c',count)
+                        idx_o3c = ncfile.createVariable('gib_idxt_O3c', 'i', ('gib_idxt_O3c',))
+                        idx_o3c[:] = idx[:]
+                        data_o3c = ncfile.createVariable('gib_O3c', 'f',('gib_idxt_O3c',))
+                        data_o3c[:] = data[:]
+                        
                     if jn == 6:
                         for jk in range(jpk):
                             for jj in range(jpj):
@@ -599,6 +621,13 @@ class mesh:
                                         idx[count] = index[jk,jj,ji];
                                         data[count] = self.gibilterra.alk[time,jk,jj,ji];
                                         count =  count +1;
+                                        
+                        ncfile.createDimension('gib_idxt_O3h',count)
+                        idx_o3h = ncfile.createVariable('gib_idxt_O3h', 'i', ('gib_idxt_O3h',))
+                        idx_o3h[:] = idx[:]
+                        data_o3h = ncfile.createVariable('gib_O3h', 'f',('gib_idxt_O3h',))
+                        data_o3h[:] = data[:]
+                        
                     if jn == 7:
                         for jk in range(jpk):
                             for jj in range(jpj):
@@ -607,21 +636,20 @@ class mesh:
                                         idx[count] = index[jk,jj,ji];
                                         data[count] = 0.0025;
                                         count =  count +1;
+                                        
+                        ncfile.createDimension('gib_idxt_N6r',count)
+                        idx_n6r = ncfile.createVariable('gib_idxt_N6r', 'i', ('gib_idxt_N63',))
+                        idx_n6r[:] = idx[:]
+                        data_n6r = ncfile.createVariable('gib_N6r', 'f',('gib_idxt_N6r',))
+                        data_n6r[:] = data[:]
                     
-#                     name_dimension = ("gib_idxt_"+self.bounmesh.vnudg[jn][0])
-#                     name_var = ("gib"+self.bounmesh.vnudg[jn][0])
-#                     ncfile.createDimension(name_dimension,count)
-#                     code.interact(local=locals())
-#                     navlon_wnc = ncfile.createVariable(name_dimension, 'i', (name_dimension))
-#                     navlon_wnc[:] = idx[:]
-#                     navlon_wnc_d = ncfile.createVariable(name_var, 'f', (name_dimension))
-#                     navlon_wnc_d[:] = data[:]
+########y###s###v###j                    
                 ncfile.close()        
                 
             logging.info("--finish nutrients netcdf write")
             
             jpt_riv = 12
-            index_riv_a = np.zeros(( 2 * n_coast_cell, 1), dtype = np.int);
+            index_riv_a = np.zeros(( 2 * n_coast_cell,), dtype = np.int);
             phos_riv_a  = np.zeros(( 2 * n_coast_cell,  jpt_riv));
             ntra_riv_a  = np.zeros(( 2 * n_coast_cell,  jpt_riv));
             sili_riv_a  = np.zeros(( 2 * n_coast_cell,  jpt_riv));
@@ -667,106 +695,63 @@ class mesh:
                 alka_riv_a[jc2,:] = self.river.river_runoff_data["alk_Gmol_yr"][str(yr)][jc,:]*ca;
                 dicc_riv_a[jc2,:] = self.river.river_runoff_data["dic_kt_yr"][str(yr)][jc,:]*cc;
             
-            idxt_riv = np.sort(index_riv_a,1);
-            ix = index_riv_a.argsort(axis=1);
+            idxt_riv = np.sort(index_riv_a);
+            ix = index_riv_a.argsort();
             n3n_riv = ntra_riv_a[ix,:];
             n1p_riv = phos_riv_a[ix,:];  
             o3h_riv = alka_riv_a[ix,:];
             o3c_riv = dicc_riv_a[ix,:];
             n5s_riv = sili_riv_a[ix,:]; 
             count_riv = 2 * n_coast_cell;
+            
             for mth in range(12):
                 name_file = self.input_data.dir_out+"/TIN_"+str(yr)+str(mth+1)+"15-00:00:00.nc"
                 ncfile = nc.netcdf_file(name_file, 'w')
                 ncfile.createDimension("riv_idxt",count_riv)
-                riv_a_n3n = ncfile.createVariable("riv_N3n", 'i', ("riv_idxt"))
+                riv_a_n3n = ncfile.createVariable('riv_N3n', 'f', ('riv_idxt',))
                 riv_a_n3n[:] = n3n_riv[:,mth]
-                riv_a_n1p = ncfile.createVariable("riv_N1p", 'i', ("riv_idxt"))
+                riv_a_n1p = ncfile.createVariable('riv_N1p', 'f', ('riv_idxt',))
                 riv_a_n1p[:] = n1p_riv[:,mth]
-                riv_a_n5s = ncfile.createVariable("riv_N5s", 'i', ("riv_idxt"))
+                riv_a_n5s = ncfile.createVariable('riv_N5s', 'f', ('riv_idxt',))
                 riv_a_n5s[:] = n5s_riv[:,mth]
-                riv_a_o3c = ncfile.createVariable("riv_O3c", 'i', ("riv_idxt"))
+                riv_a_o3c = ncfile.createVariable('riv_O3c', 'f', ('riv_idxt',))
                 riv_a_o3c[:] = o3c_riv[:,mth]
-                riv_a_o3h = ncfile.createVariable("riv_O3h", 'i', ("riv_idxt"))
+                riv_a_o3h = ncfile.createVariable('riv_O3h', 'f', ('riv_idxt',))
                 riv_a_o3h[:] = o3h_riv[:,mth]
                 ncfile.close()
             logging.info("--finish river netcdf write")
  
-# for I=1:12
-#     clear S
-#     month= num2str(I,'%02d');
-#     timestr = ['2000' month '15-00:00:00'] ;
-# 
-#     S.DIMS.riv_idxt = count_riv ;
-#     S.Attributes    = Attributes;
-#     S.Attributes.Type                     = 'Terrestrial Inputs' ;
-#     S.Attributes.Month                    = datestr(datenum(timestr,'yyyymmdd-hh:MM:ss'),'mmm') ;
-#     S.Attributes.RIV_P_MassBalance_kTON_y = totPriv ;
-#     S.Attributes.RIV_N_MassBalance_kTON_y = totNriv ;
-#     S.Attributes.RIV_S_MassBalance_kTON_y = totSriv ;
-#     S.Attributes.RIV_A_MassBalance_kTON_y = totAriv ;
-#     S.Attributes.RIV_D_MassBalance_kTON_y = totDriv ;
-#     
-#     
-#     S.riv_idxt.value = double(idxt_riv); S.riv_idxt.type = 'INT' ; 
-#     S.riv_N1p.value  = N1p_riv(:,I)    ; S.riv_N1p.type  = 'DOUBLE' ;
-#     S.riv_N3n.value  = N3n_riv(:,I)    ; S.riv_N3n.type  = 'DOUBLE' ;
-#     S.riv_N5s.value  = N5s_riv(:,I)    ; S.riv_N5s.type  = 'DOUBLE' ;
-#     S.riv_O3c.value  = O3c_riv(:,I)    ; S.riv_O3c.type  = 'DOUBLE' ;
-#     S.riv_O3h.value  = O3h_riv(:,I)    ; S.riv_O3h.type  = 'DOUBLE' ;
-#     
-#     timestr(1:4)=yyyy;
-#     filename = ['OUTPUT_DATA/TIN_' timestr '.nc']; 
-#     ncwrite(filename,S)
-#     
+     
 
-            jpt_atm = 1;
-            atm = self.submesh.atm
-            count_atm = atm.shape[0];
-            index_atm_a = np.zeros(count_atm, dtype = np.int);
-            phos_atm_a  = np.zeros((count_atm,jpt_atm));
-            ntra_atm_a  = np.zeros((count_atm,jpt_atm));
-            w = 1.0e+09;
-            t = 1/(365 * 86400);
-            totP = 0;
-            totN = 0;
-            totN_KTy =0; 
-            totP_KTy =0; 
-            for jn in range(count_atm):
-                ji  = atm[jn,1];
-                jj  = atm[jn,2];
-                jk  = 1;
-                VolCell1=area[jj,ji]*self.e3t[0,0];
-                totN = totN + atm[jn,5]*VolCell1;
-                totP = totP + atm[jn,6]*VolCell1;
-                  
-                totN_KTy = totN_KTy + atm[jn,5]*(1.e-3/n)*VolCell1;
-                totP_KTy = totP_KTy + atm[jn,6]*(1.e-3/p)*VolCell1;
-                cn = w*t;
-                cp = w*t;
-                index_atm_a[jn] = self.bounmesh.idx[jk,jj,ji];
-                ntra_atm_a[jn,:] = atm[jn,5]*cn;
-                phos_atm_a[jn,:] = atm[jn,6]*cp;
-                logging.info("--finish atmosphere netcdf write")
+#             jpt_atm = 1;
+#             atm = self.submesh.atm
+#             count_atm = atm.shape[0];
+#             index_atm_a = np.zeros(count_atm, dtype = np.int);
+#             phos_atm_a  = np.zeros((count_atm,jpt_atm));
+#             ntra_atm_a  = np.zeros((count_atm,jpt_atm));
+#             w = 1.0e+09;
+#             t = 1/(365 * 86400);
+#             totP = 0;
+#             totN = 0;
+#             totN_KTy =0; 
+#             totP_KTy =0; 
+#             for jn in range(count_atm):
+#                 ji  = atm[jn,1];
+#                 jj  = atm[jn,2];
+#                 jk  = 1;
+#                 VolCell1=area[jj,ji]*self.e3t[0,0];
+#                 totN = totN + atm[jn,5]*VolCell1;
+#                 totP = totP + atm[jn,6]*VolCell1;
+#                   
+#                 totN_KTy = totN_KTy + atm[jn,5]*(1.e-3/n)*VolCell1;
+#                 totP_KTy = totP_KTy + atm[jn,6]*(1.e-3/p)*VolCell1;
+#                 cn = w*t;
+#                 cp = w*t;
+#                 index_atm_a[jn] = self.bounmesh.idx[jk,jj,ji];
+#                 ntra_atm_a[jn,:] = atm[jn,5]*cn;
+#                 phos_atm_a[jn,:] = atm[jn,6]*cp;
+#                 logging.info("--finish atmosphere netcdf write")
 
-# clear S
-# S.DIMS.atm_idxt = count_atm; 
-# S.Attributes                          = Attributes; 
-# S.Attributes.ATM_P_MassBalance_kTON_y = totP_KTy ; 
-# S.Attributes.ATM_N_MassBalance_kTON_y = totN_KTy ; 
-# S.Attributes.ATM_P_MassBalance_Mmol_y = totP ; 
-# S.Attributes.ATM_N_MassBalance_Mmol_y = totN ;
-# S.Attributes.Type                     = 'Atmospherical Inputs' ;
-# S.Attributes.Time                     = 'Year' ;
-# 
-# S.atm_idxt.value = double(index_atm_a ) ; S.atm_idxt.type = 'INT';  
-# S.atm_N1p.value  = phos_atm_a           ; S.atm_N1p.type = 'DOUBLE' ;
-# S.atm_N3n.value  = ntra_atm_a           ; S.atm_N3n.type = 'DOUBLE' ;
-# %S.atm_O2o.value  =  dox_atm_a           ; S.atm_O2o.type = 'DOUBLE' ;
-# %S.atm_N5s.value  = sica_atm_a           ; S.atm_N5s.type = 'DOUBLE' ;
-# 
-# filename = ['OUTPUT_DATA/ATM_' yyyy '0630-00:00:00.nc'];
-# ncwrite(filename,S); 
 
         
         

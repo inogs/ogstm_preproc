@@ -1,15 +1,10 @@
 #!/usr/bin/python3.4
-
-import logging
 from bclib.io_lib  import read_configure as rconf
 from bclib.obj_lib import mask_obj as maskobj
 from bclib.obj_lib import co2_obj as co2obj
 from bclib.io_lib import excel_obj as xobj
 
-logging.basicConfig( level=logging.DEBUG)
-logging.info("BOUNDARY CONDITIONS python version 0.1")
-logging.info(" 18 sett 2015 ")
-logging.info(" logging set ")
+
 elab = rconf.elaboration()
 
 mesh = maskobj.mesh(elab)
@@ -18,8 +13,5 @@ mesh.bounmesh.write_netcdf()
 mesh.submesh.atmosphere()
 mesh.river.map_contribute_on_sea()
 mesh.bc()
-
-#co2  = co2obj.co2atm(elab)
-#co2.generator(mesh)
-
-logging.info("end elaboration")
+co2  = co2obj.co2atm(elab)
+co2.generator(mesh)
