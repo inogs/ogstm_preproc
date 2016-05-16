@@ -21,6 +21,28 @@ z_a  = 1;
 y_a  = 1;
 x_a  = 1;
 
+
+def get_wp(infile):
+    '''
+    Prints some information about the number of waterpooints in longitude
+    The aim is to provide some information about where to cut this mesh to get the ogstm meshmask.
+    '''
+    NCin=NC.Dataset(infile,"r")
+    Lon =(NCin.variables['glamt'][0,0,:]).copy()
+    tmask= (NCin.variables['tmask'][0,:,:,:]).copy().astype(np.int64) #shape is (121, 380, 1307)
+    waterpoints_longitude = tmask.sum(axis=0).sum(axis=0)
+    
+    Gibraltar_lon = -5.75
+    imed = Lon>Gibraltar_lon
+    med_waterpoints = waterpoints_longitude[imed].sum()
+    print "mediterranean waterpoints:", med_waterpoints
+    print "atlantic waterpoints:"
+    for lon in np.arange(-9,-8,1./16):
+        iatl = (Lon < Gibraltar_lon) & (Lon> lon)
+        atl_waterpoints = waterpoints_longitude[iatl].sum()
+        print lon, atl_waterpoints
+    NCin.close()
+    
 def create_meshmask_nc(infile,outfile,st):
 
     NCin=NC.Dataset(infile,"r")
