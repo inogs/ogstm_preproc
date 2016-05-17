@@ -196,7 +196,14 @@ def create_meshmask_nc(infile,outfile,st,FS=False):
     tmask[0,:,jpj-1,:] =0.;
     tmask[0,:,:,jpi-1] =0.;
     tmask[0,jpk-1,:,:] =0.;
-    
+
+    Lon=glamt[0,0,0,:];
+    Lat=gphit[0,0,:,0];
+    for j in range(jpj):
+        for i in range(jpi):
+            if(Lon[i]<0.0 and Lat[j]>42):
+                tmask[0,:,j,i]=0.
+
 #    double umask(time, z, y, x) ;
     umask = np.ones((time,jpk,jpj,jpi),np.double);
     umask[0,:,:,:]  = (NCin.variables['umask'][0,:,:,st:jpi+st]).copy().astype(np.double)
@@ -206,6 +213,13 @@ def create_meshmask_nc(infile,outfile,st,FS=False):
     umask[0,:,:,jpi-1] =0.;
 #   umask[0,:,:,-2] =0.; To be checked !!
     umask[0,jpk-1,:,:] =0.;
+
+    Lon=glamu[0,0,0,:];
+    Lat=gphiu[0,0,:,0];
+    for j in range(jpj):
+        for i in range(jpi):
+            if(Lon[i]<0.0 and Lat[j]>42):
+                umask[0,:,j,i]=0.
 
 #    double vmask(time, z, y, x) ;
 
@@ -217,6 +231,13 @@ def create_meshmask_nc(infile,outfile,st,FS=False):
     vmask[0,:,:,jpi-1] =0.;
 #    vmask[0,:,-2,:] =0.; To be checked !!
     vmask[0,jpk-1,:,:] =0.;
+
+    Lon=glamv[0,0,0,:];
+    Lat=gphiv[0,0,:,0];
+    for j in range(jpj):
+        for i in range(jpi):
+            if(Lon[i]<0.0 and Lat[j]>42):
+                vmask[0,:,j,i]=0.
 
     NCin.close()
     ##############################################################
