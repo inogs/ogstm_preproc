@@ -22,8 +22,16 @@ def get_wp(infile):
     The aim is to provide some information about where to cut this mesh to get the ogstm meshmask.
     '''
     NCin=NC.Dataset(infile,"r")
-    Lon =(NCin.variables['glamt'][0,0,:]).copy()
+    jpi=NCin.dimensions['x'].size
+    jpj=NCin.dimensions['y'].size
+    Lon = (NCin.variables['glamt'][0,0,:]).copy()
+    Lat = (NCin.variables['gphit'][0,:,0]).copy()
     tmask= (NCin.variables['tmask'][0,:,:,:]).copy().astype(np.int64) #shape is (121, 380, 1307)
+    # Biscay correction
+    for j in range(jpj):
+        for i in range(jpi):
+            if(Lon[i]<0.0 and Lat[j]>42):
+                tmask[:,j,i]=0.
     waterpoints_longitude = tmask.sum(axis=0).sum(axis=0)
     
     Gibraltar_lon = -5.75
