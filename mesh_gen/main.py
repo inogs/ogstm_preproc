@@ -9,15 +9,15 @@ lon_cut = 0
 depth_cut=0
 
 free_surface=True
-
-c_mask.create_meshmask_nc(M,outfile,lon_cut,depth_cut,free_surface)
+Biscay_land = False
+c_mask.create_meshmask_nc(M,outfile,lon_cut,depth_cut,Biscay_land,free_surface)
 
 outfile = 'prova_cut.nc'
 
 lon_cut = M.getCutLocation(-8.875)
 depth_cut=5
-
-c_mask.create_meshmask_nc(M,outfile,lon_cut,depth_cut,free_surface)
+Biscay_land = True
+c_mask.create_meshmask_nc(M,outfile,lon_cut,depth_cut,Biscay_land, free_surface)
 
 M.nc_handler.close()
 print('DONE!')

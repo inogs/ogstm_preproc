@@ -62,18 +62,16 @@ x_a  = 1;
 
 
 
-def create_meshmask_nc(OrigMaskobj,outfile,lon_cut,depth_cut,free_surface=False):
+def create_meshmask_nc(OrigMaskobj,outfile,lon_cut,depth_cut,biscay_land = True,free_surface=False):
     
     NCin=OrigMaskobj.nc_handler
 
     jpi=NCin.dimensions['x'].size-lon_cut
     jpj=NCin.dimensions['y'].size
     jpk=NCin.dimensions['z'].size-depth_cut #116
-    
+
 #    double coastp(y, x) ;
     coastp = np.zeros((jpj,jpi),np.double)
-    
-
 #    double fmask(time, z, y, x) ;
     fmask = np.ones((time,jpk,jpj,jpi),np.double);
     fmask[0,:,:,:]=(NCin.variables['fmask'][0,:jpk,:,lon_cut:]).copy().astype(np.double)
@@ -217,12 +215,13 @@ def create_meshmask_nc(OrigMaskobj,outfile,lon_cut,depth_cut,free_surface=False)
     tmask[0,:,:,jpi-1] =0.;
     tmask[0,jpk-1,:,:] =0.;
 
-    Lon=glamt[0,0,0,:];
-    Lat=gphit[0,0,:,0];
-    for j in range(jpj):
-        for i in range(jpi):
-            if(Lon[i]<0.0 and Lat[j]>42):
-                tmask[0,:,j,i]=0.
+    if biscay_land:
+        Lon=glamt[0,0,0,:];
+        Lat=gphit[0,0,:,0];
+        for j in range(jpj):
+            for i in range(jpi):
+                if(Lon[i]<0.0 and Lat[j]>42):
+                    tmask[0,:,j,i]=0.
 
 #    double umask(time, z, y, x) ;
     umask = np.ones((time,jpk,jpj,jpi),np.double);
@@ -234,12 +233,13 @@ def create_meshmask_nc(OrigMaskobj,outfile,lon_cut,depth_cut,free_surface=False)
 #   umask[0,:,:,-2] =0.; To be checked !!
     umask[0,jpk-1,:,:] =0.;
 
-    Lon=glamu[0,0,0,:];
-    Lat=gphiu[0,0,:,0];
-    for j in range(jpj):
-        for i in range(jpi):
-            if(Lon[i]<0.0 and Lat[j]>42):
-                umask[0,:,j,i]=0.
+    if biscay_land:
+        Lon=glamu[0,0,0,:];
+        Lat=gphiu[0,0,:,0];
+        for j in range(jpj):
+            for i in range(jpi):
+                if(Lon[i]<0.0 and Lat[j]>42):
+                    umask[0,:,j,i]=0.
 
 #    double vmask(time, z, y, x) ;
 
@@ -252,12 +252,13 @@ def create_meshmask_nc(OrigMaskobj,outfile,lon_cut,depth_cut,free_surface=False)
 #    vmask[0,:,-2,:] =0.; To be checked !!
     vmask[0,jpk-1,:,:] =0.;
 
-    Lon=glamv[0,0,0,:];
-    Lat=gphiv[0,0,:,0];
-    for j in range(jpj):
-        for i in range(jpi):
-            if(Lon[i]<0.0 and Lat[j]>42):
-                vmask[0,:,j,i]=0.
+    if biscay_land:
+        Lon=glamv[0,0,0,:];
+        Lat=gphiv[0,0,:,0];
+        for j in range(jpj):
+            for i in range(jpi):
+                if(Lon[i]<0.0 and Lat[j]>42):
+                    vmask[0,:,j,i]=0.
 
     ##############################################################
     # write meshmask netcdf file !
