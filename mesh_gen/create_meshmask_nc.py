@@ -9,18 +9,12 @@ import numpy as np
 #import scipy.io.netcdf as NC
 import netCDF4 as NC
 
-import pickle
-
-def iseven(x):
-    return not(bool(x&1))
-
 # Script to create meshmask file
 
 time = 1;
 z_a  = 1;
 y_a  = 1;
 x_a  = 1;
-
 
 def get_wp(infile):
     '''
@@ -42,8 +36,8 @@ def get_wp(infile):
         atl_waterpoints = waterpoints_longitude[iatl].sum()
         print lon, atl_waterpoints
     NCin.close()
-    
-def create_meshmask_nc(infile,outfile,st):
+
+def create_meshmask_nc_FS(infile,outfile,st,FS=False):
 
     NCin=NC.Dataset(infile,"r")
 
@@ -129,46 +123,71 @@ def create_meshmask_nc(infile,outfile,st):
     
 #    double e1f(time, z_a, y, x) ;
     e1f = np.ones((time,z_a,jpj,jpi),np.double);
-    e1f[0,0,:,:] =  (NCin.variables['e1f'][0,:,st:jpi+st]).copy().astype(np.float)
+    e1f[0,0,:,:] =  (NCin.variables['e1f'][0,:,st:jpi+st]).copy().astype(np.double)
 
 #    double e1t(time, z_a, y, x) ;
     e1t = np.ones((time,z_a,jpj,jpi),np.double);
-    e1t[0,0,:,:] =  (NCin.variables['e1t'][0,:,st:jpi+st]).copy().astype(np.float)
+    e1t[0,0,:,:] =  (NCin.variables['e1t'][0,:,st:jpi+st]).copy().astype(np.double)
     
 #    double e1u(time, z_a, y, x) ;
     e1u = np.ones((time,z_a,jpj,jpi),np.double);
-    e1u[0,0,:,:] =  (NCin.variables['e1u'][0,:,st:jpi+st]).copy().astype(np.float)
+    e1u[0,0,:,:] =  (NCin.variables['e1u'][0,:,st:jpi+st]).copy().astype(np.double)
 
 #    double e1v(time, z_a, y, x) ;
     e1v = np.ones((time,z_a,jpj,jpi),np.double);
-    e1v[0,0,:,:] =  (NCin.variables['e1v'][0,:,st:jpi+st]).copy().astype(np.float)
+    e1v[0,0,:,:] =  (NCin.variables['e1v'][0,:,st:jpi+st]).copy().astype(np.double)
     
     
 #    double e2f(time, z_a, y, x) ;
     e2f = np.ones((time,z_a,jpj,jpi),np.double);
-    e2f[0,0,:,:] =  (NCin.variables['e2f'][0,:,st:jpi+st]).copy().astype(np.float)
+    e2f[0,0,:,:] =  (NCin.variables['e2f'][0,:,st:jpi+st]).copy().astype(np.double)
     
     
 #    double e2t(time, z_a, y, x) ;
     e2t = np.ones((time,z_a,jpj,jpi),np.double)
-    e2t[0,0,:,:] =  (NCin.variables['e2t'][0,:,st:jpi+st]).copy().astype(np.float)
+    e2t[0,0,:,:] =  (NCin.variables['e2t'][0,:,st:jpi+st]).copy().astype(np.double)
     
 #    double e2u(time, z_a, y, x) ;
     e2u = np.ones((time,z_a,jpj,jpi),np.double);
-    e2u[0,0,:,:] =  (NCin.variables['e2u'][0,:,st:jpi+st]).copy().astype(np.float)
+    e2u[0,0,:,:] =  (NCin.variables['e2u'][0,:,st:jpi+st]).copy().astype(np.double)
     
 #    double e2v(time, z_a, y, x) ;
     e2v = np.ones((time,z_a,jpj,jpi),np.double);
-    e2v[0,0,:,:] =  (NCin.variables['e2v'][0,:,st:jpi+st]).copy().astype(np.float)
+    e2v[0,0,:,:] =  (NCin.variables['e2v'][0,:,st:jpi+st]).copy().astype(np.double)
     
+    if FS:
+#    double e3t_0(time, z, y_a, x_a) ;
+        e3t_0              = np.ones((time,jpk,y_a,x_a),np.double);
+        e3t_0[0,0:jpk,0,0] = (NCin.variables['e3t_0'][0,:]).copy().astype(np.double);
+    
+#    double e3w_0(time, z, y_a, x_a) ;
+        e3w_0              = np.zeros((time,jpk,y_a,x_a),np.double);
+        e3w_0[0,0:jpk,0,0] = (NCin.variables['e3w_0'][0,:]).copy().astype(np.double);
+
+#    double e3t(time, z, y, x) ;
+        e3t = np.ones((time,jpk,jpj,jpi),np.double)
+        e3t[0,:,:,:] =  (NCin.variables['e3t'][0,:,:,st:jpi+st]).copy().astype(np.double)
+
+#    double e3u(time, z, y, x) ;
+        e3u = np.ones((time,jpk,jpj,jpi),np.double);
+        e3u[0,:,:,:] =  (NCin.variables['e3u'][0,:,:,st:jpi+st]).copy().astype(np.double)
+
+#    double e3v(time, z, y, x) ;
+        e3v = np.ones((time,jpk,jpj,jpi),np.double);
+        e3v[0,:,:,:] =  (NCin.variables['e3v'][0,:,:,st:jpi+st]).copy().astype(np.double)
+
+#    double e3w(time, z, y, x) ;
+        e3w = np.ones((time,jpk,jpj,jpi),np.double);
+        e3w[0,:,:,:] =  (NCin.variables['e3w'][0,:,:,st:jpi+st]).copy().astype(np.double)
+    else:
 #    double e3t(time, z, y_a, x_a) ;
-    e3t                = np.ones((time,jpk,y_a,x_a),np.double);
-    e3t[0,0:jpk,0,0]   = (NCin.variables['e3t_0'][0,:]).copy().astype(np.float);
+        e3t                = np.ones((time,jpk,y_a,x_a),np.double);
+        e3t[0,0:jpk,0,0]   = (NCin.variables['e3t_0'][0,:]).copy().astype(np.float);
     
 #    double e3w(time, z, y_a, x_a) ;
-    e3w                = np.zeros((time,jpk,y_a,x_a),np.double);
-    e3w[0,0:jpk,0,0]   = (NCin.variables['e3w_0'][0,:]).copy().astype(np.float);
-    
+        e3w                = np.zeros((time,jpk,y_a,x_a),np.double);
+        e3w[0,0:jpk,0,0]   = (NCin.variables['e3w_0'][0,:]).copy().astype(np.float); 
+
 #    double tmask(time, z, y, x) ;
     tmask = np.ones((time,jpk,jpj,jpi),np.double);
     tmask[0,:,:,:]  = (NCin.variables['tmask'][0,:,:,st:jpi+st]).copy().astype(np.double)
@@ -223,8 +242,16 @@ def create_meshmask_nc(infile,outfile,st):
     ncvar    = ncOUT.createVariable('e2t'   ,'d',('time','z_a', 'y', 'x')  ) ; ncvar[:] = e2t   ;
     ncvar    = ncOUT.createVariable('e2u'   ,'d',('time','z_a', 'y', 'x'))   ; ncvar[:] = e2u   ;
     ncvar    = ncOUT.createVariable('e2v'   ,'d',('time','z_a', 'y', 'x'))   ; ncvar[:] = e2v   ;     
-    ncvar    = ncOUT.createVariable('e3t'   ,'d',('time','z', 'y_a', 'x_a')) ; ncvar[:] = e3t   ;
-    ncvar    = ncOUT.createVariable('e3w'   ,'d',('time','z', 'y_a', 'x_a')) ; ncvar[:] = e3w   ;     
+    if FS:
+        ncvar    = ncOUT.createVariable('e3t_0' ,'d',('time','z', 'y_a', 'x_a')) ; ncvar[:] = e3t_0 ;
+        ncvar    = ncOUT.createVariable('e3w_0' ,'d',('time','z', 'y_a', 'x_a')) ; ncvar[:] = e3w_0 ;     
+        ncvar    = ncOUT.createVariable('e3t'   ,'d',('time','z', 'y', 'x'))     ; ncvar[:] = e3t   ;
+        ncvar    = ncOUT.createVariable('e3u'   ,'d',('time','z', 'y', 'x'))     ; ncvar[:] = e3u   ;
+        ncvar    = ncOUT.createVariable('e3v'   ,'d',('time','z', 'y', 'x'))     ; ncvar[:] = e3v   ;
+        ncvar    = ncOUT.createVariable('e3w'   ,'d',('time','z', 'y', 'x'))     ; ncvar[:] = e3w   ;   
+    else:
+        ncvar    = ncOUT.createVariable('e3t'   ,'d',('time','z', 'y_a', 'x_a')) ; ncvar[:] = e3t   ;
+        ncvar    = ncOUT.createVariable('e3w'   ,'d',('time','z', 'y_a', 'x_a')) ; ncvar[:] = e3w   ;          
     ncvar    = ncOUT.createVariable('ff'    ,'d',('time','z_a', 'y', 'x'))   ; ncvar[:] = ff    ;      
     ncvar    = ncOUT.createVariable('fmask' ,'d',('time','z', 'y', 'x'))     ; ncvar[:] = fmask ;    
     ncvar    = ncOUT.createVariable('gdept' ,'d',('time','z', 'y_a', 'x_a')) ; ncvar[:] = gdept ;
