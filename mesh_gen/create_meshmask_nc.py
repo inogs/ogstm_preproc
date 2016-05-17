@@ -37,7 +37,7 @@ def get_wp(infile):
         print lon, atl_waterpoints
     NCin.close()
 
-def create_meshmask_nc_FS(infile,outfile,st,FS=False):
+def create_meshmask_nc(infile,outfile,st,FS=False):
 
     NCin=NC.Dataset(infile,"r")
 
