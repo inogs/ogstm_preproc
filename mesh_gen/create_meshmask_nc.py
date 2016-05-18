@@ -220,8 +220,8 @@ def create_meshmask_nc(OrigMaskobj,outfile,lon_cut,depth_cut,biscay_land = True,
         Lat=gphit[0,0,:,0];
         for j in range(jpj):
             for i in range(jpi):
-                if(Lon[i]<0.0 and Lat[j]>42):
-                    tmask[0,:,j,i]=0.
+                if(Lon[i]<0.0 and Lat[j]>42   ): tmask[0,:,j,i]=0.
+                if(Lon[i]<-6. and Lat[j]>37.25): tmask[0,:,j,i]=0.
 
 #    double umask(time, z, y, x) ;
     umask = np.ones((time,jpk,jpj,jpi),np.double);
@@ -238,9 +238,8 @@ def create_meshmask_nc(OrigMaskobj,outfile,lon_cut,depth_cut,biscay_land = True,
         Lat=gphiu[0,0,:,0];
         for j in range(jpj):
             for i in range(jpi):
-                if(Lon[i]<0.0 and Lat[j]>42):
-                    umask[0,:,j,i]=0.
-
+                if(Lon[i]<0.0 and Lat[j]>42   ): umask[0,:,j,i]=0.
+                if(Lon[i]<-6. and Lat[j]>37.25): umask[0,:,j,i]=0.
 #    double vmask(time, z, y, x) ;
 
     vmask = np.ones((time,jpk,jpj,jpi),np.double);
@@ -257,8 +256,8 @@ def create_meshmask_nc(OrigMaskobj,outfile,lon_cut,depth_cut,biscay_land = True,
         Lat=gphiv[0,0,:,0];
         for j in range(jpj):
             for i in range(jpi):
-                if(Lon[i]<0.0 and Lat[j]>42):
-                    vmask[0,:,j,i]=0.
+                if(Lon[i]<0.0 and Lat[j]>42   ): vmask[0,:,j,i]=0.
+                if(Lon[i]<-6. and Lat[j]>37.25): vmask[0,:,j,i]=0.
 
     ##############################################################
     # write meshmask netcdf file !
