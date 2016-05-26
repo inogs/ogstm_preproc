@@ -424,13 +424,51 @@ class mesh:
     def __init__(self,input):# ncf_mesh,ncf_submesh,ncf_bounmesh):
         self.input_data = input
         self.path = self.input_data.file_mask
-        self._extract_information()
-        self.submesh = sub_mesh(self,self.input_data.file_submask)
-        self.bounmesh = boun_mesh(self,self.input_data.file_bmask)
-        self.gibilterra = lateral_bc(self,self.input_data.file_nutrients)
-        self.river = river_data(self,self.input_data.file_river,self.input_data.file_runoff)
-
-        logging.info("mesh builded") 
+        
+        if self.input_data.use_as_libray == False:
+            
+            logging.info("BC standalone activate")
+            self._extract_information()
+            
+            if self.input_data.active_atm:
+                logging.info("Atmosphere enabled")
+                self.submesh = sub_mesh(self,self.input_data.file_submask)
+                self.submesh.atmosphere()
+            else:
+                logging.info("Atmosphere disabled")
+                    
+            if self.input_data.active_bmask:
+                logging.info("Bmask enabled")
+                self.bounmesh = boun_mesh(self,self.input_data.file_bmask)
+                self.generate_boundmask()
+                
+            else:
+                logging.info("Bmask disabled")
+                
+            if self.input_data.active_gib:
+                logging.info("Gib enabled")
+                self.gibilterra = lateral_bc(self,self.input_data.file_nutrients)
+                
+            else:
+                logging.info("Gib disabled")
+                
+            if self.input_data.active_river:
+                logging.info("River enabled")
+                self.river = river_data(self,self.input_data.file_river,self.input_data.file_runoff)
+                self.river.map_contribute_on_sea()
+                
+            else:
+                logging.info("River disabled")
+            
+            if self.input_data.active_river and self.input_data.active_gib and self.input_data.active_bmask :
+                self.bc()
+            
+            logging.info("end")
+            
+        else:
+            logging.info("BC lib as library mode activated")
+            logging.info("Mesh partially builded")
+            logging.info("You must kwon what will do!")
         
 
     def _extract_information(self):
@@ -451,57 +489,64 @@ class mesh:
 
         """ This fuction generate boundmask """
         
-        #input var
-        bm = self.bounmesh        
-        bm.vnudg = self.input_data.variables
-        rdpmin = self.input_data.rdpmin
-        rdpmax = self.input_data.rdpmax
-        self.glamt = self.glamt.reshape(self.y,self.x)
-        bm.nudg = len(bm.vnudg)
-        bm.jpk = self.tmask_dimension[1]
-        bm.jpjglo = self.tmask_dimension[2]
-        bm.jpiglo = self.tmask_dimension[3]
-        
-        bm.resto = np.zeros((bm.nudg,bm.jpk,bm.jpjglo,bm.jpiglo));
-        
-        for jk in range(1,bm.jpk):
+        if self.input_data.active_bmask == True :
+            #input var
+            bm = self.bounmesh        
+            bm.vnudg = self.input_data.variables
+            rdpmin = self.input_data.rdpmin
+            rdpmax = self.input_data.rdpmax
+            self.glamt = self.glamt.reshape(self.y,self.x)
+            bm.nudg = len(bm.vnudg)
+            bm.jpk = self.tmask_dimension[1]
+            bm.jpjglo = self.tmask_dimension[2]
+            bm.jpiglo = self.tmask_dimension[3]
+            #print(bm.nudg,bm.jpk,bm.jpjglo,bm.jpiglo)
+            bm.resto = np.zeros((bm.nudg,bm.jpk,bm.jpjglo,bm.jpiglo));
             
-            for jn in range(0,bm.nudg):
-                for jj in range(0,bm.jpjglo):
-                    for ji in range(0,bm.jpiglo): 
-                                       
-                        if (self.glamt[jj][ji] < bm.vnudg[jn][1]):
-                            
-                            bm.resto[jn,jk,jj,ji]=1./(rdpmin*86400.);
-        
-            for jn in range(0,bm.nudg):
-                for jj in range(0,bm.jpjglo):
-                    for ji in range(0,bm.jpiglo):
-                        if (self.glamt[jj][ji] > bm.vnudg[jn][1]) and (self.glamt[jj][ji] <= self.input_data.end_nudging):
-                            reltim = rdpmin + (rdpmax-rdpmin)*(self.glamt[jj][ji]-bm.vnudg[jn][1])/(self.input_data.end_nudging-bm.vnudg[jn][1]);
-                            bm.resto[jn,jk,jj,ji] = 1./(reltim*86400.);
-        
-        
-        bm.resto[:,self.tmask[0] == 0] = 1.e+20;
-        count = 0
-        bm.idx = np.zeros((bm.jpk,bm.jpjglo,bm.jpiglo),dtype=np.int)
-        bm.water_points = np.sum(self.tmask)
-        bm.idx_inv = np.zeros((bm.water_points,3),dtype=np.int);
-        
-        for jk in range(bm.jpk):
-            for jj in range(bm.jpjglo):
-                for ji in range(bm.jpiglo):
-                    if self.tmask[0,jk,jj,ji] == 1.0:
-                        bm.idx[jk,jj,ji] = count;
-                        bm.idx_inv[count,0]=jk;
-                        bm.idx_inv[count,1]=jj;
-                        bm.idx_inv[count,2]=ji;
-                        count=count+1;
-        
+            for jk in range(1,bm.jpk):
+                
+                for jn in range(0,bm.nudg):
+                    for jj in range(0,bm.jpjglo):
+                        for ji in range(0,bm.jpiglo): 
+                                           
+                            if (self.glamt[jj][ji] < bm.vnudg[jn][1]):
+                                
+                                bm.resto[jn,jk,jj,ji]=1./(rdpmin*86400.);
+            
+                for jn in range(0,bm.nudg):
+                    for jj in range(0,bm.jpjglo):
+                        for ji in range(0,bm.jpiglo):
+                            if (self.glamt[jj][ji] > bm.vnudg[jn][1]) and (self.glamt[jj][ji] <= self.input_data.end_nudging):
+                                reltim = rdpmin + (rdpmax-rdpmin)*(self.glamt[jj][ji]-bm.vnudg[jn][1])/(self.input_data.end_nudging-bm.vnudg[jn][1]);
+                                bm.resto[jn,jk,jj,ji] = 1./(reltim*86400.);
+            
+            
+            bm.resto[:,self.tmask[0] == 0] = 1.e+20;
+            count = 0
+            bm.idx = np.zeros((bm.jpk,bm.jpjglo,bm.jpiglo),dtype=np.int)
+            bm.water_points = np.sum(self.tmask)
+            bm.idx_inv = np.zeros((bm.water_points,3),dtype=np.int);
+            
+            for jk in range(bm.jpk):
+                for jj in range(bm.jpjglo):
+                    for ji in range(bm.jpiglo):
+                        if self.tmask[0,jk,jj,ji] == 1.0:
+                            bm.idx[jk,jj,ji] = count;
+                            bm.idx_inv[count,0]=jk;
+                            bm.idx_inv[count,1]=jj;
+                            bm.idx_inv[count,2]=ji;
+                            count=count+1;
+            
+    
+            bm.idx[self.tmask[0] == 0] = 0;
+            logging.info("bounmesh generation ended")
+            
+            self.bounmesh.write_netcdf()
 
-        bm.idx[self.tmask[0] == 0] = 0;
-        logging.info("bounmesh generation ended") 
-        
+             
+        else :
+            logging.info("bounmesh generation disabled")
+            
         
         
     def bc(self):
@@ -517,8 +562,9 @@ class mesh:
         jpt_gib = 4
         nvar_gib = 6
         index = self.bounmesh.idx
-        
-        for yr in self.river.river_years:
+        print(self.river.river_years)
+        for yr in (range(self.input_data.simulation_start_time,
+                            self.input_data.simulation_end_time)):
             logging.info(str(yr))
 
             for time in range(4):

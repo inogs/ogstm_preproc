@@ -9,7 +9,7 @@ class xlsx:
 
     def __init__(self, xls_file):
         self.path = xls_file
-        self.wb = load_workbook(filename=xls_file, read_only=True,data_only=True)
+        self.wb = load_workbook(filename=xls_file, read_only=False,data_only=True)
     
     def read_spreadsheet_allrow(self,worsheet,y_range):
                 

@@ -1,11 +1,21 @@
 {
     "nameElaboration": "prova1",
 
+	"Active_sections" :
+	{
+	"river":"n",
+	"atmosphere":"y",
+	"co2":"y",
+	"gib":"n",
+	"bounmask":"n",
+	"use_as_lib":"n"
+	},
+		
     "parameter" :
      {
       "simulationTime":1000,
       "start_time":1960,
-      "end_time":1965,
+      "end_time":1961,
       "num_variables" : 7,
       "CO2_end" : 337,
       "CO2_start" : 136
@@ -60,8 +70,6 @@
       ]
    },
 
-
-
     "mask":
       {
         "nameMask" : "v1",
@@ -76,7 +84,6 @@
         "lat_start" :  30.15620,
         "lat_step" :  0.125
        }
-
 
 }
 

@@ -24,14 +24,37 @@ class elaboration:
             self.init_configure = json.loads(json_input)
             logging.debug("INPUT = string json")
 
-
+        self._read_generation()
         self._read_parameter_section()
         self._read_filepath_section()
         self._read_atmosphere()
         self._read_variable()
         self._read_river()
         self._read_mask()
-
+    
+    def _read_generation(self):
+        self.active_river = False
+        self.active_gib = False
+        self.active_atm = False
+        self.active_co2 = False
+        self.active_bmask = False
+        self.use_as_libray = False
+        
+        gen_sec = self.init_configure["Active_sections"]
+        if gen_sec["river"] == "y" or gen_sec["river"] == "yes":
+            self.active_river = True
+        if gen_sec["atmosphere"] == "y" or gen_sec["atmosphere"] == "yes":
+            self.active_atm = True
+        if gen_sec["co2"] == "y" or gen_sec["co2"] == "y":
+            self.active_co2 = True
+        if gen_sec["bounmask"] == "y" or gen_sec["bounmask"] == "yes":
+            self.active_bmask = True
+        if gen_sec["gib"] == "y" or gen_sec["gib"] == "y":
+            self.active_gib = True
+        if gen_sec["use_as_lib"] == "y" or gen_sec["use_as_lib"] == "yes":
+            self.use_as_libray = True    
+        
+    
     def _read_parameter_section(self):
         """ Set general elaboration parameter """
         self.name = self.init_configure["nameElaboration"]
