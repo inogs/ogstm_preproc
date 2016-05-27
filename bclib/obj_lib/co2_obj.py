@@ -5,6 +5,7 @@ import datetime
 from matplotlib.dates import seconds
 from scipy.constants.constants import atmosphere
 from bclib.obj_lib.mask_obj import sub_mesh
+import logging
 
 class co2atm:
     """
@@ -13,6 +14,7 @@ class co2atm:
     """
 
     def __init__(self, input_data):
+        logging.info("CO2 enabled")
         self.input_data = input_data
         self.path = input_data.file_co2
         self._extract_information()
@@ -84,6 +86,8 @@ class co2atm:
             setattr(ncfile, 'comment', "Uniform value")
             ncfile.close()
             count +=1
+        
+        logging.info("CO2 file writted")
             
             
         

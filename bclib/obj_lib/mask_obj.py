@@ -380,40 +380,144 @@ class sub_mesh:
                 Nwes = Nwes + self._mesh_father.e1t[0,0,jj,ji]*self._mesh_father.e2t[0,0,jj,ji]*self._mesh_father.e3t[0,0,0,0]*self.wes[0,jj,ji];
                 Neas = Neas + self._mesh_father.e1t[0,0,jj,ji]*self._mesh_father.e2t[0,0,jj,ji]*self._mesh_father.e3t[0,0,0,0]*self.eas[0,jj,ji];
         
-        count = 0; 
-        idx = np.zeros((jpk,jpj,jpi));
-        for jk in range(0,jpk-1):
-            for jj in range(0,jpj-1):
-                for ji in range(0,jpi-1):
-                    if (self._mesh_father.tmask[0,jk,jj,ji] == 1):
-                        count=count+1;
-                        idx[jk,jj,ji] = count;
         
-        counter =0 ; 
-        for jj in range(1,jpj):
-            for ji in range(1,jpi):
-                if (self.wes[1,jj,ji] == 1):
-                    counter=counter+1;
-                if (self.eas[1,jj,ji] == 1):
-                    counter=counter+1;
-        
-        
-        self.atm = np.zeros((counter,7));
         lon = self._mesh_father.nav_lon
         lat = self._mesh_father.nav_lat
+        self.atm = np.zeros((jpj,jpi,2));
         a = self._mesh_father.input_data
-        counter = 0
+        
         for jj in range(0,jpj-1):
             for ji in range(0,jpi-1):
-                jr=idx[0,jj,ji];
                 if (self.wes[0,jj,ji] == 1):
-                    counter=counter+1;
-                    self.atm[counter,:] = [jr,ji,jj,lon[jj,ji],lat[jj,ji],a.n3n_wes/Nwes,a.po4_wes/Nwes]; 
+                    self.atm[jj,ji] = [a.n3n_wes/Nwes,a.po4_wes/Nwes]; 
                 if (self.eas[0,jj,ji] == 1):
-                    counter=counter+1 ;
-                    self.atm[counter,:]=[jr,ji,jj,lon[jj,ji],lat[jj,ji],a.n3n_eas/Neas,a.po4_eas/Neas]; 
+                    self.atm[jj,ji] = [a.n3n_eas/Neas,a.po4_eas/Neas]; 
+        
+        self.write_atm_netcdf()
+        #mappa in 3d un indice 1d
+#         count = 0; 
+#         idx = np.zeros((jpk,jpj,jpi));
+#         for jk in range(0,jpk-1):
+#             for jj in range(0,jpj-1):
+#                 for ji in range(0,jpi-1):
+#                     if (self._mesh_father.tmask[0,jk,jj,ji] == 1):
+#                         count=count+1;
+#                         idx[jk,jj,ji] = count;
+#         
+#         # conta elementi
+#         counter =0 ; 
+#         for jj in range(1,jpj):
+#             for ji in range(1,jpi):
+#                 if (self.wes[1,jj,ji] == 1):
+#                     counter=counter+1;
+#                 if (self.eas[1,jj,ji] == 1):
+#                     counter=counter+1;
+#         
+#         
+#         self.atm = np.zeros((counter,7));
+#         lon = self._mesh_father.nav_lon
+#         lat = self._mesh_father.nav_lat
+#         a = self._mesh_father.input_data
+#         counter = 0
+#         for jj in range(0,jpj-1):
+#             for ji in range(0,jpi-1):
+#                 jr=idx[0,jj,ji];
+#                 if (self.wes[0,jj,ji] == 1):
+#                     counter=counter+1;
+#                     self.atm[counter,:] = [jr,ji,jj,lon[jj,ji],lat[jj,ji],a.n3n_wes/Nwes,a.po4_wes/Nwes]; 
+#                 if (self.eas[0,jj,ji] == 1):
+#                     counter=counter+1 ;
+#                     self.atm[counter,:]=[jr,ji,jj,lon[jj,ji],lat[jj,ji],a.n3n_eas/Neas,a.po4_eas/Neas]; 
+        
         logging.info("Atmosphere finish calculation") 
         
+    def write_atm_netcdf(self):
+           
+        jpk = self._mesh_father.tmask_dimension[1]
+        jpj = self._mesh_father.tmask_dimension[2]
+        jpi = self._mesh_father.tmask_dimension[3]
+        l_tmask = ~ self._mesh_father.tmask[0,0][:].astype(np.bool)
+        
+        ntra_atm_a  = self.atm[:,:,0];
+        phos_atm_a  = self.atm[:,:,1];
+        area = self._mesh_father.e1t[0,0,:,:]*self._mesh_father.e2t[0,0,:,:]
+        print(area.shape)
+        print(ntra_atm_a.shape)
+        w = 1.0e+09;
+        t = 1/(365 * 86400);
+        n = 1/14
+        p = 1/31 
+        totP = 0;
+        totN = 0;
+        totN_KTy =0; 
+        totP_KTy =0;
+        
+        for jj in range(0,jpj-1):
+             for ji in range(0,jpi-1): 
+                    VolCell1=area[jj,ji]*self._mesh_father.e3t[0,0];
+                    totN = totN + ntra_atm_a[jj,ji]*VolCell1;
+                    totP = totP + phos_atm_a[jj,ji]*VolCell1;
+                    totN_KTy = totN_KTy + ntra_atm_a[jj,ji]*(1.e-3/n)*VolCell1;
+                    totP_KTy = totP_KTy + phos_atm_a[jj,ji]*(1.e-3/p)*VolCell1;
+                    cn = w*t;
+                    cp = w*t;
+                    ntra_atm_a[jj,ji] = ntra_atm_a[jj,ji]*cn;
+                    phos_atm_a[jj,ji] = phos_atm_a[jj,ji]*cp;
+        
+        for yCO2 in (range(self._mesh_father.input_data.simulation_start_time,
+                            self._mesh_father.input_data.simulation_end_time)):
+            
+            fileOUT = self._mesh_father.input_data.dir_out + "/ATM_" + str(yCO2) + "0630-00:00:00.nc"
+            
+            #map_co2 = np.dot(np.ones([self.input_data.jpj, self.input_data.jpi]), rcp85[count])
+            ntra_atm_a[l_tmask] = np.nan
+            phos_atm_a[l_tmask] = np.nan
+            
+            ncfile = nc.netcdf_file(fileOUT, 'w')
+            ncfile.createDimension('lon', jpi)
+            ncfile.createDimension('lat', jpj)
+            n = ncfile.createVariable('atm_N3n','f', ('lat','lon'))
+            n[:] = ntra_atm_a[:]
+            p = ncfile.createVariable('atm_N1p','f', ('lat','lon'))
+            p[:] = phos_atm_a[:]
+            setattr(ncfile, 'ATM_P_MassBalance_kTON_y', totP_KTy)
+            setattr(ncfile, 'ATM_N_MassBalance_kTON_y', totN_KTy)
+            setattr(ncfile, 'ATM_P_MassBalance_Mmol_y', totP)
+            setattr(ncfile, 'ATM_N_MassBalance_Mmol_y', totN)
+            ncfile.close()
+            
+        logging.info("Atmosphere Netcdf writed")
+                    
+#         jpt_atm = 1;
+#         atm = self.submesh.atm
+#         count_atm = atm.shape[0];
+#         index_atm_a = np.zeros(count_atm, dtype = np.int);
+#         phos_atm_a  = np.zeros((count_atm,jpt_atm));
+#         ntra_atm_a  = np.zeros((count_atm,jpt_atm));
+#         w = 1.0e+09;
+#         t = 1/(365 * 86400);
+#         totP = 0;
+#         totN = 0;
+#         totN_KTy =0; 
+#         totP_KTy =0; 
+#         for jn in range(count_atm):
+#             ji  = atm[jn,1];
+#             jj  = atm[jn,2];
+#             jk  = 1;
+#             VolCell1=area[jj,ji]*self.e3t[0,0];
+#             totN = totN + atm[jn,5]*VolCell1;
+#             totP = totP + atm[jn,6]*VolCell1;
+#                
+#             totN_KTy = totN_KTy + atm[jn,5]*(1.e-3/n)*VolCell1;
+#             totP_KTy = totP_KTy + atm[jn,6]*(1.e-3/p)*VolCell1;
+#             cn = w*t;
+#             cp = w*t;
+#             index_atm_a[jn] = self.bounmesh.idx[jk,jj,ji];
+#             ntra_atm_a[jn,:] = atm[jn,5]*cn;
+#             phos_atm_a[jn,:] = atm[jn,6]*cp;
+#             logging.info("--finish atmosphere netcdf write")
+    
+    
 
 class mesh:
     """
@@ -769,34 +873,7 @@ class mesh:
  
      
 
-#             jpt_atm = 1;
-#             atm = self.submesh.atm
-#             count_atm = atm.shape[0];
-#             index_atm_a = np.zeros(count_atm, dtype = np.int);
-#             phos_atm_a  = np.zeros((count_atm,jpt_atm));
-#             ntra_atm_a  = np.zeros((count_atm,jpt_atm));
-#             w = 1.0e+09;
-#             t = 1/(365 * 86400);
-#             totP = 0;
-#             totN = 0;
-#             totN_KTy =0; 
-#             totP_KTy =0; 
-#             for jn in range(count_atm):
-#                 ji  = atm[jn,1];
-#                 jj  = atm[jn,2];
-#                 jk  = 1;
-#                 VolCell1=area[jj,ji]*self.e3t[0,0];
-#                 totN = totN + atm[jn,5]*VolCell1;
-#                 totP = totP + atm[jn,6]*VolCell1;
-#                   
-#                 totN_KTy = totN_KTy + atm[jn,5]*(1.e-3/n)*VolCell1;
-#                 totP_KTy = totP_KTy + atm[jn,6]*(1.e-3/p)*VolCell1;
-#                 cn = w*t;
-#                 cp = w*t;
-#                 index_atm_a[jn] = self.bounmesh.idx[jk,jj,ji];
-#                 ntra_atm_a[jn,:] = atm[jn,5]*cn;
-#                 phos_atm_a[jn,:] = atm[jn,6]*cp;
-#                 logging.info("--finish atmosphere netcdf write")
+
 
 
         
