@@ -441,8 +441,6 @@ class sub_mesh:
         ntra_atm_a  = self.atm[:,:,0];
         phos_atm_a  = self.atm[:,:,1];
         area = self._mesh_father.e1t[0,0,:,:]*self._mesh_father.e2t[0,0,:,:]
-        print(area.shape)
-        print(ntra_atm_a.shape)
         w = 1.0e+09;
         t = 1/(365 * 86400);
         n = 1/14
@@ -480,10 +478,10 @@ class sub_mesh:
             n[:] = ntra_atm_a[:]
             p = ncfile.createVariable('atm_N1p','f', ('lat','lon'))
             p[:] = phos_atm_a[:]
-            setattr(ncfile, 'ATM_P_MassBalance_kTON_y', totP_KTy)
-            setattr(ncfile, 'ATM_N_MassBalance_kTON_y', totN_KTy)
-            setattr(ncfile, 'ATM_P_MassBalance_Mmol_y', totP)
-            setattr(ncfile, 'ATM_N_MassBalance_Mmol_y', totN)
+#             setattr(ncfile, 'ATM_P_MassBalance_kTON_y', totP_KTy)
+#             setattr(ncfile, 'ATM_N_MassBalance_kTON_y', totN_KTy)
+#             setattr(ncfile, 'ATM_P_MassBalance_Mmol_y', totP)
+#             setattr(ncfile, 'ATM_N_MassBalance_Mmol_y', totN)
             ncfile.close()
             
         logging.info("Atmosphere Netcdf writed")
