@@ -5,7 +5,7 @@
 	{
 	"river":"n",
 	"atmosphere":"y",
-	"co2":"y",
+	"co2":"n",
 	"gib":"n",
 	"bounmask":"n",
 	"use_as_lib":"n"
@@ -15,7 +15,7 @@
      {
       "simulationTime":1000,
       "start_time":1960,
-      "end_time":1961,
+      "end_time":1966,
       "num_variables" : 7,
       "CO2_end" : 337,
       "CO2_start" : 136

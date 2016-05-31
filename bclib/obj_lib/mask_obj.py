@@ -316,7 +316,7 @@ class boun_mesh:
             aux= self.resto[i,:,:,:]*corrf[i];
             np.transpose(aux, (2, 1, 0)).shape
             name = "re" + self.vnudg[i][0]
-            resto_wnc = ncfile.createVariable(name, 'd', ('time','z','y','x'))
+            resto_wnc = ncfile.createVariable(name, 'f', ('time','z','y','x'))
             resto_wnc[0,:] = aux
         idx_inv_wnc = ncfile.createVariable('index', 'i', ('time','z','y','x'))
         idx_inv_wnc[0,:] = self.idx # self.idx[:]
@@ -591,7 +591,7 @@ class mesh:
         
     def generate_boundmask(self):
 
-        """ This fuction generate boundmask """
+        """ This fuction generate bounmask """
         
         if self.input_data.active_bmask == True :
             #input var
@@ -607,7 +607,7 @@ class mesh:
             #print(bm.nudg,bm.jpk,bm.jpjglo,bm.jpiglo)
             bm.resto = np.zeros((bm.nudg,bm.jpk,bm.jpjglo,bm.jpiglo));
             
-            for jk in range(1,bm.jpk):
+            for jk in range(0,bm.jpk):
                 
                 for jn in range(0,bm.nudg):
                     for jj in range(0,bm.jpjglo):
@@ -635,7 +635,7 @@ class mesh:
                 for jj in range(bm.jpjglo):
                     for ji in range(bm.jpiglo):
                         if self.tmask[0,jk,jj,ji] == 1.0:
-                            bm.idx[jk,jj,ji] = count;
+                            bm.idx[jk,jj,ji] = count+1;
                             bm.idx_inv[count,0]=jk;
                             bm.idx_inv[count,1]=jj;
                             bm.idx_inv[count,2]=ji;
@@ -643,9 +643,10 @@ class mesh:
             
     
             bm.idx[self.tmask[0] == 0] = 0;
+            self.bounmesh.write_netcdf()
             logging.info("bounmesh generation ended")
             
-            self.bounmesh.write_netcdf()
+
 
              
         else :
