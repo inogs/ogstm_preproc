@@ -1,0 +1,130 @@
+      SUBROUTINE comp_ssh16 ()
+!CC---------------------------------------------------------------------
+!CC
+!CC                       ROUTINE div
+!CC                     ***************
+!CC
+!CC  Purpose :
+!CC  --------
+!CC	compute the now horizontal divergence of the velocity field.
+!CC
+!C   Method :
+!C   -------
+!C	The now divergence is given by :
+!C       * s-coordinate ('key_s_coord' defined)
+!C         hdivn = 1/(e1t*e2t*e3t) ( di[e2u*e3u un] + dj[e1v*e3v vn] )
+!C       * z-coordinate (default key)
+!C         hdivn = 1/(e1t*e2t) [ di(e2u  un) + dj(e1v  vn) ]
+!C
+!C      Apply lateral boundary conditions on hdivn through a call to
+!C      routine mpplnk ('key_mpp' defined) or lbc.
+!C
+!C      macro-tasked on horizontal slab (jk-loop :  1, jpk-1)
+!C
+!C   Input :
+!C   ------
+!C      argument
+!C              ktask           : task identificator
+!C              kt              : time step
+!C      common
+!C            /comcoh/   	: scale factors
+!C            /comtsk/   	: multitasking
+!C            /comnow/		: present fields (now)
+!C
+!C   Output :
+!C   -------
+!C      common
+!C	      /comnow/ hdivn	: now horizontal divergence
+!C
+!C   External : mpplnk or lbc
+!C   ---------
+!C
+!C   Modifications :
+!C   --------------
+!C      original :  87-06 (P. Andrich, D. L Hostis)
+!C      additions : 91-11 (G. Madec)
+!C                : 93-03 (M. Guyon) symetrical conditions
+!C                : 96-01 (G. Madec) s-coordinates
+!C                : 97-06 (G. Madec) lateral boundary cond., lbc
+!C----------------------------------------------------------------------
+!C parameters and commons
+!C ======================
+              USE modulo16
+!C+CC  Implicit typing is never allowed
+        IMPLICIT NONE
+!C+CC  Implicit typing is never allowed
+
+!C----------------------------------------------------------------------
+!C local declarations
+!C ==================
+      INTEGER ji16, jj16, jk
+      INTEGER jpi16m1,jpj16m1,jpk16m1
+!
+      REAL(8) zwu16, zwv16, zww16, inv_fact
+      REAL(8) a,b,c,x_0,y_0
+!C----------------------------------------------------------------------
+!C statement functions
+!C ===================
+!CC---------------------------------------------------------------------
+!CC  OPA8, LODYC (1997)
+!CC---------------------------------------------------------------------
+!
+! Horizontal slab
+! ===============
+!
+      jpi16m1=jpi16-1
+      jpj16m1=jpj16-1
+
+      un16(jpi16,:,1)=0; un16(:,jpj16,1)=0;
+      vn16(jpi16,:,1)=0; vn16(:,jpj16,1)=0;
+      wn16(jpi16,:,1)=0; wn16(:,jpj16,1)=0;
+
+!
+        DO jj16 = 1,jpj16
+          DO ji16 = 1,jpi16
+               ssh16_R8(ji16,jj16)  = REAL(e3t16(ji16,jj16,1),8)
+               ssh16x_R8(ji16,jj16) = REAL(e3t16(ji16,jj16,1),8)
+               ssh16y_R8(ji16,jj16) = REAL(e3t16(ji16,jj16,1),8)
+          END DO  
+        END DO  
+!
+!
+! 1. Horizontal fluxes
+! --------------------
+!
+        DO jj16 = jpj16m1,2,-1
+          DO ji16 = jpi16m1,2,-1
+
+            zwu16    = REAL(e2u16(ji16,jj16) * ssh16x_R8(ji16+1,jj16) * un16(ji16,jj16,1),8)
+            zwv16    = REAL(e1v16(ji16,jj16) * ssh16y_R8(ji16,jj16+1) * vn16(ji16,jj16,1),8)
+            zww16    = REAL(e1t16(ji16,jj16) * e2t16(ji16,jj16)       * wn16(ji16,jj16,2),8)
+
+            a        = -REAL(e2u16(ji16-1,jj16) * un16(ji16-1,jj16,1),8)
+            b        = -REAL(e1v16(ji16,jj16-1) * vn16(ji16,jj16-1,1),8)
+            c        = zwu16 + zwv16 - zww16
+
+            x_0      = 3.0 ! average first cell height
+            y_0      = 3.0 ! average first cell height
+!           z_0      = 3.0
+
+            if (a*a+b*b .GT. 50000) then
+               ssh16x_R8(ji16,jj16) = (b*( b*x_0-a*y_0)-a*c)/(a*a+b*b)
+               ssh16y_R8(ji16,jj16) = (a*(-b*x_0+a*y_0)-b*c)/(a*a+b*b)
+            endif
+
+
+            ssh16(ji16,jj16)     = REAL(ssh16x_R8(ji16,jj16),4)
+            e3u16(ji16,jj16,1)   = min(12.,max ( 0.1,REAL(ssh16x_R8(ji16+1,jj16),4) ))
+            e3v16(ji16,jj16,1)   = min(12.,max ( 0.1,REAL(ssh16y_R8(ji16,jj16+1),4) ))
+            e3t16(ji16,jj16,1)   = 0.25*(e3u16(ji16,jj16,1)+e3u16(ji16+1,jj16,1) + e3v16(ji16,jj16,1)+e3v16(ji16,jj16+1,1))
+
+!           write(*,*) a*a+b*b, e3u16(ji16,jj16,1),e3v16(ji16,jj16,1)
+
+
+          END DO  
+        END DO  
+!
+!
+!
+      RETURN
+      END
