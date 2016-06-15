@@ -36,6 +36,7 @@
 !C
       REAL(4), allocatable :: gdept16(:), gdepw16(:)
       REAL(4), allocatable :: e3t16(:,:,:), e3u16(:,:,:),e3v16(:,:,:),e3w16(:,:,:)
+      REAL(4), allocatable :: e3t16b(:,:,:), e3u16b(:,:,:),e3v16b(:,:,:),e3w16b(:,:,:)
 !C
 !C----------------------------------------------------------------------
 !C Common/comask/  : masks, bathymetry
@@ -188,10 +189,16 @@
 !C
       allocate(gdept16(jpk16)) 
       allocate(gdepw16(jpk16))
+
       allocate(e3t16(jpi16,jpj16,jpk16))
       allocate(e3u16(jpi16,jpj16,jpk16))
       allocate(e3v16(jpi16,jpj16,jpk16))
       allocate(e3w16(jpi16,jpj16,jpk16))
+
+      allocate(e3t16b(jpi16,jpj16,jpk16))
+      allocate(e3u16b(jpi16,jpj16,jpk16))
+      allocate(e3v16b(jpi16,jpj16,jpk16))
+      allocate(e3w16b(jpi16,jpj16,jpk16))
        mem_all = mem_all + rea_len*(4*jpk16) 
 !     write(*,*) 'Mem_allocated:', mem_all
 !

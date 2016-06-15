@@ -50,10 +50,7 @@
 !C parameters and commons
 !C ======================
               USE modulo16
-!C+CC  Implicit typing is never allowed
         IMPLICIT NONE
-!C+CC  Implicit typing is never allowed
-
 !C----------------------------------------------------------------------
 !C local declarations
 !C ==================
@@ -65,10 +62,6 @@
 !C----------------------------------------------------------------------
 !C statement functions
 !C ===================
-!CC---------------------------------------------------------------------
-!CC  OPA8, LODYC (1997)
-!CC---------------------------------------------------------------------
-!
 ! Horizontal slab
 ! ===============
 !
@@ -76,16 +69,11 @@
       jpj16m1=jpj16-1
       jpk16m1=jpk16-1
       
-!C-CC      DO 1000 jk = 1, jpk16m1 
-!
-!
 ! 1. Horizontal fluxes
 ! --------------------
 !
         DO jj16 = 1, jpj16m1
           DO ji16 = 1, jpi16m1
-!C-CC            zwu16(ji16,jj16) = e2u16(ji16,jj16) * fse3u16(ji16,jj16,jk) * un16(ji16,jj16,jk)
-!C-CC            zwv16(ji16,jj16) = e1v16(ji16,jj16) * fse3v16(ji16,jj16,jk) * vn16(ji16,jj16,jk)
 
             zwu16(ji16,jj16) = e2u16(ji16,jj16) * e3u16(ji16,jj16,jk) * un16(ji16,jj16,jk)
             zwv16(ji16,jj16) = e1v16(ji16,jj16) * e3v16(ji16,jj16,jk) * vn16(ji16,jj16,jk)
@@ -108,9 +96,6 @@
 !
 ! End!of slab
 ! ===========
-!
-!C-CC 1000 CONTINUE
-!
 !
 ! 3. Lateral boundary conditions on hdivn
 ! ---------------------------------=======

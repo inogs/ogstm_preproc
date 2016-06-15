@@ -1,10 +1,9 @@
 #! /bin/bash
 
 HERE=$PWD
-ORIG_DIR=/pico/scratch/userexternal/plazzari/REANALISI-FREE-SURFACE/FORCINGS/UNZIPPED
+ORIG_DIR=/pico/scratch/userexternal/plazzari/TEST_16/FORCINGS/UNZIPPEDnovvl
 cd $ORIG_DIR
-DATE=1999
-#DATE=20150[56]
+DATE=20130101
 ls -1 $DATE*U.nc > $HERE/nomefile_U
 ls -1 $DATE*V.nc > $HERE/nomefile_V
 ls -1 $DATE*W.nc > $HERE/nomefile_W
