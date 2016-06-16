@@ -1,5 +1,5 @@
 import numpy as np
-import scipy.io.netcdf as nc
+import netCDF4 as nc
 from bclib.obj_lib import mask_obj
 import datetime
 from matplotlib.dates import seconds
@@ -21,7 +21,7 @@ class co2atm:
 
 
     def _extract_information(self):
-        self.ncfile = nc.netcdf_file(self.path, 'r')
+        self.ncfile = nc.Dataset(self.path, 'r')
         for i in self.ncfile.dimensions:
             setattr(self, i, self.ncfile.dimensions[i])
         for i in self.ncfile.variables:
@@ -34,7 +34,7 @@ class co2atm:
         rcp45 = self.RCP45[self.input_data.co2_start:self.input_data.co2_end]
         rcp85 = self.RCP85[self.input_data.co2_start:self.input_data.co2_end]
         
-        date_format = "%Y %m %d - %H:%M:%S"                
+        date_format = "%Y%m%d-%H:%M:%S"                
                
         factor = 60*60*24  #factor of conversion seconds to days
         giorni = []
@@ -76,7 +76,7 @@ class co2atm:
             map_co2 = np.dot(np.ones([self.input_data.jpj, self.input_data.jpi]), rcp85[count])
             map_co2[l_tmask] = np.nan
             
-            ncfile = nc.netcdf_file(fileOUT, 'w')
+            ncfile = nc.Dataset(fileOUT, 'w')
             ncfile.createDimension('lon', self.input_data.jpi)
             ncfile.createDimension('lat', self.input_data.jpj)
             g = ncfile.createVariable('co2','f', ('lat','lon'))

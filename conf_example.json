@@ -3,11 +3,11 @@
 
 	"Active_sections" :
 	{
-	"river":"n",
+	"river":"y",
 	"atmosphere":"y",
-	"co2":"n",
-	"gib":"n",
-	"bounmask":"n",
+	"co2":"y",
+	"gib":"y",
+	"bounmask":"y",
 	"use_as_lib":"n"
 	},
 		
@@ -64,7 +64,6 @@
         {"name":"N3n","end_max":-7.5},
         {"name":"O2o","end_max":-7.5},
         {"name":"N5s","end_max":-7.5},
-        {"name":"O3h","end_max":-5.5},
         {"name":"O3h","end_max":-5.5},
         {"name":"N6r","end_max":-5.5}
       ]

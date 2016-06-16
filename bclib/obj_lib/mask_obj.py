@@ -1,6 +1,7 @@
 import numpy as np
 import numpy.matlib as npmat
-from scipy.io import netcdf as nc
+#from scipy.io import netcdf as nc
+import netCDF4 as nc
 from bclib.io_lib import excel_obj as xlsobj
 import logging
 
@@ -16,7 +17,7 @@ class lateral_bc:
         logging.info("lateral_bc builded") 
     
     def _extract_information(self):
-        self.ncfile = nc.netcdf_file(self.path, 'r')
+        self.ncfile = nc.Dataset(self.path, 'r')
         for i in self.ncfile.dimensions:
             setattr(self, i, self.ncfile.dimensions[i])
         for i in self.ncfile.variables:
@@ -297,7 +298,7 @@ class boun_mesh:
     def write_netcdf(self):
         logging.info("Start bounmesh nc file write")
         time = 1
-        ncfile = nc.netcdf_file(self.path, 'w')
+        ncfile = nc.Dataset(self.path, 'w')
         ncfile.createDimension('x',self._mesh_father.x)
         ncfile.createDimension('y',self._mesh_father.y)
         ncfile.createDimension('z',self._mesh_father.z)
@@ -316,7 +317,8 @@ class boun_mesh:
             aux= self.resto[i,:,:,:]*corrf[i];
             np.transpose(aux, (2, 1, 0)).shape
             name = "re" + self.vnudg[i][0]
-            resto_wnc = ncfile.createVariable(name, 'f', ('time','z','y','x'))
+            print(name)
+            resto_wnc = ncfile.createVariable(name, 'f4', ('time','z','y','x'))
             resto_wnc[0,:] = aux
         idx_inv_wnc = ncfile.createVariable('index', 'i', ('time','z','y','x'))
         idx_inv_wnc[0,:] = self.idx # self.idx[:]
@@ -343,7 +345,7 @@ class sub_mesh:
         logging.info("submesh builded") 
 
     def _extract_information(self):
-        self.ncfile = nc.netcdf_file(self.path, 'r')
+        self.ncfile = nc.Dataset(self.path, 'r')
         for i in self.ncfile.dimensions:
             setattr(self, i, self.ncfile.dimensions[i])
         for i in self.ncfile.variables:
@@ -471,17 +473,18 @@ class sub_mesh:
             ntra_atm_a[l_tmask] = np.nan
             phos_atm_a[l_tmask] = np.nan
             
-            ncfile = nc.netcdf_file(fileOUT, 'w')
+            #ncfile = nc.netcdf_file(fileOUT, 'w')
+            ncfile = nc.Dataset(fileOUT, "w", format="NETCDF4")
             ncfile.createDimension('lon', jpi)
             ncfile.createDimension('lat', jpj)
             n = ncfile.createVariable('atm_N3n','f', ('lat','lon'))
             n[:] = ntra_atm_a[:]
             p = ncfile.createVariable('atm_N1p','f', ('lat','lon'))
             p[:] = phos_atm_a[:]
-#             setattr(ncfile, 'ATM_P_MassBalance_kTON_y', totP_KTy)
-#             setattr(ncfile, 'ATM_N_MassBalance_kTON_y', totN_KTy)
-#             setattr(ncfile, 'ATM_P_MassBalance_Mmol_y', totP)
-#             setattr(ncfile, 'ATM_N_MassBalance_Mmol_y', totN)
+            setattr(ncfile, 'ATM_P_MassBalance_kTON_y', totP_KTy)
+            setattr(ncfile, 'ATM_N_MassBalance_kTON_y', totN_KTy)
+            setattr(ncfile, 'ATM_P_MassBalance_Mmol_y', totP)
+            setattr(ncfile, 'ATM_N_MassBalance_Mmol_y', totN)
             ncfile.close()
             
         logging.info("Atmosphere Netcdf writed")
@@ -542,7 +545,7 @@ class mesh:
             if self.input_data.active_bmask:
                 logging.info("Bmask enabled")
                 self.bounmesh = boun_mesh(self,self.input_data.file_bmask)
-                self.generate_boundmask()
+                self.generate_bounmask()
                 
             else:
                 logging.info("Bmask disabled")
@@ -574,9 +577,10 @@ class mesh:
         
 
     def _extract_information(self):
-        self.ncfile = nc.netcdf_file(self.path, 'r')
+        self.ncfile = nc.Dataset(self.path, 'r')
         for i in self.ncfile.dimensions:
-            setattr(self, i, self.ncfile.dimensions[i])
+            print(self.ncfile.dimensions[i])
+            setattr(self, self.ncfile.dimensions[i].name, self.ncfile.dimensions[i].size)
         for i in self.ncfile.variables:
             b = self.ncfile.variables[i][:].copy()
             setattr(self, i, b)
@@ -587,7 +591,7 @@ class mesh:
         
         
         
-    def generate_boundmask(self):
+    def generate_bounmask(self):
 
         """ This fuction generate bounmask """
         
@@ -597,7 +601,8 @@ class mesh:
             bm.vnudg = self.input_data.variables
             rdpmin = self.input_data.rdpmin
             rdpmax = self.input_data.rdpmax
-            self.glamt = self.glamt.reshape(self.y,self.x)
+            print(type(self.y),type(self.x))
+            self.glamt = self.glamt.reshape(int(self.y),int(self.x))
             bm.nudg = len(bm.vnudg)
             bm.jpk = self.tmask_dimension[1]
             bm.jpjglo = self.tmask_dimension[2]
@@ -672,7 +677,7 @@ class mesh:
 
             for time in range(4):
                 name_file = self.input_data.dir_out+"/GIB_"+str(yr)+self.gibilterra.season[time]+".nc"
-                ncfile = nc.netcdf_file(name_file, 'w')                
+                ncfile = nc.Dataset(name_file, 'w')                
                 for jn in range(self.bounmesh.nudg):
                     aux = self.bounmesh.resto[jn][:]
                     isNudg = np.zeros(aux.shape,dtype=int)
@@ -855,7 +860,7 @@ class mesh:
             
             for mth in range(12):
                 name_file = self.input_data.dir_out+"/TIN_"+str(yr)+str(mth+1)+"15-00:00:00.nc"
-                ncfile = nc.netcdf_file(name_file, 'w')
+                ncfile = nc.Dataset(name_file, 'w')
                 ncfile.createDimension("riv_idxt",count_riv)
                 riv_a_n3n = ncfile.createVariable('riv_N3n', 'f', ('riv_idxt',))
                 riv_a_n3n[:] = n3n_riv[:,mth]
