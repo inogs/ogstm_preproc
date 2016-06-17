@@ -16,13 +16,17 @@ class elaboration:
 
     def __init__(self, json_input="./conf.json"):
         """ Constructor, read json string and call set function """
+        try:
+            if os.path.isfile(json_input) :
+                self.init_configure = json.loads(open(json_input).read())
+                logging.debug("INPUT = File json ")
+            else :
+                self.init_configure = json.loads(json_input)
+                logging.debug("INPUT = string json")
+        except:
+            print("JSON NOT FOUND")
+            exit()
 
-        if os.path.isfile(json_input) :
-            self.init_configure = json.loads(open(json_input).read())
-            logging.debug("INPUT = File json ")
-        else :
-            self.init_configure = json.loads(json_input)
-            logging.debug("INPUT = string json")
 
         self._read_generation()
         self._read_parameter_section()
@@ -31,7 +35,7 @@ class elaboration:
         self._read_variable()
         self._read_river()
         self._read_mask()
-    
+
     def _read_generation(self):
         self.active_river = False
         self.active_gib = False
@@ -39,7 +43,7 @@ class elaboration:
         self.active_co2 = False
         self.active_bmask = False
         self.use_as_libray = False
-        
+
         gen_sec = self.init_configure["Active_sections"]
         if gen_sec["river"] == "y" or gen_sec["river"] == "yes":
             self.active_river = True
@@ -52,9 +56,9 @@ class elaboration:
         if gen_sec["gib"] == "y" or gen_sec["gib"] == "y":
             self.active_gib = True
         if gen_sec["use_as_lib"] == "y" or gen_sec["use_as_lib"] == "yes":
-            self.use_as_libray = True    
-        
-    
+            self.use_as_libray = True
+
+
     def _read_parameter_section(self):
         """ Set general elaboration parameter """
         self.name = self.init_configure["nameElaboration"]
@@ -85,7 +89,7 @@ class elaboration:
         self.n3n_eas = atm["N3n_eas"]
         self.po4_wes = atm["P04_wes"]
         self.po4_eas = atm["P04_eas"]
-        
+
     def _read_river(self):
         riv = self.init_configure["river"]
         self.river_data_sheet = []
