@@ -2,7 +2,7 @@ include $(HOME)/DEV/compilers/compiler.inc
 
 INSTDIR	= .
 LDFLAGS += -L$(LIBDIR) -lnc-medlevel -lf_exit
-OBJS	= modulo16.o quartic_solver.o div16.o wzv16.o comp_ssh16_relax.o stringop.o calendar.o ForcingGenerator.o
+OBJS	= modulo16.o quartic_solver.o div16.o wzv16.o comp_ssh16_relax.o comp_ssh16.o stringop.o calendar.o ForcingGenerator.o
 
 EXE	= ForcingGenerator
 

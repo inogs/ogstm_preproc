@@ -57,7 +57,7 @@
       INTEGER ji16, jj16, jk,i
       INTEGER jpi16m1,jpj16m1,jpk16m1
       INTEGER iter
-      REAL(8) Tau
+      REAL(8) Tau,Tau_v
 !
       REAL(8) zwu16, zwv16, zww16, zww16up, inv_fact
 !
@@ -68,6 +68,21 @@
       vn16(jpi16,:,1)=0; vn16(:,jpj16,1)=0;
       wn16(jpi16,:,1)=0; wn16(:,jpj16,1)=0;
 !
+
+            e3t16bb=e3t16
+            e3u16bb=e3u16
+            e3v16bb=e3v16
+
+            e3t16b=e3t16
+            e3u16b=e3u16
+            e3v16b=e3v16
+
+            un16bb =un16
+            vn16bb =vn16
+            
+            un16b =un16
+            vn16b =vn16
+
         DO jj16 = 1,jpj16
           DO ji16 = 1,jpi16
                ssh16t_R8(ji16,jj16) = REAL(e3t16(ji16,jj16,1),8)
@@ -76,40 +91,49 @@
           END DO  
         END DO  
 
-        Tau = 0.01
+        Tau = 1
+        Tau_v = 0.1
 
         DO iter =1,1000
 
+
+            e3t16bb=e3t16b
+            e3u16bb=e3u16b
+            e3v16bb=e3v16b
 
             e3t16b=e3t16
             e3u16b=e3u16
             e3v16b=e3v16
 
+            un16bb =un16b
+            vn16bb =vn16b
+
+            un16b =un16
+            vn16b =vn16
+
             DO jj16 = 2,jpj16m1
                DO ji16 = 2,jpi16m1
+
                   wn16(ji16,jj16,1) = wn16(ji16,jj16,2)  &
                         - e3t16(ji16,jj16,1)*hdivn16(ji16,jj16,1)
 
-                  e3u16(ji16,jj16,1) = e3u16b(ji16,jj16,1)   + (+1.)*Tau*sign(1.,un16(ji16,jj16,1)  * wn16(ji16,jj16,1))
-                  e3v16(ji16,jj16,1) = e3v16b(ji16,jj16,1)   + (+1.)*Tau*sign(1.,vn16(ji16,jj16,1)  * wn16(ji16,jj16,1))
-                  e3u16(ji16,jj16,1) = e3u16b(ji16-1,jj16,1) + (-1.)*Tau*sign(1.,un16(ji16-1,jj16,1)* wn16(ji16,jj16,1))
-                  e3v16(ji16,jj16,1) = e3v16b(ji16,jj16-1,1) + (-1.)*Tau*sign(1.,vn16(ji16,jj16-1,1)* wn16(ji16,jj16,1))
+                  e3u16(ji16,jj16,1)   = 0.75*e3u16b(ji16,jj16,1)   + 0.25*e3u16bb(ji16,jj16,1)   + umask16(ji16,jj16,1)  *(+1.)*Tau*sign(1.,un16b(ji16,jj16,1)  * wn16(ji16,jj16,1))
+                  e3v16(ji16,jj16,1)   = 0.75*e3v16b(ji16,jj16,1)   + 0.25*e3v16bb(ji16,jj16,1)   + vmask16(ji16,jj16,1)  *(+1.)*Tau*sign(1.,vn16b(ji16,jj16,1)  * wn16(ji16,jj16,1))
+ !                e3u16(ji16-1,jj16,1) = 0.75*e3u16b(ji16-1,jj16,1) + 0.25*e3u16bb(ji16-1,jj16,1) + umask16(ji16-1,jj16,1)*(-1.)*Tau*sign(1.,un16b(ji16-1,jj16,1)* wn16(ji16,jj16,1))
+ !                e3v16(ji16,jj16-1,1) = 0.75*e3v16b(ji16,jj16-1,1) + 0.25*e3v16bb(ji16,jj16-1,1) + vmask16(ji16,jj16-1,1)*(-1.)*Tau*sign(1.,vn16b(ji16,jj16-1,1)* wn16(ji16,jj16,1))
 
-                  e3t16(ji16,jj16,1) = 0.25*(e3u16(ji16,jj16,1)+e3u16(ji16+1,jj16,1) + e3v16(ji16,jj16,1)+e3v16(ji16,jj16+1,1))
-!                 write(*,*) '-----------------'
-!                 write(*,*) e3u16  (ji16,jj16,1)
-!                 write(*,*) e3u16b (ji16,jj16,1)
-!                 write(*,*) Tau
-!                 write(*,*) un16(ji16,jj16,1)
-!                 write(*,*) wn16(ji16,jj16,1)
-!                 write(*,*) e3t16  (ji16,jj16,1)
-!                 write(*,*) hdivn16(ji16,jj16,1)
-!                 write(*,*) hdivn16(ji16,jj16,1)
-!                 write(*,*) '-----------------'
+                  e3t16(ji16,jj16,1)  = 0.25*(e3u16(ji16,jj16,1)+e3u16(ji16+1,jj16,1) + e3v16(ji16,jj16,1)+e3v16(ji16,jj16+1,1))
+
+                  un16(ji16,jj16,1)   = 0.75*un16b(ji16,jj16,1)     + 0.25*un16bb(ji16,jj16,1)   + umask16(ji16,jj16,1)  *(+1.)*Tau_v*sign(1.,un16b(ji16,jj16,1)  * wn16(ji16,jj16,1))
+                  vn16(ji16,jj16,1)   = 0.75*vn16b(ji16,jj16,1)     + 0.25*vn16bb(ji16,jj16,1)   + vmask16(ji16,jj16,1)  *(+1.)*Tau_v*sign(1.,vn16b(ji16,jj16,1)  * wn16(ji16,jj16,1))
+ !                un16(ji16-1,jj16,1) = 0.75*un16b(ji16-1,jj16,1)   + 0.25*un16bb(ji16-1,jj16,1) + umask16(ji16-1,jj16,1)*(-1.)*Tau_v*sign(1.,un16b(ji16-1,jj16,1)* wn16(ji16,jj16,1))
+ !                vn16(ji16,jj16-1,1) = 0.75*vn16b(ji16,jj16-1,1)   + 0.25*vn16bb(ji16,jj16-1,1) + vmask16(ji16,jj16-1,1)*(-1.)*Tau_v*sign(1.,vn16b(ji16,jj16-1,1)* wn16(ji16,jj16,1))
+
                END DO  
             END DO  
             write(*,*) '-----------------'
-            write(*,*) 'wn16 ', wn16   (375,125,1)
+            write(*,*) 'iter ', iter
+            write(*,*) 'wn16 ', SUM(wn16)
             write(*,*) '-----------------'
 
 

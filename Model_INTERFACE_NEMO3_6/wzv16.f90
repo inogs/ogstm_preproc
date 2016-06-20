@@ -1,4 +1,4 @@
-      SUBROUTINE wzv16 ( )
+      SUBROUTINE wzv16 (d_start,d_end )
 !CC---------------------------------------------------------------------
 !CC
 !CC                       ROUTINE wzv
@@ -52,6 +52,7 @@
       INTEGER ktask, kt
       INTEGER ji16, jj16, jk
       INTEGER jpi16m1,jpj16m1,jpk16m1
+      INTEGER d_start,d_startm1,d_end
 
 !C----------------------------------------------------------------------
 !C statement functions
@@ -64,9 +65,10 @@
 ! Vertical slab
 ! =============
 !
-      jpi16m1=jpi16-1
-      jpj16m1=jpj16-1
-      jpk16m1=jpk16-1
+      jpi16m1  =jpi16-1
+      jpj16m1  =jpj16-1
+      jpk16m1  =jpk16-1
+      d_startm1= d_start -1
       DO 1000 jj16 = 1, jpj16
 !
 !
@@ -74,7 +76,7 @@
 ! ----------------------------------------
 !
         DO ji16 = 1, jpi16
-          wn16(ji16,jj16, 1 ) = 0.e0
+!         wn16(ji16,jj16, 1 ) = 0.e0
           wn16(ji16,jj16,jpk16) = 0.e0
         END DO  
 !
@@ -82,7 +84,9 @@
 ! 2. Computation from the bottom
 ! ------------------------------
 !
-         DO jk = jpk16m1, 1, -1
+!                deeper    shallower
+!            es.  jpkm1      2
+         DO jk = d_startm1, d_end, -1
           DO ji16 = 1, jpi16
             wn16(ji16,jj16,jk) = wn16(ji16,jj16,jk+1)  &
                         - e3t16(ji16,jj16,jk)*hdivn16(ji16,jj16,jk)

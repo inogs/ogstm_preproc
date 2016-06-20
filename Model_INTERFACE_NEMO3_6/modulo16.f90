@@ -37,6 +37,8 @@
       REAL(4), allocatable :: gdept16(:), gdepw16(:)
       REAL(4), allocatable :: e3t16(:,:,:), e3u16(:,:,:),e3v16(:,:,:),e3w16(:,:,:)
       REAL(4), allocatable :: e3t16b(:,:,:), e3u16b(:,:,:),e3v16b(:,:,:),e3w16b(:,:,:)
+      REAL(4), allocatable :: e3t16bb(:,:,:), e3u16bb(:,:,:),e3v16bb(:,:,:),e3w16bb(:,:,:)
+
 !C
 !C----------------------------------------------------------------------
 !C Common/comask/  : masks, bathymetry
@@ -73,7 +75,9 @@
 !C	rhopn16          : potential volumic mass (kg m-3)
 !C      bn2n16           : brun16t-vaisala frequency (s-2)
 !C
-      REAL(4), allocatable :: un16(:,:,:), vn16(:,:,:), wn16(:,:,:)
+      REAL(4), allocatable :: un16(:,:,:) ,  vn16(:,:,:) ,  wn16(:,:,:)
+      REAL(4), allocatable :: un16b(:,:,:),  vn16b(:,:,:),  wn16b(:,:,:)
+      REAL(4), allocatable :: un16bb(:,:,:), vn16bb(:,:,:), wn16bb(:,:,:)
       REAL(4), allocatable :: hdivn16(:,:,:)
       REAL(4), allocatable :: tn16(:,:,:), sn16(:,:,:)
       REAL(4), allocatable :: rdn16(:,:,:), rhopn16(:,:,:), bn2n16(:,:,:)
@@ -199,6 +203,11 @@
       allocate(e3u16b(jpi16,jpj16,jpk16))
       allocate(e3v16b(jpi16,jpj16,jpk16))
       allocate(e3w16b(jpi16,jpj16,jpk16))
+
+      allocate(e3t16bb(jpi16,jpj16,jpk16))
+      allocate(e3u16bb(jpi16,jpj16,jpk16))
+      allocate(e3v16bb(jpi16,jpj16,jpk16))
+      allocate(e3w16bb(jpi16,jpj16,jpk16))
        mem_all = mem_all + rea_len*(4*jpk16) 
 !     write(*,*) 'Mem_allocated:', mem_all
 !
@@ -236,6 +245,12 @@
        allocate(un16(jpi16,jpj16,jpk16))
        allocate(vn16(jpi16,jpj16,jpk16))
        allocate(wn16(jpi16,jpj16,jpk16))
+       allocate(un16b(jpi16,jpj16,jpk16))
+       allocate(vn16b(jpi16,jpj16,jpk16))
+       allocate(wn16b(jpi16,jpj16,jpk16))
+       allocate(un16bb(jpi16,jpj16,jpk16))
+       allocate(vn16bb(jpi16,jpj16,jpk16))
+       allocate(wn16bb(jpi16,jpj16,jpk16))
        allocate(hdivn16(jpi16,jpj16,jpk16))
        allocate(tn16(jpi16,jpj16,jpk16))
        allocate(sn16(jpi16,jpj16,jpk16))

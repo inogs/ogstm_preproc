@@ -87,8 +87,8 @@
         DO jj16 = 1,jpj16
           DO ji16 = 1,jpi16
                ssh16t_R8(ji16,jj16)  = REAL(e3t16(ji16,jj16,1),8)
-               ssh16u_R8(ji16,jj16) = REAL(e3t16(ji16,jj16,1),8)
-               ssh16v_R8(ji16,jj16) = REAL(e3t16(ji16,jj16,1),8)
+               ssh16u_R8(ji16,jj16)  = REAL(e3u16(ji16,jj16,1),8)
+               ssh16v_R8(ji16,jj16)  = REAL(e3v16(ji16,jj16,1),8)
           END DO  
         END DO  
 !
@@ -103,14 +103,19 @@
             zwu16    = REAL(e2u16(ji16,jj16) * ssh16u_R8(ji16+1,jj16) * un16(ji16,jj16,1),8)
             zwv16    = REAL(e1v16(ji16,jj16) * ssh16v_R8(ji16,jj16+1) * vn16(ji16,jj16,1),8)
             zww16    = REAL(e1t16(ji16,jj16) * e2t16(ji16,jj16)       * wn16(ji16,jj16,2),8)
-            zww16up  = REAL(e1t16(ji16,jj16) * e2t16(ji16,jj16)       * wn16(ji16,jj16,1),8)
+!           zww16up  = REAL(e1t16(ji16,jj16) * e2t16(ji16,jj16)       * wn16(ji16,jj16,1),8)
+            zww16up  = 0.
+
+!  problem to be solved here
+!  x*a+y*b +c =0 solutions that minimizes distance from (x_0,y_0).
 
             a        = -REAL(e2u16(ji16-1,jj16) ,8)
             b        = -REAL(e1v16(ji16,jj16-1) ,8)
             c        = zwu16 + zwv16 - zww16 + zww16up
 
-            x_0      = 3.0 * REAL( un16(ji16-1,jj16,1),8)! average first cell flux
-            y_0      = 3.0 * REAL( vn16(ji16,jj16-1,1),8)! average first cell flux
+            x_0      = ssh16u_R8(ji16-1,jj16) * REAL( un16(ji16-1,jj16,1),8)! average first cell flux
+            y_0      = ssh16v_R8(ji16,jj16-1) * REAL( vn16(ji16,jj16-1,1),8)! average first cell flux
+
 
             if ( (umask16(ji16-1,jj16,1) .GT. 0.5  ) .AND.  (vmask16(ji16,jj16-1,1) .GT. 0.5 )) then 
 
@@ -120,7 +125,7 @@
                 write(*,"(9999(G12.5,:,','))") 'fx_0= ',x_0*a,'fy_0= ',y_0*b
                 write(*,"(9999(G12.5,:,','))") 'fx_1= ',zwu16,'fy_1= ',zwv16
                 write(*,"(9999(G12.5,:,','))") 'fz_0= ',zww16,'df/f= ',ABS(c)/ABS(x_0*a+y_0*b)
-                write(*,"(9999(G12.5,:,','))") '++++++++++++++++++++++++++'
+                write(*,"(9999(G12.5,:,','))") '+++++++++++++++++++++++'
             endif
 
             resx     = (b*( b*x_0-a*y_0)-a*c)/(a*a+b*b)
@@ -130,7 +135,7 @@
 ! following 4th order polynomial for velocity
 ! x^4 - x0 x^3 -y0 Fl x - Fl^2 
             aa(1) =   - resx*resx
-            aa(2) =   resx*3.
+            aa(2) =   resx*ssh16u_R8(ji16-1,jj16)
             aa(3) =   0.
             aa(4) =   - REAL( un16(ji16-1,jj16,1),8)
             aa(5) =   1.
@@ -154,7 +159,7 @@
 ! following 4th order polynomial for velocity
 ! x^4 - x0 x^3 -y0 Fl x - Fl^2 
             aa(1) =   - resy*resy
-            aa(2) =   resy*3.
+            aa(2) =   resy*ssh16u_R8(ji16,jj16-1)
             aa(3) =   0.
             aa(4) =   - REAL( vn16(ji16,jj16-1,1),8)
             aa(5) =   1.
@@ -182,7 +187,7 @@
                  write(*,"(9999(G12.5,:,','))") 'fx_0= ',x_0*a,'fy_0= ',y_0*b
                  write(*,"(9999(G12.5,:,','))") 'fx_1= ',zwu16,'fy_1= ',zwv16
                  write(*,"(9999(G12.5,:,','))") 'fz_0= ',zww16,'df/f= ',ABS(c)/ABS(x_0*a+y_0*b)
-                 write(*,"(9999(G12.5,:,','))") '++++++++++++++++++++++++++'
+                 write(*,"(9999(G12.5,:,','))") '+++++++++++++++++++++'
             endif
 
             resx     = -c/a !(b*( b*x_0-a*y_0)-a*c)/(a*a+b*b)
@@ -192,7 +197,7 @@
 ! following 4th order polynomial for velocity
 ! x^4 - x0 x^3 -y0 Fl x - Fl^2 
             aa(1) =   - resx*resx
-            aa(2) =   resx*3.
+            aa(2) =   resx*ssh16u_R8(ji16-1,jj16)
             aa(3) =   0.
             aa(4) =   - REAL( un16(ji16-1,jj16,1),8)
             aa(5) =   1.
@@ -219,7 +224,7 @@
                 write(*,"(9999(G12.5,:,','))") 'fx_0= ',x_0*a,'fy_0= ',y_0*b
                 write(*,"(9999(G12.5,:,','))") 'fx_1= ',zwu16,'fy_1= ',zwv16
                 write(*,"(9999(G12.5,:,','))") 'fz_0= ',zww16,'df/f= ',ABS(c)/ABS(x_0*a+y_0*b)
-                write(*,"(9999(G12.5,:,','))") '++++++++++++++++++++++++++'
+                write(*,"(9999(G12.5,:,','))") '+++++++++++++++++++++++'
             endif
 
             resx     = 0. !(b*( b*x_0-a*y_0)-a*c)/(a*a+b*b)
@@ -230,7 +235,7 @@
 ! following 4th order polynomial for velocity
 ! x^4 - x0 x^3 -y0 Fl x - Fl^2 
             aa(1) =   - resy*resy
-            aa(2) =   resy*3.
+            aa(2) =   resy*ssh16v_R8(ji16,jj16-1)
             aa(3) =   0.
             aa(4) =   - REAL( vn16(ji16,jj16-1,1),8)
             aa(5) =   1.

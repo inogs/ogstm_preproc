@@ -73,7 +73,7 @@
 
     UnitsTime = 'seconds since 1582-10-15T00:00:00Z'
 
-    vert_dyn    = 0
+    vert_dyn    = 1
     opa_oper    = 0 ! Only for V0
     istr        = 1
 
@@ -586,12 +586,12 @@
             STOP
         endif
 
-!!!     s = nf90_inq_varid (nciw, 'vovecrtz' , idwn)  ; call handle_err1(s,mycount)
+        s = nf90_inq_varid (nciw, 'vovecrtz' , idwn)  ; call handle_err1(s,mycount)
 
-!!!     c4=(/jpi16, jpj16, jpk16, 1/)
-!!!     s4=(/1, 1, 1, time/)
+        c4=(/jpi16, jpj16, jpk16, 1/)
+        s4=(/1, 1, 1, time/)
 
-!!!     s = nf90_get_var (nciw, idwn, wn16, s4, c4); call handle_err1(s,mycount)
+        s = nf90_get_var (nciw, idwn, wn16, s4, c4); call handle_err1(s,mycount)
 
         s = nf90_inq_varid (nciw, 'votkeavt' , idavt) ; call handle_err1(s,mycount)
 
@@ -850,7 +850,7 @@
         enddo ! End on loop on jk
 
         ! ----------------------------------------------------------------
-            call wzv16()
+            call wzv16(jpk16,2) ! velocity in the upper layer is the one from the input OGCM model is the divergence due to barotropic velocities
         ! ----------------------------------------------------------------
         do jk=1,jpk16
             do jj=1,jpj16
@@ -862,8 +862,8 @@
 
         ! ----------------------------------------------------------------
         write(*,*) 'comp_ssh16'
-        call comp_ssh16_relax()
-!       call comp_ssh16
+!       call comp_ssh16_relax()
+        call comp_ssh16
         ! ----------------------------------------------------------------
 
         do jk=1,jpk16
@@ -879,7 +879,7 @@
             call div16(jk)
         enddo
 
-        call wzv16()
+        call wzv16(jpk16,2) ! velocity in the upper layer is the one from the input OGCM model is the divergence due to barotropic velocities
 
         do jk=1,jpk16
             do jj=1,jpj16
