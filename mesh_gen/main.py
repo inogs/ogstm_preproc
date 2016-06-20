@@ -1,6 +1,6 @@
 import create_meshmask_nc as c_mask 
 
-infile  = '/pico/scratch/userexternal/plazzari/TEST_24/mesh_mask_L121_zcr44_hth221_V3.4.nc'
+infile  = '/pico/scratch/userexternal/plazzari/TEST_24/FORCINGS/STATIC_DATA/mesh_mask_L141_zcr64_hth111_r8_V3.6.nc'
 
 outfile = 'prova_full.nc'
 
@@ -12,10 +12,10 @@ free_surface=True
 Biscay_land = False
 c_mask.create_meshmask_nc(M,outfile,lon_cut,depth_cut,Biscay_land,free_surface)
 
-outfile = 'prova_cut.nc'
+outfile = '/pico/scratch/userexternal/plazzari/TEST_24/FORCINGS/STATIC_DATA/meshmask_FS.nc'
 
 lon_cut = M.getCutLocation(-8.875)
-depth_cut=5
+depth_cut=11
 Biscay_land = True
 c_mask.create_meshmask_nc(M,outfile,lon_cut,depth_cut,Biscay_land, free_surface)
 
