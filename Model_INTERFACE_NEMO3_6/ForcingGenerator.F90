@@ -203,18 +203,23 @@
 
 
       M =  un16(theCUT:jpi16,:,:)* NUDG16_U; call MODIFY_NC_3D(trim(fileOUT_U),'vozocrtx',im,jm,km,M )
+      M =  e3u16(theCUT:jpi16,:,:)         ; call MODIFY_NC_3D(trim(fileOUT_U),'e3u'     ,im,jm,km,M )
+
       M =  vn16(theCUT:jpi16,:,:)* NUDG16_V; call MODIFY_NC_3D(trim(fileOUT_V),'vomecrty',im,jm,km,M )
+      M =  e3v16(theCUT:jpi16,:,:)         ; call MODIFY_NC_3D(trim(fileOUT_V),'e3v'     ,im,jm,km,M )
 
       M =  wn16(theCUT:jpi16,:,:)* NUDG16_W; call MODIFY_NC_3D(trim(fileOUT_W),'vovecrtz',im,jm,km,M )
       M = avt16(theCUT:jpi16,:,:)* NUDG16_W; call MODIFY_NC_3D(trim(fileOUT_W),'votkeavt',im,jm,km,M )
+      M = e3w16(theCUT:jpi16,:,:)          ; call MODIFY_NC_3D(trim(fileOUT_W),'e3w'     ,im,jm,km,M )
 
       M =  tn16(theCUT:jpi16,:,:)          ; call MODIFY_NC_3D(trim(fileOUT_T),'votemper',im,jm,km,M )
       M =  sn16(theCUT:jpi16,:,:)          ; call MODIFY_NC_3D(trim(fileOUT_T),'vosaline',im,jm,km,M )
+      M =  e3t16(theCUT:jpi16,:,:)         ; call MODIFY_NC_3D(trim(fileOUT_T),'e3t'     ,im,jm,km,M )
       M2= qsr16(theCUT:jpi16,:  )* NUDG16_T; call MODIFY_NC_2D(trim(fileOUT_T),'soshfldo',im,jm,   M2)
       M2= wsp16(theCUT:jpi16,:  )* NUDG16_T; call MODIFY_NC_2D(trim(fileOUT_T),'sowindsp',im,jm,   M2)
-      M2= ssht16(theCUT:jpi16,:  )         ; call MODIFY_NC_2D(trim(fileOUT_T),'sossheit',im,jm,   M2)
-      M2= sshu16(theCUT:jpi16,:  )         ; call MODIFY_NC_2D(trim(fileOUT_T),'sossheiu',im,jm,   M2)
-      M2= sshv16(theCUT:jpi16,:  )         ; call MODIFY_NC_2D(trim(fileOUT_T),'sossheiv',im,jm,   M2)
+!     M2= ssht16(theCUT:jpi16,:  )         ; call MODIFY_NC_2D(trim(fileOUT_T),'sossheit',im,jm,   M2)
+!     M2= sshu16(theCUT:jpi16,:  )         ; call MODIFY_NC_2D(trim(fileOUT_T),'sossheiu',im,jm,   M2)
+!     M2= sshv16(theCUT:jpi16,:  )         ; call MODIFY_NC_2D(trim(fileOUT_T),'sossheiv',im,jm,   M2)
       M2= flp16(theCUT:jpi16,:  )          ; call MODIFY_NC_2D(trim(fileOUT_T),'sowaflcd',im,jm,   M2)
 
 !++++++++++++++++++++++++++++++++++++++++++++++++
@@ -487,6 +492,11 @@
             s = nf90_get_var (nciu, idtx, taux16, s3, c3); call handle_err1(s,mycount)
         endif
 
+        s = nf90_inq_varid (nciu, 'e3u', ide3u); call handle_err1(s,mycount)
+        s4=(/1, 1, 1, time/)
+        c4=(/jpi16, jpj16, jpk16, 1/)
+        s = nf90_get_var(nciu,ide3u,e3u16,s4,c4); call handle_err1(s,mycount)
+
         s= nf90_close(nciu) ; call handle_err1(s,mycount)
         READ_U16 = .true.
     END FUNCTION READ_U16
@@ -538,6 +548,11 @@
             s3=(/1, 1, time/)
             s = nf90_get_var (nciv, idty, tauy16, s3, c3) ; call handle_err1(s,mycount)
         endif
+
+        s = nf90_inq_varid (nciv, 'e3v', ide3v); call handle_err1(s,mycount)
+        s4=(/1, 1, 1, time/)
+        c4=(/jpi16, jpj16, jpk16, 1/)
+        s = nf90_get_var(nciv,ide3v,e3v16,s4,c4); call handle_err1(s,mycount)
 
         s= nf90_close(nciv) ; call handle_err1(s,mycount)
         READ_V16 = .true.
@@ -599,6 +614,12 @@
         s4=(/1, 1, 1, time/)
 
         s = nf90_get_var (nciw, idavt, avt16, s4, c4); call handle_err1(s,mycount)
+
+        s = nf90_inq_varid (nciw, 'e3w', ide3w); call handle_err1(s,mycount)
+        s4=(/1, 1, 1, time/)
+        c4=(/jpi16, jpj16, jpk16, 1/)
+        s = nf90_get_var(nciw,ide3w,e3w16,s4,c4); call handle_err1(s,mycount)
+
 
         s= nf90_close(nciw) ; call handle_err1(s,mycount)
 
@@ -663,6 +684,12 @@
         s = nf90_get_var (ncit, idsof, qsr16, s3,c3) ; call handle_err1(s,mycount)
         s = nf90_get_var (ncit, idssh, ssh16, s3,c3) ; call handle_err1(s,mycount)
         s = nf90_get_var (ncit, idflp, flp16, s3,c3) ; call handle_err1(s,mycount)
+
+        s = nf90_inq_varid (ncit, 'e3t', ide3t); call handle_err1(s,mycount)
+        s4=(/1, 1, 1, time/)
+        c4=(/jpi16, jpj16, jpk16, 1/)
+        s = nf90_get_var(ncit,ide3t,e3t16,s4,c4); call handle_err1(s,mycount)
+
 
         s= nf90_close(ncit) ; call handle_err1(s,mycount)
         READ_T16 = .true.
@@ -863,7 +890,7 @@
         ! ----------------------------------------------------------------
         write(*,*) 'comp_ssh16'
 !       call comp_ssh16_relax()
-        call comp_ssh16
+!       call comp_ssh16
         ! ----------------------------------------------------------------
 
         do jk=1,jpk16

@@ -103,8 +103,8 @@
             zwu16    = REAL(e2u16(ji16,jj16) * ssh16u_R8(ji16+1,jj16) * un16(ji16,jj16,1),8)
             zwv16    = REAL(e1v16(ji16,jj16) * ssh16v_R8(ji16,jj16+1) * vn16(ji16,jj16,1),8)
             zww16    = REAL(e1t16(ji16,jj16) * e2t16(ji16,jj16)       * wn16(ji16,jj16,2),8)
-!           zww16up  = REAL(e1t16(ji16,jj16) * e2t16(ji16,jj16)       * wn16(ji16,jj16,1),8)
-            zww16up  = 0.
+            zww16up  = REAL(e1t16(ji16,jj16) * e2t16(ji16,jj16)       * wn16(ji16,jj16,1),8)
+!           zww16up  = 0.
 
 !  problem to be solved here
 !  x*a+y*b +c =0 solutions that minimizes distance from (x_0,y_0).

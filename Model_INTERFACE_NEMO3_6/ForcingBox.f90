@@ -5,7 +5,7 @@
         character fileNetCDF*(*)
         integer s, nc,G, counter
         integer timid, depid, yid, xid
-        integer idvartime, idgdept, idphit, idlamt, idU
+        integer idvartime, idgdept, idphit, idlamt, idU, ide3u
 
         G     = nf90_global
 
@@ -27,6 +27,7 @@
         s = nf90_def_var(nc,'nav_lat',       nf90_float, (/xid,yid/),            idphit)
         s = nf90_def_var(nc,'nav_lon',       nf90_float, (/xid,yid/),            idlamt)
         s = nf90_def_var(nc,'vozocrtx' ,     nf90_float, (/xid,yid,depid,timid/),   idU)
+        s = nf90_def_var(nc,'e3u' ,          nf90_float, (/xid,yid,depid,timid/),   ide3u)
 
 
 
@@ -69,7 +70,7 @@
         character fileNetCDF*(*)
         integer s, nc,G, counter
         integer timid, depid, yid, xid
-        integer idvartime, idgdept, idphit, idlamt, idV
+        integer idvartime, idgdept, idphit, idlamt, idV, ide3v
 
         G     = nf90_global
 
@@ -90,6 +91,7 @@
         s = nf90_def_var(nc,'nav_lat',       nf90_float, (/xid,yid/),            idphit)
         s = nf90_def_var(nc,'nav_lon',       nf90_float, (/xid,yid/),            idlamt)
         s = nf90_def_var(nc,'vomecrty' ,     nf90_float, (/xid,yid,depid,timid/),   idV)
+        s = nf90_def_var(nc,'e3v' ,          nf90_float, (/xid,yid,depid,timid/),   ide3v)
 
 
 
@@ -129,7 +131,7 @@
         character fileNetCDF*(*)
         integer s, nc,G, counter
         integer timid, depid, yid, xid
-        integer idvartime, idgdept, idphit, idlamt, idW, idEddy
+        integer idvartime, idgdept, idphit, idlamt, idW, idEddy, ide3w
 
         G     = nf90_global
 
@@ -151,6 +153,7 @@
         s = nf90_def_var(nc,'nav_lon',       nf90_float, (/xid,yid/),            idlamt)
         s = nf90_def_var(nc,'vovecrtz' ,     nf90_float, (/xid,yid,depid,timid/),   idW)
         s = nf90_def_var(nc,'votkeavt' ,     nf90_float, (/xid,yid,depid,timid/),idEddy)
+        s = nf90_def_var(nc,'e3w' ,          nf90_float, (/xid,yid,depid,timid/),   ide3w)
 
 
         s = nf90_put_att(nc,idvartime,'units', UnitsTime )
@@ -193,7 +196,7 @@
         character fileNetCDF*(*)
         integer s, nc,G, counter
         integer timid, depid, yid, xid
-        integer idvartime, idgdept, idphit, idlamt, idT, idS, idR, idW,idH,idE
+        integer idvartime, idgdept, idphit, idlamt, idT, idS, idR, idW,idH,idE,ide3t
         integer idHt, idHu, idHv
 
         G     = nf90_global
@@ -216,11 +219,12 @@
         s = nf90_def_var(nc,'nav_lon',       nf90_float, (/xid,yid/),            idlamt)
         s = nf90_def_var(nc,'vosaline' ,     nf90_float, (/xid,yid,depid,timid/),   idS)
         s = nf90_def_var(nc,'votemper' ,     nf90_float, (/xid,yid,depid,timid/),   idT)
+        s = nf90_def_var(nc,'e3t' ,          nf90_float, (/xid,yid,depid,timid/),   ide3t)
         s = nf90_def_var(nc,'soshfldo' ,     nf90_float, (/xid,yid,      timid/),   idR)
         s = nf90_def_var(nc,'sowindsp' ,     nf90_float, (/xid,yid,      timid/),   idW)
-        s = nf90_def_var(nc,'sossheit' ,     nf90_float, (/xid,yid,      timid/),   idHt)
-        s = nf90_def_var(nc,'sossheiu' ,     nf90_float, (/xid,yid,      timid/),   idHu)
-        s = nf90_def_var(nc,'sossheiv' ,     nf90_float, (/xid,yid,      timid/),   idHv)
+!       s = nf90_def_var(nc,'sossheit' ,     nf90_float, (/xid,yid,      timid/),   idHt)
+!       s = nf90_def_var(nc,'sossheiu' ,     nf90_float, (/xid,yid,      timid/),   idHu)
+!       s = nf90_def_var(nc,'sossheiv' ,     nf90_float, (/xid,yid,      timid/),   idHv)
         s = nf90_def_var(nc,'sowaflcd' ,     nf90_float, (/xid,yid,      timid/),   idE)
 
         s = nf90_put_att(nc,idvartime,'units', UnitsTime )
@@ -248,17 +252,17 @@
         s = nf90_put_att(nc,idW   , 'units'        ,'m/s')
         s = nf90_put_att(nc,idW   , 'missing_value',1.e+20)
 
-        s = nf90_put_att(nc,idHt  , 'long_name'    ,'Sea Surface Height t')
-        s = nf90_put_att(nc,idHt  , 'units'        ,'m')
-        s = nf90_put_att(nc,idHt  , 'missing_value',1.e+20)
+!       s = nf90_put_att(nc,idHt  , 'long_name'    ,'Sea Surface Height t')
+!       s = nf90_put_att(nc,idHt  , 'units'        ,'m')
+!       s = nf90_put_att(nc,idHt  , 'missing_value',1.e+20)
 
-        s = nf90_put_att(nc,idHu  , 'long_name'    ,'Sea Surface Height u')
-        s = nf90_put_att(nc,idHu  , 'units'        ,'m')
-        s = nf90_put_att(nc,idHu  , 'missing_value',1.e+20)
+!       s = nf90_put_att(nc,idHu  , 'long_name'    ,'Sea Surface Height u')
+!       s = nf90_put_att(nc,idHu  , 'units'        ,'m')
+!       s = nf90_put_att(nc,idHu  , 'missing_value',1.e+20)
 
-        s = nf90_put_att(nc,idHv  , 'long_name'    ,'Sea Surface Height v')
-        s = nf90_put_att(nc,idHv  , 'units'        ,'m')
-        s = nf90_put_att(nc,idHv  , 'missing_value',1.e+20)
+!       s = nf90_put_att(nc,idHv  , 'long_name'    ,'Sea Surface Height v')
+!       s = nf90_put_att(nc,idHv  , 'units'        ,'m')
+!       s = nf90_put_att(nc,idHv  , 'missing_value',1.e+20)
 
         s = nf90_put_att(nc,idE   , 'long_name'    ,'concentration/dilution water flux')
         s = nf90_put_att(nc,idE   , 'units'        ,'Kg/m2/s')
