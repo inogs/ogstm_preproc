@@ -83,11 +83,11 @@ def create_meshmask_nc(OrigMaskobj,outfile,lon_cut,depth_cut,biscay_land = True,
 
 #    double gdept(time, z, y_a, x_a) ;
     gdept              = np.zeros((time,jpk,y_a,x_a),np.double);
-    gdept[0,0:jpk,0,0] = (NCin.variables['gdept_1d'][0,:jpk]).copy().astype(np.double);
+    gdept[0,0:jpk,0,0] = (NCin.variables['gdept_0'][0,:jpk]).copy().astype(np.double);
 
 #    double gdepw(time, z, y_a, x_a) ;
     gdepw              = np.zeros((time,jpk,y_a,x_a),np.double);
-    gdepw[0,0:jpk,0,0] = (NCin.variables['gdepw_1d'][0,:jpk]).copy().astype(np.double);
+    gdepw[0,0:jpk,0,0] = (NCin.variables['gdepw_0'][0,:jpk]).copy().astype(np.double);
     
 
 #    double glamt(time, z_a, y, x) ;
@@ -176,27 +176,27 @@ def create_meshmask_nc(OrigMaskobj,outfile,lon_cut,depth_cut,biscay_land = True,
     if free_surface:
 #    double e3t_0(time, z, y_a, x_a) ;
         e3t_0              = np.ones((time,jpk,y_a,x_a),np.double);
-        e3t_0[0,:,0,0] = (NCin.variables['e3t_1d'][0,:jpk]).copy().astype(np.double);
+        e3t_0[0,:,0,0] = (NCin.variables['e3t_0'][0,:jpk]).copy().astype(np.double);
     
 #    double e3w_0(time, z, y_a, x_a) ;
         e3w_0              = np.zeros((time,jpk,y_a,x_a),np.double);
-        e3w_0[0,:,0,0] = (NCin.variables['e3w_1d'][0,:jpk]).copy().astype(np.double);
+        e3w_0[0,:,0,0] = (NCin.variables['e3w_0'][0,:jpk]).copy().astype(np.double);
 
 #    double e3t(time, z, y, x) ;
         e3t = np.ones((time,jpk,jpj,jpi),np.double)
-        e3t[0,:,:,:] =  (NCin.variables['e3t_0'][0,:jpk,:,lon_cut:]).copy().astype(np.double)
+        e3t[0,:,:,:] =  (NCin.variables['e3t'][0,:jpk,:,lon_cut:]).copy().astype(np.double)
 
 #    double e3u(time, z, y, x) ;
         e3u = np.ones((time,jpk,jpj,jpi),np.double);
-        e3u[0,:,:,:] =  (NCin.variables['e3u_0'][0,:jpk,:,lon_cut:]).copy().astype(np.double)
+        e3u[0,:,:,:] =  (NCin.variables['e3u'][0,:jpk,:,lon_cut:]).copy().astype(np.double)
 
 #    double e3v(time, z, y, x) ;
         e3v = np.ones((time,jpk,jpj,jpi),np.double);
-        e3v[0,:,:,:] =  (NCin.variables['e3v_0'][0,:jpk,:,lon_cut:]).copy().astype(np.double)
+        e3v[0,:,:,:] =  (NCin.variables['e3v'][0,:jpk,:,lon_cut:]).copy().astype(np.double)
 
 #    double e3w(time, z, y, x) ;
         e3w = np.ones((time,jpk,jpj,jpi),np.double);
-        e3w[0,:,:,:] =  (NCin.variables['e3w_0'][0,:jpk,:,lon_cut:]).copy().astype(np.double)
+        e3w[0,:,:,:] =  (NCin.variables['e3w'][0,:jpk,:,lon_cut:]).copy().astype(np.double)
     else:
 #    double e3t(time, z, y_a, x_a) ;
         e3t                = np.ones((time,jpk,y_a,x_a),np.double);
