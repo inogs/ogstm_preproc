@@ -368,9 +368,9 @@ class sub_mesh:
             for ji in range (1,jpi-2):
                 if ((self.wes[0,jj,ji] == 0) or (self.eas[0,jj,ji] == 0) ) and (self._mesh_father.tmask[0,0,jj,ji] == 1):
                     if ((self.wes[0,jj+1,ji] == 1) or (self.wes[0,jj-1,ji] == 1) or (self.wes[0,jj,ji+1] == 1) or (self.wes[0,jj,ji-1] == 1) ):
-                        self.wes[1,jj,ji] = 1;
+                        self.wes[0,jj,ji] = 1;
                     else:
-                        aux02[1,jj,ji] = 1;
+                        aux02[0,jj,ji] = 1;
         
         self.wes = aux01;
         self.eas = aux02;
@@ -468,7 +468,7 @@ class sub_mesh:
                             self._mesh_father.input_data.simulation_end_time)):
             
             fileOUT = self._mesh_father.input_data.dir_out + "/ATM_" + str(yCO2) + "0630-00:00:00.nc"
-            
+            print(fileOUT)
             #map_co2 = np.dot(np.ones([self.input_data.jpj, self.input_data.jpi]), rcp85[count])
             ntra_atm_a[l_tmask] = np.nan
             phos_atm_a[l_tmask] = np.nan
