@@ -391,8 +391,8 @@ class sub_mesh:
         Neas = 0;
         for jj in range(0,jpj-1):
             for ji in range(0,jpi-1):
-                Nwes = Nwes + self._mesh_father.e1t[0,0,jj,ji]*self._mesh_father.e2t[0,0,jj,ji]*self._mesh_father.e3t[0,0,0,0]*self.wes[0,jj,ji];
-                Neas = Neas + self._mesh_father.e1t[0,0,jj,ji]*self._mesh_father.e2t[0,0,jj,ji]*self._mesh_father.e3t[0,0,0,0]*self.eas[0,jj,ji];
+                Nwes = Nwes + self._mesh_father.e1t[0,0,jj,ji]*self._mesh_father.e2t[0,0,jj,ji]*self._mesh_father.e3t[0,0]*self.wes[0,jj,ji];
+                Neas = Neas + self._mesh_father.e1t[0,0,jj,ji]*self._mesh_father.e2t[0,0,jj,ji]*self._mesh_father.e3t[0,0]*self.eas[0,jj,ji];
 
 
         lon = self._mesh_father.nav_lon
@@ -480,11 +480,7 @@ class sub_mesh:
                             self._mesh_father.input_data.simulation_end_time)):
 
             fileOUT = self._mesh_father.input_data.dir_out + "/ATM_" + str(yCO2) + "0630-00:00:00.nc"
-<<<<<<< HEAD
             print(fileOUT)
-=======
-
->>>>>>> 75a1849b3312b51399e0702a7cc297b13453f472
             #map_co2 = np.dot(np.ones([self.input_data.jpj, self.input_data.jpi]), rcp85[count])
             ntra_atm_a[l_tmask] = np.nan
             phos_atm_a[l_tmask] = np.nan
