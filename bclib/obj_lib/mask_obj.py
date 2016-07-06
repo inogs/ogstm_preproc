@@ -403,9 +403,9 @@ class sub_mesh:
         for jj in range(0,jpj-1):
             for ji in range(0,jpi-1):
                 if (self.wes[0,jj,ji] == 1):
-                    self.atm[jj,ji] = [a.n3n_wes/Nwes,a.po4_wes/Nwes];
+                    self.atm[jj,ji,:] = [a.n3n_wes/Nwes,a.po4_wes/Nwes];
                 if (self.eas[0,jj,ji] == 1):
-                    self.atm[jj,ji] = [a.n3n_eas/Neas,a.po4_eas/Neas];
+                    self.atm[jj,ji,:] = [a.n3n_eas/Neas,a.po4_eas/Neas];
 
         self.write_atm_netcdf()
         #mappa in 3d un indice 1d
