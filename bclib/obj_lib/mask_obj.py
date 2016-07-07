@@ -364,6 +364,9 @@ class sub_mesh:
 
     def atmosphere(self):
 
+        import code
+        code.interact(local=locals())
+
         logging.info("Atmosphere start calculation")
         jpk = self._mesh_father.tmask_dimension[1]
         jpj = self._mesh_father.tmask_dimension[2]
@@ -380,7 +383,7 @@ class sub_mesh:
                         self.wes[0,jj,ji] = 1;
                     else:
                         aux02[0,jj,ji] = 1;
-        
+
 
 
 
@@ -391,10 +394,13 @@ class sub_mesh:
         Neas = 0;
         for jj in range(0,jpj-1):
             for ji in range(0,jpi-1):
-                Nwes = Nwes + self._mesh_father.e1t[0,0,jj,ji]*self._mesh_father.e2t[0,0,jj,ji]*self._mesh_father.e3t[0,0]*self.wes[0,jj,ji];
-                Neas = Neas + self._mesh_father.e1t[0,0,jj,ji]*self._mesh_father.e2t[0,0,jj,ji]*self._mesh_father.e3t[0,0]*self.eas[0,jj,ji];
+                Nwes = Nwes + self._mesh_father.e1t[0,0,jj,ji]*self._mesh_father.e2t[0,0,jj,ji]*self._mesh_father.e3t[0,0,jj,ji]*self.wes[0,jj,ji];
+                Neas = Neas + self._mesh_father.e1t[0,0,jj,ji]*self._mesh_father.e2t[0,0,jj,ji]*self._mesh_father.e3t[0,0,jj,ji]*self.eas[0,jj,ji];
 
-
+        print(type(Nwes))
+        print(type(Neas))
+        print(type(a.n3n_wes))
+        print(type(a.po4_wes))
         lon = self._mesh_father.nav_lon
         lat = self._mesh_father.nav_lat
         self.atm = np.zeros((jpj,jpi,2));
@@ -403,9 +409,11 @@ class sub_mesh:
         for jj in range(0,jpj-1):
             for ji in range(0,jpi-1):
                 if (self.wes[0,jj,ji] == 1):
-                    self.atm[jj,ji,:] = [a.n3n_wes/Nwes,a.po4_wes/Nwes];
+                    self.atm[jj,ji,0] = a.n3n_wes/Nwes
+                    elf.atm[jj,ji,1] = a.po4_wes/Nwes
                 if (self.eas[0,jj,ji] == 1):
-                    self.atm[jj,ji,:] = [a.n3n_eas/Neas,a.po4_eas/Neas];
+                    self.atm[jj,ji,0] = a.n3n_eas/Neas
+                    self.atm[jj,ji,1] = a.po4_eas/Neas
 
         self.write_atm_netcdf()
         #mappa in 3d un indice 1d
@@ -466,7 +474,7 @@ class sub_mesh:
 
         for jj in range(0,jpj-1):
              for ji in range(0,jpi-1):
-                    VolCell1=area[jj,ji]*self._mesh_father.e3t[0,0];
+                    VolCell1=area[jj,ji]*self._mesh_father.e3t[0,0,jj,ii];
                     totN = totN + ntra_atm_a[jj,ji]*VolCell1;
                     totP = totP + phos_atm_a[jj,ji]*VolCell1;
                     totN_KTy = totN_KTy + ntra_atm_a[jj,ji]*(1.e-3/n)*VolCell1;
