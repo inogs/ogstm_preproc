@@ -300,6 +300,23 @@ class boun_mesh:
         self._mesh_father = mesh
         logging.info("bounmesh builded")
 
+    def load_bounmask(self):
+
+        try:
+            bncfile = nc.Dataset(self.path, 'r')
+            print("LOADING BMASK FROM FILE")
+            for i in bncfile.dimensions:
+                print(bncfile.dimensions[i])
+                setattr(self, bncfile.dimensions[i].name, bncfile.dimensions[i].size)
+            for i in bncfile.variables:
+                b = bncfile.variables[i][:].copy()
+                setattr(self, i, b)
+                print(i)
+            bncfile.close()
+        except:
+            print("BOUNMASK NOT FOUND")
+            exit()
+
     def write_netcdf(self):
         logging.info("Start bounmesh nc file write")
         time = 1
@@ -322,7 +339,7 @@ class boun_mesh:
             aux= self.resto[i,:,:,:]*corrf[i];
             np.transpose(aux, (2, 1, 0)).shape
             name = "re" + self.vnudg[i][0]
-            print(name)
+            #print(name)
             resto_wnc = ncfile.createVariable(name, 'f4', ('time','z','y','x'))
             resto_wnc[0,:] = aux
         idx_inv_wnc = ncfile.createVariable('index', 'i', ('time','z','y','x'))
@@ -364,8 +381,6 @@ class sub_mesh:
 
     def atmosphere(self):
 
-        import code
-        code.interact(local=locals())
 
         logging.info("Atmosphere start calculation")
         jpk = self._mesh_father.tmask_dimension[1]
@@ -385,8 +400,6 @@ class sub_mesh:
                         aux02[0,jj,ji] = 1;
 
 
-
-
         self.wes = aux01;
         self.eas = aux02;
 
@@ -397,59 +410,22 @@ class sub_mesh:
                 Nwes = Nwes + self._mesh_father.e1t[0,0,jj,ji]*self._mesh_father.e2t[0,0,jj,ji]*self._mesh_father.e3t[0,0,jj,ji]*self.wes[0,jj,ji];
                 Neas = Neas + self._mesh_father.e1t[0,0,jj,ji]*self._mesh_father.e2t[0,0,jj,ji]*self._mesh_father.e3t[0,0,jj,ji]*self.eas[0,jj,ji];
 
-        print(type(Nwes))
-        print(type(Neas))
-        print(type(a.n3n_wes))
-        print(type(a.po4_wes))
         lon = self._mesh_father.nav_lon
         lat = self._mesh_father.nav_lat
         self.atm = np.zeros((jpj,jpi,2));
         a = self._mesh_father.input_data
 
+
         for jj in range(0,jpj-1):
             for ji in range(0,jpi-1):
                 if (self.wes[0,jj,ji] == 1):
                     self.atm[jj,ji,0] = a.n3n_wes/Nwes
-                    elf.atm[jj,ji,1] = a.po4_wes/Nwes
+                    self.atm[jj,ji,1] = a.po4_wes/Nwes
                 if (self.eas[0,jj,ji] == 1):
                     self.atm[jj,ji,0] = a.n3n_eas/Neas
                     self.atm[jj,ji,1] = a.po4_eas/Neas
 
         self.write_atm_netcdf()
-        #mappa in 3d un indice 1d
-#         count = 0;
-#         idx = np.zeros((jpk,jpj,jpi));
-#         for jk in range(0,jpk-1):
-#             for jj in range(0,jpj-1):
-#                 for ji in range(0,jpi-1):
-#                     if (self._mesh_father.tmask[0,jk,jj,ji] == 1):
-#                         count=count+1;
-#                         idx[jk,jj,ji] = count;
-#
-#         # conta elementi
-#         counter =0 ;
-#         for jj in range(1,jpj):
-#             for ji in range(1,jpi):
-#                 if (self.wes[1,jj,ji] == 1):
-#                     counter=counter+1;
-#                 if (self.eas[1,jj,ji] == 1):
-#                     counter=counter+1;
-#
-#
-#         self.atm = np.zeros((counter,7));
-#         lon = self._mesh_father.nav_lon
-#         lat = self._mesh_father.nav_lat
-#         a = self._mesh_father.input_data
-#         counter = 0
-#         for jj in range(0,jpj-1):
-#             for ji in range(0,jpi-1):
-#                 jr=idx[0,jj,ji];
-#                 if (self.wes[0,jj,ji] == 1):
-#                     counter=counter+1;
-#                     self.atm[counter,:] = [jr,ji,jj,lon[jj,ji],lat[jj,ji],a.n3n_wes/Nwes,a.po4_wes/Nwes];
-#                 if (self.eas[0,jj,ji] == 1):
-#                     counter=counter+1 ;
-#                     self.atm[counter,:]=[jr,ji,jj,lon[jj,ji],lat[jj,ji],a.n3n_eas/Neas,a.po4_eas/Neas];
 
         logging.info("Atmosphere finish calculation")
 
@@ -474,7 +450,7 @@ class sub_mesh:
 
         for jj in range(0,jpj-1):
              for ji in range(0,jpi-1):
-                    VolCell1=area[jj,ji]*self._mesh_father.e3t[0,0,jj,ii];
+                    VolCell1=area[jj,ji]*self._mesh_father.e3t[0,0,jj,ji];
                     totN = totN + ntra_atm_a[jj,ji]*VolCell1;
                     totP = totP + phos_atm_a[jj,ji]*VolCell1;
                     totN_KTy = totN_KTy + ntra_atm_a[jj,ji]*(1.e-3/n)*VolCell1;
@@ -488,7 +464,7 @@ class sub_mesh:
                             self._mesh_father.input_data.simulation_end_time)):
 
             fileOUT = self._mesh_father.input_data.dir_out + "/ATM_" + str(yCO2) + "0630-00:00:00.nc"
-            print(fileOUT)
+            #print(fileOUT)
             #map_co2 = np.dot(np.ones([self.input_data.jpj, self.input_data.jpi]), rcp85[count])
             ntra_atm_a[l_tmask] = np.nan
             phos_atm_a[l_tmask] = np.nan
@@ -509,36 +485,6 @@ class sub_mesh:
 
         logging.info("Atmosphere Netcdf writed")
 
-#         jpt_atm = 1;
-#         atm = self.submesh.atm
-#         count_atm = atm.shape[0];
-#         index_atm_a = np.zeros(count_atm, dtype = np.int);
-#         phos_atm_a  = np.zeros((count_atm,jpt_atm));
-#         ntra_atm_a  = np.zeros((count_atm,jpt_atm));
-#         w = 1.0e+09;
-#         t = 1/(365 * 86400);
-#         totP = 0;
-#         totN = 0;
-#         totN_KTy =0;
-#         totP_KTy =0;
-#         for jn in range(count_atm):
-#             ji  = atm[jn,1];
-#             jj  = atm[jn,2];
-#             jk  = 1;
-#             VolCell1=area[jj,ji]*self.e3t[0,0];
-#             totN = totN + atm[jn,5]*VolCell1;
-#             totP = totP + atm[jn,6]*VolCell1;
-#
-#             totN_KTy = totN_KTy + atm[jn,5]*(1.e-3/n)*VolCell1;
-#             totP_KTy = totP_KTy + atm[jn,6]*(1.e-3/p)*VolCell1;
-#             cn = w*t;
-#             cp = w*t;
-#             index_atm_a[jn] = self.bounmesh.idx[jk,jj,ji];
-#             ntra_atm_a[jn,:] = atm[jn,5]*cn;
-#             phos_atm_a[jn,:] = atm[jn,6]*cp;
-#             logging.info("--finish atmosphere netcdf write")
-
-
 
 class mesh:
     """
@@ -549,11 +495,12 @@ class mesh:
     def __init__(self,input):# ncf_mesh,ncf_submesh,ncf_bounmesh):
         self.input_data = input
         self.path = self.input_data.file_mask
+        self._extract_information()
+
 
         if self.input_data.use_as_libray == False:
 
             logging.info("BC standalone activate")
-            self._extract_information()
 
             if self.input_data.active_atm:
                 logging.info("Atmosphere enabled")
@@ -585,7 +532,7 @@ class mesh:
             else:
                 logging.info("River disabled")
 
-            if self.input_data.active_river and self.input_data.active_gib and self.input_data.active_bmask :
+            if self.input_data.active_river and self.input_data.active_gib :
                 self.bc()
 
             logging.info("end")
@@ -603,7 +550,7 @@ class mesh:
             print("MASKFILE NOT FOUND")
             exit()
         for i in self.ncfile.dimensions:
-            print(self.ncfile.dimensions[i])
+            #print(self.ncfile.dimensions[i])
             setattr(self, self.ncfile.dimensions[i].name, self.ncfile.dimensions[i].size)
         for i in self.ncfile.variables:
             b = self.ncfile.variables[i][:].copy()
@@ -625,7 +572,7 @@ class mesh:
             bm.vnudg = self.input_data.variables
             rdpmin = self.input_data.rdpmin
             rdpmax = self.input_data.rdpmax
-            print(type(self.y),type(self.x))
+            #print(type(self.y),type(self.x))
             self.glamt = self.glamt.reshape(int(self.y),int(self.x))
             bm.nudg = len(bm.vnudg)
             bm.jpk = self.tmask_dimension[1]
@@ -685,6 +632,28 @@ class mesh:
 
         logging.info("BC generation file start")
 
+        if not ("bounmesh" in vars()):
+             self.bounmesh = boun_mesh(self,self.input_data.file_bmask)
+             self.bounmesh.load_bounmask()
+             self.bounmesh.idx = self.bounmesh.index[0]
+             print(type(self.bounmesh.idx),self.bounmesh.idx.shape,type(self.bounmesh.index),self.bounmesh.index.shape)
+             self.bounmesh.vnudg = self.input_data.variables
+             self.bounmesh.rdpmin = self.input_data.rdpmin
+             self.bounmesh.rdpmax = self.input_data.rdpmax
+             self.glamt = self.glamt.reshape(int(self.y),int(self.x))
+             self.bounmesh.nudg = len(self.bounmesh.vnudg)
+             self.bounmesh.jpk = self.tmask_dimension[1]
+             self.bounmesh.jpjglo = self.tmask_dimension[2]
+             self.bounmesh.jpiglo = self.tmask_dimension[3]
+             self.bounmesh.resto = np.zeros((self.bounmesh.nudg,self.bounmesh.jpk,self.bounmesh.jpjglo,self.bounmesh.jpiglo));
+             self.bounmesh.resto[0][:] = self.bounmesh.reN1p[:]
+             self.bounmesh.resto[1][:] = self.bounmesh.reN3n[:]
+             self.bounmesh.resto[2][:] = self.bounmesh.reO2o[:]
+             self.bounmesh.resto[3][:] = self.bounmesh.reN5s[:]
+             self.bounmesh.resto[4][:] = self.bounmesh.reO3c[:]
+             self.bounmesh.resto[5][:] = self.bounmesh.reO3h[:]
+             self.bounmesh.resto[6][:] = self.bounmesh.reN6r[:]
+
         jpk = self.tmask_dimension[1]
         jpj = self.tmask_dimension[2]
         jpi = self.tmask_dimension[3]
@@ -716,7 +685,7 @@ class mesh:
                     idx=np.zeros(npi,dtype=np.int);
                     data=np.zeros(npi);
 
-                    if jn == 1:
+                    if jn == 0:
                         for jk in range(jpk):
                             for jj in range(jpj):
                                 for ji in range(jpi):
@@ -731,7 +700,7 @@ class mesh:
                         data_n1p = ncfile.createVariable('gib_N1p', 'f',('gib_idxt_N1p',))
                         data_n1p[:] = data[:]
 
-                    if jn == 2:
+                    if jn == 1:
                         for jk in range(jpk):
                             for jj in range(jpj):
                                 for ji in range(jpi):
@@ -746,7 +715,7 @@ class mesh:
                         data_n3n = ncfile.createVariable('gib_N3n', 'f',('gib_idxt_N3n',))
                         data_n3n[:] = data[:]
 
-                    if jn == 3:
+                    if jn == 2:
                         for jk in range(jpk):
                             for jj in range(jpj):
                                 for ji in range(jpi):
@@ -761,7 +730,7 @@ class mesh:
                         data_o2o = ncfile.createVariable('gib_O2o', 'f',('gib_idxt_O2o',))
                         data_o2o[:] = data[:]
 
-                    if jn == 4:
+                    if jn == 3:
                         for jk in range(jpk):
                             for jj in range(jpj):
                                 for ji in range(jpi):
@@ -776,7 +745,7 @@ class mesh:
                         data_n5s = ncfile.createVariable('gib_N5s', 'f',('gib_idxt_N5s',))
                         data_n5s[:] = data[:]
 
-                    if jn == 5:
+                    if jn == 4:
                         for jk in range(jpk):
                             for jj in range(jpj):
                                 for ji in range(jpi):
@@ -791,7 +760,7 @@ class mesh:
                         data_o3c = ncfile.createVariable('gib_O3c', 'f',('gib_idxt_O3c',))
                         data_o3c[:] = data[:]
 
-                    if jn == 6:
+                    if jn == 5:
                         for jk in range(jpk):
                             for jj in range(jpj):
                                 for ji in range(jpi):
@@ -806,7 +775,7 @@ class mesh:
                         data_o3h = ncfile.createVariable('gib_O3h', 'f',('gib_idxt_O3h',))
                         data_o3h[:] = data[:]
 
-                    if jn == 7:
+                    if jn == 6:
                         for jk in range(jpk):
                             for jj in range(jpj):
                                 for ji in range(jpi):
@@ -816,7 +785,7 @@ class mesh:
                                         count =  count +1;
 
                         ncfile.createDimension('gib_idxt_N6r',count)
-                        idx_n6r = ncfile.createVariable('gib_idxt_N6r', 'i', ('gib_idxt_N63',))
+                        idx_n6r = ncfile.createVariable('gib_idxt_N6r', 'i', ('gib_idxt_N6r',))
                         idx_n6r[:] = idx[:]
                         data_n6r = ncfile.createVariable('gib_N6r', 'f',('gib_idxt_N6r',))
                         data_n6r[:] = data[:]
@@ -849,7 +818,7 @@ class mesh:
 
                 ji  = self.river.river_georef[jc,2];
                 jj  = self.river.river_georef[jc,3];
-                Vol2cells = area[jj,ji]*(self.e3t[0,0][:]+self.e3t[0,1][:]);
+                Vol2cells = area[jj,ji]*(self.e3t[0,0,jj,ji]+self.e3t[0,0,jj,ji]);
                 cn = w*t*n/Vol2cells;
                 cp = w*t*p/Vol2cells;
                 cs = w*t*s/Vol2cells;
