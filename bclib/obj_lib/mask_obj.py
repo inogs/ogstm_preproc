@@ -673,117 +673,141 @@ class mesh:
                 ncfile = nc.Dataset(name_file, 'w')
                 for jn in range(self.bounmesh.nudg):
                     aux = self.bounmesh.resto[jn][:]
-                    isNudg = np.zeros(aux.shape,dtype=int)
+                    isNudg = []#np.zeros(aux.shape,dtype=int)
 
                     for k in range(aux.shape[0]):
                         for j in range(aux.shape[1]):
                             for i in range(aux.shape[2]):
+                                #print(aux[k,j,i])
                                 if (aux[k,j,i]!=0 and aux[k,j,i] < 1e+19):   # da controllare
-                                    isNudg[k,j,i] = 1
-                    count = 0
-                    npi=np.sum(isNudg);
-                    idx=np.zeros(npi,dtype=np.int);
-                    data=np.zeros(npi);
+                                    isNudg.append([k,j,i])
 
+
+                    npi=len(isNudg);
+                    idx=np.zeros((npi),dtype="int32");
+                    data=np.zeros(npi);
+                    count = 0
                     if jn == 0:
-                        for jk in range(jpk):
-                            for jj in range(jpj):
-                                for ji in range(jpi):
-                                    if isNudg[jk,jj,ji]:
-                                        idx[count] = index[jk,jj,ji];
-                                        data[count] = self.gibilterra.phos[time,jk,jj,ji];
-                                        count =  count +1;
+                        for cord in isNudg:
+                            idx[count] = index[cord[0],cord[1],cord[2]];
+                            data[count] = self.gibilterra.phos[time,cord[0],cord[1],cord[2]];
+                            count = count +1;
+
 
                         ncfile.createDimension('gib_idxt_N1p',count)
-                        idx_n1p = ncfile.createVariable('gib_idxt_N1p', 'i', ('gib_idxt_N1p',))
+                        idx_n1p = ncfile.createVariable('gib_idxt_N1p', 'i4', ('gib_idxt_N1p',))
                         idx_n1p[:] = idx[:]
                         data_n1p = ncfile.createVariable('gib_N1p', 'f',('gib_idxt_N1p',))
                         data_n1p[:] = data[:]
 
                     if jn == 1:
-                        for jk in range(jpk):
-                            for jj in range(jpj):
-                                for ji in range(jpi):
-                                    if isNudg[jk,jj,ji]:
-                                        idx[count] = index[jk,jj,ji];
-                                        data[count] = self.gibilterra.ntra[time,jk,jj,ji];
-                                        count =  count +1;
-
+                        for cord in isNudg:
+                            idx[count] = index[cord[0],cord[1],cord[2]];
+                            data[count] = self.gibilterra.ntra[time,cord[0],cord[1],cord[2]];
+                            count = count +1;
+                    #     for jk in range(jpk):
+                    #         for jj in range(jpj):
+                    #             for ji in range(jpi):
+                    #                 if isNudg[jk,jj,ji]:
+                    #                     idx[count] = index[jk,jj,ji];
+                    #                     data[count] = self.gibilterra.ntra[time,jk,jj,ji];
+                    #                     count =  count +1;
+                    #
                         ncfile.createDimension('gib_idxt_N3n',count)
                         idx_n3n = ncfile.createVariable('gib_idxt_N3n', 'i', ('gib_idxt_N3n',))
                         idx_n3n[:] = idx[:]
                         data_n3n = ncfile.createVariable('gib_N3n', 'f',('gib_idxt_N3n',))
                         data_n3n[:] = data[:]
-
+                    #
                     if jn == 2:
-                        for jk in range(jpk):
-                            for jj in range(jpj):
-                                for ji in range(jpi):
-                                    if isNudg[jk,jj,ji]:
-                                        idx[count] = index[jk,jj,ji];
-                                        data[count] = self.gibilterra.dox[time,jk,jj,ji];
-                                        count =  count +1;
-
+                        for cord in isNudg:
+                            idx[count] = index[cord[0],cord[1],cord[2]];
+                            data[count] = self.gibilterra.dox[time,cord[0],cord[1],cord[2]];
+                            count = count +1;
+                    #     for jk in range(jpk):
+                    #         for jj in range(jpj):
+                    #             for ji in range(jpi):
+                    #                 if isNudg[jk,jj,ji]:
+                    #                     idx[count] = index[jk,jj,ji];
+                    #                     data[count] = self.gibilterra.dox[time,jk,jj,ji];
+                    #                     count =  count +1;
+                    #
                         ncfile.createDimension('gib_idxt_O2o',count)
                         idx_o2o = ncfile.createVariable('gib_idxt_O2o', 'i', ('gib_idxt_O2o',))
                         idx_o2o[:] = idx[:]
                         data_o2o = ncfile.createVariable('gib_O2o', 'f',('gib_idxt_O2o',))
                         data_o2o[:] = data[:]
-
+                    #
                     if jn == 3:
-                        for jk in range(jpk):
-                            for jj in range(jpj):
-                                for ji in range(jpi):
-                                    if isNudg[jk,jj,ji]:
-                                        idx[count] = index[jk,jj,ji];
-                                        data[count] = self.gibilterra.sica[time,jk,jj,ji];
-                                        count =  count +1;
-
+                        for cord in isNudg:
+                            idx[count] = index[cord[0],cord[1],cord[2]];
+                            data[count] = self.gibilterra.sica[time,cord[0],cord[1],cord[2]];
+                            count = count +1;
+                    #     for jk in range(jpk):
+                    #         for jj in range(jpj):
+                    #             for ji in range(jpi):
+                    #                 if isNudg[jk,jj,ji]:
+                    #                     idx[count] = index[jk,jj,ji];
+                    #                     data[count] = self.gibilterra.sica[time,jk,jj,ji];
+                    #                     count =  count +1;
+                    #
                         ncfile.createDimension('gib_idxt_N5s',count)
                         idx_n3n = ncfile.createVariable('gib_idxt_N5s', 'i', ('gib_idxt_N5s',))
                         idx_n3n[:] = idx[:]
                         data_n5s = ncfile.createVariable('gib_N5s', 'f',('gib_idxt_N5s',))
                         data_n5s[:] = data[:]
-
+                    #
                     if jn == 4:
-                        for jk in range(jpk):
-                            for jj in range(jpj):
-                                for ji in range(jpi):
-                                    if isNudg[jk,jj,ji]:
-                                        idx[count] = index[jk,jj,ji];
-                                        data[count] = self.gibilterra.dic[time,jk,jj,ji];
-                                        count =  count +1;
-
+                        for cord in isNudg:
+                            idx[count] = index[cord[0],cord[1],cord[2]];
+                            data[count] = self.gibilterra.dic[time,cord[0],cord[1],cord[2]];
+                            count = count +1;
+                    #     for jk in range(jpk):
+                    #         for jj in range(jpj):
+                    #             for ji in range(jpi):
+                    #                 if isNudg[jk,jj,ji]:
+                    #                     idx[count] = index[jk,jj,ji];
+                    #                     data[count] = self.gibilterra.dic[time,jk,jj,ji];
+                    #                     count =  count +1;
+                    #
                         ncfile.createDimension('gib_idxt_O3c',count)
                         idx_o3c = ncfile.createVariable('gib_idxt_O3c', 'i', ('gib_idxt_O3c',))
                         idx_o3c[:] = idx[:]
                         data_o3c = ncfile.createVariable('gib_O3c', 'f',('gib_idxt_O3c',))
                         data_o3c[:] = data[:]
-
+                    #
                     if jn == 5:
-                        for jk in range(jpk):
-                            for jj in range(jpj):
-                                for ji in range(jpi):
-                                    if isNudg[jk,jj,ji]:
-                                        idx[count] = index[jk,jj,ji];
-                                        data[count] = self.gibilterra.alk[time,jk,jj,ji];
-                                        count =  count +1;
-
+                        for cord in isNudg:
+                            idx[count] = index[cord[0],cord[1],cord[2]];
+                            data[count] = self.gibilterra.alk[time,cord[0],cord[1],cord[2]];
+                            count = count +1;
+                    #     for jk in range(jpk):
+                    #         for jj in range(jpj):
+                    #             for ji in range(jpi):
+                    #                 if isNudg[jk,jj,ji]:
+                    #                     idx[count] = index[jk,jj,ji];
+                    #                     data[count] = self.gibilterra.alk[time,jk,jj,ji];
+                    #                     count =  count +1;
+                    #
                         ncfile.createDimension('gib_idxt_O3h',count)
                         idx_o3h = ncfile.createVariable('gib_idxt_O3h', 'i', ('gib_idxt_O3h',))
                         idx_o3h[:] = idx[:]
                         data_o3h = ncfile.createVariable('gib_O3h', 'f',('gib_idxt_O3h',))
                         data_o3h[:] = data[:]
-
+                    #
                     if jn == 6:
-                        for jk in range(jpk):
-                            for jj in range(jpj):
-                                for ji in range(jpi):
-                                    if isNudg[jk,jj,ji]:
-                                        idx[count] = index[jk,jj,ji];
-                                        data[count] = 0.0025;
-                                        count =  count +1;
-
+                        for cord in isNudg:
+                            idx[count] = index[cord[0],cord[1],cord[2]];
+                            data[count] = 0.0025;
+                            count = count +1;
+                    #     for jk in range(jpk):
+                    #         for jj in range(jpj):
+                    #             for ji in range(jpi):
+                    #                 if isNudg[jk,jj,ji]:
+                    #                     idx[count] = index[jk,jj,ji];
+                    #                     data[count] = 0.0025;
+                    #                     count =  count +1;
+                    #
                         ncfile.createDimension('gib_idxt_N6r',count)
                         idx_n6r = ncfile.createVariable('gib_idxt_N6r', 'i', ('gib_idxt_N6r',))
                         idx_n6r[:] = idx[:]
@@ -855,6 +879,8 @@ class mesh:
                 name_file = self.input_data.dir_out+"/TIN_"+str(yr)+str(mth+1)+"15-00:00:00.nc"
                 ncfile = nc.Dataset(name_file, 'w')
                 ncfile.createDimension("riv_idxt",count_riv)
+                riv_idxt_riv = ncfile.createVariable('riv_idxt', 'i2', ('riv_idxt',))
+                riv_idxt_riv[:] = idxt_riv[:]
                 riv_a_n3n = ncfile.createVariable('riv_N3n', 'f', ('riv_idxt',))
                 riv_a_n3n[:] = n3n_riv[:,mth]
                 riv_a_n1p = ncfile.createVariable('riv_N1p', 'f', ('riv_idxt',))
