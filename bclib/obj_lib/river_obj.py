@@ -19,49 +19,62 @@ class river_data:
     def _extract_information(self):
         logging.debug(self.path_river)
         logging.debug(self.path_runoff)
+        logging.debug("--Start river data collection")
         work_sheet  = self._mesh_father.input_data.river_data_sheet
 
-        range_montly = range(7,19)
-        range_coord  = [1,2]
-
+        range_montly = range(10,21)
+        range_coord  = [2,3]
+        force_coord  = [3,4]
         river_excel_file = xlsobj.xlsx(self.path_river)
-        self.river_montly_mod = river_excel_file.read_spreadsheet_allrow("monthly",range_montly)
-        self.river_coordr = river_excel_file.read_spreadsheet_allrow("monthly",range_coord)
+        river_spreadsheet = {}
+        #read xlsx
+        river_spreadsheet["monthly"] =  river_excel_file.read_spreadsheet_all("monthly")
+        for data_t in self._mesh_father.input_data.river_data_sheet:
+            river_spreadsheet[data_t] =  river_excel_file.read_spreadsheet_all(data_t)
+        
+        #extract data
+        self.river_coordr = river_spreadsheet["monthly"][1:,1:3].astype(np.float32)
+        self.force_coordr = river_spreadsheet["monthly"][1:,3:5].astype(np.float32)
+        self.river_montly_mod = river_spreadsheet["monthly"][1:,9:21].astype(np.float32)
+      
         self.nrivers = len(self.river_coordr[:])
         self.river_collected_data = {}
-        logging.debug("--Start river data collection")
         for data_t in self._mesh_father.input_data.river_data_sheet:
             river_sheet_collected_data = {}
-            x_range_coord  = [1]
-            y_range = range(7,48)
-            self.river_years = river_excel_file.read_spreadsheet_range(data_t,x_range_coord,y_range,"i")
-            self.river_years = self.river_years[0][:]
+            #self.river_years = river_excel_file.read_spreadsheet_range(data_t,x_range_coord,y_range,"i")
+            self.river_years = river_spreadsheet[data_t][0][9:]
             count = 0
-            x_range = range(2,39)
-            ry = river_excel_file.read_spreadsheet_range(data_t,x_range,y_range)
+            x_range = range(2,41)
+            ry = river_spreadsheet[data_t][0][9:]
+            count = 8 
+            print(river_spreadsheet[data_t].shape)
             for y in self.river_years[:]:
-                river_sheet_collected_data[str(y)] = ry[:,count].copy()
+                count = count + 1
+                print(y,count)
+                river_sheet_collected_data[str(y)] =  river_spreadsheet[data_t][1:,count].copy()
             self.river_collected_data[data_t] =  river_sheet_collected_data.copy()
         logging.debug("--End river data collection")
 
-        runoff_excel_file = xlsobj.xlsx(self.path_runoff)
-        self.runoff_montly_mod = river_excel_file.read_spreadsheet_allrow("monthly",range_montly)
-        self.runoff_coordr = river_excel_file.read_spreadsheet_allrow("monthly",range_coord)
-        self.nrunoff = len(self.river_coordr[:])
-        self.runoff_collected_data = {}
-        logging.debug("--Start runoff data collection")
-        for data_t in self._mesh_father.input_data.river_data_sheet:
-            runoff_sheet_collected_data = {}
-            x_range_coord  = [1]
-            y_range = range(7,48)
-            self.runoff_years = river_excel_file.read_spreadsheet_range(data_t,x_range_coord,y_range,"i")
-            count = 0
-            x_range = range(2,39)
-            ry = runoff_excel_file.read_spreadsheet_range(data_t,x_range,y_range)
-            for y in self.river_years[:]:
-                runoff_sheet_collected_data[str(y)] = ry[:,count].copy()
-            self.runoff_collected_data[data_t] = runoff_sheet_collected_data.copy()
-        logging.debug("--End runoff data collection")
+        
+
+        # runoff_excel_file = xlsobj.xlsx(self.path_runoff)
+        # self.runoff_montly_mod = river_excel_file.read_spreadsheet_allrow("monthly",range_montly)
+        # self.runoff_coordr = river_excel_file.read_spreadsheet_allrow("monthly",range_coord)
+        # self.nrunoff = len(self.river_coordr[:])
+        # self.runoff_collected_data = {}
+        # logging.debug("--Start runoff data collection")
+        # for data_t in self._mesh_father.input_data.river_data_sheet:
+        #     runoff_sheet_collected_data = {}
+        #     x_range_coord  = [1]
+        #     y_range = range(7,48)
+        #     self.runoff_years = river_excel_file.read_spreadsheet_range(data_t,x_range_coord,y_range,"i")
+        #     count = 0
+        #     x_range = range(2,39)
+        #     ry = runoff_excel_file.read_spreadsheet_range(data_t,x_range,y_range)
+        #     for y in self.river_years[:]:
+        #         runoff_sheet_collected_data[str(y)] = ry[:,count].copy()
+        #     self.runoff_collected_data[data_t] = runoff_sheet_collected_data.copy()
+        # logging.debug("--End runoff data collection")
 
 
     def _coast_line_mask(self, mask):
@@ -135,56 +148,56 @@ class river_data:
             self.river_data[data_type]=years_data.copy()
 
         ### runoff contributes
-        self.n_coast_cells = len(loncm)
+        # self.n_coast_cells = len(loncm)
 
-        indexes = np.zeros(self.n_coast_cells)
-        georef = np.zeros((self.n_coast_cells,5))
+        # indexes = np.zeros(self.n_coast_cells)
+        # georef = np.zeros((self.n_coast_cells,5))
 
-        for i in range(0,self.n_coast_cells):
-            lon_coast_cell = loncm[i]
-            lat_coast_cell = latcm[i]
-            dist =( (self.runoff_coordr[:,0]-lon_coast_cell)**2
-                     + (self.runoff_coordr[:,1]-lat_coast_cell)**2 )
-            ind = np.argmin(dist)
-            indexes[i] = ind
-            georef[i,0]=i
-            for ii in range(1,5):
-                georef[i,ii]=georef4[i,ii-1]
-        self.runoff_georef = georef
-
-
-        m=np.zeros((self.nrunoff,12))
-        self.runoff_data={}
-
-        for data_type in data_types :
-            years_data={}
-            for ic in self.river_years :
-                years_data[str(ic)]=np.zeros((self.n_coast_cells,12)).copy()
-                for r in range (0,self.nrunoff-2) :
-                    ry = self.runoff_collected_data[data_type][str(ic)][r]
-                    m[r,:] =  (self.runoff_montly_mod[r,:]/100)*12*ry
-                    ii=indexes==r
-                    count = ii.sum()
-                    if count > 0:
-                        years_data[str(ic)][ii,:]= npmat.repmat(m[r,:]/count, count, 1)
+        # for i in range(0,self.n_coast_cells):
+        #     lon_coast_cell = loncm[i]
+        #     lat_coast_cell = latcm[i]
+        #     dist =( (self.runoff_coordr[:,0]-lon_coast_cell)**2
+        #              + (self.runoff_coordr[:,1]-lat_coast_cell)**2 )
+        #     ind = np.argmin(dist)
+        #     indexes[i] = ind
+        #     georef[i,0]=i
+        #     for ii in range(1,5):
+        #         georef[i,ii]=georef4[i,ii-1]
+        # self.runoff_georef = georef
 
 
-            self.runoff_data[data_type]=years_data.copy()
+        # m=np.zeros((self.nrunoff,12))
+        # self.runoff_data={}
 
-        #sum contributes
-
-        for k in range(0,np.size(self.river_georef[0,:])):
-            im = self.river_georef[k,2]
-            jm = self.river_georef[k,3]
-            for i in range(0,self.nrivers):
-                if (self.river_georef[i,2] == im and self.river_georef[i,3] == jm) :
-                    ii = self.river_georef[i,2]
-            for dt in data_types :
-                for yr in self.river_years :
-                    self.runoff_data[dt][str(yr)][ii,:] = (
-                        self.runoff_data[dt][str(yr)][ii,:] +
-                        self.river_data[dt][str(yr)][k,:] )
+        # for data_type in data_types :
+        #     years_data={}
+        #     for ic in self.river_years :
+        #         years_data[str(ic)]=np.zeros((self.n_coast_cells,12)).copy()
+        #         for r in range (0,self.nrunoff-2) :
+        #             ry = self.runoff_collected_data[data_type][str(ic)][r]
+        #             m[r,:] =  (self.runoff_montly_mod[r,:]/100)*12*ry
+        #             ii=indexes==r
+        #             count = ii.sum()
+        #             if count > 0:
+        #                 years_data[str(ic)][ii,:]= npmat.repmat(m[r,:]/count, count, 1)
 
 
-        self.river_runoff_data = self.runoff_data
+        #     self.runoff_data[data_type]=years_data.copy()
+
+        # #sum contributes
+
+        # for k in range(0,np.size(self.river_georef[0,:])):
+        #     im = self.river_georef[k,2]
+        #     jm = self.river_georef[k,3]
+        #     for i in range(0,self.nrivers):
+        #         if (self.river_georef[i,2] == im and self.river_georef[i,3] == jm) :
+        #             ii = self.river_georef[i,2]
+        #     for dt in data_types :
+        #         for yr in self.river_years :
+        #             self.runoff_data[dt][str(yr)][ii,:] = (
+        #                 self.runoff_data[dt][str(yr)][ii,:] +
+        #                 self.river_data[dt][str(yr)][k,:] )
+
+
+        # self.river_runoff_data = self.runoff_data
         logging.info("End calc river and runoff calculation")

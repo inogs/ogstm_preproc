@@ -16,17 +16,29 @@ class xlsx:
             exit()
 
 
-    def read_spreadsheet_allrow(self,worsheet,y_range):
+    def read_spreadsheet_all(self,worsheet):
 
         ws = self.wb[worsheet]
-        n = len(ws.columns[1])
-        a = np.zeros((n,len(y_range)))
+        
+       
+        b = []
+        x = 0
+        while True :
+            x = x+1
+            if  ws.cell(row = x , column = 1).value == -999:
+                    break
+            
+            a = []
+            y = 0
+            while True:
+                y = y +1
+                if  ws.cell(row = x , column = y).value == -999:
+                    break
+                a.append( ws.cell(row = x , column = y).value )
+            b.append(a[:])
 
-        for x in range(2,n):
-            for y in y_range:
-                a[x-2][y-y_range[0]] = ws.cell(row = x , column = y).value
-
-        return a
+        cast_nparray = np.array(b)            
+        return cast_nparray
 
     def read_spreadsheet_range(self,worsheet,x_range,y_range,dtype="d"):
 
