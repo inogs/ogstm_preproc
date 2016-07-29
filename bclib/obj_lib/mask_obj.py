@@ -162,7 +162,7 @@ class mesh:
              self.bounmesh = bmesh(self,self.input_data.file_bmask)
              self.bounmesh.load_bounmask()
              self.bounmesh.idx = self.bounmesh.index[0]
-             print(type(self.bounmesh.idx),self.bounmesh.idx.shape,type(self.bounmesh.index),self.bounmesh.index.shape)
+             #print(type(self.bounmesh.idx),self.bounmesh.idx.shape,type(self.bounmesh.index),self.bounmesh.index.shape)
              self.bounmesh.vnudg = self.input_data.variables
              self.bounmesh.rdpmin = self.input_data.rdpmin
              self.bounmesh.rdpmax = self.input_data.rdpmax
@@ -316,12 +316,14 @@ class mesh:
                     logging.info("--finish nutrients netcdf write")
 
             jpt_riv = 12
-            index_riv_a = np.zeros(( 2 * n_coast_cell,), dtype = np.int);
-            phos_riv_a  = np.zeros(( 2 * n_coast_cell,  jpt_riv));
-            ntra_riv_a  = np.zeros(( 2 * n_coast_cell,  jpt_riv));
-            sili_riv_a  = np.zeros(( 2 * n_coast_cell,  jpt_riv));
-            alka_riv_a  = np.zeros(( 2 * n_coast_cell,  jpt_riv));
-            dicc_riv_a  = np.zeros(( 2 * n_coast_cell,  jpt_riv));
+            #print("n_coast_cell",n_coast_cell)
+            index_riv_a = np.zeros((  n_coast_cell,), dtype = np.int);
+            position = np.zeros((  n_coast_cell,3), dtype = np.int);
+            phos_riv_a  = np.zeros((  n_coast_cell,  jpt_riv));
+            ntra_riv_a  = np.zeros((  n_coast_cell,  jpt_riv));
+            sili_riv_a  = np.zeros((  n_coast_cell,  jpt_riv));
+            alka_riv_a  = np.zeros((  n_coast_cell,  jpt_riv));
+            dicc_riv_a  = np.zeros((  n_coast_cell,  jpt_riv));
             w= 1.0e+12;
             t = 1/(365 * 86400)
             n = 1/14;
@@ -332,55 +334,73 @@ class mesh:
             totS = 0;
             totA = 0;
             totD = 0;
-
+            #print(index.shape)
             for jc in range(n_coast_cell):
                 jc2  = jc + n_coast_cell;
 
+                jj  = int(self.river.river_georef[jc,1]);
                 ji  = int(self.river.river_georef[jc,2]);
-                jj  = int(self.river.river_georef[jc,3]);
-                print(ji,jj)
+                #print(ji,jj)
                 Vol2cells = area[jj,ji]*(self.e3t[0,0,jj,ji]+self.e3t[0,0,jj,ji]);
                 cn = w*t*n/Vol2cells;
                 cp = w*t*p/Vol2cells;
                 cs = w*t*s/Vol2cells;
                 ca = w*t  /Vol2cells;
                 cc = w*t  /Vol2cells;
-                totN = totN + sum(self.river.river_runoff_data["no3_kt_yr"][str(yr)][jc,:],2)/12;
-                totP = totP + sum(self.river.river_runoff_data["po4_kt_yr"][str(yr)][jc,:],2)/12;
-                totS = totS + sum(self.river.river_runoff_data["sic_kt_yr"][str(yr)][jc,:],2)/12;
-                totA = totA + sum(self.river.river_runoff_data["alk_Gmol_yr"][str(yr)][jc,:],2)/12;
-                totD = totD + sum(self.river.river_runoff_data["dic_kt_yr"][str(yr)][jc,:],2)/12;
+                
+                totN = totN + sum(self.river.river_data["DIN_KTperYR_NOBLS"][str(yr)][jc,:],2)/12;
+                totP = totP + sum(self.river.river_data["DIP_KTperYR_NOBLS"][str(yr)][jc,:],2)/12;
+                totS = totS + sum(self.river.river_data["DIS_KTperYR_NOBLS"][str(yr)][jc,:],2)/12;
+                totA = totA + sum(self.river.river_data["ALK_KTperYR_NOBLS"][str(yr)][jc,:],2)/12;
+                totD = totD + sum(self.river.river_data["DIC_KTperYR_NOBLS"][str(yr)][jc,:],2)/12;
                 index_riv_a[jc]  = index[0,jj,ji];
-                ntra_riv_a[jc,:] = self.river.river_runoff_data["no3_kt_yr"][str(yr)][jc,:]*cn;
-                phos_riv_a[jc,:] = self.river.river_runoff_data["po4_kt_yr"][str(yr)][jc,:]*cp;
-                sili_riv_a[jc,:] = self.river.river_runoff_data["sic_kt_yr"][str(yr)][jc,:]*cs;
-                alka_riv_a[jc,:] = self.river.river_runoff_data["alk_Gmol_yr"][str(yr)][jc,:]*ca;
-                dicc_riv_a[jc,:] = self.river.river_runoff_data["dic_kt_yr"][str(yr)][jc,:]*cc;
-                index_riv_a[jc2]  = index[1,jj,ji];
-                ntra_riv_a[jc2,:] = self.river.river_runoff_data["no3_kt_yr"][str(yr)][jc,:]*cn;
-                phos_riv_a[jc2,:] = self.river.river_runoff_data["po4_kt_yr"][str(yr)][jc,:]*cp;
-                sili_riv_a[jc2,:] = self.river.river_runoff_data["sic_kt_yr"][str(yr)][jc,:]*cs;
-                alka_riv_a[jc2,:] = self.river.river_runoff_data["alk_Gmol_yr"][str(yr)][jc,:]*ca;
-                dicc_riv_a[jc2,:] = self.river.river_runoff_data["dic_kt_yr"][str(yr)][jc,:]*cc;
-
-            print(index_riv_a)
+                position[jc] = [0,jj,ji]
+                ntra_riv_a[jc,:] = self.river.river_data["DIN_KTperYR_NOBLS"][str(yr)][jc,:]*cn;
+                phos_riv_a[jc,:] = self.river.river_data["DIP_KTperYR_NOBLS"][str(yr)][jc,:]*cp;
+                sili_riv_a[jc,:] = self.river.river_data["DIS_KTperYR_NOBLS"][str(yr)][jc,:]*cs;
+                alka_riv_a[jc,:] = self.river.river_data["ALK_KTperYR_NOBLS"][str(yr)][jc,:]*ca;
+                dicc_riv_a[jc,:] = self.river.river_data["DIC_KTperYR_NOBLS"][str(yr)][jc,:]*cc;
+                # index_riv_a[jc2]  = index[1,jj,ji];
+                # ntra_riv_a[jc2,:] = self.river.river_runoff_data["no3_kt_yr"][str(yr)][jc,:]*cn;
+                # phos_riv_a[jc2,:] = self.river.river_runoff_data["po4_kt_yr"][str(yr)][jc,:]*cp;
+                # sili_riv_a[jc2,:] = self.river.river_runoff_data["sic_kt_yr"][str(yr)][jc,:]*cs;
+                # alka_riv_a[jc2,:] = self.river.river_runoff_data["alk_Gmol_yr"][str(yr)][jc,:]*ca;
+                # dicc_riv_a[jc2,:] = self.river.river_runoff_data["dic_kt_yr"][str(yr)][jc,:]*cc;
+            
+            # print(index_riv_a)
             idxt_riv = np.sort(index_riv_a);
-            print(idxt_riv)
+            # print(idxt_riv)
             ix = index_riv_a.argsort();
-            print(ix)
+            #print("-----")
+            # print(ntra_riv_a)
             n3n_riv = ntra_riv_a[ix,:];
+            # print("!!!")
+            # print(n3n_riv)
+            # print(n3n_riv.shape)
+            # print(n_coast_cell)
+            pos_riv = position[ix,:]
             n1p_riv = phos_riv_a[ix,:];
             o3h_riv = alka_riv_a[ix,:];
             o3c_riv = dicc_riv_a[ix,:];
             n5s_riv = sili_riv_a[ix,:];
-            count_riv = 2 * n_coast_cell;
-
+            count_riv = n_coast_cell;
+           
             for mth in range(12):
                 name_file = self.input_data.dir_out+"/TIN_"+str(yr)+str(mth+1)+"15-00:00:00.nc"
                 ncfile = nc.Dataset(name_file, 'w')
                 ncfile.createDimension("riv_idxt",count_riv)
+                ncfile.createDimension("cords",3)
                 riv_idxt_riv = ncfile.createVariable('riv_idxt', 'i4', ('riv_idxt',))
+                # print("------------")
+                # print(n3n_riv[:,mth])
+                # print(n1p_riv[:,mth])
+                # print(n5s_riv[:,mth])
+                # print(o3c_riv[:,mth])
+                # print(o3h_riv[:,mth])
+
                 riv_idxt_riv[:] = idxt_riv[:]
+                riv_pos_riv = ncfile.createVariable('position', 'i4', ('riv_idxt','cords'))
+                riv_pos_riv[:,:] = pos_riv[:,:]
                 riv_a_n3n = ncfile.createVariable('riv_N3n', 'f4', ('riv_idxt',))
                 riv_a_n3n[:] = n3n_riv[:,mth]
                 riv_a_n1p = ncfile.createVariable('riv_N1p', 'f4', ('riv_idxt',))

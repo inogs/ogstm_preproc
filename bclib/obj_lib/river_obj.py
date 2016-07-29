@@ -47,10 +47,10 @@ class river_data:
             x_range = range(2,41)
             ry = river_spreadsheet[data_t][0][9:]
             count = 8 
-            print(river_spreadsheet[data_t].shape)
+            #print(river_spreadsheet[data_t].shape)
             for y in self.river_years[:]:
                 count = count + 1
-                print(y,count)
+                #print(y,count)
                 river_sheet_collected_data[str(y)] =  river_spreadsheet[data_t][1:,count].copy()
             self.river_collected_data[data_t] =  river_sheet_collected_data.copy()
         logging.debug("--End river data collection")
@@ -132,6 +132,11 @@ class river_data:
             georef[jr,0]=jr
             for i in range(1,5):
                 georef[jr,i]=georef4[ind,i-1]
+            #print(self.force_coordr[jr,:])
+            #force cordinates
+            if self.force_coordr[jr,0] != -1 and self.force_coordr[jr,1] != -1:
+                georef[jr,1]=self.force_coordr[jr,0]
+                georef[jr,2]=self.force_coordr[jr,1]
             #print(georef[jr,:])
         self.river_georef = georef
         
