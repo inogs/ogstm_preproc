@@ -302,10 +302,10 @@
         !   Read scale factors (MED16 model)
         s = nf90_inq_varid (ncid, 'e1t', ide1t); call handle_err1(s,mycount)
         s = nf90_inq_varid (ncid, 'e2t', ide2t); call handle_err1(s,mycount)
-        s = nf90_inq_varid (ncid, 'e3t', ide3t); call handle_err1(s,mycount)
-        s = nf90_inq_varid (ncid, 'e3u', ide3u); call handle_err1(s,mycount)
-        s = nf90_inq_varid (ncid, 'e3v', ide3v); call handle_err1(s,mycount)
-        s = nf90_inq_varid (ncid, 'e3w', ide3w); call handle_err1(s,mycount)
+        s = nf90_inq_varid (ncid, 'e3t_0', ide3t); call handle_err1(s,mycount)
+        s = nf90_inq_varid (ncid, 'e3u_0', ide3u); call handle_err1(s,mycount)
+        s = nf90_inq_varid (ncid, 'e3v_0', ide3v); call handle_err1(s,mycount)
+        s = nf90_inq_varid (ncid, 'e3w_0', ide3w); call handle_err1(s,mycount)
         s = nf90_inq_varid (ncid, 'e1v', ide1v); call handle_err1(s,mycount)
         s = nf90_inq_varid (ncid, 'e2u', ide2u); call handle_err1(s,mycount)
         s = nf90_inq_varid (ncid, 'tmask', idtmask) ; call handle_err1(s,mycount)
@@ -325,6 +325,7 @@
         s = nf90_get_var(ncid,ide3u,e3u16,s4,c4); call handle_err1(s,mycount)
         s = nf90_get_var(ncid,ide3v,e3v16,s4,c4); call handle_err1(s,mycount)
         s = nf90_get_var(ncid,ide3w,e3w16,s4,c4); call handle_err1(s,mycount)
+      
 
         s = nf90_get_var (ncid,idtmask,tmask16,s4, c4) ; call handle_err1(s,mycount)
         s = nf90_get_var (ncid,idumask,umask16,s4, c4) ; call handle_err1(s,mycount)
@@ -383,8 +384,8 @@
         s2=(/1, 1 /)
 
 
-        s = nf90_inq_varid (ncid, 'gdept_0', idgdept);call handle_err1(s,mycount)
-        s = nf90_inq_varid (ncid, 'gdepw_0', idgdepw); call handle_err1(s,mycount)
+        s = nf90_inq_varid (ncid, 'gdept_1d', idgdept);call handle_err1(s,mycount)
+        s = nf90_inq_varid (ncid, 'gdepw_1d', idgdepw); call handle_err1(s,mycount)
 
         s = nf90_get_var (ncid,idgdept,gdept16,s2, c2) ; call handle_err1(s,mycount)
         s = nf90_get_var (ncid,idgdepw,gdepw16,s2, c2) ; call handle_err1(s,mycount)
