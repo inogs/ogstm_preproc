@@ -351,14 +351,14 @@ class mesh:
                 totN = totN + sum(self.river.river_data["DIN_KTperYR_NOBLS"][str(yr)][jc,:],2)/12;
                 totP = totP + sum(self.river.river_data["DIP_KTperYR_NOBLS"][str(yr)][jc,:],2)/12;
                 totS = totS + sum(self.river.river_data["DIS_KTperYR_NOBLS"][str(yr)][jc,:],2)/12;
-                totA = totA + sum(self.river.river_data["ALK_KTperYR_NOBLS"][str(yr)][jc,:],2)/12;
+                totA = totA + sum(self.river.river_data["ALK_GmolperYR_NOBLS"][str(yr)][jc,:],2)/12;
                 totD = totD + sum(self.river.river_data["DIC_KTperYR_NOBLS"][str(yr)][jc,:],2)/12;
                 index_riv_a[jc]  = index[0,jj,ji];
                 position[jc] = [0,jj,ji]
                 ntra_riv_a[jc,:] = self.river.river_data["DIN_KTperYR_NOBLS"][str(yr)][jc,:]*cn;
                 phos_riv_a[jc,:] = self.river.river_data["DIP_KTperYR_NOBLS"][str(yr)][jc,:]*cp;
                 sili_riv_a[jc,:] = self.river.river_data["DIS_KTperYR_NOBLS"][str(yr)][jc,:]*cs;
-                alka_riv_a[jc,:] = self.river.river_data["ALK_KTperYR_NOBLS"][str(yr)][jc,:]*ca;
+                alka_riv_a[jc,:] = self.river.river_data["ALK_GmolperYR_NOBLS"][str(yr)][jc,:]*ca;
                 dicc_riv_a[jc,:] = self.river.river_data["DIC_KTperYR_NOBLS"][str(yr)][jc,:]*cc;
                 # index_riv_a[jc2]  = index[1,jj,ji];
                 # ntra_riv_a[jc2,:] = self.river.river_runoff_data["no3_kt_yr"][str(yr)][jc,:]*cn;

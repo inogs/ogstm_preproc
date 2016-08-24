@@ -24,7 +24,7 @@ class elaboration:
                 self.init_configure = json.loads(json_input)
                 logging.debug("INPUT = string json")
         except:
-            print("JSON NOT FOUND")
+            print("JSON NOT FOUND ",json_input)
             exit()
 
 
@@ -49,11 +49,12 @@ class elaboration:
             self.active_river = True
         if gen_sec["atmosphere"] == "y" or gen_sec["atmosphere"] == "yes":
             self.active_atm = True
-        if gen_sec["co2"] == "y" or gen_sec["co2"] == "y":
+        if gen_sec["co2"] == "y" or gen_sec["co2"] == "yes":
             self.active_co2 = True
         if gen_sec["bounmask"] == "y" or gen_sec["bounmask"] == "yes":
             self.active_bmask = True
-        if gen_sec["gib"] == "y" or gen_sec["gib"] == "y":
+        print(gen_sec["gib"])
+        if gen_sec["gib"] == "y" or gen_sec["gib"] == "yes":
             self.active_gib = True
         if gen_sec["use_as_lib"] == "y" or gen_sec["use_as_lib"] == "yes":
             self.use_as_libray = True
