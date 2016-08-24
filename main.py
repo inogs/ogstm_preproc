@@ -7,6 +7,7 @@ from bclib.io_lib import excel_obj as xobj
 
 elab = rconf.elaboration(json_input="./conf24.json")
 
+
 mesh = maskobj.mesh(elab)
 #mesh.generate_boundmask()
 #mesh.bounmesh.write_netcdf()
