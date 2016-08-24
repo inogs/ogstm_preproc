@@ -135,8 +135,8 @@ class river_data:
             #print(self.force_coordr[jr,:])
             #force cordinates
             if self.force_coordr[jr,0] != -1 and self.force_coordr[jr,1] != -1:
-                georef[jr,1]=self.force_coordr[jr,0]
-                georef[jr,2]=self.force_coordr[jr,1]
+                georef[jr,1]=self.force_coordr[jr,1]
+                georef[jr,2]=self.force_coordr[jr,0]
             #print(georef[jr,:])
         self.river_georef = georef
         
