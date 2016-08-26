@@ -31,12 +31,12 @@ class river_data:
         river_spreadsheet["monthly"] =  river_excel_file.read_spreadsheet_all("monthly")
         for data_t in self._mesh_father.input_data.river_data_sheet:
             river_spreadsheet[data_t] =  river_excel_file.read_spreadsheet_all(data_t)
-        
+
         #extract data
         self.river_coordr = river_spreadsheet["monthly"][1:,1:3].astype(np.float32)
         self.force_coordr = river_spreadsheet["monthly"][1:,3:5].astype(np.float32)
         self.river_montly_mod = river_spreadsheet["monthly"][1:,9:21].astype(np.float32)
-      
+
         self.nrivers = len(self.river_coordr[:])
         self.river_collected_data = {}
         for data_t in self._mesh_father.input_data.river_data_sheet:
@@ -46,7 +46,7 @@ class river_data:
             count = 0
             x_range = range(2,41)
             ry = river_spreadsheet[data_t][0][9:]
-            count = 8 
+            count = 8
             #print(river_spreadsheet[data_t].shape)
             for y in self.river_years[:]:
                 count = count + 1
@@ -55,7 +55,7 @@ class river_data:
             self.river_collected_data[data_t] =  river_sheet_collected_data.copy()
         logging.debug("--End river data collection")
 
-        
+
 
         # runoff_excel_file = xlsobj.xlsx(self.path_runoff)
         # self.runoff_montly_mod = river_excel_file.read_spreadsheet_allrow("monthly",range_montly)
@@ -87,7 +87,7 @@ class river_data:
                 expr = expr or (mask[r-1,c-1] == 0 or mask[r+1,c+1] == 0 or mask[r-1,c+1] == 0 or mask[r+1,c-1] == 0)
                 if mask[r,c] == 1 and expr :
                     coast[r,c] = True
-        
+
         return coast
 
     def map_contribute_on_sea(self):
@@ -114,7 +114,7 @@ class river_data:
         georef4 = np.matrix((coastline_row_index, coastline_col_index, loncm, latcm)).T
 
         data_types = self._mesh_father.input_data.river_data_sheet
-       
+
         #code.interact(local=locals())
 
         ### river contributes
@@ -137,9 +137,16 @@ class river_data:
             if self.force_coordr[jr,0] != -1 and self.force_coordr[jr,1] != -1:
                 georef[jr,1]=self.force_coordr[jr,1]
                 georef[jr,2]=self.force_coordr[jr,0]
+                if(mask1[georef[jr,1],georef[jr,2]] == 0):
+                    print("RIVER ON THE LAND")
+                    print(georef[jr,:])
+            else:
+                georef[jr,1]=self.georef[jr,1]+1
+                georef[jr,2]=self.georef[jr,2]+1
+
             #print(georef[jr,:])
         self.river_georef = georef
-        
+
         m=np.zeros((self.nrivers,12))
         self.river_data={}
 
@@ -173,8 +180,6 @@ class river_data:
 
         # m=np.zeros((self.nrunoff,12))
         # self.runoff_data={}
-
-        # for data_type in data_types :
         #     years_data={}
         #     for ic in self.river_years :
         #         years_data[str(ic)]=np.zeros((self.n_coast_cells,12)).copy()
