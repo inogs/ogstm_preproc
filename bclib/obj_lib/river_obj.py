@@ -137,7 +137,7 @@ class river_data:
             if self.force_coordr[jr,0] != -1 and self.force_coordr[jr,1] != -1:
                 georef[jr,1]=self.force_coordr[jr,1]
                 georef[jr,2]=self.force_coordr[jr,0]
-                if(mask1[georef[jr,1],georef[jr,2]] == 0):
+                if(mask1[georef[jr,1]-1,georef[jr,2]-1] == 0):
                     print("RIVER ON THE LAND")
                     print(georef[jr,:])
             else:
