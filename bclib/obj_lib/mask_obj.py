@@ -136,9 +136,9 @@ class mesh:
                     for ji in range(bm.jpiglo):
                         if self.tmask[0,jk,jj,ji] == 1.0:
                             bm.idx[jk,jj,ji] = count+1;
-                            bm.idx_inv[count,0]=jk;
-                            bm.idx_inv[count,1]=jj;
-                            bm.idx_inv[count,2]=ji;
+                            bm.idx_inv[count,0]=jk+1;
+                            bm.idx_inv[count,1]=jj+1;
+                            bm.idx_inv[count,2]=ji+1;
                             count=count+1;
 
 
@@ -347,7 +347,7 @@ class mesh:
                 cs = w*t*s/Vol2cells;
                 ca = w*t  /Vol2cells;
                 cc = w*t  /Vol2cells;
-                
+
                 totN = totN + sum(self.river.river_data["DIN_KTperYR_NOBLS"][str(yr)][jc,:],2)/12;
                 totP = totP + sum(self.river.river_data["DIP_KTperYR_NOBLS"][str(yr)][jc,:],2)/12;
                 totS = totS + sum(self.river.river_data["DIS_KTperYR_NOBLS"][str(yr)][jc,:],2)/12;
@@ -366,7 +366,7 @@ class mesh:
                 # sili_riv_a[jc2,:] = self.river.river_runoff_data["sic_kt_yr"][str(yr)][jc,:]*cs;
                 # alka_riv_a[jc2,:] = self.river.river_runoff_data["alk_Gmol_yr"][str(yr)][jc,:]*ca;
                 # dicc_riv_a[jc2,:] = self.river.river_runoff_data["dic_kt_yr"][str(yr)][jc,:]*cc;
-            
+
             # print(index_riv_a)
             idxt_riv = np.sort(index_riv_a);
             # print(idxt_riv)
@@ -384,7 +384,7 @@ class mesh:
             o3c_riv = dicc_riv_a[ix,:];
             n5s_riv = sili_riv_a[ix,:];
             count_riv = n_coast_cell;
-           
+
             for mth in range(12):
                 name_file = self.input_data.dir_out+"/TIN_"+str(yr)+str(mth+1)+"15-00:00:00.nc"
                 ncfile = nc.Dataset(name_file, 'w')
