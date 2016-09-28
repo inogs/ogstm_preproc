@@ -1,15 +1,11 @@
 # -*- coding: utf-8 -*-
 import numpy as np
-import numpy.matlib as npmat
 import netCDF4 as nc
 import logging
-import code
-import matplotlib.pyplot as plt
 from bclib.obj_lib.lateral_obj import lateral_bc
 from bclib.obj_lib.river_obj import river_data
 from bclib.obj_lib.bmask_obj import bmesh
 from bclib.obj_lib.submesh_obj import sub_mesh
-from bclib.io_lib import excel_obj as xlsobj
 
 
 class mesh:
@@ -18,8 +14,8 @@ class mesh:
 
     """
 
-    def __init__(self,input):# ncf_mesh,ncf_submesh,ncf_bounmesh):
-        self.input_data = input
+    def __init__(self,elaboration_obj):# ncf_mesh,ncf_submesh,ncf_bounmesh):
+        self.input_data = elaboration_obj
         self.path = self.input_data.file_mask
         self._extract_information()
 
@@ -186,8 +182,7 @@ class mesh:
         n_coast_cell = self.river.river_georef.shape[0]
         area = self.e1t * self.e2t
         area = area[0,0][:]
-        jpt_gib = 4
-        nvar_gib = 6
+
         index = self.bounmesh.idx
         print(self.river.river_years)
         if self.input_data.active_gib :
@@ -204,9 +199,9 @@ class mesh:
                 aux = self.bounmesh.resto[jn][:]
 
                 print(jn)
-                for k in range(aux.shape[0]):
-                    for j in range(aux.shape[1]):
-                        for i in range(aux.shape[2]):
+                for k in range(jpk):
+                    for j in range(jpj):
+                        for i in range(jpi):
                             if (aux[k,j,i]!=0 and aux[k,j,i] < 1e+19):   # da controllare
                                isNudg[jn].append([k,j,i])
 
