@@ -386,10 +386,7 @@ class mesh:
             count_riv = n_coast_cell;
 
             for mth in range(12):
-                if((mth+1)<10):
-                    name_file = self.input_data.dir_out+"/TIN_"+str(yr)+"0"+str(mth+1)+"15-00:00:00.nc"
-                else:
-                    name_file = self.input_data.dir_out+"/TIN_"+str(yr)+str(mth+1)+"15-00:00:00.nc"
+                name_file = self.input_data.dir_out+"/TIN_%d%02d15-00:00:00.nc" %(yr, mth+1)
 
                 ncfile = nc.Dataset(name_file, 'w')
                 ncfile.createDimension("riv_idxt",count_riv)
