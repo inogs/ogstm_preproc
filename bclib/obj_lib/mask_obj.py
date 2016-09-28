@@ -155,26 +155,26 @@ class mesh:
         logging.info("BC generation file start")
 
         if not ("bounmesh" in vars()):
-             self.bounmesh = bmesh(self,self.input_data.file_bmask)
-             self.bounmesh.load_bounmask()
-             self.bounmesh.idx = self.bounmesh.index[0]
-             #print(type(self.bounmesh.idx),self.bounmesh.idx.shape,type(self.bounmesh.index),self.bounmesh.index.shape)
-             self.bounmesh.vnudg = self.input_data.variables
-             self.bounmesh.rdpmin = self.input_data.rdpmin
-             self.bounmesh.rdpmax = self.input_data.rdpmax
-             self.glamt = self.glamt.reshape(int(self.y),int(self.x))
-             self.bounmesh.nudg = len(self.bounmesh.vnudg)
-             self.bounmesh.jpk = self.tmask_dimension[1]
-             self.bounmesh.jpjglo = self.tmask_dimension[2]
-             self.bounmesh.jpiglo = self.tmask_dimension[3]
-             self.bounmesh.resto = np.zeros((self.bounmesh.nudg,self.bounmesh.jpk,self.bounmesh.jpjglo,self.bounmesh.jpiglo));
-             self.bounmesh.resto[0][:] = self.bounmesh.reN1p[:]
-             self.bounmesh.resto[1][:] = self.bounmesh.reN3n[:]
-             self.bounmesh.resto[2][:] = self.bounmesh.reO2o[:]
-             self.bounmesh.resto[3][:] = self.bounmesh.reN5s[:]
-             self.bounmesh.resto[4][:] = self.bounmesh.reO3c[:]
-             self.bounmesh.resto[5][:] = self.bounmesh.reO3h[:]
-             self.bounmesh.resto[6][:] = self.bounmesh.reN6r[:]
+            self.bounmesh = bmesh(self,self.input_data.file_bmask)
+            self.bounmesh.load_bounmask()
+            self.bounmesh.idx = self.bounmesh.index[0]
+            #print(type(self.bounmesh.idx),self.bounmesh.idx.shape,type(self.bounmesh.index),self.bounmesh.index.shape)
+            self.bounmesh.vnudg = self.input_data.variables
+            self.bounmesh.rdpmin = self.input_data.rdpmin
+            self.bounmesh.rdpmax = self.input_data.rdpmax
+            self.glamt = self.glamt.reshape(int(self.y),int(self.x))
+            self.bounmesh.nudg = len(self.bounmesh.vnudg)
+            self.bounmesh.jpk = self.tmask_dimension[1]
+            self.bounmesh.jpjglo = self.tmask_dimension[2]
+            self.bounmesh.jpiglo = self.tmask_dimension[3]
+            self.bounmesh.resto = np.zeros((self.bounmesh.nudg,self.bounmesh.jpk,self.bounmesh.jpjglo,self.bounmesh.jpiglo));
+            self.bounmesh.resto[0][:] = self.bounmesh.reN1p[:]
+            self.bounmesh.resto[1][:] = self.bounmesh.reN3n[:]
+            self.bounmesh.resto[2][:] = self.bounmesh.reO2o[:]
+            self.bounmesh.resto[3][:] = self.bounmesh.reN5s[:]
+            self.bounmesh.resto[4][:] = self.bounmesh.reO3c[:]
+            self.bounmesh.resto[5][:] = self.bounmesh.reO3h[:]
+            self.bounmesh.resto[6][:] = self.bounmesh.reN6r[:]
 
         jpk = self.tmask_dimension[1]
         jpj = self.tmask_dimension[2]
@@ -203,7 +203,7 @@ class mesh:
                     for j in range(jpj):
                         for i in range(jpi):
                             if (aux[k,j,i]!=0 and aux[k,j,i] < 1e+19):   # da controllare
-                               isNudg[jn].append([k,j,i])
+                                isNudg[jn].append([k,j,i])
 
         for yr in (range(self.input_data.simulation_start_time,
                             self.input_data.simulation_end_time)):
@@ -331,7 +331,6 @@ class mesh:
             totD = 0;
             #print(index.shape)
             for jc in range(n_coast_cell):
-                jc2  = jc + n_coast_cell;
 
                 jj  = int(self.river.river_georef[jc,1]);
                 ji  = int(self.river.river_georef[jc,2]);
