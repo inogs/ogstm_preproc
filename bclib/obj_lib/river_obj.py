@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
 import numpy as np
-import numpy.matlib as npmat
-import netCDF4 as nc
 from bclib.io_lib import excel_obj as xlsobj
 import logging
-import code
-import matplotlib.pyplot as plt
+
 
 class river_data:
 
@@ -20,11 +17,11 @@ class river_data:
         logging.debug(self.path_river)
         logging.debug(self.path_runoff)
         logging.debug("--Start river data collection")
-        work_sheet  = self._mesh_father.input_data.river_data_sheet
+        #work_sheet  = self._mesh_father.input_data.river_data_sheet
 
-        range_montly = range(10,21)
-        range_coord  = [2,3]
-        force_coord  = [3,4]
+        #range_montly = range(10,21)
+        #range_coord  = [2,3]
+        #force_coord  = [3,4]
         river_excel_file = xlsobj.xlsx(self.path_river)
         river_spreadsheet = {}
         #read xlsx
@@ -44,8 +41,8 @@ class river_data:
             #self.river_years = river_excel_file.read_spreadsheet_range(data_t,x_range_coord,y_range,"i")
             self.river_years = river_spreadsheet[data_t][0][9:]
             count = 0
-            x_range = range(2,41)
-            ry = river_spreadsheet[data_t][0][9:]
+            #x_range = range(2,41)
+            #ry = river_spreadsheet[data_t][0][9:]
             count = 8
             #print(river_spreadsheet[data_t].shape)
             for y in self.river_years[:]:

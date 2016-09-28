@@ -1,8 +1,6 @@
 #!/usr/bin/python3.5
 from bclib.io_lib  import read_configure as rconf
 from bclib.obj_lib import mask_obj as maskobj
-from bclib.obj_lib import co2_obj as co2obj
-from bclib.io_lib import excel_obj as xobj
 
 
 elab = rconf.elaboration(json_input="./conf24.json")
