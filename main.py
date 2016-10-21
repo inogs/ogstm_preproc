@@ -1,12 +1,21 @@
 #!/usr/bin/python3.5
 from bclib.io_lib  import read_configure as rconf
-from bclib.obj_lib import mask_obj as maskobj
+#from bclib.obj_lib import mask_obj as maskobj
+#from commons.mask import Mask
 
+conf = rconf.elaboration(json_input="./conf24.json")
 
-elab = rconf.elaboration(json_input="./conf24.json")
+conf.file_river= "input_obc_eas2_v3.xlsx"
+from bclib.obj_lib.river_obj import river_data
+R = river_data(conf)
+R.modularize(conf)
+R.gen_map_indexes(conf)
+import sys
+sys.exit()
 
+#mask = Mask(conf.file_mask)
 
-mesh = maskobj.mesh(elab)
+#mesh = maskobj.mesh(elab)
 #mesh.generate_boundmask()
 #mesh.bounmesh.write_netcdf()
 #mesh.submesh.atmosphere()

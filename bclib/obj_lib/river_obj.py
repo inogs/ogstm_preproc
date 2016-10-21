@@ -2,79 +2,50 @@
 import numpy as np
 from bclib.io_lib import excel_obj as xlsobj
 import logging
+import netCDF4
 
 
 class river_data:
 
-    def __init__(self,mesh,file_river,file_runoff):
-        self.path_river = file_river
-        self.path_runoff = file_runoff
-        self._mesh_father = mesh
-        self._extract_information()
-        logging.info("river_data builded")
-
-    def _extract_information(self):
-        logging.debug(self.path_river)
-        logging.debug(self.path_runoff)
+    def __init__(self,conf):
+        '''
+        Reads data from excel in 
+        river_collected_data, a dict of dicts
+        '''
+        
         logging.debug("--Start river data collection")
-        #work_sheet  = self._mesh_father.input_data.river_data_sheet
 
-        #range_montly = range(10,21)
-        #range_coord  = [2,3]
-        #force_coord  = [3,4]
-        river_excel_file = xlsobj.xlsx(self.path_river)
+        sheet_list=conf.river_data_sheet
+        river_excel_file = xlsobj.xlsx(conf.file_river)
         river_spreadsheet = {}
-        #read xlsx
+        #read xlsx into a dict
         river_spreadsheet["monthly"] =  river_excel_file.read_spreadsheet_all("monthly")
-        for data_t in self._mesh_father.input_data.river_data_sheet:
-            river_spreadsheet[data_t] =  river_excel_file.read_spreadsheet_all(data_t)
+        for sheet in sheet_list:
+            river_spreadsheet[sheet] =  river_excel_file.read_spreadsheet_all(sheet)
 
         #extract data
         self.river_coordr = river_spreadsheet["monthly"][1:,1:3].astype(np.float32)
-        self.force_coordr = river_spreadsheet["monthly"][1:,3:5].astype(np.float32)
+        self.force_coordr = river_spreadsheet["monthly"][1:,3:5].astype(np.int32)
         self.river_montly_mod = river_spreadsheet["monthly"][1:,9:21].astype(np.float32)
 
         self.nrivers = len(self.river_coordr[:])
         self.river_collected_data = {}
-        for data_t in self._mesh_father.input_data.river_data_sheet:
+        for sheet in sheet_list:
             river_sheet_collected_data = {}
-            #self.river_years = river_excel_file.read_spreadsheet_range(data_t,x_range_coord,y_range,"i")
-            self.river_years = river_spreadsheet[data_t][0][9:]
-            count = 0
-            #x_range = range(2,41)
-            #ry = river_spreadsheet[data_t][0][9:]
-            count = 8
-            #print(river_spreadsheet[data_t].shape)
-            for y in self.river_years[:]:
-                count = count + 1
-                #print(y,count)
-                river_sheet_collected_data[str(y)] =  river_spreadsheet[data_t][1:,count].copy()
-            self.river_collected_data[data_t] =  river_sheet_collected_data.copy()
+            self.river_years = river_spreadsheet[sheet][0][9:]
+            for iyear, y in enumerate(self.river_years):
+                river_sheet_collected_data[str(y)] =  river_spreadsheet[sheet][1:,iyear+9].copy()
+            self.river_collected_data[sheet] =  river_sheet_collected_data.copy()
         logging.debug("--End river data collection")
 
 
 
-        # runoff_excel_file = xlsobj.xlsx(self.path_runoff)
-        # self.runoff_montly_mod = river_excel_file.read_spreadsheet_allrow("monthly",range_montly)
-        # self.runoff_coordr = river_excel_file.read_spreadsheet_allrow("monthly",range_coord)
-        # self.nrunoff = len(self.river_coordr[:])
-        # self.runoff_collected_data = {}
-        # logging.debug("--Start runoff data collection")
-        # for data_t in self._mesh_father.input_data.river_data_sheet:
-        #     runoff_sheet_collected_data = {}
-        #     x_range_coord  = [1]
-        #     y_range = range(7,48)
-        #     self.runoff_years = river_excel_file.read_spreadsheet_range(data_t,x_range_coord,y_range,"i")
-        #     count = 0
-        #     x_range = range(2,39)
-        #     ry = runoff_excel_file.read_spreadsheet_range(data_t,x_range,y_range)
-        #     for y in self.river_years[:]:
-        #         runoff_sheet_collected_data[str(y)] = ry[:,count].copy()
-        #     self.runoff_collected_data[data_t] = runoff_sheet_collected_data.copy()
-        # logging.debug("--End runoff data collection")
-
-
     def _coast_line_mask(self, mask):
+        '''
+        mask is a 2d array of booleans
+        Returns:
+        coast:  a 2d array of booleans
+        '''
 
         x,y = mask.shape
         coast=np.zeros((x,y),dtype=bool)
@@ -87,124 +58,179 @@ class river_data:
 
         return coast
 
-    def map_contribute_on_sea(self):
+    def gen_map_indexes(self,mask):
         """
-            Map contributes of terrestrial input on sea
-            author : gcoidessa,icelic
+        Generates a (nRivers,) numpy array
+        row, col, lon, lat
         """
-        logging.info("Start calc river and runoff calculation")
-        mask1 = self._mesh_father.tmask[0,0,:,:]
-        coast = self._coast_line_mask(mask1)
+        logging.info("Start river position calculation")
+        there_are_free_points=np.any(self.force_coordr==-1)
+        if there_are_free_points:
+            mask1 = mask.mask_at_level(0)
+            coast = self._coast_line_mask(mask1)
+    
+            loncm = mask.xlevels[coast]
+            latcm = mask.ylevel[coast]
+            coastline_row_index,coastline_col_index = np.nonzero(coast)
+    
+            georef4 = np.matrix((coastline_row_index, coastline_col_index, loncm, latcm)).T
 
-        #mask2 = self._mesh_father.tmask[0,1,:,:]
-        #x,y = self._mesh_father.tmask[0,0][:].shape
-        #b = self._coast_line_mask(mask2)
-        #coast = np.zeros((x,y),dtype=np.bool)
-        #for i in range(x):
-        #    for j in range(y):
-        #        coast[i,j] = a[i,j] and b[i,j]
-
-        loncm = self._mesh_father.nav_lon[coast]
-        latcm = self._mesh_father.nav_lat[coast]
-        coastline_row_index,coastline_col_index = np.nonzero(coast)
-
-        georef4 = np.matrix((coastline_row_index, coastline_col_index, loncm, latcm)).T
-
-        data_types = self._mesh_father.input_data.river_data_sheet
-
-        #code.interact(local=locals())
 
         ### river contributes
-        georef = np.zeros((self.nrivers,5))
+        georef = np.zeros((self.nrivers,),dtype=[('indLon',np.int),('indLat',np.int),('lonmesh',np.float32),('latmesh',np.float32)])
         for jr in range (self.nrivers):
-            #print(jr)
-            lon_river = self.river_coordr[jr,0]
-            lat_river = self.river_coordr[jr,1]
-            #print(loncm,"-",lon_river,"+",latcm,"-",lat_river)
-            dist = (loncm-lon_river)**2 + (latcm-lat_river)**2
-            #print("dist=",dist, dist.shape)
-            ind = np.argmin(dist)
-            #print("ind =",ind,georef4.shape)
-            #print(georef4[ind,:])
-            georef[jr,0]=jr
-            for i in range(1,5):
-                georef[jr,i]=georef4[ind,i-1]
-            #print(self.force_coordr[jr,:])
-            #force cordinates
             if self.force_coordr[jr,0] != -1 and self.force_coordr[jr,1] != -1:
-                georef[jr,1]=self.force_coordr[jr,1]
-                georef[jr,2]=self.force_coordr[jr,0]
-                if(mask1[georef[jr,1]-1,georef[jr,2]-1] == 0):
-                    print("RIVER ON THE LAND")
-                    print(georef[jr,:])
-            else:
+                georef['indLon'][jr]=self.force_coordr[jr,0]
+                georef['indLat'][jr]=self.force_coordr[jr,1]
+                #if(mask1[georef[jr,1]-1,georef[jr,2]-1] == 0):
+                #    print("RIVER ON THE LAND")
+                #    print(georef[jr,:])
+            else: # TO BE TESTED
+                lon_river = self.river_coordr[jr,0]
+                lat_river = self.river_coordr[jr,1]
+                dist = (loncm-lon_river)**2 + (latcm-lat_river)**2
+                ind = np.argmin(dist)
+                georef[jr,0]=jr
+                for i in range(1,5): georef[jr,i]=georef4[ind,i-1]
                 georef[jr,1]=self.georef[jr,1]+1
                 georef[jr,2]=self.georef[jr,2]+1
 
-            #print(georef[jr,:])
         self.river_georef = georef
+        logging.info("End river position calculation")
 
+    def modularize(self,conf):
+
+        '''
+         Applyies monthly modulation to yearly data
+         Generates a new field river_data, 
+         it is a dict of dicts
+         river_data={'sheet_name':{'2009': (nRivers,12) np.array } ; ... }
+        '''
         m=np.zeros((self.nrivers,12))
-        self.river_data={}
-
-        for data_type in data_types :
+        river_data={}
+        sheet_list = conf.river_data_sheet
+        for sheet in sheet_list :
             years_data={}
             for ic in self.river_years :
                 for r in range(0,self.nrivers-2):
-                    ry = self.river_collected_data[data_type][str(ic)][r]
+                    ry = self.river_collected_data[sheet][str(ic)][r]
                     m[r,:] =  (self.river_montly_mod[r,:]/100)*12*ry
                 years_data[str(ic)]=m.copy()
-            self.river_data[data_type]=years_data.copy()
+            river_data[sheet]=years_data.copy()
 
-        ### runoff contributes
-        # self.n_coast_cells = len(loncm)
+        self.river_data = river_data
+        logging.info("End river Modularization")
 
-        # indexes = np.zeros(self.n_coast_cells)
-        # georef = np.zeros((self.n_coast_cells,5))
-
-        # for i in range(0,self.n_coast_cells):
-        #     lon_coast_cell = loncm[i]
-        #     lat_coast_cell = latcm[i]
-        #     dist =( (self.runoff_coordr[:,0]-lon_coast_cell)**2
-        #              + (self.runoff_coordr[:,1]-lat_coast_cell)**2 )
-        #     ind = np.argmin(dist)
-        #     indexes[i] = ind
-        #     georef[i,0]=i
-        #     for ii in range(1,5):
-        #         georef[i,ii]=georef4[i,ii-1]
-        # self.runoff_georef = georef
-
-
-        # m=np.zeros((self.nrunoff,12))
-        # self.runoff_data={}
-        #     years_data={}
-        #     for ic in self.river_years :
-        #         years_data[str(ic)]=np.zeros((self.n_coast_cells,12)).copy()
-        #         for r in range (0,self.nrunoff-2) :
-        #             ry = self.runoff_collected_data[data_type][str(ic)][r]
-        #             m[r,:] =  (self.runoff_montly_mod[r,:]/100)*12*ry
-        #             ii=indexes==r
-        #             count = ii.sum()
-        #             if count > 0:
-        #                 years_data[str(ic)][ii,:]= npmat.repmat(m[r,:]/count, count, 1)
-
-
-        #     self.runoff_data[data_type]=years_data.copy()
-
-        # #sum contributes
-
-        # for k in range(0,np.size(self.river_georef[0,:])):
-        #     im = self.river_georef[k,2]
-        #     jm = self.river_georef[k,3]
-        #     for i in range(0,self.nrivers):
-        #         if (self.river_georef[i,2] == im and self.river_georef[i,3] == jm) :
-        #             ii = self.river_georef[i,2]
-        #     for dt in data_types :
-        #         for yr in self.river_years :
-        #             self.runoff_data[dt][str(yr)][ii,:] = (
-        #                 self.runoff_data[dt][str(yr)][ii,:] +
-        #                 self.river_data[dt][str(yr)][k,:] )
+    def gen_boun_indexes(self,boun_indexes):
+        '''
+        
+        '''
+        
+        position    = np.zeros((self.nrivers,3), dtype = np.int);
+        index_riv_a = np.zeros((self.nrivers,) , dtype = np.int);
+        for jr in range(self.nrivers):
+            jj  = int(self.river_georef[jr]['indLat']);
+            ji  = int(self.river_georef[jr]['indLon']);
+            index_riv_a[jr]  = boun_indexes[0,jj,ji];
+            position[jr] = [0,jj,ji]
+        idxt_riv = np.sort(index_riv_a);
+    
+    def total(self,year):
+        '''
+        Returns:
+        * nitrate * kT/yr 
+        TOTALMENTE INUTILE ADESSO
+        '''
+ 
+        totN = self.river_data["DIN_KTperYR_NOBLS"  ][str(year)].sum(axis=1)/12;
+        totP = self.river_data["DIP_KTperYR_NOBLS"  ][str(year)].sum(axis=1)/12;
+        totS = self.river_data["DIS_KTperYR_NOBLS"  ][str(year)].sum(axis=1)/12;
+        totA = self.river_data["ALK_GmolperYR_NOBLS"][str(year)].sum(axis=1)/12;
+        totD = self.river_data["DIC_KTperYR_NOBLS"  ][str(year)].sum(axis=1)/12;
+        return totN,totP,totS,totA,totD
 
 
-        # self.river_runoff_data = self.runoff_data
-        logging.info("End calc river and runoff calculation")
+    def get_monthly_data(self,yearstr,month):
+        '''
+        Returns monthly data, read from excel and modularized
+        Arguments: 
+         *yearstr* year as strig
+         *month*  integer from 1 to 12
+         
+         Returns:
+         N,P,S,A,D : (nRivers, ) numpy arrays 
+        
+        '''
+        N = self.river_data["DIN_KTperYR_NOBLS"  ][yearstr][:,month-1]
+        P = self.river_data["DIP_KTperYR_NOBLS"  ][yearstr][:,month-1]
+        S = self.river_data["DIS_KTperYR_NOBLS"  ][yearstr][:,month-1]
+        A = self.river_data["ALK_GmolperYR_NOBLS"][yearstr][:,month-1]
+        D = self.river_data["DIC_KTperYR_NOBLS"  ][yearstr][:,month-1]
+        
+        return N,P,S,A,D
+    
+    
+    
+    def conversion(self,N,P,S,A,D):
+        '''
+        Returns
+        * N * in mmol/s
+        * P * in mmol/s
+        * S * in mmol/s
+        * A * in   mg/s
+        * D * in   mg/s
+         as (nRivers,) numpy array
+
+        Data are not ready for model, they have to be divided by cell area or cell volume.
+        ''' 
+        w= 1.0e+12;
+        t = 1./(365 * 86400)
+        n = 1./14;
+        p = 1./31;
+        s = 1./28;
+        cn = w*t*n
+        cp = w*t*p
+        cs = w*t*s
+        ca = w*t  
+        cc = w*t    
+        return N*cn, P*cp, S*cs,A*ca, D*cc
+
+    def monthly_data_for_file(self,conf,mask):
+        Area=np.zeros((self.nrivers,),np.float)
+
+        for jr in range(self.nrivers):
+            ji = self.river_georef['indLon'][jr]
+            jj = self.river_georef['indLat'][jr]
+            Area[jr] = mask.area[jj,ji]
+            
+        start_year=conf.simulation_start_time
+        end___year=conf.simulation_end_time
+        for year in range(start_year,end___year):
+            for month in range(1,13):
+                N,P,S,A,D = self.get_monthly_data(str(year), month)
+                N,P,S,A,D = self.conversion(N, P, S, A, D)
+                
+                self.dump_file(filename, N/Area, P/Area, S/Area, A/Area, D/Area, idxt_riv, positions)
+                
+                #N/A, P/A
+    def dump_file(self,filename,N,P,S,A,D,idxt_riv,positions):
+        ncfile = netCDF4.Dataset(filename, 'w')
+        ncfile.createDimension("riv_idxt",self.nrivers)
+        ncfile.createDimension("cords",3)
+        riv_idxt_riv = ncfile.createVariable('riv_idxt', 'i4', ('riv_idxt',))
+        riv_pos_riv = ncfile.createVariable('position', 'i4', ('riv_idxt','cords'))
+        riv_a_n3n = ncfile.createVariable('riv_N3n', 'f4', ('riv_idxt',))
+        riv_a_n1p = ncfile.createVariable('riv_N1p', 'f4', ('riv_idxt',))
+        riv_a_n5s = ncfile.createVariable('riv_N5s', 'f4', ('riv_idxt',))
+        riv_a_o3c = ncfile.createVariable('riv_O3c', 'f4', ('riv_idxt',))
+        riv_a_o3h = ncfile.createVariable('riv_O3h', 'f4', ('riv_idxt',))
+        
+        riv_idxt_riv[:] = idxt_riv[:]
+        riv_pos_riv[:,:] = positions
+        riv_a_n3n[:] = N
+        riv_a_n1p[:] = P
+        riv_a_n5s[:] = S
+        riv_a_o3c[:] = D
+        riv_a_o3h[:] = A
+        ncfile.close()
+                
