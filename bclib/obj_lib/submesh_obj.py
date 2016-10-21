@@ -1,9 +1,10 @@
 import numpy as np
-import numpy.matlib as npmat
+
 import netCDF4 as nc
 import logging
-import code
-import matplotlib.pyplot as plt
+from commons.submask import SubMask
+from basins import V2
+
 
 
 class sub_mesh:
@@ -13,67 +14,57 @@ class sub_mesh:
     """
 
     def __init__(self,mesh,ncfile):
-        self.path = ncfile
-        self._mesh_father = mesh
-        self._extract_information()
+        
         logging.info("submesh builded")
 
-    def _extract_information(self):
-        try:
-            self.ncfile = nc.Dataset(self.path, 'r')
-        except:
-            print("SUNMASK NOT FOUND")
-            exit()
-        for i in self.ncfile.dimensions:
-            setattr(self, i, self.ncfile.dimensions[i])
-        for i in self.ncfile.variables:
-            b = self.ncfile.variables[i][:].copy()
-            setattr(self, i, b)
-        self.ncfile.close()
-
-    def atmosphere(self):
+    def atmosphere(self,mask):
 
 
         logging.info("Atmosphere start calculation")
-        jpk = self._mesh_father.tmask_dimension[1]
-        jpj = self._mesh_father.tmask_dimension[2]
-        jpi = self._mesh_father.tmask_dimension[3]
+        _,jpj,jpi = mask.shape
 
         self.eas = self.eas + self.aeg + self.adn + self.ads;
-
-        aux01=self.wes;
-        aux02=self.eas;
-        for jj in range(1,jpj-2):
-            for ji in range (1,jpi-2):
-                if ((self.wes[0,jj,ji] == 0) or (self.eas[0,jj,ji] == 0) ) and (self._mesh_father.tmask[0,0,jj,ji] == 1):
-                    if ((self.wes[0,jj+1,ji] == 1) or (self.wes[0,jj-1,ji] == 1) or (self.wes[0,jj,ji+1] == 1) or (self.wes[0,jj,ji-1] == 1) ):
-                        self.wes[0,jj,ji] = 1;
+        sup_mask = mask.cut_at_level(0)
+        tmask = mask.mask_at_level(0)
+        wes = SubMask(V2.eas,maskobject=sup_mask).mask_at_level(0)
+        eas = SubMask(V2.eas,maskobject=sup_mask).mask_at_level(0)
+        
+        aux01=wes.copy()
+        aux02=eas.copy()
+        for jj in range(1,jpj-1):
+            for ji in range (1,jpi-1):
+                if ((wes[jj,ji] == 0) or (eas[jj,ji] == 0) ) and (tmask[jj,ji] == 1):
+                    if ((wes[jj+1,ji] ) or (wes[jj-1,ji] ) or (wes[jj,ji+1]) or (wes[jj,ji-1]) ):
+                        aux01[jj,ji] = 1;
                     else:
                         aux02[0,jj,ji] = 1;
 
 
-        self.wes = aux01;
-        self.eas = aux02;
+        wes = aux01;
+        eas = aux02;
 
         Nwes = 0;
         Neas = 0;
+        Cell_Area = mask.area
+        e3t       = mask.dz
         for jj in range(0,jpj-1):
             for ji in range(0,jpi-1):
-                Nwes = Nwes + self._mesh_father.e1t[0,0,jj,ji]*self._mesh_father.e2t[0,0,jj,ji]*self._mesh_father.e3t[0,0,jj,ji]*self.wes[0,jj,ji];
-                Neas = Neas + self._mesh_father.e1t[0,0,jj,ji]*self._mesh_father.e2t[0,0,jj,ji]*self._mesh_father.e3t[0,0,jj,ji]*self.eas[0,jj,ji];
+                Nwes = Nwes + Cell_Area[jj,ji]*e3t[jj,ji]*wes[jj,ji]
+                Neas = Neas + Cell_Area[jj,ji]*e3t[jj,ji]*eas[jj,ji]
+                #Nwes = Nwes + self._mesh_father.e1t[0,0,jj,ji]*self._mesh_father.e2t[0,0,jj,ji]*self._mesh_father.e3t[0,0,jj,ji]*self.wes[0,jj,ji];
+                #Neas = Neas + self._mesh_father.e1t[0,0,jj,ji]*self._mesh_father.e2t[0,0,jj,ji]*self._mesh_father.e3t[0,0,jj,ji]*self.eas[0,jj,ji];
 
-        lon = self._mesh_father.nav_lon
-        lat = self._mesh_father.nav_lat
+
         self.atm = np.zeros((jpj,jpi,2));
         a = self._mesh_father.input_data
 
 
         for jj in range(0,jpj-1):
             for ji in range(0,jpi-1):
-                if (self.wes[0,jj,ji] == 1):
+                if (wes[jj,ji]):
                     self.atm[jj,ji,0] = a.n3n_wes/Nwes
                     self.atm[jj,ji,1] = a.po4_wes/Nwes
-                if (self.eas[0,jj,ji] == 1):
+                if (eas[jj,ji]):
                     self.atm[jj,ji,0] = a.n3n_eas/Neas
                     self.atm[jj,ji,1] = a.po4_eas/Neas
 
@@ -81,16 +72,14 @@ class sub_mesh:
 
         logging.info("Atmosphere finish calculation")
 
-    def write_atm_netcdf(self):
+    def write_atm_netcdf(self,mask):
+        _,jpj,jpi = mask.shape
 
-        jpk = self._mesh_father.tmask_dimension[1]
-        jpj = self._mesh_father.tmask_dimension[2]
-        jpi = self._mesh_father.tmask_dimension[3]
-        l_tmask = ~ self._mesh_father.tmask[0,0][:].astype(np.bool)
+        l_tmask = ~ mask.mask_at_level(0)
 
         ntra_atm_a  = self.atm[:,:,0];
         phos_atm_a  = self.atm[:,:,1];
-        area = self._mesh_father.e1t[0,0,:,:]*self._mesh_father.e2t[0,0,:,:]
+        area = mask.area()
         w = 1.0e+09;
         t = 1/(365 * 86400);
         n = 1/14
@@ -99,10 +88,10 @@ class sub_mesh:
         totN = 0;
         totN_KTy =0;
         totP_KTy =0;
-
+        e3t = mask.dz
         for jj in range(0,jpj-1):
              for ji in range(0,jpi-1):
-                    VolCell1=area[jj,ji]*self._mesh_father.e3t[0,0,jj,ji];
+                    VolCell1=area[jj,ji]*e3t[jj,ji]#self._mesh_father.e3t[0,0,jj,ji];
                     totN = totN + ntra_atm_a[jj,ji]*VolCell1;
                     totP = totP + phos_atm_a[jj,ji]*VolCell1;
                     totN_KTy = totN_KTy + ntra_atm_a[jj,ji]*(1.e-3/n)*VolCell1;
