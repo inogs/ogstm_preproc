@@ -195,22 +195,41 @@ class river_data:
         cc = w*t    
         return N*cn, P*cp, S*cs,A*ca, D*cc
 
-    def monthly_data_for_file(self,conf,mask):
+    def generate_monthly_files(self,conf,mask):
+        '''
+        It is a sort of main.
+        Generates TIN files for every year and every month.
+        '''
         Area=np.zeros((self.nrivers,),np.float)
 
         for jr in range(self.nrivers):
             ji = self.river_georef['indLon'][jr]
             jj = self.river_georef['indLat'][jr]
             Area[jr] = mask.area[jj,ji]
-            
+
         start_year=conf.simulation_start_time
         end___year=conf.simulation_end_time
         for year in range(start_year,end___year):
             for month in range(1,13):
+                filename = conf.dir_out+"/TIN_%d%02d15-00:00:00.nc" %(year, month)
                 N,P,S,A,D = self.get_monthly_data(str(year), month)
                 N,P,S,A,D = self.conversion(N, P, S, A, D)
-                
                 self.dump_file(filename, N/Area, P/Area, S/Area, A/Area, D/Area, idxt_riv, positions)
+
+    def generate_climatological_monthly_files(self,conf,mask):
+        Area=np.zeros((self.nrivers,),np.float)
+
+        for jr in range(self.nrivers):
+            ji = self.river_georef['indLon'][jr]
+            jj = self.river_georef['indLat'][jr]
+            Area[jr] = mask.area[jj,ji]
+
+        year="yyyy"
+        for month in range(1,13):
+            filename = conf.dir_out+"/TIN_yyyy%02d15-00:00:00.nc" %(month)
+            N,P,S,A,D = self.get_monthly_data(str(year), month)
+            N,P,S,A,D = self.conversion(N, P, S, A, D)
+            self.dump_file(filename, N/Area, P/Area, S/Area, A/Area, D/Area, idxt_riv, positions)
                 
                 #N/A, P/A
     def dump_file(self,filename,N,P,S,A,D,idxt_riv,positions):

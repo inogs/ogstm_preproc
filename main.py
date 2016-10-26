@@ -13,6 +13,11 @@ R.gen_map_indexes(conf)
 import sys
 sys.exit()
 
+# for sheet in conf.river_data_sheet:
+#     R.river_data[sheet]['yyyy'] = (R.river_data[sheet]['2000'] + R.river_data[sheet]['2001'] + R.river_data[sheet]['2002'])/3
+# R.generate_climatological_monthly_files(conf, mask)
+
+
 #mask = Mask(conf.file_mask)
 
 #mesh = maskobj.mesh(elab)
