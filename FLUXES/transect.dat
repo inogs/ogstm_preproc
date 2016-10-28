@@ -1,0 +1,8 @@
+name      type          lon1      lon2     lat1     lat2     depth1      depth2
+Alboran   Meridional     -5.       -5.      35.2     36.8      NaN         NaN
+Egean1    Meridional     23.       23.      35.3125  36.5      NaN         NaN
+Egean2    Zonal          23.0625   28.      35.25    35.25     NaN         NaN
+Egean3    Meridional     28.       28.      35.3125  36.6      NaN         NaN
+Adriatic  Zonal          18.5      19.75    40.3     40.3      NaN         NaN
+Sicily1   Meridional     12.5      12.5     36.9     37.8      NaN         NaN
+Sicily2   Zonal          11.       12.5     36.8     36.8      NaN         NaN
