@@ -12,9 +12,8 @@ class river_data:
         Reads data from excel in 
         river_collected_data, a dict of dicts
         '''
-        
+        self.georef = None
         logging.debug("--Start river data collection")
-
         sheet_list=conf.river_data_sheet
         river_excel_file = xlsobj.xlsx(conf.file_river)
         river_spreadsheet = {}
@@ -60,8 +59,13 @@ class river_data:
 
     def gen_map_indexes(self,mask):
         """
-        Generates a (nRivers,) numpy array
-        row, col, lon, lat
+        Generates the "georef" field
+          a (nRivers,) numpy array
+        indLon, indLat, lonmesh, latmesh
+
+        Warning:
+        * for forced coordinates indLon and indLat are starting from one
+        * the others are not tested
         """
         logging.info("Start river position calculation")
         there_are_free_points=np.any(self.force_coordr==-1)
@@ -95,8 +99,9 @@ class river_data:
                 georef[jr,1]=self.georef[jr,1]+1
                 georef[jr,2]=self.georef[jr,2]+1
 
-        self.river_georef = georef
+        self.georef = georef
         logging.info("End river position calculation")
+
 
     def modularize(self,conf):
 
@@ -123,17 +128,19 @@ class river_data:
 
     def gen_boun_indexes(self,boun_indexes):
         '''
-        
+        boun_indexes is the index array of bounmask.nc
+        Bounmask indexes are supposed start from one --> the index_riv_a array is good for fortran
         '''
         
         position    = np.zeros((self.nrivers,3), dtype = np.int);
         index_riv_a = np.zeros((self.nrivers,) , dtype = np.int);
         for jr in range(self.nrivers):
-            jj  = int(self.river_georef[jr]['indLat']);
-            ji  = int(self.river_georef[jr]['indLon']);
+            jj  = self.georef[jr]['indLat'];
+            ji  = self.georef[jr]['indLon'];
             index_riv_a[jr]  = boun_indexes[0,jj,ji];
             position[jr] = [0,jj,ji]
         idxt_riv = np.sort(index_riv_a);
+        return idxt_riv, position
     
     def total(self,year):
         '''
@@ -195,10 +202,12 @@ class river_data:
         cc = w*t    
         return N*cn, P*cp, S*cs,A*ca, D*cc
 
-    def generate_monthly_files(self,conf,mask):
+    def generate_monthly_files(self,conf,mask, idxt_riv, positions):
         '''
         It is a sort of main.
         Generates TIN files for every year and every month.
+
+        positions is the same of georef, then it starts from zero
         '''
         Area=np.zeros((self.nrivers,),np.float)
 
@@ -216,7 +225,10 @@ class river_data:
                 N,P,S,A,D = self.conversion(N, P, S, A, D)
                 self.dump_file(filename, N/Area, P/Area, S/Area, A/Area, D/Area, idxt_riv, positions)
 
-    def generate_climatological_monthly_files(self,conf,mask):
+    def generate_climatological_monthly_files(self,conf,mask,idxt_riv, positions):
+        '''
+        Generates 12 TIN_yyyy*nc files
+        '''
         Area=np.zeros((self.nrivers,),np.float)
 
         for jr in range(self.nrivers):
