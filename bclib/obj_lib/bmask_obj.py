@@ -12,24 +12,20 @@ class bmesh:
 
     """
 
-    def __init__(self,mesh,ncfile):
+    def __init__(self,ncfile, conf):
         self.path = ncfile
-        self._mesh_father = mesh
         logging.info("bounmesh builded")
 
     def load_bounmask(self):
-
+        '''
+        Returns only the index 3d integer matrix
+        '''
         try:
             bncfile = nc.Dataset(self.path, 'r')
             print("LOADING BMASK FROM FILE")
-            for i in bncfile.dimensions:
-                print(bncfile.dimensions[i])
-                setattr(self, bncfile.dimensions[i].name, bncfile.dimensions[i].size)
-            for i in bncfile.variables:
-                b = bncfile.variables[i][:].copy()
-                setattr(self, i, b)
-                print(i)
+            index = np.array(bncfile['index'][0,:,:,])
             bncfile.close()
+            return index
         except:
             print("BOUNMASK NOT FOUND")
             exit()
