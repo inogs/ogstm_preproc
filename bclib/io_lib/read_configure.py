@@ -78,7 +78,6 @@ class elaboration:
         # for i in file_path:
         #     setattr(self, i, file_path[i])
         self.file_river = file_path["file_river"]
-        self.file_runoff = file_path["file_runoff"]
         self.file_nutrients = file_path["file_nutrients"]
         self.file_co2 = file_path["file_co2"]
         self.dir_out = file_path["dir_out"]
@@ -112,10 +111,4 @@ class elaboration:
         msk =  self.init_configure["mask"]
         self.name_mask = msk["nameMask"]
         self.file_mask = msk["maskfile"]
-        self.file_submask = msk["submaskfile"]
         self.file_bmask = msk["bounmask"]
-        self.jpi = msk["jpi"]
-        self.jpj = msk["jpj"]
-        self.jpk = msk["jpk"]
-        self.lon_np_array = np.arange(msk["lon_start"],msk["lon_start"]+msk["jpi"]*msk["lon_step"],msk["lon_step"])
-        self.lat_np_array = np.arange(msk["lat_start"],msk["lat_start"]+msk["jpj"]*msk["lat_step"],msk["lat_step"])
