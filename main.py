@@ -1,12 +1,17 @@
 #!/usr/bin/python3.5
-from bclib.io_lib  import read_configure as rconf
+from bclib.io_lib  import read_configure
 from bclib.obj_lib.bmask_obj import bmesh
 #from bclib.obj_lib import mask_obj as maskobj
 from commons.mask import Mask
+from bclib.obj_lib import atmosphere
 
-conf = rconf.elaboration(json_input="./conf24.json")
+conf = read_configure.elaboration(json_input="./conf24.json")
 
 TheMask = Mask(conf.file_mask)
+
+ATM=atmosphere.atmosphere(TheMask,conf)
+ATM.write_atm_netcdf(TheMask)
+
 B=bmesh(conf.file_bmask, conf)
 index = B.load_bounmask()
 

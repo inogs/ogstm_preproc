@@ -1,24 +1,17 @@
 import numpy as np
-
 import netCDF4 as nc
 import logging
 from commons.submask import SubMask
 from basins import V2
 
+class atmosphere():
 
-
-class sub_mesh:
-    """
-        Class sub mesh
-
-    """
-
-    def __init__(self,mesh,ncfile):
-        
-        logging.info("submesh builded")
-
-    def atmosphere(self,mask):
-
+    def __init__(self,mask,conf):
+        '''
+        Arguments:
+        * mask * is a commons.Mask object
+        * conf * is a configuration object, obtained by read_configure
+        '''
 
         logging.info("Atmosphere start calculation")
         _,jpj,jpi = mask.shape
@@ -55,20 +48,17 @@ class sub_mesh:
                 #Neas = Neas + self._mesh_father.e1t[0,0,jj,ji]*self._mesh_father.e2t[0,0,jj,ji]*self._mesh_father.e3t[0,0,jj,ji]*self.eas[0,jj,ji];
 
 
-        self.atm = np.zeros((jpj,jpi,2));
-        a = self._mesh_father.input_data
-
+        self.nitrate   = np.zeros((jpj,jpi),np.float32);
+        self.phosphate = np.zeros((jpj,jpi),np.float32);
 
         for jj in range(0,jpj-1):
             for ji in range(0,jpi-1):
                 if (wes[jj,ji]):
-                    self.atm[jj,ji,0] = a.n3n_wes/Nwes
-                    self.atm[jj,ji,1] = a.po4_wes/Nwes
+                    self.nitrate[jj,ji] = conf.n3n_wes/Nwes
+                    self.phosphate[jj,ji] = conf.po4_wes/Nwes
                 if (eas[jj,ji]):
-                    self.atm[jj,ji,0] = a.n3n_eas/Neas
-                    self.atm[jj,ji,1] = a.po4_eas/Neas
-
-        self.write_atm_netcdf()
+                    self.nitrate[jj,ji] = conf.n3n_eas/Neas
+                    self.phosphate[jj,ji] = conf.po4_eas/Neas
 
         logging.info("Atmosphere finish calculation")
 
@@ -77,8 +67,6 @@ class sub_mesh:
 
         l_tmask = ~ mask.mask_at_level(0)
 
-        ntra_atm_a  = self.atm[:,:,0];
-        phos_atm_a  = self.atm[:,:,1];
         area = mask.area()
         w = 1.0e+09;
         t = 1/(365 * 86400);
@@ -92,14 +80,14 @@ class sub_mesh:
         for jj in range(0,jpj-1):
              for ji in range(0,jpi-1):
                     VolCell1=area[jj,ji]*e3t[jj,ji]#self._mesh_father.e3t[0,0,jj,ji];
-                    totN = totN + ntra_atm_a[jj,ji]*VolCell1;
-                    totP = totP + phos_atm_a[jj,ji]*VolCell1;
-                    totN_KTy = totN_KTy + ntra_atm_a[jj,ji]*(1.e-3/n)*VolCell1;
-                    totP_KTy = totP_KTy + phos_atm_a[jj,ji]*(1.e-3/p)*VolCell1;
+                    totN = totN + self.nitrate[jj,ji]*VolCell1;
+                    totP = totP + self.phosphate[jj,ji]*VolCell1;
+                    totN_KTy = totN_KTy + self.nitrate[jj,ji]*(1.e-3/n)*VolCell1;
+                    totP_KTy = totP_KTy + self.phosphate[jj,ji]*(1.e-3/p)*VolCell1;
                     cn = w*t;
                     cp = w*t;
-                    ntra_atm_a[jj,ji] = ntra_atm_a[jj,ji]*cn;
-                    phos_atm_a[jj,ji] = phos_atm_a[jj,ji]*cp;
+                    self.nitrate[jj,ji]   = self.nitrate[jj,ji]*cn;
+                    self.phosphate[jj,ji] = self.phosphate[jj,ji]*cp;
 
         for yCO2 in (range(self._mesh_father.input_data.simulation_start_time,
                             self._mesh_father.input_data.simulation_end_time)):
@@ -107,17 +95,17 @@ class sub_mesh:
             fileOUT = self._mesh_father.input_data.dir_out + "/ATM_" + str(yCO2) + "0630-00:00:00.nc"
             #print(fileOUT)
             #map_co2 = np.dot(np.ones([self.input_data.jpj, self.input_data.jpi]), rcp85[count])
-            ntra_atm_a[l_tmask] = np.nan
-            phos_atm_a[l_tmask] = np.nan
+            self.nitrate[l_tmask] = np.nan
+            self.phosphate[l_tmask] = np.nan
 
             #ncfile = nc.netcdf_file(fileOUT, 'w')
             ncfile = nc.Dataset(fileOUT, "w", format="NETCDF4")
             ncfile.createDimension('lon', jpi)
             ncfile.createDimension('lat', jpj)
             n = ncfile.createVariable('atm_N3n','f', ('lat','lon'))
-            n[:] = ntra_atm_a[:]
+            n[:] = self.nitrate[:]
             p = ncfile.createVariable('atm_N1p','f', ('lat','lon'))
-            p[:] = phos_atm_a[:]
+            p[:] = self.phosphate[:]
             setattr(ncfile, 'ATM_P_MassBalance_kTON_y', totP_KTy)
             setattr(ncfile, 'ATM_N_MassBalance_kTON_y', totN_KTy)
             setattr(ncfile, 'ATM_P_MassBalance_Mmol_y', totP)
