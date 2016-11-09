@@ -62,7 +62,7 @@ class atmosphere():
 
         logging.info("Atmosphere finish calculation")
 
-    def write_atm_netcdf(self,mask):
+    def write_atm_netcdf(self,mask,outdir):
         _,jpj,jpi = mask.shape
 
         l_tmask = ~ mask.mask_at_level(0)
@@ -78,38 +78,33 @@ class atmosphere():
         totP_KTy =0;
         e3t = mask.dz
         for jj in range(0,jpj-1):
-             for ji in range(0,jpi-1):
-                    VolCell1=area[jj,ji]*e3t[jj,ji]#self._mesh_father.e3t[0,0,jj,ji];
-                    totN = totN + self.nitrate[jj,ji]*VolCell1;
-                    totP = totP + self.phosphate[jj,ji]*VolCell1;
-                    totN_KTy = totN_KTy + self.nitrate[jj,ji]*(1.e-3/n)*VolCell1;
-                    totP_KTy = totP_KTy + self.phosphate[jj,ji]*(1.e-3/p)*VolCell1;
-                    cn = w*t;
-                    cp = w*t;
-                    self.nitrate[jj,ji]   = self.nitrate[jj,ji]*cn;
-                    self.phosphate[jj,ji] = self.phosphate[jj,ji]*cp;
+            for ji in range(0,jpi-1):
+                VolCell1=area[jj,ji]*e3t[jj,ji]#self._mesh_father.e3t[0,0,jj,ji];
+                totN = totN + self.nitrate[jj,ji]*VolCell1;
+                totP = totP + self.phosphate[jj,ji]*VolCell1;
+                totN_KTy = totN_KTy + self.nitrate[jj,ji]*(1.e-3/n)*VolCell1;
+                totP_KTy = totP_KTy + self.phosphate[jj,ji]*(1.e-3/p)*VolCell1;
+                cn = w*t;
+                cp = w*t;
+                self.nitrate[jj,ji]   = self.nitrate[jj,ji]*cn;
+                self.phosphate[jj,ji] = self.phosphate[jj,ji]*cp;
 
-        for yCO2 in (range(self._mesh_father.input_data.simulation_start_time,
-                            self._mesh_father.input_data.simulation_end_time)):
 
-            fileOUT = self._mesh_father.input_data.dir_out + "/ATM_" + str(yCO2) + "0630-00:00:00.nc"
-            #print(fileOUT)
-            #map_co2 = np.dot(np.ones([self.input_data.jpj, self.input_data.jpi]), rcp85[count])
-            self.nitrate[l_tmask] = np.nan
-            self.phosphate[l_tmask] = np.nan
+        fileOUT = outdir + "/ATM_yyyy0630-00:00:00.nc"
+        self.nitrate[l_tmask] = np.nan
+        self.phosphate[l_tmask] = np.nan
 
-            #ncfile = nc.netcdf_file(fileOUT, 'w')
-            ncfile = nc.Dataset(fileOUT, "w", format="NETCDF4")
-            ncfile.createDimension('lon', jpi)
-            ncfile.createDimension('lat', jpj)
-            n = ncfile.createVariable('atm_N3n','f', ('lat','lon'))
-            n[:] = self.nitrate[:]
-            p = ncfile.createVariable('atm_N1p','f', ('lat','lon'))
-            p[:] = self.phosphate[:]
-            setattr(ncfile, 'ATM_P_MassBalance_kTON_y', totP_KTy)
-            setattr(ncfile, 'ATM_N_MassBalance_kTON_y', totN_KTy)
-            setattr(ncfile, 'ATM_P_MassBalance_Mmol_y', totP)
-            setattr(ncfile, 'ATM_N_MassBalance_Mmol_y', totN)
-            ncfile.close()
+        ncfile = nc.Dataset(fileOUT, "w", format="NETCDF4")
+        ncfile.createDimension('lon', jpi)
+        ncfile.createDimension('lat', jpj)
+        n = ncfile.createVariable('atm_N3n','f', ('lat','lon'))
+        n[:] = self.nitrate[:]
+        p = ncfile.createVariable('atm_N1p','f', ('lat','lon'))
+        p[:] = self.phosphate[:]
+        setattr(ncfile, 'ATM_P_MassBalance_kTON_y', totP_KTy)
+        setattr(ncfile, 'ATM_N_MassBalance_kTON_y', totN_KTy)
+        setattr(ncfile, 'ATM_P_MassBalance_Mmol_y', totP)
+        setattr(ncfile, 'ATM_N_MassBalance_Mmol_y', totN)
+        ncfile.close()
 
         logging.info("Atmosphere Netcdf writed")
