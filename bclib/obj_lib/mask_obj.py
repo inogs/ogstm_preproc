@@ -5,7 +5,7 @@ import logging
 from bclib.obj_lib.lateral_obj import lateral_bc
 from bclib.obj_lib.river_obj import river_data
 from bclib.obj_lib.bmask_obj import bmesh
-from bclib.obj_lib.submesh_obj import sub_mesh
+
 
 
 class mesh:
@@ -84,69 +84,6 @@ class mesh:
 
 
 
-    def generate_bounmask(self):
-
-        """ This fuction generate bounmask """
-
-        if self.input_data.active_bmask == True :
-            #input var
-            bm = self.bounmesh
-            bm.vnudg = self.input_data.variables
-            rdpmin = self.input_data.rdpmin
-            rdpmax = self.input_data.rdpmax
-            #print(type(self.y),type(self.x))
-            self.glamt = self.glamt.reshape(int(self.y),int(self.x))
-            bm.nudg = len(bm.vnudg)
-            bm.jpk = self.tmask_dimension[1]
-            bm.jpjglo = self.tmask_dimension[2]
-            bm.jpiglo = self.tmask_dimension[3]
-            #print(bm.nudg,bm.jpk,bm.jpjglo,bm.jpiglo)
-            bm.resto = np.zeros((bm.nudg,bm.jpk,bm.jpjglo,bm.jpiglo));
-
-            for jk in range(0,bm.jpk):
-
-                for jn in range(0,bm.nudg):
-                    for jj in range(0,bm.jpjglo):
-                        for ji in range(0,bm.jpiglo):
-
-                            if (self.glamt[jj][ji] < bm.vnudg[jn][1]):
-
-                                bm.resto[jn,jk,jj,ji]=1./(rdpmin*86400.);
-
-                for jn in range(0,bm.nudg):
-                    for jj in range(0,bm.jpjglo):
-                        for ji in range(0,bm.jpiglo):
-                            if (self.glamt[jj][ji] > bm.vnudg[jn][1]) and (self.glamt[jj][ji] <= self.input_data.end_nudging):
-                                reltim = rdpmin + (rdpmax-rdpmin)*(self.glamt[jj][ji]-bm.vnudg[jn][1])/(self.input_data.end_nudging-bm.vnudg[jn][1]);
-                                bm.resto[jn,jk,jj,ji] = 1./(reltim*86400.);
-
-
-            bm.resto[:,self.tmask[0] == 0] = 1.e+20;
-            count = 0
-            bm.idx = np.zeros((bm.jpk,bm.jpjglo,bm.jpiglo),dtype=np.int)
-            bm.water_points = np.sum(self.tmask)
-            bm.idx_inv = np.zeros((bm.water_points,3),dtype=np.int);
-
-            for jk in range(bm.jpk):
-                for jj in range(bm.jpjglo):
-                    for ji in range(bm.jpiglo):
-                        if self.tmask[0,jk,jj,ji] == 1.0:
-                            bm.idx[jk,jj,ji] = count+1;
-                            bm.idx_inv[count,0]=jk+1;
-                            bm.idx_inv[count,1]=jj+1;
-                            bm.idx_inv[count,2]=ji+1;
-                            count=count+1;
-
-
-            bm.idx[self.tmask[0] == 0] = 0;
-            self.bounmesh.write_netcdf()
-            logging.info("bounmesh generation ended")
-
-
-
-
-        else :
-            logging.info("bounmesh generation disabled")
 
 
 
@@ -179,7 +116,7 @@ class mesh:
         jpk = self.tmask_dimension[1]
         jpj = self.tmask_dimension[2]
         jpi = self.tmask_dimension[3]
-        n_coast_cell = self.river.river_georef.shape[0]
+        
         area = self.e1t * self.e2t
         area = area[0,0][:]
 
@@ -309,7 +246,10 @@ class mesh:
                     ncfile.close()
 
                     logging.info("--finish nutrients netcdf write")
-
+    
+    def riv(self,mask,index):
+            area = mask.area
+            n_coast_cell = self.river.river_georef.shape[0]
             jpt_riv = 12
             #print("n_coast_cell",n_coast_cell)
             index_riv_a = np.zeros((  n_coast_cell,), dtype = np.int);
