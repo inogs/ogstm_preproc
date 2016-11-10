@@ -6,11 +6,16 @@ from commons.mask import Mask
 from bclib.obj_lib import atmosphere
 
 conf = read_configure.elaboration(json_input="./conf24.json")
-
+conf.file_mask="meshmask.nc"
+conf.dir_out="."
 TheMask = Mask(conf.file_mask)
 
 ATM=atmosphere.atmosphere(TheMask,conf)
-ATM.write_atm_netcdf(TheMask)
+
+ATM.write_netcdf(TheMask, conf.dir_out)
+import sys
+sys.exit()
+
 
 B=bmesh(conf.file_bmask, conf)
 index = B.load_bounmask()
