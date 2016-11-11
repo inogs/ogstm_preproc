@@ -100,7 +100,7 @@ class elaboration:
         """ Set variables and their parameter """
         var = self.init_configure["variables"]
         self.rdpmax = var["rdpmax"]
-        self.rdpmin = var["rdpmin"]
+        self.rdpmin = eval(var["rdpmin"])
         self.end_nudging = var["end_nudging"]
         self.variables = [ ]
         for i in var["var_array"]:

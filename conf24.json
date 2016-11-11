@@ -23,10 +23,10 @@
 
     "filepath" :
     {
-      "file_river":"/pico/scratch/userexternal/plazzari/eas2_v3/BC/ogs_bounday_conditions/input_obc_eas2_v3.xlsx",
+      "file_river":"input_obc_eas2_v3.xlsx",
       "file_nutrients":"/pico/scratch/userexternal/plazzari/eas2_v3/BC/LATERAL/VPnutrients_CO2.nc",
       "file_co2":"/pico/scratch/userexternal/plazzari/eas2_v3/BC/CO2/CMIP5_scenarios_RCP_CO2_mixing_ratio.nc",
-      "dir_out":"/pico/scratch/userexternal/plazzari/eas2_v3/BC/ogs_bounday_conditions/out"
+      "dir_out":"out"
     },
 
 
@@ -56,7 +56,7 @@
     {
       "end_nudging":-5.25,
       "rdpmax":90,
-      "rdpmin":0.041666667,
+      "rdpmin":"1./24",
       "var_array":
       [
         {"name":"N1p","end_max":-7.5},
@@ -72,7 +72,7 @@
     "mask":
       {
         "nameMask" : "1_24grid",
-        "maskfile" :  "/pico/scratch/userexternal/plazzari/eas2_v3/BC/MASKS/meshmask.nc",
+        "maskfile" :  "/pico/scratch/userexternal/plazzari/eas2_v6/FORCINGS/STATIC_DATA/meshmask.nc",
         "bounmask" : "/pico/scratch/userexternal/plazzari/eas2_v3/BC/ogs_bounday_conditions/out/bounmask.nc"
        }
 

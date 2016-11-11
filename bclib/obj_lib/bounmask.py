@@ -1,73 +1,82 @@
 import numpy as np
-import numpy.matlib as npmat
 import netCDF4 as nc
 import logging
-import code
-import matplotlib.pyplot as plt
 
 class bounmask():
 
-    def __init__(self,ncfile, conf):
-        self.path = ncfile
-        logging.info("bounmesh builded")
+    def __init__(self,conf):
+        self.config  = conf
+        self.resto   = None
+        self.idx     = None
+        self.idx_inv = None
+        logging.info("bounmask builded")
         
 
-    def generate_bounmask(self):
+    def generate(self,mask):
 
-        """ This fuction generate bounmask """
+        """ Generation of bounmask array """
 
-        if self.input_data.active_bmask == True :
-            #input var
-            bm = self.bounmesh
-            bm.vnudg = self.input_data.variables
-            rdpmin = self.input_data.rdpmin
-            rdpmax = self.input_data.rdpmax
-            #print(type(self.y),type(self.x))
-            self.glamt = self.glamt.reshape(int(self.y),int(self.x))
-            bm.nudg = len(bm.vnudg)
-            bm.jpk = self.tmask_dimension[1]
-            bm.jpjglo = self.tmask_dimension[2]
-            bm.jpiglo = self.tmask_dimension[3]
-            #print(bm.nudg,bm.jpk,bm.jpjglo,bm.jpiglo)
-            bm.resto = np.zeros((bm.nudg,bm.jpk,bm.jpjglo,bm.jpiglo));
+        if self.config.active_bmask == True :
 
-            for jk in range(0,bm.jpk):
-
-                for jn in range(0,bm.nudg):
-                    for jj in range(0,bm.jpjglo):
-                        for ji in range(0,bm.jpiglo):
-
-                            if (self.glamt[jj][ji] < bm.vnudg[jn][1]):
-
-                                bm.resto[jn,jk,jj,ji]=1./(rdpmin*86400.);
-
-                for jn in range(0,bm.nudg):
-                    for jj in range(0,bm.jpjglo):
-                        for ji in range(0,bm.jpiglo):
-                            if (self.glamt[jj][ji] > bm.vnudg[jn][1]) and (self.glamt[jj][ji] <= self.input_data.end_nudging):
-                                reltim = rdpmin + (rdpmax-rdpmin)*(self.glamt[jj][ji]-bm.vnudg[jn][1])/(self.input_data.end_nudging-bm.vnudg[jn][1]);
-                                bm.resto[jn,jk,jj,ji] = 1./(reltim*86400.);
+            vnudg = self.config.variables
+            rdpmin = np.float64(self.config.rdpmin)
+            rdpmax = np.float64(self.config.rdpmax)
+            glamt  = np.float64(mask.xlevels)
+            nudg = len(vnudg)
+            jpk, jpjglo, jpiglo = mask.shape
 
 
-            bm.resto[:,self.tmask[0] == 0] = 1.e+20;
+            resto = np.zeros((nudg,jpk,jpjglo,jpiglo), dtype=np.float64);
+            for jn in range(nudg):
+                xlim = vnudg[jn][1]
+                ii = glamt<xlim
+                resto[jn,:,ii] = 1./(rdpmin*86400.)
+            for jn in range(nudg):
+                xlim = vnudg[jn][1]
+                ii = (glamt > xlim)  & (glamt <= self.config.end_nudging)
+                reltim = rdpmin + (rdpmax-rdpmin)*(glamt-xlim)/(self.config.end_nudging-xlim);
+                for jk in range(jpk):
+                    resto[jn,jk,ii] = 1./(reltim[ii]*86400.)
+
+#             for jk in range(jpk):
+#                 for jn in range(nudg):
+#                     for jj in range(jpjglo):
+#                         for ji in range(jpiglo):
+#                             if (glamt[jj,ji] < vnudg[jn][1]):
+#                                 resto[jn,jk,jj,ji]=1./(rdpmin*86400.);
+
+#                 for jn in range(nudg):
+#                     for jj in range(jpjglo):
+#                         for ji in range(jpiglo):
+#                             if (glamt[jj,ji] > vnudg[jn][1]) and (glamt[jj,ji] <= self.config.end_nudging):
+#                                 reltim = rdpmin + (rdpmax-rdpmin)*(glamt[jj,ji]-vnudg[jn][1])/(self.config.end_nudging-vnudg[jn][1]);
+#                                 resto[jn,jk,jj,ji] = 1./(reltim*86400.);
+
+
+            resto[:,~mask.mask] = 1.e+20;
             count = 0
-            bm.idx = np.zeros((bm.jpk,bm.jpjglo,bm.jpiglo),dtype=np.int)
-            bm.water_points = np.sum(self.tmask)
-            bm.idx_inv = np.zeros((bm.water_points,3),dtype=np.int);
+            idx = np.zeros((jpk,jpjglo,jpiglo),dtype=np.int)
+            self.water_points = np.sum(mask.mask)
+            idx_inv = np.zeros((self.water_points,3),dtype=np.int);
 
-            for jk in range(bm.jpk):
-                for jj in range(bm.jpjglo):
-                    for ji in range(bm.jpiglo):
-                        if self.tmask[0,jk,jj,ji] == 1.0:
-                            bm.idx[jk,jj,ji] = count+1;
-                            bm.idx_inv[count,0]=jk+1;
-                            bm.idx_inv[count,1]=jj+1;
-                            bm.idx_inv[count,2]=ji+1;
+            for jk in range(jpk):
+                for jj in range(jpjglo):
+                    for ji in range(jpiglo):
+                        if mask.mask[jk,jj,ji]:
+                            idx[jk,jj,ji] = count+1;
+                            idx_inv[count,0]=jk+1;
+                            idx_inv[count,1]=jj+1;
+                            idx_inv[count,2]=ji+1;
                             count=count+1;
 
 
-            bm.idx[self.tmask[0] == 0] = 0;
-            self.bounmesh.write_netcdf()
+            idx[~mask.mask] = 0;
+            self.idx = idx
+            self.idx_inv = idx_inv
+            self.resto = resto
+
+
+            #self.write_netcdf()
             logging.info("bounmesh generation ended")
 
 
@@ -77,49 +86,80 @@ class bounmask():
             logging.info("bounmesh generation disabled")
 
 
-    def load_bounmask(self):
+    def load(self,varname):
         '''
-        Returns only the index 3d integer matrix
-        '''
-        try:
-            bncfile = nc.Dataset(self.path, 'r')
-            print("LOADING BMASK FROM FILE")
-            index = np.array(bncfile['index'][0,:,:,])
-            bncfile.close()
-            return index
-        except:
-            print("BOUNMASK NOT FOUND")
-            exit()
 
-    def write_netcdf(self):
+        Arguments:
+        * varname * (string) of a variable in bounmask.nc
+        If varname is a "resto" variable or "index"
+        the returned value is a 3d array
+        If varname is "inde_inv" the returned value is a 2d array
+
+        Returns:
+        numpy array
+        '''
+
+        bncfile = nc.Dataset(self.config.file_bmask, 'r')
+        print("LOADING from bounmask")
+        if (varname =="index_inv"):
+            M = np.array(bncfile[varname])
+        else:
+            M = np.array(bncfile[varname][0,:,:,])
+        bncfile.close()
+        return M
+
+
+    def write_netcdf(self,mask):
         logging.info("Start bounmesh nc file write")
-        time = 1
-        ncfile = nc.Dataset(self.path, 'w')
-        ncfile.createDimension('x',self._mesh_father.x)
-        ncfile.createDimension('y',self._mesh_father.y)
-        ncfile.createDimension('z',self._mesh_father.z)
-        ncfile.createDimension('time',time)
+        vnudg = self.config.variables
+        nudg = len(vnudg)
+        ncfile = nc.Dataset(self.config.file_bmask, 'w')
+        jpk,jpj,jpi = mask.shape
+        ncfile.createDimension('x',jpi)
+        ncfile.createDimension('y',jpj)
+        ncfile.createDimension('z',jpk)
+        ncfile.createDimension('time',1)
         ncfile.createDimension('waterpoints',self.water_points)
         ncfile.createDimension('dim3',3)
 
         navlon_wnc = ncfile.createVariable('nav_lon', 'f', ('y','x'))
-        navlon_wnc[:] = self._mesh_father.nav_lon[:]
+        navlon_wnc[:] = mask.xlevels
         navlat_wnc = ncfile.createVariable('nav_lat', 'f', ('y','x'))
-        navlat_wnc[:] = self._mesh_father.nav_lat[:]
+        navlat_wnc[:] = mask.ylevels
         navlev_wnc = ncfile.createVariable('nav_lev', 'f', 'z')
-        navlev_wnc[:] = self._mesh_father.nav_lev[:]
-        for i in range(0,self.nudg):
+        navlev_wnc[:] = mask.zlevels
+        for jn in range(nudg):
             corrf =[1.,1.,1.,1.,1.01,1.01,1.];
-            aux= self.resto[i,:,:,:]*corrf[i];
+            aux= self.resto[jn,:,:,:]*corrf[jn];
             np.transpose(aux, (2, 1, 0)).shape
-            name = "re" + self.vnudg[i][0]
-            #print(name)
+            name = "re" + vnudg[jn][0]
             resto_wnc = ncfile.createVariable(name, 'f4', ('time','z','y','x'))
             resto_wnc[0,:] = aux
+            setattr(resto_wnc,'missing_value',1.e+20)
         idx_inv_wnc = ncfile.createVariable('index', 'i', ('time','z','y','x'))
-        idx_inv_wnc[0,:] = self.idx # self.idx[:]
+        idx_inv_wnc[0,:] = self.idx
+        setattr(idx_inv_wnc,'missing_value',0)
         idx_rev_wnc = ncfile.createVariable('index_inv', 'i', ('waterpoints', 'dim3'))
         idx_l_inv = self.idx_inv +1
         idx_rev_wnc[:] = idx_l_inv
         ncfile.close()
-        logging.info("bounmesh nc file writed")
+        logging.info("bounmask.nc file writed")
+
+if __name__ == '__main__':
+    from bclib.io_lib  import read_configure
+    from commons.mask import Mask
+    conf = read_configure.elaboration(json_input="../../conf24.json")
+    conf.file_mask="../../meshmask_872.nc"
+    conf.file_bmask="bounmask.nc"
+    conf.active_bmask = True
+    TheMask = Mask(conf.file_mask)
+    B=bounmask(conf)
+    B.generate(TheMask)
+    B.write_netcdf(TheMask)
+    
+    B_old = bounmask(conf)
+    B_old.config.file_bmask = "/Users/gbolzon/Documents/workspace/ogs_bounday_conditions/bounmask8.nc"
+    index= B_old.load('index')
+    restoN1p=B_old.load('reN1p')
+    d=B.resto[0,:,:,:]-restoN1p
+
