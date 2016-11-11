@@ -14,58 +14,56 @@ class bounmask():
 
     def generate(self,mask):
 
-        """ Generation of bounmask array """
-
-        if self.config.active_bmask == True :
-
-            vnudg = self.config.variables
-            rdpmin = np.float64(self.config.rdpmin)
-            rdpmax = np.float64(self.config.rdpmax)
-            glamt  = np.float64(mask.xlevels)
-            nudg = len(vnudg)
-            jpk, jpjglo, jpiglo = mask.shape
+        """ Generation of bounmask fields
+        resto,idx, and idx_inv
+         """
 
 
-            resto = np.zeros((nudg,jpk,jpjglo,jpiglo), dtype=np.float64);
-            for jn in range(nudg):
-                xlim = vnudg[jn][1]
-                ii = glamt<xlim
-                resto[jn,:,ii] = 1./(rdpmin*86400.)
-            for jn in range(nudg):
-                xlim = vnudg[jn][1]
-                ii = (glamt > xlim)  & (glamt <= self.config.end_nudging)
-                reltim = rdpmin + (rdpmax-rdpmin)*(glamt-xlim)/(self.config.end_nudging-xlim);
-                for jk in range(jpk):
-                    resto[jn,jk,ii] = 1./(reltim[ii]*86400.)
+        vnudg = self.config.variables
+        rdpmin = np.float64(self.config.rdpmin)
+        rdpmax = np.float64(self.config.rdpmax)
+        glamt  = np.float64(mask.xlevels)
+        nudg = len(vnudg)
+        jpk, jpjglo, jpiglo = mask.shape
 
-            resto[:,~mask.mask] = 1.e+20;
-            count = 0
-            idx = np.zeros((jpk,jpjglo,jpiglo),dtype=np.int)
-            self.water_points = np.sum(mask.mask)
-            idx_inv = np.zeros((self.water_points,3),dtype=np.int);
 
+        resto = np.zeros((nudg,jpk,jpjglo,jpiglo), dtype=np.float64);
+        for jn in range(nudg):
+            xlim = vnudg[jn][1]
+            ii = glamt<xlim
+            resto[jn,:,ii] = 1./(rdpmin*86400.)
+        for jn in range(nudg):
+            xlim = vnudg[jn][1]
+            ii = (glamt > xlim)  & (glamt <= self.config.end_nudging)
+            reltim = rdpmin + (rdpmax-rdpmin)*(glamt-xlim)/(self.config.end_nudging-xlim);
             for jk in range(jpk):
-                for jj in range(jpjglo):
-                    for ji in range(jpiglo):
-                        if mask.mask[jk,jj,ji]:
-                            idx[jk,jj,ji] = count+1;
-                            idx_inv[count,0]=jk+1;
-                            idx_inv[count,1]=jj+1;
-                            idx_inv[count,2]=ji+1;
-                            count=count+1;
+                resto[jn,jk,ii] = 1./(reltim[ii]*86400.)
+
+        resto[:,~mask.mask] = 1.e+20;
+        count = 0
+        idx = np.zeros((jpk,jpjglo,jpiglo),dtype=np.int)
+        self.water_points = np.sum(mask.mask)
+        idx_inv = np.zeros((self.water_points,3),dtype=np.int);
+
+        for jk in range(jpk):
+            for jj in range(jpjglo):
+                for ji in range(jpiglo):
+                    if mask.mask[jk,jj,ji]:
+                        idx[jk,jj,ji] = count+1;
+                        idx_inv[count,0]=jk+1;
+                        idx_inv[count,1]=jj+1;
+                        idx_inv[count,2]=ji+1;
+                        count=count+1;
 
 
-            idx[~mask.mask] = 0;
-            self.idx = idx
-            self.idx_inv = idx_inv
-            self.resto = resto
+        idx[~mask.mask] = 0;
+        self.idx = idx
+        self.idx_inv = idx_inv
+        self.resto = resto
 
+        #self.write_netcdf()
+        logging.info("bounmesh generation ended")
 
-            #self.write_netcdf()
-            logging.info("bounmesh generation ended")
-
-        else :
-            logging.info("bounmesh generation disabled")
 
 
     def load(self,varname):
