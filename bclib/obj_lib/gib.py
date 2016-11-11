@@ -7,7 +7,11 @@ class gib():
     def __init__(self,conf,mask):
         self.config = conf
         self.gibilterra = lateral_bc(conf.file_nutrients,mask)
-
+    def read(self,filename, var):
+        ncfile = nc.Dataset(filename, 'r')
+        M = np.array(ncfile.variables[var])
+        ncfile.close()
+        return M
     def nutrient_dataset_by_index(self,jn):
         if jn==0 : return self.gibilterra.phos
         if jn==1 : return self.gibilterra.ntra
@@ -43,7 +47,7 @@ class gib():
                         for ji in range(jpi):
                             if (isNudg[jk,jj,ji]):
                                 idx[count] = bounmask_obj.idx[jk,jj,ji]
-                                data[count] = GIB_matrix[time,jk,jj,ji];
+                                data[count] = GIB_matrix[time,jk,jj,ji]
                                 count = count+1
 
 
@@ -63,8 +67,15 @@ if __name__ == "__main__":
     conf.file_mask="../../masks/meshmask_872.nc"
     conf.dir_out = "../../out"
     TheMask = Mask(conf.file_mask)
-    G = gib(conf,TheMask)
+    GIB = gib(conf,TheMask)
     from bounmask import bounmask
     BOUN=bounmask(conf)
-    G.generate(TheMask, BOUN)
-    
+    GIB.generate(TheMask, BOUN)
+    old_values = GIB.read("GIB_yyyy0215-12:00:00.nc","gib_N3n")
+    new_values = GIB.read("../../out/GIB_yyyy0215-12:00:00.nc","gib_N3n")
+
+    import pylab as pl
+    fig,ax=pl.subplots()
+    d=new_values-old_values
+    ax.plot(d)
+    fig.show()

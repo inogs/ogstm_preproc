@@ -46,13 +46,10 @@ class lateral_bc:
 
         nav_lev_in=np.concatenate(([0],self.lev1,[5500]))
 
-        vp_phos_in=np.column_stack((self.N1p[:,1],self.N1p,self.N1p[:,len(self.lev1)-2]))
-
-        vp_ntra_in=np.column_stack((self.N3n[:,1],self.N3n,self.N3n[:,len(self.lev1)-2]))
-
-        vp_sica_in=np.column_stack((self.N5s[:,1],self.N5s,self.N5s[:,len(self.lev1)-2]))
-
-        vp_dox_in=np.column_stack((self.O2o[ :,1],self.O2o,self.O2o[:,len(self.lev1)-2]))
+        vp_phos_in=np.column_stack((self.N1p[:,0], self.N1p, self.N1p[:,-2]))
+        vp_ntra_in=np.column_stack((self.N3n[:,0], self.N3n, self.N3n[:,-2]))
+        vp_sica_in=np.column_stack((self.N5s[:,0], self.N5s, self.N5s[:,-2]))
+        vp_dox_in =np.column_stack((self.O2o[:,0], self.O2o, self.O2o[:,-2]))
         end = len(self.ALK)
 
         nav_lev_in2 = np.append([0],self.lev2.T)
