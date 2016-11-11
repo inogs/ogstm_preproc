@@ -38,21 +38,6 @@ class bounmask():
                 for jk in range(jpk):
                     resto[jn,jk,ii] = 1./(reltim[ii]*86400.)
 
-#             for jk in range(jpk):
-#                 for jn in range(nudg):
-#                     for jj in range(jpjglo):
-#                         for ji in range(jpiglo):
-#                             if (glamt[jj,ji] < vnudg[jn][1]):
-#                                 resto[jn,jk,jj,ji]=1./(rdpmin*86400.);
-
-#                 for jn in range(nudg):
-#                     for jj in range(jpjglo):
-#                         for ji in range(jpiglo):
-#                             if (glamt[jj,ji] > vnudg[jn][1]) and (glamt[jj,ji] <= self.config.end_nudging):
-#                                 reltim = rdpmin + (rdpmax-rdpmin)*(glamt[jj,ji]-vnudg[jn][1])/(self.config.end_nudging-vnudg[jn][1]);
-#                                 resto[jn,jk,jj,ji] = 1./(reltim*86400.);
-
-
             resto[:,~mask.mask] = 1.e+20;
             count = 0
             idx = np.zeros((jpk,jpjglo,jpiglo),dtype=np.int)
@@ -78,9 +63,6 @@ class bounmask():
 
             #self.write_netcdf()
             logging.info("bounmesh generation ended")
-
-
-
 
         else :
             logging.info("bounmesh generation disabled")
