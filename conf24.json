@@ -17,8 +17,8 @@
       "start_time":2000,
       "end_time":2010,
       "num_variables" : 7,
-      "CO2_end" : 336,
-      "CO2_start" : 135
+      "CO2_end" : 2010,
+      "CO2_start" : 2000
      },
 
     "filepath" :

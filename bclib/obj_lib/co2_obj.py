@@ -1,23 +1,27 @@
 import numpy as np
 import netCDF4 as nc
-from bclib.obj_lib import mask_obj
 import datetime
-from matplotlib.dates import seconds
-from scipy.constants.constants import atmosphere
-from bclib.obj_lib.mask_obj import sub_mesh
+from commons.time_interval import TimeInterval
+
 import logging
 
-class co2atm:
+class co2atm():
     """
-        Class co2
-        author : mdepasquale
+        Class co2atm
+        author : Giorgio Bolzon
     """
 
-    def __init__(self, input_data):
+    def __init__(self, conf):
         logging.info("CO2 enabled")
-        self.input_data = input_data
-        self.path = input_data.file_co2
+        self.config = conf
+        self.path = conf.file_co2
         self._extract_information()
+        basetime = datetime.datetime(1765,1,1,0,0,0)
+        timelist=[]
+        for sec in self.time:
+            timeobj = basetime + datetime.timedelta(seconds= sec)
+            timelist.append(timeobj)
+        self.timelist = timelist
 
 
     def _extract_information(self):
@@ -34,62 +38,41 @@ class co2atm:
             setattr(self, i, b)
         self.ncfile.close()
 
-    def generator(self, mesh):
-        time = self.time[self.input_data.co2_start:self.input_data.co2_end]
-        rcp45 = self.RCP45[self.input_data.co2_start:self.input_data.co2_end]
-        rcp85 = self.RCP85[self.input_data.co2_start:self.input_data.co2_end]
+    def generate(self, mask):
 
-        date_format = "%Y%m%d-%H:%M:%S"
+        l_tmask = ~ mask.mask_at_level(0)
+        _, jpj, jpi = mask.shape
 
-        factor = 60*60*24  #factor of conversion seconds to days
-        giorni = []
-        nb = 0             #number of bisestile years from 0 to 1765
-        nnb = 0            #number of not bisestile years from 0 to 1765
+        starttime = str(conf.co2_start-1) + "0101"
+        end__time = str(conf.co2_end  +2) + "0101"
+        TI = TimeInterval(starttime,end__time,"%Y%m%d")
 
-        for i in range(0, 1766):        #calculation of bisestile and non bisestile years from 0 to 1765
-            if divmod(i,4)[1] ==0:
-                nb +=1
-            else:
-                nnb+=1
+        for it, t in enumerate(self.timelist):
+            if TI.contains(t):
+                fileOUT = self.config.dir_out + "/CO2_" + t.strftime("%Y%m%d") + "-12:00:00.nc"
+                map_co2 = np.ones((jpj,jpi), dtype=np.float32) *self.RCP85[it]
+                map_co2[l_tmask] = 1.e+20
 
+                ncfile = nc.Dataset(fileOUT, 'w')
+                ncfile.createDimension('lon', jpi)
+                ncfile.createDimension('lat', jpj)
+                ncvar = ncfile.createVariable('co2','f', ('lat','lon'))
+                ncvar[:] = map_co2[:]
+                setattr(ncvar,"missing_value",1e+20)
+                setattr(self, 'longname', "CO2 content")
+                setattr(ncfile, 'date', datetime.datetime.now().strftime("%Y%m%d-%H:%M:%S"))
+                setattr(ncfile, 'comment', "Uniform value")
+                ncfile.close()
 
-
-        total_days = 365*nnb + 366*nb  #total days from year 0 to 1765
-
-        for sec in time:
-            giorni.append(total_days + sec/factor)
-
-
-        co2datenumber = []
-        for d in giorni:
-            co2datenumber.append(datetime.datetime.fromordinal(int(d)))
-
-        co2datestr = []
-        for dn in co2datenumber:
-            co2datestr.append(dn.strftime(date_format))
-
-
-
-        count = 0
-
-        l_tmask = ~ mesh.tmask[0,0][:].astype(np.bool)
-
-        for yCO2 in co2datestr:
-
-            fileOUT = self.input_data.dir_out + "/CO2_" + yCO2 + ".nc"
-
-            map_co2 = np.dot(np.ones([self.input_data.jpj, self.input_data.jpi]), rcp85[count])
-            map_co2[l_tmask] = np.nan
-
-            ncfile = nc.Dataset(fileOUT, 'w')
-            ncfile.createDimension('lon', self.input_data.jpi)
-            ncfile.createDimension('lat', self.input_data.jpj)
-            g = ncfile.createVariable('co2','f', ('lat','lon'))
-            g[:] = map_co2[:]
-            setattr(self, 'longname', "CO2 content")
-            setattr(ncfile, 'date', datetime.datetime.now().strftime(date_format))
-            setattr(ncfile, 'comment', "Uniform value")
-            ncfile.close()
-            count +=1
 
         logging.info("CO2 file writted")
+if __name__ == "__main__":
+    from bclib.io_lib  import read_configure
+    from commons.mask import Mask
+    conf = read_configure.elaboration(json_input="../../conf24.json")
+    conf.file_mask="../../masks/meshmask_872.nc"
+    conf.dir_out = "../../out"
+    TheMask = Mask(conf.file_mask)
+    conf.file_co2="../../CMIP5_scenarios_RCP_CO2_mixing_ratio.nc"
+    CO2 =co2atm(conf)
+    CO2.generate(TheMask)
