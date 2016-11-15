@@ -43,8 +43,8 @@ class co2atm():
         l_tmask = ~ mask.mask_at_level(0)
         _, jpj, jpi = mask.shape
 
-        starttime = str(conf.co2_start-1) + "0101"
-        end__time = str(conf.co2_end  +2) + "0101"
+        starttime = str(self.config.co2_start-1) + "0101"
+        end__time = str(self.config.co2_end  +2) + "0101"
         TI = TimeInterval(starttime,end__time,"%Y%m%d")
 
         for it, t in enumerate(self.timelist):
@@ -65,7 +65,7 @@ class co2atm():
                 ncfile.close()
 
 
-        logging.info("CO2 file writted")
+        logging.info("CO2 files written")
 if __name__ == "__main__":
     from bclib.io_lib  import read_configure
     from commons.mask import Mask
