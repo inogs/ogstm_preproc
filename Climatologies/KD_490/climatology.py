@@ -28,6 +28,7 @@ jpjglo,jpiglo = tmask_glo.shape
 nproc_i = 4
 nproc_j = 4
 PROCESSES = np.arange(nproc_i*nproc_j)
+valid_max=10.0
 
 
 for ip in PROCESSES[rank::nranks]:
@@ -53,7 +54,7 @@ for ip in PROCESSES[rank::nranks]:
     print "Nwaterpoints", Nwaterpoints
     jpi = I_end-I_start
     jpj = J_end-J_start
-    CLIM = np.zeros((jpj,jpi,365), dtype=[('NUMB',np.int32), ('MEAN',np.float32),('STD',np.float32)])
+    CLIM = np.zeros((365, jpj,jpi), dtype=[('NUMB',np.int32), ('MEAN',np.float32),('STD',np.float32)])
     for julian in range(365):
         #print julian
         II, filelist=time_manager.getfilelist(julian)
@@ -63,7 +64,7 @@ for ip in PROCESSES[rank::nranks]:
                 if tmask[jj,ji]:
                     jw = WaterPoints[jj,ji];
                     PILAloc = raw_data_julian[jw,:];
-                    valid_points =PILAloc>-999
+                    valid_points = (PILAloc > -999) & (PILAloc < valid_max)
                     if valid_points.sum() < 5: continue
                     pilarray= PILAloc[valid_points];
 
@@ -72,11 +73,11 @@ for ip in PROCESSES[rank::nranks]:
                     outsiders = pilarray > m+3.0*s
                     pilarray=pilarray[~outsiders]
                     n = len(pilarray)
-                    CLIM['NUMB'][jj,ji,julian] = n
+                    CLIM['NUMB'][julian, jj,ji] = n
                     if n>4:
                         m = pilarray.mean()
-                        CLIM['MEAN'][jj,ji,julian] = m
-                        CLIM['STD' ][jj,ji,julian] =np.sqrt( ((pilarray-m)**2).sum()/(n-1)  )
+                        CLIM['MEAN'][julian,jj,ji] = m
+                        CLIM['STD' ][julian,jj,ji] =np.sqrt( ((pilarray-m)**2).sum()/(n-1)  )
 
     np.save(outputfile,CLIM)
         
