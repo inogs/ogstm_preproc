@@ -8,7 +8,7 @@ TI = TimeInterval("19500101","20500101","%Y%m%d")
 TL = TimeList.fromfilenames(TI, INPUTDIR,"*.nc",prefix='',dateformat='%Y%m%d')
 
 deltadays=15
-basetime=datetime.datetime(2000,1,1)
+basetime=datetime.datetime(2001,1,1)
 
 def getfilelist(julian):
     #central = basetime + datetime.timedelta(days=julian)

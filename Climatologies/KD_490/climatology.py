@@ -53,8 +53,8 @@ for ip in PROCESSES[rank::nranks]:
     print "Nwaterpoints", Nwaterpoints
     jpi = I_end-I_start
     jpj = J_end-J_start
-    CLIM = np.zeros((jpj,jpi,366), dtype=[('NUMB',np.int32), ('MEAN',np.float32),('STD',np.float32)])
-    for julian in range(366):
+    CLIM = np.zeros((jpj,jpi,365), dtype=[('NUMB',np.int32), ('MEAN',np.float32),('STD',np.float32)])
+    for julian in range(365):
         print julian
         II, filelist=time_manager.getfilelist(julian)
         raw_data_julian=RAW_DATA[:,II]
