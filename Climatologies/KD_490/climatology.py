@@ -36,7 +36,7 @@ for ip in PROCESSES[rank::nranks]:
     outputfile= "Kd_clim_%d_%d" %(jproc,iproc)
     I_start,I_end, J_start, J_end = dom_dec.dom_dec(iproc, jproc, jpiglo, jpjglo, nproc_i, nproc_j)
     tmask = tmask_glo[J_start:J_end, I_start:I_end]
-    print "rank ", ip, "processes " , outputfile, iproc, jproc, I_start,I_end, J_start, J_end
+    print "rank ", rank, "processes " , ip, outputfile, iproc, jproc, I_start,I_end, J_start, J_end
     Nwaterpoints = tmask.sum()
 
     print inputfile
@@ -55,7 +55,7 @@ for ip in PROCESSES[rank::nranks]:
     jpj = J_end-J_start
     CLIM = np.zeros((jpj,jpi,365), dtype=[('NUMB',np.int32), ('MEAN',np.float32),('STD',np.float32)])
     for julian in range(365):
-        print julian
+        #print julian
         II, filelist=time_manager.getfilelist(julian)
         raw_data_julian=RAW_DATA[:,II]
         for ji in range(jpi):
