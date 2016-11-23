@@ -31,7 +31,7 @@ for ip in PROCESSES:
     local_clim = np.load(inputfile)
     print local_clim['MEAN'].max()
     
-    CLIM[J_start:J_end,I_start:I_end,:] = local_clim
+    CLIM[:,J_start:J_end,I_start:I_end] = local_clim
 
 
 
@@ -46,4 +46,11 @@ ncOUT.createDimension('time',365)
 ncvar=ncOUT.createVariable('Mean','f',('time','lat','lon'))
 setattr(ncvar,'missing_value',-999.0)
 ncvar[:]=CLIM['MEAN']
+ncvar=ncOUT.createVariable('Std','f',('time','lat','lon'))
+setattr(ncvar,'missing_value',-999.0)
+ncvar[:]=CLIM['STD']
+ncvar=ncOUT.createVariable('Numb','i',('time','lat','lon'))
+setattr(ncvar,'missing_value',0)
+ncvar[:]=CLIM['NUMB']
+
 ncOUT.close()
