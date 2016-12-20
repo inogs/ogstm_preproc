@@ -43,8 +43,8 @@ class co2atm():
         l_tmask = ~ mask.mask_at_level(0)
         _, jpj, jpi = mask.shape
 
-        starttime = str(self.config.co2_start-1) + "0101"
-        end__time = str(self.config.co2_end  +2) + "0101"
+        starttime = str(self.config.simulation_start_time-1) + "0101"
+        end__time = str(self.config.simulation_end_time  +2) + "0101"
         TI = TimeInterval(starttime,end__time,"%Y%m%d")
 
         for it, t in enumerate(self.timelist):
