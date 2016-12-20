@@ -139,8 +139,9 @@ class river_data:
             jj  = self.georef[jr]['indLat']-1;
             ji  = self.georef[jr]['indLon']-1;
             index_riv_a[jr]  = boun_indexes[0,jj,ji];
+            assert index_riv_a[jr] > 0
             position[jr] = [0,jj,ji]
-        idxt_riv = np.sort(index_riv_a);
+        idxt_riv = index_riv_a; #no sort at the moment
         return idxt_riv, position
     
     def total(self,year):
@@ -205,7 +206,6 @@ class river_data:
 
     def generate_monthly_files(self,conf,mask, idxt_riv, positions):
         '''
-        It is a sort of main.
         Generates TIN files for every year and every month.
 
         positions is the same of georef, then it starts from zero
@@ -213,8 +213,8 @@ class river_data:
         Area=np.zeros((self.nrivers,),np.float)
 
         for jr in range(self.nrivers):
-            ji = self.georef['indLon'][jr]
-            jj = self.georef['indLat'][jr]
+            ji = self.georef['indLon'][jr]-1
+            jj = self.georef['indLat'][jr]-1
             Area[jr] = mask.area[jj,ji]
 
         start_year=conf.simulation_start_time
@@ -233,8 +233,8 @@ class river_data:
         Area=np.zeros((self.nrivers,),np.float)
 
         for jr in range(self.nrivers):
-            ji = self.georef['indLon'][jr]
-            jj = self.georef['indLat'][jr]
+            ji = self.georef['indLon'][jr]-1
+            jj = self.georef['indLat'][jr]-1
             Area[jr] = mask.area[jj,ji]
 
         year="yyyy"
