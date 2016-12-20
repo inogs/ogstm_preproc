@@ -1,15 +1,16 @@
 # paths
-dir_out="out/"
-file_mask = "masks/meshmask_872.nc"
-file_co2 = "CMIP5_scenarios_RCP_CO2_mixing_ratio.nc"
+dir_out        = "out/"
+file_mask      = "masks/meshmask_872.nc"
+file_co2       = "CMIP5_scenarios_RCP_CO2_mixing_ratio.nc"
 file_nutrients = "VPnutrients_CO2.nc"
-file_bmask="masks/bounmask8.nc"
-file_river="input_obc_eas2_v3.xlsx"
+file_bmask     = "masks/bounmask8.nc"
+file_river     = "input_obc_eas2_v3.xlsx"
 
-simulation_start_time=2000
-simulation_end_time=2010
+simulation_start_time = 2000
+simulation_end_time   = 2010
 
 # Atmosphere settings
+# Units and origin of data should be added here
 po4_wes = (  357. +   697)/2
 po4_eas = (  379. +   957)/2
 n3n_wes = (10042. + 72825)/2

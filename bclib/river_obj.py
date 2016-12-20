@@ -254,9 +254,10 @@ class river_data:
     def dump_file(self,filename,N,P,S,A,D,idxt_riv,positions):
         ncfile = netCDF4.Dataset(filename, 'w')
         ncfile.createDimension("riv_idxt",self.nrivers)
-        ncfile.createDimension("cords",3)
+        ncfile.createDimension("coords",3)
         riv_idxt_riv = ncfile.createVariable('riv_idxt', 'i4', ('riv_idxt',))
-        riv_pos_riv = ncfile.createVariable('position', 'i4', ('riv_idxt','cords'))
+        riv_pos   = ncfile.createVariable('position', 'i4', ('riv_idxt','coords'))
+        setattr(riv_pos,'order',"k,j,i")
         riv_a_n3n = ncfile.createVariable('riv_N3n', 'f4', ('riv_idxt',))
         riv_a_n1p = ncfile.createVariable('riv_N1p', 'f4', ('riv_idxt',))
         riv_a_n5s = ncfile.createVariable('riv_N5s', 'f4', ('riv_idxt',))
@@ -264,7 +265,7 @@ class river_data:
         riv_a_o3h = ncfile.createVariable('riv_O3h', 'f4', ('riv_idxt',))
         
         riv_idxt_riv[:] = idxt_riv[:]
-        riv_pos_riv[:,:] = positions
+        riv_pos[:,:] = positions+1
         riv_a_n3n[:] = N
         riv_a_n1p[:] = P
         riv_a_n5s[:] = S
