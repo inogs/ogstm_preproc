@@ -130,13 +130,14 @@ class river_data:
         '''
         boun_indexes is the index array of bounmask.nc
         Bounmask indexes are supposed start from one --> the index_riv_a array is good for fortran
+        excel data i,j  are indexes starting from one
         '''
         
         position    = np.zeros((self.nrivers,3), dtype = np.int);
         index_riv_a = np.zeros((self.nrivers,) , dtype = np.int);
         for jr in range(self.nrivers):
-            jj  = self.georef[jr]['indLat'];
-            ji  = self.georef[jr]['indLon'];
+            jj  = self.georef[jr]['indLat']-1;
+            ji  = self.georef[jr]['indLon']-1;
             index_riv_a[jr]  = boun_indexes[0,jj,ji];
             position[jr] = [0,jj,ji]
         idxt_riv = np.sort(index_riv_a);
