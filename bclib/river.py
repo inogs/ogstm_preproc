@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import numpy as np
-from bclib import excel_obj as xlsobj
+from bclib import excel_reader
 import logging
 import netCDF4
 
@@ -15,7 +15,7 @@ class river_data:
         self.georef = None
         logging.info("--Start river data collection")
         sheet_list=conf.river_data_sheet
-        river_excel_file = xlsobj.xlsx(conf.file_river)
+        river_excel_file = excel_reader.xlsx(conf.file_river)
         river_spreadsheet = {}
         #read xlsx into a dict
         river_spreadsheet["monthly"] =  river_excel_file.read_spreadsheet_all("monthly")

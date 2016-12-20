@@ -1,5 +1,5 @@
 import logging
-from bclib.lateral_obj import lateral_bc
+from bclib.lateral import lateral_bc
 import netCDF4 as nc
 import numpy as np
 
