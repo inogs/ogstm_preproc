@@ -13,7 +13,7 @@ class river_data:
         river_collected_data, a dict of dicts
         '''
         self.georef = None
-        logging.debug("--Start river data collection")
+        logging.info("--Start river data collection")
         sheet_list=conf.river_data_sheet
         river_excel_file = xlsobj.xlsx(conf.file_river)
         river_spreadsheet = {}
@@ -35,7 +35,7 @@ class river_data:
             for iyear, y in enumerate(self.river_years):
                 river_sheet_collected_data[str(y)] =  river_spreadsheet[sheet][1:,iyear+9].copy()
             self.river_collected_data[sheet] =  river_sheet_collected_data.copy()
-        logging.debug("--End river data collection")
+        logging.info("--End river data collection")
 
 
 
@@ -111,6 +111,8 @@ class river_data:
          it is a dict of dicts
          river_data={'sheet_name':{'2009': (nRivers,12) np.array } ; ... }
         '''
+
+        logging.info("Start river Modularization")
         m=np.zeros((self.nrivers,12))
         river_data={}
         sheet_list = conf.river_data_sheet
@@ -210,6 +212,7 @@ class river_data:
 
         positions is the same of georef, then it starts from zero
         '''
+        logging.info("Start non climatological TIN file generation ")
         Area=np.zeros((self.nrivers,),np.float)
 
         for jr in range(self.nrivers):
@@ -225,11 +228,13 @@ class river_data:
                 N,P,S,A,D = self.get_monthly_data(str(year), month)
                 N,P,S,A,D = self.conversion(N, P, S, A, D)
                 self.dump_file(filename, N/Area, P/Area, S/Area, A/Area, D/Area, idxt_riv, positions)
+        logging.info("End non climatological TIN file generation")
 
     def generate_climatological_monthly_files(self,conf,mask,idxt_riv, positions):
         '''
         Generates 12 TIN_yyyy*nc files
         '''
+        logging.info("Start climatological TIN file generation ")
         Area=np.zeros((self.nrivers,),np.float)
 
         for jr in range(self.nrivers):
@@ -243,6 +248,7 @@ class river_data:
             N,P,S,A,D = self.get_monthly_data(str(year), month)
             N,P,S,A,D = self.conversion(N, P, S, A, D)
             self.dump_file(filename, N/Area, P/Area, S/Area, A/Area, D/Area, idxt_riv, positions)
+        logging.info("Start climatological TIN file generation ")
                 
                 #N/A, P/A
     def dump_file(self,filename,N,P,S,A,D,idxt_riv,positions):
