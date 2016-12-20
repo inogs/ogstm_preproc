@@ -212,8 +212,8 @@ class river_data:
         Area=np.zeros((self.nrivers,),np.float)
 
         for jr in range(self.nrivers):
-            ji = self.river_georef['indLon'][jr]
-            jj = self.river_georef['indLat'][jr]
+            ji = self.georef['indLon'][jr]
+            jj = self.georef['indLat'][jr]
             Area[jr] = mask.area[jj,ji]
 
         start_year=conf.simulation_start_time
@@ -232,8 +232,8 @@ class river_data:
         Area=np.zeros((self.nrivers,),np.float)
 
         for jr in range(self.nrivers):
-            ji = self.river_georef['indLon'][jr]
-            jj = self.river_georef['indLat'][jr]
+            ji = self.georef['indLon'][jr]
+            jj = self.georef['indLat'][jr]
             Area[jr] = mask.area[jj,ji]
 
         year="yyyy"
