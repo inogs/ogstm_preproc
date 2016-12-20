@@ -60,9 +60,8 @@ class gib():
                 ncvar[:] = data[:]
             ncfile.close()
 if __name__ == "__main__":
-    from bclib.io_lib  import read_configure
     from commons.mask import Mask
-    conf = read_configure.elaboration(json_input="../../conf24.json")
+    import config as conf
     conf.file_nutrients = "../../"+ conf.file_nutrients
     conf.file_mask="../../masks/meshmask_872.nc"
     conf.dir_out = "../../out"

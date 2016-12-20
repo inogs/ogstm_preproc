@@ -11,7 +11,7 @@ class atmosphere():
         '''
         Arguments:
         * mask * is a commons.Mask object
-        * conf * is a configuration object, obtained by read_configure
+        * conf * is a configuration object, obtained by importing config.py
 
         nitrate and phoshate are fields expressed in Mmol/m3/y
         '''

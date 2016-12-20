@@ -126,9 +126,8 @@ class bounmask():
         logging.info("bounmask.nc file writed")
 
 if __name__ == '__main__':
-    from bclib.io_lib  import read_configure
     from commons.mask import Mask
-    conf = read_configure.elaboration(json_input="../../conf24.json")
+    import config as conf
     conf.file_mask="../../meshmask_872.nc"
     conf.file_bmask="bounmask.nc"
     conf.active_bmask = True

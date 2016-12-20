@@ -67,9 +67,8 @@ class co2atm():
 
         logging.info("CO2 files written")
 if __name__ == "__main__":
-    from bclib.io_lib  import read_configure
     from commons.mask import Mask
-    conf = read_configure.elaboration(json_input="../../conf24.json")
+    import config as conf
     conf.file_mask="../../masks/meshmask_872.nc"
     conf.dir_out = "../../out"
     TheMask = Mask(conf.file_mask)
