@@ -1,12 +1,11 @@
 #!/usr/bin/python3.5
 from commons.mask import Mask
-from bclib.io_lib  import read_configure
 from bclib.obj_lib.bounmask import bounmask
 from bclib.obj_lib import atmosphere
 from bclib.obj_lib.gib import gib
 from bclib.obj_lib.co2_obj import co2atm
 
-conf = read_configure.elaboration(json_input="./conf24.json")
+import config as conf
 TheMask = Mask(conf.file_mask)
 
 CO2 =co2atm(conf)
