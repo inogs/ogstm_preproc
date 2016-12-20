@@ -1,9 +1,9 @@
 #!/usr/bin/python3.5
 from commons.mask import Mask
-from bclib.obj_lib.bounmask import bounmask
-from bclib.obj_lib import atmosphere
-from bclib.obj_lib.gib import gib
-from bclib.obj_lib.co2_obj import co2atm
+from bclib.bounmask import bounmask
+from bclib import atmosphere
+from bclib.gib import gib
+from bclib.co2_obj import co2atm
 
 import config as conf
 TheMask = Mask(conf.file_mask)
@@ -30,7 +30,7 @@ sys.exit()
 ## RIVER, to be tested
 index = BOUN.load('index')
 
-from bclib.obj_lib.river_obj import river_data
+from bclib.river_obj import river_data
 R = river_data(conf)
 R.modularize(conf)
 georef = R.gen_map_indexes(TheMask)

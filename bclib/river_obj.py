@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import numpy as np
-from bclib.io_lib import excel_obj as xlsobj
+from bclib import excel_obj as xlsobj
 import logging
 import netCDF4
 

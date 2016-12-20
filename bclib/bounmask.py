@@ -128,7 +128,7 @@ class bounmask():
 if __name__ == '__main__':
     from commons.mask import Mask
     import config as conf
-    conf.file_mask="../../meshmask_872.nc"
+    conf.file_mask="../meshmask_872.nc"
     conf.file_bmask="bounmask.nc"
     conf.active_bmask = True
     TheMask = Mask(conf.file_mask)

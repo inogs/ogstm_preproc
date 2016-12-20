@@ -1,5 +1,5 @@
 import logging
-from bclib.obj_lib.lateral_obj import lateral_bc
+from bclib.lateral_obj import lateral_bc
 import netCDF4 as nc
 import numpy as np
 
@@ -62,16 +62,16 @@ class gib():
 if __name__ == "__main__":
     from commons.mask import Mask
     import config as conf
-    conf.file_nutrients = "../../"+ conf.file_nutrients
-    conf.file_mask="../../masks/meshmask_872.nc"
-    conf.dir_out = "../../out"
+    conf.file_nutrients = "../"+ conf.file_nutrients
+    conf.file_mask="../masks/meshmask_872.nc"
+    conf.dir_out = "../out"
     TheMask = Mask(conf.file_mask)
     GIB = gib(conf,TheMask)
     from bounmask import bounmask
     BOUN=bounmask(conf)
     GIB.generate(TheMask, BOUN)
     old_values = GIB.read("GIB_yyyy0215-12:00:00.nc","gib_N3n")
-    new_values = GIB.read("../../out/GIB_yyyy0215-12:00:00.nc","gib_N3n")
+    new_values = GIB.read("../out/GIB_yyyy0215-12:00:00.nc","gib_N3n")
 
     import pylab as pl
     fig,ax=pl.subplots()
