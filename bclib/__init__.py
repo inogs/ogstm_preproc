@@ -1,10 +1,8 @@
 """
     BCLIB version 0.1
-    author : epascolo
+    author : gbolzon
 
 """
 import logging
-logging.basicConfig( level=logging.DEBUG)
-logging.info("BOUNDARY CONDITIONS python version 0.1")
-logging.info(" 26 oct 2015 ")
-logging.info(" logging set ")
+logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %H:%M:%S', level=logging.DEBUG)
+logging.info("BOUNDARY CONDITIONS python version 1.0")

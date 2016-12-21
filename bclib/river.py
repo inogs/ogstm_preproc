@@ -13,7 +13,7 @@ class river_data:
         river_collected_data, a dict of dicts
         '''
         self.georef = None
-        logging.info("--Start river data collection")
+        logging.info("Reading from xls file...")
         sheet_list=conf.river_data_sheet
         river_excel_file = excel_reader.xlsx(conf.file_river)
         river_spreadsheet = {}
@@ -35,7 +35,7 @@ class river_data:
             for iyear, y in enumerate(self.river_years):
                 river_sheet_collected_data[str(y)] =  river_spreadsheet[sheet][1:,iyear+9].copy()
             self.river_collected_data[sheet] =  river_sheet_collected_data.copy()
-        logging.info("--End river data collection")
+        logging.info("Done")
 
 
 
@@ -67,7 +67,7 @@ class river_data:
         * for forced coordinates indLon and indLat are starting from one
         * the others are not tested
         """
-        logging.info("Start river position calculation")
+        logging.info("River position calculation: start ")
         there_are_free_points=np.any(self.force_coordr==-1)
         if there_are_free_points:
             mask1 = mask.mask_at_level(0)
@@ -100,7 +100,7 @@ class river_data:
                 georef[jr,2]=self.georef[jr,2]+1
 
         self.georef = georef
-        logging.info("End river position calculation")
+        logging.info("River position calculation: done ")
 
 
     def modularize(self,conf):
@@ -112,7 +112,7 @@ class river_data:
          river_data={'sheet_name':{'2009': (nRivers,12) np.array } ; ... }
         '''
 
-        logging.info("Start river Modularization")
+        logging.info("River Modularization")
         m=np.zeros((self.nrivers,12))
         river_data={}
         sheet_list = conf.river_data_sheet
@@ -126,7 +126,6 @@ class river_data:
             river_data[sheet]=years_data.copy()
 
         self.river_data = river_data
-        logging.info("End river Modularization")
 
     def gen_boun_indexes(self,boun_indexes):
         '''
@@ -212,7 +211,7 @@ class river_data:
 
         positions is the same of georef, then it starts from zero
         '''
-        logging.info("Start non climatological TIN file generation ")
+        logging.info("Non climatological TIN file generation : start ")
         Area=np.zeros((self.nrivers,),np.float)
 
         for jr in range(self.nrivers):
@@ -224,17 +223,17 @@ class river_data:
         end___year=conf.simulation_end_time
         for year in range(start_year,end___year):
             for month in range(1,13):
-                filename = conf.dir_out+"/TIN_%d%02d15-00:00:00.nc" %(year, month)
+                filename = conf.dir_out + "TIN_%d%02d15-00:00:00.nc" %(year, month)
                 N,P,S,A,D = self.get_monthly_data(str(year), month)
                 N,P,S,A,D = self.conversion(N, P, S, A, D)
                 self.dump_file(filename, N/Area, P/Area, S/Area, A/Area, D/Area, idxt_riv, positions)
-        logging.info("End non climatological TIN file generation")
+        logging.info("Non climatological TIN file generation : done")
 
     def generate_climatological_monthly_files(self,conf,mask,idxt_riv, positions):
         '''
         Generates 12 TIN_yyyy*nc files
         '''
-        logging.info("Start climatological TIN file generation ")
+        logging.info("Climatological TIN file generation : start")
         Area=np.zeros((self.nrivers,),np.float)
 
         for jr in range(self.nrivers):
@@ -248,9 +247,8 @@ class river_data:
             N,P,S,A,D = self.get_monthly_data(str(year), month)
             N,P,S,A,D = self.conversion(N, P, S, A, D)
             self.dump_file(filename, N/Area, P/Area, S/Area, A/Area, D/Area, idxt_riv, positions)
-        logging.info("Start climatological TIN file generation ")
+        logging.info("Climatological TIN file generation : done")
                 
-                #N/A, P/A
     def dump_file(self,filename,N,P,S,A,D,idxt_riv,positions):
         ncfile = netCDF4.Dataset(filename, 'w')
         ncfile.createDimension("riv_idxt",self.nrivers)

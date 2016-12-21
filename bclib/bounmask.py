@@ -9,7 +9,7 @@ class bounmask():
         self.resto   = None
         self.idx     = None
         self.idx_inv = None
-        logging.info("bounmask builded")
+        logging.info("bounmask object builded")
         
 
     def generate(self,mask):
@@ -62,7 +62,7 @@ class bounmask():
         self.resto = resto
 
         #self.write_netcdf()
-        logging.info("bounmesh generation ended")
+        logging.info("bounmask content generation : finished")
 
 
 
@@ -80,7 +80,7 @@ class bounmask():
         '''
 
         bncfile = nc.Dataset(self.config.file_bmask, 'r')
-        print("LOADING from bounmask")
+        logging.info("LOADING from bounmask.nc")
         if (varname =="index_inv"):
             M = np.array(bncfile[varname])
         else:
@@ -90,7 +90,7 @@ class bounmask():
 
 
     def write_netcdf(self,mask):
-        logging.info("Start bounmesh nc file write")
+        logging.info("Writing bounmask.nc file ...")
         vnudg = self.config.variables
         nudg = len(vnudg)
         ncfile = nc.Dataset(self.config.file_bmask, 'w')
@@ -123,14 +123,13 @@ class bounmask():
         idx_l_inv = self.idx_inv +1
         idx_rev_wnc[:] = idx_l_inv
         ncfile.close()
-        logging.info("bounmask.nc file writed")
+        logging.info("bounmask.nc file written")
 
 if __name__ == '__main__':
     from commons.mask import Mask
     import config as conf
     conf.file_mask="../meshmask_872.nc"
     conf.file_bmask="bounmask.nc"
-    conf.active_bmask = True
     TheMask = Mask(conf.file_mask)
     B=bounmask(conf)
     B.generate(TheMask)

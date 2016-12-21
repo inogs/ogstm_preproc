@@ -6,8 +6,12 @@ import numpy as np
 class gib():
     def __init__(self,conf,mask):
         self.config = conf
+        logging.info("Lateral conditions : start")
         self.gibilterra = lateral_bc(conf.file_nutrients,mask)
+        logging.info("Lateral conditions done")
+
     def read(self,filename, var):
+        ''' Useful in check and debug'''
         ncfile = nc.Dataset(filename, 'r')
         M = np.array(ncfile.variables[var])
         ncfile.close()
@@ -24,6 +28,7 @@ class gib():
             return np.ones(size_nutrients,np.float64)*0.0025  # G. Cossarini estimate
 
     def generate(self,mask,bounmask_obj):
+        logging.info("GIB files generation: start")
         if bounmask_obj.idx is None:
             bounmask_obj.generate(mask)
         jpk, jpj, jpi = mask.shape
@@ -31,7 +36,7 @@ class gib():
         nudg = len(vnudg)
         
         for time in range(4):
-            filename = self.config.dir_out+"/GIB_yyyy" + self.gibilterra.season[time]+".nc"
+            filename = self.config.dir_out + "GIB_yyyy" + self.gibilterra.season[time]+".nc"
             print filename
             ncfile = nc.Dataset(filename, 'w')
             for jn in range(nudg):
@@ -59,6 +64,7 @@ class gib():
                 ncvar = ncfile.createVariable(vardataname, 'f',(dimension_name,))
                 ncvar[:] = data[:]
             ncfile.close()
+        logging.info("GIB files generation: done")
 if __name__ == "__main__":
     from commons.mask import Mask
     import config as conf

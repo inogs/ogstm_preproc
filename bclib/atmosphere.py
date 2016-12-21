@@ -19,13 +19,22 @@ class atmosphere():
         logging.info("Atmosphere start calculation")
         _,jpj,jpi = mask.shape
 
-        mask.cut_at_level(0)
+        mask0 = mask.cut_at_level(0)
         EAS=ComposedBasin('eas',[V2.eas,V2.adr1,V2.adr2,V2.aeg],'East with marginal seas')
-        wes = SubMask(V2.wes,maskobject=mask).mask_at_level(0)
-        eas = SubMask(EAS,   maskobject=mask).mask_at_level(0)
+        # Here we use basin objet features to run faster
+        EAS.region.border_longitudes    = [ 9,36]
+        EAS.region.border_latitudes     = [30,46]
+        V2.wes.region.border_longitudes = [-6,18]
+        V2.wes.region.border_latitudes  = [32,45]
+        #---------------------------------------------
+        print "wes"
+        wes = SubMask(V2.wes,maskobject=mask0).mask_at_level(0)
+        print "eas"
+        eas = SubMask(EAS,   maskobject=mask0).mask_at_level(0)
+        print "done"
         
-        e3t       = mask.dz
-        Volume = mask.area*e3t[0]
+        e3t       = mask0.dz
+        Volume = mask0.area*e3t[0]
         Nwes = Volume[wes].sum()
         Neas = Volume[eas].sum()
 
@@ -95,4 +104,4 @@ class atmosphere():
         setattr(ncfile, 'ATM_N_MassBalance_Mmol_y', totN)
         ncfile.close()
 
-        logging.info("Atmosphere Netcdf writed")
+        logging.info("Atmosphere Netcdf written.")
