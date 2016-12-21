@@ -37,7 +37,7 @@ class gib():
         
         for time in range(4):
             filename = self.config.dir_out + "GIB_yyyy" + self.gibilterra.season[time]+".nc"
-            print filename
+            #print filename
             ncfile = nc.Dataset(filename, 'w')
             for jn in range(nudg):
                 GIB_matrix = self.nutrient_dataset_by_index(jn)

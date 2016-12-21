@@ -9,8 +9,8 @@ file_river     = "input_obc_eas2_v3.xlsx"
 simulation_start_time = 2000
 simulation_end_time   = 2010
 
-# Atmosphere settings
-# Units and origin of data should be added here
+# Atmosphere settings in Mmol/m3/y
+# origin of data should be added here
 po4_wes = (  357. +   697)/2
 po4_eas = (  379. +   957)/2
 n3n_wes = (10042. + 72825)/2

@@ -4,7 +4,7 @@ from bclib.bounmask import bounmask
 from bclib import atmosphere
 from bclib.gib import gib
 from bclib.co2 import co2atm
-
+from bclib.river import river
 import config as conf
 TheMask = Mask(conf.file_mask)
 
@@ -15,25 +15,19 @@ ATM.write_netcdf(TheMask, conf.dir_out)
 
 
 BOUN = bounmask(conf)
-BOUN.generate(TheMask)
+BOUN.generate(TheMask)     # can be commented in case of test
 BOUN.write_netcdf(TheMask)
 
 G = gib(conf,TheMask)
 G.generate(TheMask, BOUN)
 
-
-
-
-
-import sys
-sys.exit()
-## RIVER, to be tested
-index = BOUN.load('index')
-
-from bclib.river import river_data
-R = river_data(conf)
+R = river(conf) # here excel is read
 R.modularize(conf)
-georef = R.gen_map_indexes(TheMask)
+R.gen_map_indexes(TheMask)
+if BOUN.idx is None:
+    index = BOUN.load('index')
+else:
+    index=BOUN.idx
 idxt, positions = R.gen_boun_indexes(index)
 
 R.generate_monthly_files(conf, TheMask,idxt, positions)

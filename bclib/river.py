@@ -5,7 +5,7 @@ import logging
 import netCDF4
 
 
-class river_data:
+class river():
 
     def __init__(self,conf):
         '''
