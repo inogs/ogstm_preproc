@@ -49,11 +49,11 @@ class bounmask():
             for jj in range(jpjglo):
                 for ji in range(jpiglo):
                     if mask.mask[jk,jj,ji]:
-                        idx[jk,jj,ji] = count+1;
-                        idx_inv[count,0]=jk+1;
-                        idx_inv[count,1]=jj+1;
-                        idx_inv[count,2]=ji+1;
-                        count=count+1;
+                        idx[jk,jj,ji] = count+1
+                        idx_inv[count,0]=jk
+                        idx_inv[count,1]=jj
+                        idx_inv[count,2]=ji
+                        count=count+1
 
 
         idx[~mask.mask] = 0;
