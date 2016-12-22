@@ -56,7 +56,7 @@ class bounmask():
                         count=count+1
 
 
-        idx[~mask.mask] = 0;
+        assert idx[~mask.mask].sum() == 0;
         self.idx = idx
         self.idx_inv = idx_inv
         self.resto = resto
@@ -112,8 +112,7 @@ class bounmask():
             corrf =[1.,1.,1.,1.,1.01,1.01,1.];
             aux= self.resto[jn,:,:,:]*corrf[jn];
             np.transpose(aux, (2, 1, 0)).shape
-            name = "re" + vnudg[jn][0]
-            resto_wnc = ncfile.createVariable(name, 'f4', ('time','z','y','x'))
+            resto_wnc = ncfile.createVariable("re" + vnudg[jn][0], 'f4', ('time','z','y','x'))
             resto_wnc[0,:] = aux
             setattr(resto_wnc,'missing_value',1.e+20)
         idx_inv_wnc = ncfile.createVariable('index', 'i', ('time','z','y','x'))
