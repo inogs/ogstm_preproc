@@ -28,11 +28,12 @@ class river():
             river_spreadsheet[sheet] =  river_excel_file.read_spreadsheet_all(sheet)
 
         #extract data
-        self.river_coordr = river_spreadsheet["monthly"][1:,1:3].astype(np.float32)
-        self.force_coordr = river_spreadsheet["monthly"][1:,3:5].astype(np.int32)
+        self.lon = river_spreadsheet["monthly"][1:,1].astype(np.float32)
+        self.lat = river_spreadsheet["monthly"][1:,2].astype(np.float32)
+        self.forced_coord = river_spreadsheet["monthly"][1:,3:5].astype(np.int32)
         self.monthly_mod  = river_spreadsheet["monthly"][1:,9:21].astype(np.float32)
 
-        self.nrivers = len(self.river_coordr[:])
+        self.nrivers = len(self.lon)
         self.xls_data = {}
         for sheet in sheet_list:
             river_sheet_collected_data = {}
@@ -73,7 +74,7 @@ class river():
         * the others are not tested
         """
         logging.info("River position calculation: start ")
-        there_are_free_points=np.any(self.force_coordr==-1)
+        there_are_free_points=np.any(self.forced_coord==-1)
         if there_are_free_points:
             mask1 = mask.mask_at_level(0)
             coast = self._coast_line_mask(mask1)
@@ -88,16 +89,14 @@ class river():
         ### river contributes
         georef = np.zeros((self.nrivers,),dtype=[('indLon',np.int),('indLat',np.int),('lonmesh',np.float32),('latmesh',np.float32)])
         for jr in range (self.nrivers):
-            if self.force_coordr[jr,0] != -1 and self.force_coordr[jr,1] != -1:
-                georef['indLon'][jr]=self.force_coordr[jr,0]
-                georef['indLat'][jr]=self.force_coordr[jr,1]
+            if self.forced_coord[jr,0] != -1 and self.forced_coord[jr,1] != -1:
+                georef['indLon'][jr]=self.forced_coord[jr,0]
+                georef['indLat'][jr]=self.forced_coord[jr,1]
                 #if(mask1[georef[jr,1]-1,georef[jr,2]-1] == 0):
                 #    print("RIVER ON THE LAND")
                 #    print(georef[jr,:])
             else: # TO BE TESTED
-                lon_river = self.river_coordr[jr,0]
-                lat_river = self.river_coordr[jr,1]
-                dist = (loncm-lon_river)**2 + (latcm-lat_river)**2
+                dist = (loncm-self.lon[jr])**2 + (latcm-self.lat[jr])**2
                 ind = np.argmin(dist)
                 georef[jr,0]=jr
                 for i in range(1,5): georef[jr,i]=georef4[ind,i-1]
