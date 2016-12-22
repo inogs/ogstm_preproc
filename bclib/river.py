@@ -10,7 +10,12 @@ class river():
     def __init__(self,conf):
         '''
         Reads data from excel in 
-        river_collected_data, a dict of dicts
+        xls_data, a dict of dicts
+
+        Example
+        import config as conf
+        R=river(conf)
+        a = R.xls_data['DIP_KTperYR_NOBLS']['2004']
         '''
         self.georef = None
         logging.info("Reading from xls file...")
@@ -25,16 +30,16 @@ class river():
         #extract data
         self.river_coordr = river_spreadsheet["monthly"][1:,1:3].astype(np.float32)
         self.force_coordr = river_spreadsheet["monthly"][1:,3:5].astype(np.int32)
-        self.river_montly_mod = river_spreadsheet["monthly"][1:,9:21].astype(np.float32)
+        self.monthly_mod  = river_spreadsheet["monthly"][1:,9:21].astype(np.float32)
 
         self.nrivers = len(self.river_coordr[:])
-        self.river_collected_data = {}
+        self.xls_data = {}
         for sheet in sheet_list:
             river_sheet_collected_data = {}
-            self.river_years = river_spreadsheet[sheet][0][9:]
-            for iyear, y in enumerate(self.river_years):
+            self.available_years = river_spreadsheet[sheet][0][9:]
+            for iyear, y in enumerate(self.available_years):
                 river_sheet_collected_data[str(y)] =  river_spreadsheet[sheet][1:,iyear+9].copy()
-            self.river_collected_data[sheet] =  river_sheet_collected_data.copy()
+            self.xls_data[sheet] =  river_sheet_collected_data.copy()
         logging.info("Done")
 
 
@@ -113,16 +118,17 @@ class river():
         '''
 
         logging.info("River Modularization")
-        m=np.zeros((self.nrivers,12))
+        m=np.zeros((self.nrivers,12),np.float32)
         river_data={}
         sheet_list = conf.river_data_sheet
         for sheet in sheet_list :
             years_data={}
-            for ic in self.river_years :
+            for year in self.available_years:
+                yearstr=str(year)
                 for r in range(self.nrivers):
-                    ry = self.river_collected_data[sheet][str(ic)][r]
-                    m[r,:] =  (self.river_montly_mod[r,:]/100)*12*ry
-                years_data[str(ic)]=m.copy()
+                    ry = self.xls_data[sheet][yearstr][r]
+                    m[r,:] =  (self.monthly_mod[r,:]/100)*12*ry
+                years_data[yearstr]=m.copy()
             river_data[sheet]=years_data.copy()
 
         self.river_data = river_data

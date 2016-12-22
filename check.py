@@ -28,5 +28,5 @@ cs = w*t*s
 for ip in range(R.nrivers):
     jk,jj, ji = index_inv[idxt[ip]-1,:]
     print jk, ji, jj # similar to xsl file
-    diff = R.river_collected_data['DIP_KTperYR_NOBLS']['2004'][ip] * R.river_montly_mod[ip,4]/100*12*cp/TheMask.area[jj-1,ji-1] - N1p[ip]
+    diff = R.xls_data['DIP_KTperYR_NOBLS']['2004'][ip] * R.monthly_mod[ip,4]/100*12*cp/TheMask.area[jj-1,ji-1] - N1p[ip]
     #print diff
