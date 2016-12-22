@@ -119,7 +119,7 @@ class river():
         for sheet in sheet_list :
             years_data={}
             for ic in self.river_years :
-                for r in range(0,self.nrivers-2):
+                for r in range(self.nrivers):
                     ry = self.river_collected_data[sheet][str(ic)][r]
                     m[r,:] =  (self.river_montly_mod[r,:]/100)*12*ry
                 years_data[str(ic)]=m.copy()
