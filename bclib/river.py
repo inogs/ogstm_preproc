@@ -270,4 +270,9 @@ class river():
         riv_a_o3c[:] = D
         riv_a_o3h[:] = A
         ncfile.close()
-                
+    def load_from_file(self,filename,var):
+        ''' Useful for check/debug '''
+        dset = netCDF4.Dataset(filename, 'r')
+        M = np.array(dset[var])
+        dset.close()
+        return M
