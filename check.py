@@ -2,6 +2,7 @@ import config as conf
 from bclib.river import river
 from bclib.bounmask import bounmask
 from commons.mask import Mask
+import numpy as np
 
 BOUN = bounmask(conf)
 index_inv = BOUN.load('index_inv')
@@ -25,8 +26,18 @@ cn = w*t*n
 cp = w*t*p
 cs = w*t*s
 
+diff = np.zeros((R.nrivers,),np.float32)
 for ip in range(R.nrivers):
     jk,jj, ji = index_inv[idxt[ip]-1,:]
     print jk, ji, jj # similar to xsl file
-    diff = R.xls_data['DIP_KTperYR_NOBLS']['2004'][ip] * R.monthly_mod[ip,4]/100*12*cp/TheMask.area[jj-1,ji-1] - N1p[ip]
-    #print diff
+    diff[ip] = R.xls_data['DIP_KTperYR_NOBLS']['2004'][ip] * R.monthly_mod[ip,4]/100*12*cp/TheMask.area[jj-1,ji-1] - N1p[ip]
+print diff.max()
+
+V = R.load_from_file(filename, 'riv_N3n')
+sheet = "DIN_KTperYR_NOBLS"
+conv=cn
+
+for ip in range(R.nrivers):
+    jk,jj, ji = index_inv[idxt[ip]-1,:]
+    diff[ip] = R.xls_data[sheet]['2004'][ip] * R.monthly_mod[ip,4]/100*12*conv/TheMask.area[jj-1,ji-1] - V[ip]
+print diff.max()
