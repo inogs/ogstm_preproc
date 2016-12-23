@@ -134,11 +134,20 @@ class river():
 
     def gen_boun_indexes(self,boun_indexes):
         '''
-        boun_indexes is the index array of bounmask.nc
-        Bounmask indexes are supposed start from one --> the index_riv_a array is good for fortran
-        excel data i,j  are indexes starting from one
+        For each river, generates its bounmask index
+        Arguments
+        * boun_indexes * is a 3d array of integers, the "index" array of bounmask.nc
+        Returns
+        * idxt      * integer 1d array (nrivers)   with rivers index in bounmask
+                      indexes start from one, is ok for fortran
+        * positions * integer 2d array (nrivers,3) with river position jk,jj,ji in meshmask
+                      indexes start from zero, is ok for python
+
+        External conditions:
+        * bounmask.nc['index'] values are supposed start from one
+        * excel data i,j  are indexes starting from one
         '''
-        
+
         position    = np.zeros((self.nrivers,3), dtype = np.int);
         index_riv_a = np.zeros((self.nrivers,) , dtype = np.int);
         for jr in range(self.nrivers):
@@ -149,7 +158,7 @@ class river():
             position[jr] = [0,jj,ji]
         idxt_riv = index_riv_a; #no sort at the moment
         return idxt_riv, position
-    
+
     def total(self,year):
         '''
         Returns:
@@ -173,7 +182,7 @@ class river():
          *month*  integer from 1 to 12
          
          Returns:
-         N,P,S,A,D : (nRivers, ) numpy arrays 
+         N,P,S,A,D : (nRivers, ) numpy arrays
         
         '''
         N = self.river_data["DIN_KTperYR_NOBLS"  ][yearstr][:,month-1]
@@ -188,6 +197,12 @@ class river():
     
     def conversion(self,N,P,S,A,D):
         '''
+        Performs conversion of all variables
+        from KT/y to mmol/s or mg/s
+
+        Arguments:
+         Nitrate, Phosphate, Silicate, Alcalinity, Dissolved_Oxygen arrays
+
         Returns
         * N * in mmol/s
         * P * in mmol/s
@@ -255,6 +270,10 @@ class river():
         logging.info("Climatological TIN file generation : done")
                 
     def dump_file(self,filename,N,P,S,A,D,idxt_riv,positions):
+        '''
+          Writes the single TIN file
+          Variables are dumped as they are, all but positions (incremented by one)
+        '''
         ncfile = netCDF4.Dataset(filename, 'w')
         ncfile.createDimension("riv_idxt",self.nrivers)
         ncfile.createDimension("coords",3)
@@ -275,6 +294,7 @@ class river():
         riv_a_o3c[:] = D
         riv_a_o3h[:] = A
         ncfile.close()
+
     def load_from_file(self,filename,var):
         ''' Useful for check/debug '''
         dset = netCDF4.Dataset(filename, 'r')
