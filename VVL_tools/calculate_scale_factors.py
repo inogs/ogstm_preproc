@@ -183,20 +183,24 @@ def create_meshmask_nc(OrigMaskobj,outfile,lon_cut,depth_cut,biscay_land = True,
         e3t = np.ones((time,jpk,jpj,jpi),np.double)
         e3t[0,:,:,:] =  (NCin.variables['e3t_0'][0,:jpk,:,lon_cut:]).copy().astype(np.double)
     
-#    double nu(time, z, y_a, x_a) ;
-        nu           = np.ones((jpj,jpi),np.double);
-
+#    double nuTt(time, z, y_a, x_a) ;
+        nuT           = np.ones((jpj,jpi),np.double);
         for j in range(jpj):
-
+#           for i in range(10): 
             for i in range(jpi): 
- 
-                nu[j,i] = 0.
-
-                for k in np.arange(jpk-1): 
-
-                    for n in np.arange(k,jpk-1):
-
-                        nu[j,i] = nu[j,i] + e3t[0,k,j,i] * e3t[0,n,j,i] 
+                nuT[j,i] = 0.
+                for k in np.arange(jpk-2): 
+                    for n in np.arange(k,jpk-2):
+                        nuT[j,i] = nuT[j,i] + e3t[0,k,j,i] * e3t[0,n,j,i] 
+#    double muT(time, z, y_a, x_a) ;
+        muT           = np.ones((jpk,jpj,jpi),np.double);
+        for k in range(jpk-1):
+            for j in range(jpj):
+#               for i in range(10):
+                for i in range(jpi):
+                    muT[k,j,i] = 0
+                    for n in np.arange(k,jpk-2):
+                        muT[k,j,i] = muT[k,j,i] + e3t[0,k,j,i]/nuT[j,i]*e3t[0,n,j,i]
 
 #    double e3u(time, z, y, x) ;
         e3u = np.ones((time,jpk,jpj,jpi),np.double);
@@ -298,7 +302,8 @@ def create_meshmask_nc(OrigMaskobj,outfile,lon_cut,depth_cut,biscay_land = True,
         ncvar    = ncOUT.createVariable('e3t_0' ,'d',('time','z', 'y_a', 'x_a')) ; ncvar[:] = e3t_0 ;
         ncvar    = ncOUT.createVariable('e3w_0' ,'d',('time','z', 'y_a', 'x_a')) ; ncvar[:] = e3w_0 ;     
         ncvar    = ncOUT.createVariable('e3t'   ,'d',('time','z', 'y', 'x'))     ; ncvar[:] = e3t   ;
-        ncvar    = ncOUT.createVariable('nu'    ,'d',('y', 'x'))                 ; ncvar[:] = nu    ;
+        ncvar    = ncOUT.createVariable('nuT'   ,'d',('y', 'x'))                 ; ncvar[:] = nuT   ;
+        ncvar    = ncOUT.createVariable('muT'   ,'d',('z', 'y', 'x'))            ; ncvar[:] = muT   ;
         ncvar    = ncOUT.createVariable('e3u'   ,'d',('time','z', 'y', 'x'))     ; ncvar[:] = e3u   ;
         ncvar    = ncOUT.createVariable('e3v'   ,'d',('time','z', 'y', 'x'))     ; ncvar[:] = e3v   ;
         ncvar    = ncOUT.createVariable('e3w'   ,'d',('time','z', 'y', 'x'))     ; ncvar[:] = e3w   ;   
