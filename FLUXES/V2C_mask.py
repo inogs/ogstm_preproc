@@ -2,8 +2,6 @@
 import numpy as np
 maskfile       = '/pico/scratch/userexternal/ateruzzi/RA_COAST/wrkdir/MODEL/meshmask.nc'
 bounmask       = '/pico/scratch/userexternal/ateruzzi/RA_COAST/wrkdir/MODEL/bounmask.nc'
-submaskfiledat = 'None'
-submaskfilenc  = '/pico/scratch/userexternal/plazzari/eas2_v3/wrkdir/MODEL/sbmask.nc'
 
 jpi = 722   #longitudinal size of the model grid
 jpj = 253   #latitudinal  size of the model grid

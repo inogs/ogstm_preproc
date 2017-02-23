@@ -32,8 +32,6 @@ vmask   = (M.variables['vmask'][0,:,:,:]).astype(np.bool)
 
 M.close()
 
-SB = NC4.Dataset(mask.submaskfilenc,"r")
-
 
 B=NC4.Dataset(mask.bounmask,"r")
 
