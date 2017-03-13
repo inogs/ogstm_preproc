@@ -5,7 +5,7 @@ program SCALEFACTORS
 USE netcdf
 IMPLICIT NONE
 
-character*1024 maskfile, forcingT
+character*1024 maskfile, forcingT, outfilename
 integer jpi,jpj,jpk,jpim1, jpjm1
 integer ji,jj,jk
 logical IS_INGV_E3T
@@ -16,9 +16,9 @@ real(8), allocatable, dimension(:,:,:) :: e3t_0,e3t, diff_e3t, e3u, e3v, e3w, e3
 real(8), allocatable, dimension(:,:)   :: ssh, e1u,e2u,e1v,e2v,e1t,e2t
 real(8), allocatable, dimension(:,:)   :: e1u_x_e2u, e1v_x_e2v, e1t_x_e2t
 
-maskfile='mesh_mask_cut.nc'
-forcingT='T20140501-12:00:00.nc'
-
+maskfile    = 'mesh_mask_cut.nc'
+forcingT    = 'T20140501-12:00:00.nc'
+outfilename = 'E20140501.nc'
 
 call getDIMENSION(maskfile,'x',jpi)
 call getDIMENSION(maskfile,'y',jpj)
@@ -26,7 +26,7 @@ call getDIMENSION(maskfile,'z',jpk)
 
 jpim1=jpi-1
 jpjm1=jpj-1
-write(*,*) 'Start allocation'
+
 allocate(tmask   (jpk,jpj,jpi))
 allocate(umask   (jpk,jpj,jpi))
 allocate(vmask   (jpk,jpj,jpi))
@@ -49,6 +49,9 @@ allocate(e2u(jpj,jpi))
 allocate(e2v(jpj,jpi))
 allocate(e2t(jpj,jpi))
 allocate(ssh(jpj,jpi))
+allocate(e1u_x_e2u(jpj,jpi))
+allocate(e1v_x_e2v(jpj,jpi))
+allocate(e1t_x_e2t(jpj,jpi))
 
 write(*,*) 'Start reading'
 
@@ -98,6 +101,7 @@ IS_INGV_E3T = .false.
           ENDDO
           ENDDO
 
+      write(*,*) 'step 1'
          do ji=1,jpi
          do jj=1,jpj
             e1u_x_e2u(jj,ji) = e1u(jj,ji)*e2u(jj,ji)
@@ -106,9 +110,12 @@ IS_INGV_E3T = .false.
          enddo
          enddo
 
+
          diff_e3t = e3t - e3t_0
+
          e3u = 0.0
          e3v = 0.0
+
 
          DO ji = 1,jpim1
          DO jj = 1,jpjm1
@@ -122,6 +129,7 @@ IS_INGV_E3T = .false.
          ENDDO
          ENDDO
 
+
          DO ji = 1,jpi
          DO jj = 1,jpj
          DO jk = 1,jpk
@@ -131,7 +139,7 @@ IS_INGV_E3T = .false.
          ENDDO
          ENDDO
 
-
+    write(*,*) 'step 4'
 
          DO ji = 1,jpi
          DO jj = 1,jpj
@@ -158,7 +166,12 @@ IS_INGV_E3T = .false.
 
 
 
+call PREPARE_BOX_FILE_T(outfilename)
 
+call MODIFY_NC_3D(outfilename,'e3u',jpi,jpj,jpk,e3u)
+call MODIFY_NC_3D(outfilename,'e3v',jpi,jpj,jpk,e3v)
+call MODIFY_NC_3D(outfilename,'e3w',jpi,jpj,jpk,e3w)
+call MODIFY_NC_3D(outfilename,'e3t',jpi,jpj,jpk,e3t)
 
 
 CONTAINS
@@ -270,6 +283,94 @@ end
         endif
 
         end subroutine handle_err2
+
+
+    LOGICAL FUNCTION PREPARE_BOX_FILE_T(fileNetCDF)
+        use netcdf
+        implicit none
+
+        character fileNetCDF*(*)
+        integer s, nc,G, counter
+        integer timid, depid, yid, xid
+        integer idvartime, idgdept, idphit, idlamt, idT, idS, idR, idW,idH,idE,ide3t
+        integer idHt, idHu, idHv
+
+        G     = nf90_global
+
+        s = nf90_create(fileNetCDF, NF90_CLOBBER, nc)
+        ! *********** GLOBAL ********************
+        s = nf90_put_att(nc, G, 'Convenctions'     , 'OPA')
+
+        ! *********** DIMENSIONS ****************
+        s= nf90_def_dim(nc,'x'           , im,  xid)
+        s= nf90_def_dim(nc,'y'           , jm,  yid)
+        s= nf90_def_dim(nc,'deptht'      , km,depid)
+        s= nf90_def_dim(nc,'time_counter', NF90_UNLIMITED,timid)
+
+
+        ! ********** VARIABLES *****************
+        s = nf90_def_var(nc,'time_counter',  nf90_double,(/timid/),           idvartime)
+        s = nf90_def_var(nc,'deptht',        nf90_float, (/depid/),             idgdept)
+        s = nf90_def_var(nc,'nav_lat',       nf90_float, (/xid,yid/),            idphit)
+        s = nf90_def_var(nc,'nav_lon',       nf90_float, (/xid,yid/),            idlamt)
+        s = nf90_def_var(nc,'e3u' ,          nf90_float, (/xid,yid,depid,timid/),   ide3u)
+        s = nf90_def_var(nc,'e3v' ,          nf90_float, (/xid,yid,depid,timid/),   ide3v)
+        s = nf90_def_var(nc,'e3w' ,          nf90_float, (/xid,yid,depid,timid/),   ide3w)
+        s = nf90_def_var(nc,'e3t' ,          nf90_float, (/xid,yid,depid,timid/),   ide3t)
+
+
+        s = nf90_put_att(nc,idvartime,'units', UnitsTime )
+
+        s = nf90_put_att(nc,idgdept,'units'        ,'m')
+        s = nf90_put_att(nc,idgdept,'positive'     ,'down')
+        s = nf90_put_att(nc,idphit, 'units'        ,'degrees_north')
+        s = nf90_put_att(nc,idphit, 'long_name'    ,'Latitude')
+        s = nf90_put_att(nc,idlamt, 'units'        ,'degrees_east')
+        s = nf90_put_att(nc,idlamt, 'long_name'    ,'Longitude')
+
+
+
+        s =nf90_enddef(nc)
+
+        counter=0
+
+
+
+
+        s= nf90_close(nc)
+        PREPARE_BOX_FILE_T = .true.
+    END FUNCTION PREPARE_BOX_FILE_T
+
+SUBROUTINE MODIFY_NC_3D(fileNetCDF,Varname,im,jm,km,MATRIX)
+use netcdf
+implicit none
+character fileNetCDF*(*), Varname*(*)
+integer ncid, stat, VARid
+integer jpi, jpj, jpk, i,j,k
+real(8) MATRIX(jpk,jpj,jpi)
+real copy_in(jpi,jpj,jpk)
+integer mycount
+
+
+      DO i=1,jpi
+        DO j=1,jpj
+          DO k=1,jpk
+            copy_in(i,j,k) = real(MATRIX(k,i,j),4)
+          ENDDO
+        ENDDO
+      ENDDO
+
+mycount = 0;
+stat = nf90_open( fileNetCDF, NF90_WRITE, ncid) ; call handle_err1(stat,mycount,fileNetCDF )
+stat = nf90_inq_varid (ncid, Varname, VARid)
+call handle_err2(stat, fileNetCDF, Varname)     ; call handle_err1(stat,mycount,fileNetCDF )
+stat = nf90_put_var(ncid, VARid,  copy_in  )
+call handle_err2(stat, fileNetCDF, Varname)     ; call handle_err1(stat,mycount,fileNetCDF )
+
+stat=nf90_close(ncid)                           ; call handle_err1(stat,mycount,fileNetCDF )
+
+END SUBROUTINE MODIFY_NC_3D
+
 
 
 end PROGRAM SCALEFACTORS
