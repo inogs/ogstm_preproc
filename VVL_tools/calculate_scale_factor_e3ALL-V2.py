@@ -150,10 +150,10 @@ for k in range(jpk):
         for i in range(jpi-1):
            e3u_new[k,j,i] = e3u_0[k,j,i] + e3u_new[k,j,i]
            e3v_new[k,j,i] = e3v_0[k,j,i] + e3v_new[k,j,i]
-    e3u_new[k,jpj-1,:] = e3u_0[k,jpj-1,:]        
-    e3v_new[k,jpj-1,:] = e3v_0[k,jpj-1,:]        
-    e3u_new[k,:,jpi-1] = e3u_0[k,:,jpi-1]        
-    e3v_new[k,:,jpi-1] = e3v_0[k,:,jpi-1]        
+    e3u_new[k,jpj,:] = e3u_0[k,jpj,:]
+    e3v_new[k,jpj,:] = e3v_0[k,jpj,:]
+    e3u_new[k,:,jpi] = e3u_0[k,:,jpi]
+    e3v_new[k,:,jpi] = e3v_0[k,:,jpi]
           
 for j in range(jpj):
     for i in range(jpi):
