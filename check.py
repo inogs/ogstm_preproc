@@ -12,9 +12,8 @@ TheMask = Mask(conf.file_mask)
 filename=conf.dir_out + "TIN_20040515-00:00:00.nc"
 R=river(conf)
 idxt = R.load_from_file(filename, 'riv_idxt')
-N1p = R.load_from_file(filename, 'riv_N1p')
-ip=0
-jk,jj,ji = index_inv[-1,:]
+N1p  = R.load_from_file(filename, 'riv_N1p' )
+
 
 
 w= 1.0e+12;
@@ -41,3 +40,13 @@ for ip in range(R.nrivers):
     jk,jj, ji = index_inv[idxt[ip]-1,:]
     diff[ip] = R.xls_data[sheet]['2004'][ip] * R.monthly_mod[ip,4]/100*12*conv/TheMask.area[jj-1,ji-1] - V[ip]
 print diff.max()
+
+
+from layer_integral.mapplot import mapplot
+Map2d = TheMask.mask_at_level(0)
+fig, ax = mapplot({'data':Map2d, 'clim':[0,1]})
+xp = R.forced_coord[:,0]-1
+yp = R.forced_coord[:,1]-1
+ax.plot(xp, yp,'w.')
+fig.set_dpi(500)
+#fig.savefig('pippo.png')
