@@ -9,7 +9,7 @@ class xlsx:
 
     def __init__(self, xls_file):
         try:
-            self.wb = load_workbook(filename=xls_file, read_only=False,data_only=True)
+            self.wb = load_workbook(filename=xls_file, read_only=True,data_only=True)
             self.path = xls_file
         except:
             print("RIVER XLS FILE NOT FOUND")
