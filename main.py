@@ -6,6 +6,7 @@ from bclib.gib import gib
 from bclib.co2 import co2atm
 from bclib.river import river
 import config as conf
+import numpy as np
 TheMask = Mask(conf.file_mask)
 
 CO2 =co2atm(conf)
@@ -30,10 +31,16 @@ else:
     index=BOUN.idx
 idxt, positions = R.gen_boun_indexes(index)
 
-R.generate_monthly_files(conf, TheMask,idxt, positions)
+climatological=True
 
-climatological=False
 if climatological:
+    YEARS = np.arange(2000,2011)
     for sheet in conf.river_data_sheet:
-        R.river_data[sheet]['yyyy'] = (R.river_data[sheet]['2000'] + R.river_data[sheet]['2001'] + R.river_data[sheet]['2002'])/3
-    R.generate_climatological_monthly_files(conf, TheMask)
+        SUM = np.zeros_like(R.river_data[sheet]['2000'], np.float32)
+        for year in YEARS:
+            year_str = str(year)
+            SUM +=R.river_data[sheet][year_str]
+        R.river_data[sheet]['yyyy'] = SUM/len(YEARS)
+    R.generate_climatological_monthly_files(conf, TheMask,idxt, positions)
+else:
+    R.generate_monthly_files(conf, TheMask,idxt, positions)
