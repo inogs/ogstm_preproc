@@ -56,7 +56,7 @@ class co2atm():
                 ncfile = nc.Dataset(fileOUT, 'w')
                 ncfile.createDimension('lon', jpi)
                 ncfile.createDimension('lat', jpj)
-                ncvar = ncfile.createVariable('co2','f', ('lat','lon'))
+                ncvar = ncfile.createVariable('CO2','f', ('lat','lon'))
                 ncvar[:] = map_co2[:]
                 setattr(ncvar,"missing_value",1e+20)
                 setattr(self, 'longname', "CO2 content")
