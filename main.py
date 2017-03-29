@@ -12,7 +12,7 @@ TheMask = Mask(conf.file_mask)
 CO2 =co2atm(conf)
 CO2.generate(TheMask)
 ATM=atmosphere.atmosphere(TheMask,conf)
-ATM.write_netcdf(TheMask, conf.dir_out, "Volume")
+ATM.write_netcdf(TheMask, conf.dir_out, "Area")
 
 
 BOUN = bounmask(conf)

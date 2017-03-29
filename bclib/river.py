@@ -111,12 +111,16 @@ class river():
 
         '''
          Applyies monthly modulation to yearly data
-         Generates a new field river_data, 
+         Generates a new field river_data,
          it is a dict of dicts
          river_data={'sheet_name':{'2009': (nRivers,12) np.array } ; ... }
+         Modularize factors are read in "monthly" sheet,
+         they are pure factors, not percent.
+         Modularization takes in account weight of eanch month.
         '''
 
         logging.info("River Modularization")
+        days_in_month=np.array([31,28,31,30,31,30,31,31,30,31,30,31])
         m=np.zeros((self.nrivers,12),np.float32)
         river_data={}
         sheet_list = conf.river_data_sheet
@@ -126,7 +130,7 @@ class river():
                 yearstr=str(year)
                 for r in range(self.nrivers):
                     ry = self.xls_data[sheet][yearstr][r]
-                    m[r,:] =  (self.monthly_mod[r,:]/100)*12*ry
+                    m[r,:] =  (self.monthly_mod[r,:]*365/days_in_month)*ry
                 years_data[yearstr]=m.copy()
             river_data[sheet]=years_data.copy()
 
@@ -280,6 +284,7 @@ class river():
         riv_idxt_riv = ncfile.createVariable('riv_idxt', 'i4', ('riv_idxt',))
         riv_pos   = ncfile.createVariable('position', 'i4', ('riv_idxt','coords'))
         setattr(riv_pos,'order',"k,j,i")
+        setattr(ncfile,'Units','mmol or mg /(s*m2) ')
         riv_a_n3n = ncfile.createVariable('riv_N3n', 'f4', ('riv_idxt',))
         riv_a_n1p = ncfile.createVariable('riv_N1p', 'f4', ('riv_idxt',))
         riv_a_n5s = ncfile.createVariable('riv_N5s', 'f4', ('riv_idxt',))
