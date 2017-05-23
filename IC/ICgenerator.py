@@ -104,7 +104,9 @@ for varname in VARLIST:
     print "smooter"
     RST_s = smoother(TheMask, RST)
     print "writer"
-    RSTwriter(outfile, varname, RST)
+    check = np.isnan(RST_s[TheMask.mask])
+    print "number of nans: ", check.sum()
+    RSTwriter(outfile, varname, RST_s)
     ax.invert_yaxis()
     fig.savefig(out_img)
 
