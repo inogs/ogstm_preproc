@@ -32,33 +32,25 @@ def DatasetInfo(modelvarname):
 
 
 
-VARLIST=['N1p','N3n','O2o','N5s','O3h','O3c']
-
 TI = TimeInterval("1950","2050","%Y")
 
-
-
-
-
-
-
 nLayers = len(LayerList)
-nVars   = len(VARLIST)
 nSub    = len(ICdef.basin_list)
-CLIM = np.zeros((nVars,nSub, nLayers), np.float32)*np.nan
 
-for ivar, modelvarname in enumerate(VARLIST):
-    print modelvarname
+
+def get_climatology(modelvarname):
+    CLIM = np.zeros((nSub, nLayers), np.float32)*np.nan
     var, Dataset = DatasetInfo(modelvarname)
     for isub, sub in enumerate(ICdef):
         Profilelist =Dataset.Selector(var, TI, sub)
         Pres  =np.zeros((0,),np.float32)
         Values=np.zeros((0,),np.float32)
         for p in Profilelist: 
-            pres, profile, Qc = p.read(var)
+            pres, profile, _ = p.read(var)
             Pres   = np.concatenate((Pres,pres))
             Values = np.concatenate((Values,profile))
         for ilayer, layer in enumerate(LayerList):
             ii = (Pres>=layer.top) & (Pres<=layer.bottom)
             if (ii.sum()> 1 ) :
-                CLIM[ivar, isub, ilayer] = Values[ii].mean()
+                CLIM[isub, ilayer] = Values[ii].mean()
+    return CLIM

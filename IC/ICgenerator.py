@@ -1,14 +1,16 @@
 from config import ICdef, LayerList
 from commons.mask import Mask
-from climatology import CLIM, VARLIST
+from climatology import get_climatology
 import numpy as np
 import pylab as pl
 from commons.submask import SubMask
 import scipy.io.netcdf as NC
+import density
 
 
 maskfile="/gss/gss_work/DRES_OGS_BiGe/gbolzon/masks/V1/meshmask_872.nc"
-TheMask = Mask(maskfile)
+maskfile="/pico/scratch/userexternal/gbolzon0/eas_v12/eas_v12_8/wrkdir/MODEL/meshmask.nc"
+TheMask = Mask(maskfile,dzvarname="e3t_0")
 PresCEN = np.array([(l.bottom+l.top)/2  for l in LayerList])
 jpk, jpj, jpi = TheMask.shape
 
@@ -36,13 +38,13 @@ def getModelProfile(climvalues):
     return np.interp(TheMask.zlevels,zclim,climvalues)
 
 def smoother(maskobj,RST):
+    NsmoothingCycles = 20
     jpk,jpj,jpi = maskobj.shape
     RST[~maskobj.mask] = np.nan
     for k in range(jpk):
-        print "smoother", k
         var2d = RST[k,:,:]
         auxs = np.zeros((5,jpj,jpi),np.float32)
-        for smooth_counter in range(10):
+        for _ in range(NsmoothingCycles):
             auxs[0,:,:] = var2d
             auxs[1,:,:] = shift(var2d,1,'r')
             auxs[2,:,:] = shift(var2d,1,'l')
@@ -76,28 +78,34 @@ def RSTwriter(outfile, var,rst):
 
     
 
+filename="/pico/scratch/userexternal/gbolzon0/eas_v12/eas_v12_8/wrkdir/MODEL/AVE_PHYS/ave.20150116-12:00:00.phys.nc"
+rho =density.get_density(filename, TheMask)
+VARLIST=['N1p','N3n','O2o','N5s','O3h','O3c']
 
-
-
-for ivar, varname in enumerate(VARLIST):
+for varname in VARLIST:
+    CLIM = get_climatology(varname)
     out_img = varname + ".png"
     outfile = "RST.20100101-00:00:00." + varname + ".nc"
+    print outfile
     RST = np.zeros((jpk,jpj,jpi),np.double)
      
     fig, ax = pl.subplots()
     for isub, sub in enumerate(ICdef):
-        p = getModelProfile(CLIM[ivar,isub,:])
+        p = getModelProfile(CLIM[isub,:])
         ax.plot(p, TheMask.zlevels,'b')
         S =SubMask(sub, maskobject=TheMask)
         for k in range(jpk):
             submask = S.mask[k,:,:]
             V = RST[k,:,:]
             V[submask] =p[k]
+
+    if varname == 'O3h':  RST = RST*rho/1000
+    if varname == 'O3c':  RST = RST*rho*12/1000
+    print "smooter"
     RST_s = smoother(TheMask, RST)
+    print "writer"
     RSTwriter(outfile, varname, RST)
     ax.invert_yaxis()
     fig.savefig(out_img)
-    import sys
-    sys.exit()
-    
-    
+
+
