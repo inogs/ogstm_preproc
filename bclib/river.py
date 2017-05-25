@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+
+# See /gss/gss_work/DRES_OGS_BiGe/gcossarini/River_Generation to know about excel generation
+
 import numpy as np
 from bclib import excel_reader
 import logging
@@ -9,6 +12,7 @@ class river():
 
     def __init__(self,conf):
         '''
+        
         Reads data from excel in 
         xls_data, a dict of dicts
 
