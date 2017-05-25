@@ -194,18 +194,18 @@ class river():
         S = self.river_data["DIS_KTperYR_NOBLS"  ][yearstr][:,month-1]
         A = self.river_data["ALK_GmolperYR_NOBLS"][yearstr][:,month-1]
         D = self.river_data["DIC_KTperYR_NOBLS"  ][yearstr][:,month-1]
-        
-        return N,P,S,A,D
+        O = self.river_data["O2o_GmolperYR_NOBLS"][yearstr][:,month-1]
+        return N,P,S,A,D,O
     
     
     
-    def conversion(self,N,P,S,A,D):
+    def conversion(self,N,P,S,A,D,O):
         '''
         Performs conversion of all variables
         from KT/y to mmol/s or mg/s
 
         Arguments:
-         Nitrate, Phosphate, Silicate, Alcalinity, Dissolved_Oxygen arrays
+         Nitrate, Phosphate, Silicate, Alcalinity, Dissoved Inorganic Carbon, Dissolved_Oxygen arrays
 
         Returns
         * N * in mmol/s
@@ -213,6 +213,7 @@ class river():
         * S * in mmol/s
         * A * in   mg/s
         * D * in   mg/s
+        * O * in mmol/s
          as (nRivers,) numpy array
 
         Data are not ready for model, they have to be divided by cell area or cell volume.
@@ -227,7 +228,7 @@ class river():
         cs = w*t*s
         ca = w*t  
         cc = w*t    
-        return N*cn, P*cp, S*cs,A*ca, D*cc
+        return N*cn, P*cp, S*cs,A*ca, D*cc, O*cc
 
     def generate_monthly_files(self,conf,mask, idxt_riv, positions):
         '''
@@ -248,9 +249,9 @@ class river():
         for year in range(start_year,end___year):
             for month in range(1,13):
                 filename = conf.dir_out + "TIN_%d%02d15-00:00:00.nc" %(year, month)
-                N,P,S,A,D = self.get_monthly_data(str(year), month)
-                N,P,S,A,D = self.conversion(N, P, S, A, D)
-                self.dump_file(filename, N/Area, P/Area, S/Area, A/Area, D/Area, idxt_riv, positions)
+                N,P,S,A,D,O = self.get_monthly_data(str(year), month)
+                N,P,S,A,D,O = self.conversion(N, P, S, A, D, O)
+                self.dump_file(filename, N/Area, P/Area, S/Area, A/Area, D/Area, O/Area, idxt_riv, positions)
         logging.info("Non climatological TIN file generation : done")
 
     def generate_climatological_monthly_files(self,conf,mask,idxt_riv, positions):
@@ -268,12 +269,12 @@ class river():
         year="yyyy"
         for month in range(1,13):
             filename = conf.dir_out+"/TIN_yyyy%02d15-00:00:00.nc" %(month)
-            N,P,S,A,D = self.get_monthly_data(str(year), month)
-            N,P,S,A,D = self.conversion(N, P, S, A, D)
-            self.dump_file(filename, N/Area, P/Area, S/Area, A/Area, D/Area, idxt_riv, positions)
+            N,P,S,A,D,O = self.get_monthly_data(str(year), month)
+            N,P,S,A,D,O = self.conversion(N, P, S, A, D, O)
+            self.dump_file(filename, N/Area, P/Area, S/Area, A/Area, D/Area, O/Area, idxt_riv, positions)
         logging.info("Climatological TIN file generation : done")
                 
-    def dump_file(self,filename,N,P,S,A,D,idxt_riv,positions):
+    def dump_file(self,filename,N,P,S,A,D,O,idxt_riv,positions):
         '''
           Writes the single TIN file
           Variables are dumped as they are, all but positions (incremented by one)
@@ -290,6 +291,7 @@ class river():
         riv_a_n5s = ncfile.createVariable('riv_N5s', 'f4', ('riv_idxt',))
         riv_a_o3c = ncfile.createVariable('riv_O3c', 'f4', ('riv_idxt',))
         riv_a_o3h = ncfile.createVariable('riv_O3h', 'f4', ('riv_idxt',))
+        riv_a_O2o = ncfile.createVariable('riv_O2o', 'f4', ('riv_idxt',))
         
         riv_idxt_riv[:] = idxt_riv[:]
         riv_pos[:,:] = positions+1
@@ -298,6 +300,7 @@ class river():
         riv_a_n5s[:] = S
         riv_a_o3c[:] = D
         riv_a_o3h[:] = A
+        riv_a_O2o[:] = O
         ncfile.close()
 
     def load_from_file(self,filename,var):
