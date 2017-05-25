@@ -4,7 +4,7 @@ file_mask      = "masks/meshmask_872.nc"
 file_co2       = "CMIP5_scenarios_RCP_CO2_mixing_ratio.nc"
 file_nutrients = "VPnutrients_CO2.nc"
 file_bmask     = "masks/bounmask8.nc"
-file_river     = "input_obc_eas2_v3.xlsx"
+file_river     = "input_obc_eas2_v12.xlsx"
 
 simulation_start_time = 2000
 simulation_end_time   = 2010
@@ -36,4 +36,5 @@ river_data_sheet = ['KM3perYR_NOBLS',
  'DIN_KTperYR_NOBLS',
  'DIS_KTperYR_NOBLS',
  'DIC_KTperYR_NOBLS',
- 'ALK_GmolperYR_NOBLS']
+ 'ALK_GmolperYR_NOBLS',
+ 'O2o_GmolperYR_NOBLS']
