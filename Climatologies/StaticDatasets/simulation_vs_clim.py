@@ -25,7 +25,7 @@ TL = TimeList.fromfilenames(TI, MODDIR, "ave*nc")
 
 REQUESTORS_FOR_PLOTLINE=TL.getMonthlist()
 nPlotlines=len(REQUESTORS_FOR_PLOTLINE)
-def getcolor(ntimes,itime):
+def getcolor2(ntimes,itime):
     '''
     Arguments:
     * nTimes * integer, the number of times
@@ -43,6 +43,25 @@ def getcolor(ntimes,itime):
     else:
         color=str(1.-float(itime+1)/ntimes)
     return color
+def getcolor(ntimes,itime, colormap='gist_ncar'):
+    '''
+    Uses matplotlib colormap
+    Arguments:
+    * nTimes   * integer, the number of times
+    * itime    * integer, time index
+    * colormap * string (optional), is the name of matplotlib colormap
+                 See https://matplotlib.org/examples/color/colormaps_reference.html
+    Returns :
+    * color * rgba object, can be used in plot
+    
+    c = getcolor(10,0)
+    ax.plot(x,y,color=c)  
+    '''
+    cmap = pl.cm.get_cmap(colormap)
+    fact = float(itime)/ntimes
+    rgba = cmap(fact)
+    return rgba
+    
 
 
 # SECTION FIGURE 3

@@ -21,6 +21,12 @@ class figure_generator():
         fig, axs = pl.subplots(2,5, facecolor='w', edgecolor='k')
         axs = axs.ravel()
 
+        x_shift = -0.025
+        for ax in axs: # now shift all the axes to left
+            BBox = ax.get_position()
+            rect = [BBox.xmin+x_shift, BBox.ymin, BBox.width, BBox.height]
+            ax.set_position(rect)
+
         bool2d=self.submask.mask_at_level(0)
         smaskplot = np.ones_like(bool2d,dtype=np.float32)
         smaskplot[~bool2d] = np.nan
@@ -39,6 +45,11 @@ class figure_generator():
         axs[5].yaxis.set_tick_params(labelsize=6)
         axs[5].set_xticks([ 0,10,20,30])
         axs[5].set_yticks([32,36,40,44])
+
+        BBox = axs[5].get_position() # shift only the map a bit to left
+        rect = [BBox.xmin+x_shift, BBox.ymin, BBox.width, BBox.height]
+        axs[5].set_position(rect)
+
         # alcune impostazioni #
         fig.set_dpi(200)
         hsize=9
@@ -121,15 +132,15 @@ def profile_plotter(depth,values,color,ax_top,ax_bottom,label):
     Arguments :
     * depth     * array of depths
     * values    * numpy array
-    * color     * string
+    * color     * string or rgba object
     * ax_top    * axis object
     * ax_bottom * axis object
     * label     * string
     '''
 
-    ax_top.plot(values,depth,color,label=label)
+    ax_top.plot(values,depth,color=color,label=label)
     if ax_bottom is not None:
-        ax_bottom.plot(values,depth,color)
+        ax_bottom.plot(values,depth,color=color)
 
 
 def clim_profile_plotter(depth,mean,std,ax_top,ax_bottom):
