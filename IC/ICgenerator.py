@@ -4,7 +4,7 @@ from climatology import get_climatology
 import numpy as np
 import pylab as pl
 from commons.submask import SubMask
-import scipy.io.netcdf as NC
+import netCDF4
 import density
 
 
@@ -62,7 +62,7 @@ def smoother(maskobj,RST):
 
 def RSTwriter(outfile, var,rst):
     rst[~TheMask.mask] = 1.e+20
-    ncOUT=NC.netcdf_file(outfile,"w")
+    ncOUT=netCDF4.Dataset(outfile,"w", format="NETCDF4")
     ncOUT.createDimension('x',jpi);
     ncOUT.createDimension('y',jpj);
     ncOUT.createDimension('z',jpk);
