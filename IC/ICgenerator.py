@@ -8,11 +8,16 @@ import scipy.io.netcdf as NC
 import density
 
 
-maskfile="/gss/gss_work/DRES_OGS_BiGe/gbolzon/masks/V1/meshmask_872.nc"
-maskfile="/pico/scratch/userexternal/gbolzon0/eas_v12/eas_v12_8/wrkdir/MODEL/meshmask.nc"
-TheMask = Mask(maskfile,dzvarname="e3t_0")
+maskfile="/gss/gss_work/DRES_OGS_BiGe/gbolzon/masks/eas/eas_v12/ogstm/meshmask.nc"
+maskfile_ingv="/gss/gss_work/DRES_OGS_BiGe/gbolzon/masks/eas/eas_v12/ogstm/meshmask_sizeINGV.nc"
+filename="/pico/scratch/userexternal/gbolzon0/eas_v12/eas_v12_11/FORCINGS/eas2_v12_notint_1d_20140101_20140102_grid_T.nc"
+
+TheMask = Mask(maskfile)
+IngvMask= Mask(maskfile_ingv)
+
 PresCEN = np.array([(l.bottom+l.top)/2  for l in LayerList])
 jpk, jpj, jpi = TheMask.shape
+JPK, JPJ, JPI = IngvMask.shape
 
 def shift(M2d,pos, verso):
     out = np.ones_like(M2d)*np.nan
@@ -78,14 +83,15 @@ def RSTwriter(outfile, var,rst):
 
     
 
-filename="/pico/scratch/userexternal/gbolzon0/eas_v12/eas_v12_8/wrkdir/MODEL/AVE_PHYS/ave.20150116-12:00:00.phys.nc"
-rho =density.get_density(filename, TheMask)
+rho =density.get_density(filename, IngvMask)
+rho=rho[:jpk,:,JPI-jpi:]
+
 VARLIST=['N1p','N3n','O2o','N5s','O3h','O3c']
 
 for varname in VARLIST:
     CLIM = get_climatology(varname)
     out_img = varname + ".png"
-    outfile = "RST.20100101-00:00:00." + varname + ".nc"
+    outfile = "RST.20140101-00:00:00." + varname + ".nc"
     print outfile
     RST = np.zeros((jpk,jpj,jpi),np.double)
      
