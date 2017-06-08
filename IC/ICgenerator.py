@@ -73,7 +73,7 @@ def RSTwriter(outfile, var,rst):
     ncvar = ncOUT.createVariable('nav_lat' ,'d',('y','x')           ); ncvar[:] = TheMask.ylevels
     ncvar = ncOUT.createVariable('nav_lev' ,'d',('z')               ); ncvar[:] = TheMask.zlevels
     ncvar = ncOUT.createVariable('time'    ,'d',('time',)           ); ncvar    = 1.;
-    ncvar = ncOUT.createVariable(TRN       ,'d',('time','z','y','x')); ncvar[:] = rst;
+    ncvar = ncOUT.createVariable(TRN       ,'d',('time','z','y','x'),zlib=True); ncvar[:] = rst;
 
 
     setattr(ncOUT.variables[TRN]   ,'missing_value',1e+20                              );
