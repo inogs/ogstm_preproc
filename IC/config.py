@@ -9,9 +9,9 @@ for bottom in PresDOWN:
     LayerList.append(Layer(top, bottom))
     top = bottom
 
-Atl = ComposedBasin('atl',[V2.alb,   V2.atl],'Alboran & Atlantic')
+#Atl = ComposedBasin('atl',[V2.alb,   V2.atl],'Alboran & Atlantic')
 NWM = ComposedBasin('nwm',[V2.nwm,  V2.tyr1],'North West Med')
 SWM = ComposedBasin('swm',[V2.tyr2, V2.swm2],'South West Med')
 AEG = ComposedBasin('aeg',[V2.aeg,  V2.lev1],'Aegean Sea')
 ION = ComposedBasin('ion',[V2.ion1, V2.ion2],'Ionian Sea')
-ICdef = ComposedBasin('ICdef',[Atl, NWM, SWM, V2.swm1, V2.adr, AEG, ION, V2.ion3, V2.lev],'Gruped Subbasin for Climatology for Restarts')
+ICdef = ComposedBasin('ICdef',[V2.atl, V2.alb, NWM, SWM, V2.swm1, V2.adr, AEG, ION, V2.ion3, V2.lev],'Gruped Subbasin for Climatology for Restarts')
