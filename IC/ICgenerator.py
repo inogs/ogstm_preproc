@@ -6,33 +6,8 @@ import pylab as pl
 from commons.submask import SubMask
 import netCDF4
 import density
-
-
-maskfile="/gss/gss_work/DRES_OGS_BiGe/gbolzon/masks/eas/eas_v12/ogstm/meshmask.nc"
-maskfile_ingv="/gss/gss_work/DRES_OGS_BiGe/gbolzon/masks/eas/eas_v12/ogstm/meshmask_sizeINGV.nc"
-filename="/pico/scratch/userexternal/gbolzon0/eas_v12/eas_v12_11/FORCINGS/eas2_v12_notint_1d_20140101_20140102_grid_T.nc"
-
-TheMask = Mask(maskfile)
-IngvMask= Mask(maskfile_ingv)
-
-PresCEN = np.array([(l.bottom+l.top)/2  for l in LayerList])
-jpk, jpj, jpi = TheMask.shape
-JPK, JPJ, JPI = IngvMask.shape
-
-def shift(M2d,pos, verso):
-    out = np.ones_like(M2d)*np.nan
-    
-    if (verso=='u'): out[:-pos,:] = M2d [pos:,:]
-    if (verso=='d'): out[ pos:,:] = M2d[:-pos,:]
-    if (verso=='l'): out[:,:-pos] = M2d [:,pos:]
-    if (verso=='r'): out[:,pos:]  = M2d[:,:-pos]
-
-    if (verso=="ul") : out[:-pos,:-pos] =  M2d [pos:,pos:]
-    if (verso=="ur") : out[:-pos,pos: ] =  M2d [pos:,:-pos]
-    if (verso=="dl") : out[ pos:,pos:]  =  M2d [:-pos,pos:]
-    if (verso=="dr") : out[pos:,pos: ]  = M2d [:-pos,:-pos]
-    return out
-    
+from commons.utils import getcolor
+from commons.interpolators import shift
 
 
 def getModelProfile(climvalues):
@@ -81,30 +56,48 @@ def RSTwriter(outfile, var,rst):
     setattr(ncOUT                  ,'TimeString'   ,'20010101-00:00:00');
     ncOUT.close()
 
-    
 
+maskfile="/gss/gss_work/DRES_OGS_BiGe/gbolzon/masks/eas/eas_v12/ogstm/meshmask.nc"
+maskfile_ingv="/gss/gss_work/DRES_OGS_BiGe/gbolzon/masks/eas/eas_v12/ogstm/meshmask_sizeINGV.nc"
+filename="/pico/scratch/userexternal/gbolzon0/eas_v12/eas_v12_11/FORCINGS/eas2_v12_notint_1d_20140101_20140102_grid_T.nc"
+
+TheMask = Mask(maskfile)
+IngvMask= Mask(maskfile_ingv)
+
+PresCEN = np.array([(l.bottom+l.top)/2  for l in LayerList])
+jpk, jpj, jpi = TheMask.shape
+JPK, JPJ, JPI = IngvMask.shape
 rho =density.get_density(filename, IngvMask)
 rho=rho[:jpk,:,JPI-jpi:]
 
 VARLIST=['N1p','N3n','O2o','N5s','O3h','O3c']
 
+
+nSub = len(ICdef.basin_list)
+# first of all, plots
 for varname in VARLIST:
     CLIM = get_climatology(varname)
     out_img = varname + ".png"
-    outfile = "RST.20140101-00:00:00." + varname + ".nc"
-    print outfile
-    RST = np.zeros((jpk,jpj,jpi),np.double)
-     
     fig, ax = pl.subplots()
     for isub, sub in enumerate(ICdef):
         p = getModelProfile(CLIM[isub,:])
-        ax.plot(p, TheMask.zlevels,'b')
+        ax.plot(p, TheMask.zlevels,color=getcolor(nSub, isub), label=sub.name)
+    ax.invert_yaxis()
+    ax.legend()
+    fig.savefig(out_img)
+
+# then 3D arrays generation ---------
+for varname in VARLIST:
+    outfile = "RST.20140101-00:00:00." + varname + ".nc"
+    print outfile
+    RST = np.zeros((jpk,jpj,jpi),np.double)
+    for isub, sub in enumerate(ICdef):
+        p = getModelProfile(CLIM[isub,:])
         S =SubMask(sub, maskobject=TheMask)
         for k in range(jpk):
             submask = S.mask[k,:,:]
             V = RST[k,:,:]
             V[submask] =p[k]
-
     if varname == 'O3h':  RST = RST*rho/1000
     if varname == 'O3c':  RST = RST*rho*12/1000
     print "smooter"
@@ -113,7 +106,4 @@ for varname in VARLIST:
     check = np.isnan(RST_s[TheMask.mask])
     print "number of nans: ", check.sum()
     RSTwriter(outfile, varname, RST_s)
-    ax.invert_yaxis()
-    fig.savefig(out_img)
-
 
