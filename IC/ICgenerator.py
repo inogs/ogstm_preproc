@@ -88,6 +88,7 @@ for varname in VARLIST:
 
 # then 3D arrays generation ---------
 for varname in VARLIST:
+    CLIM = get_climatology(varname)
     outfile = "RST.20140101-00:00:00." + varname + ".nc"
     print outfile
     RST = np.zeros((jpk,jpj,jpi),np.double)
