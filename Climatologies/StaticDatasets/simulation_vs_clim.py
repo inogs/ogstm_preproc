@@ -8,6 +8,7 @@ import numpy as np
 from commons.mask import Mask
 from commons.submask import SubMask
 import pylab as pl
+from commons.utils import getcolor
 IDrun='eas_11'
 OUTDIR="IMG/"
 MODDIR="/pico/scratch/userexternal/gbolzon0/eas_v12/eas_v12_11/wrkdir/POSTPROC/output/AVE_FREQ_2/STAT_PROFILES/"
@@ -43,25 +44,6 @@ def getcolor2(ntimes,itime):
     else:
         color=str(1.-float(itime+1)/ntimes)
     return color
-def getcolor(ntimes,itime, colormap='gist_ncar'):
-    '''
-    Uses matplotlib colormap
-    Arguments:
-    * nTimes   * integer, the number of times
-    * itime    * integer, time index
-    * colormap * string (optional), is the name of matplotlib colormap
-                 See https://matplotlib.org/examples/color/colormaps_reference.html
-    Returns :
-    * color * rgba object, can be used in plot
-    
-    c = getcolor(10,0)
-    ax.plot(x,y,color=c)  
-    '''
-    cmap = pl.cm.get_cmap(colormap)
-    fact = float(itime)/ntimes
-    rgba = cmap(fact)
-    return rgba
-    
 
 
 # SECTION FIGURE 3
