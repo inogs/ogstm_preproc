@@ -1,13 +1,13 @@
 # paths
 dir_out        = "out/"
-file_mask      = "masks/meshmask_872.nc"
+file_mask      = "/pico/scratch/userexternal/gbolzon0/eas_v12/eas_v19_3/wrkdir/MODEL/meshmask.nc"
 file_co2       = "CMIP5_scenarios_RCP_CO2_mixing_ratio.nc"
 file_nutrients = "VPnutrients_CO2.nc"
-file_bmask     = "masks/bounmask8.nc"
+file_bmask     = "out/bounmask.nc"
 file_river     = "input_obc_eas2_v12.xlsx"
 
 simulation_start_time = 2000
-simulation_end_time   = 2010
+simulation_end_time   = 2020
 
 # Atmosphere settings in Mmol/m3/y
 # origin of data should be added here
