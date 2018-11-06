@@ -234,7 +234,7 @@ class river():
         cc = w*t    
         return N*cn, P*cp, S*cs,A*ca, D*cc, O*cc
 
-    def generate_monthly_files(self,conf,mask, idxt_riv, positions):
+    def generate_monthly_files(self,conf,mask):#, idxt_riv, positions):
         '''
         Generates TIN files for every year and every month.
 
@@ -255,10 +255,10 @@ class river():
                 filename = conf.dir_out + "TIN_%d%02d15-00:00:00.nc" %(year, month)
                 N,P,S,A,D,O = self.get_monthly_data(str(year), month)
                 N,P,S,A,D,O = self.conversion(N, P, S, A, D, O)
-                self.dump_file(filename, N/Area, P/Area, S/Area, A/Area, D/Area, O/Area, idxt_riv, positions)
+                self.dump_file(filename, N/Area, P/Area, S/Area, A/Area, D/Area, O/Area, mask)
         logging.info("Non climatological TIN file generation : done")
 
-    def generate_climatological_monthly_files(self,conf,mask,idxt_riv, positions):
+    def generate_climatological_monthly_files(self,conf,mask): #idxt_riv, positions):
         '''
         Generates 12 TIN_yyyy*nc files
         '''
@@ -275,10 +275,11 @@ class river():
             filename = conf.dir_out+"/TIN_yyyy%02d15-00:00:00.nc" %(month)
             N,P,S,A,D,O = self.get_monthly_data(str(year), month)
             N,P,S,A,D,O = self.conversion(N, P, S, A, D, O)
-            self.dump_file(filename, N/Area, P/Area, S/Area, A/Area, D/Area, O/Area, idxt_riv, positions)
+            self.dump_file(filename, N/Area, P/Area, S/Area, A/Area, D/Area, O/Area, mask)
         logging.info("Climatological TIN file generation : done")
                 
-    def dump_file(self,filename,N,P,S,A,D,O,idxt_riv,positions):
+
+    def dump_file_old(self,filename,N,P,S,A,D,O, idxt_riv,positions):
         '''
           Writes the single TIN file
           Variables are dumped as they are, all but positions (incremented by one)
@@ -296,7 +297,7 @@ class river():
         riv_a_o3c = ncfile.createVariable('riv_O3c', 'f4', ('riv_idxt',))
         riv_a_o3h = ncfile.createVariable('riv_O3h', 'f4', ('riv_idxt',))
         riv_a_O2o = ncfile.createVariable('riv_O2o', 'f4', ('riv_idxt',))
-        
+
         riv_idxt_riv[:] = idxt_riv[:]
         riv_pos[:,:] = positions+1
         riv_a_n3n[:] = N
@@ -306,6 +307,58 @@ class river():
         riv_a_o3h[:] = A
         riv_a_O2o[:] = O
         ncfile.close()
+
+    def dump_file(self,filename,N,P,S,A,D,O,mask):
+        '''
+          Writes the single TIN file
+          Variables are dumped as they are, all but positions (incremented by one)
+        '''
+        _,jpj, jpi = mask.shape
+        ncfile = netCDF4.Dataset(filename, 'w')
+        ncfile.createDimension('lon',jpi)
+        ncfile.createDimension('lat',jpj)
+        riv_a_n3n = ncfile.createVariable('riv_N3n', 'f4', ('lat','lon'))
+        riv_a_n1p = ncfile.createVariable('riv_N1p', 'f4', ('lat','lon'))
+        riv_a_n5s = ncfile.createVariable('riv_N5s', 'f4', ('lat','lon'))
+        riv_a_o3c = ncfile.createVariable('riv_O3c', 'f4', ('lat','lon'))
+        riv_a_o3h = ncfile.createVariable('riv_O3h', 'f4', ('lat','lon'))
+        riv_a_O2o = ncfile.createVariable('riv_O2o', 'f4', ('lat','lon'))
+        riv_a_n3n[:] = self.get_map_from_1d_array(N, mask)
+        riv_a_n1p[:] = self.get_map_from_1d_array(P, mask)
+        riv_a_n5s[:] = self.get_map_from_1d_array(S, mask)
+        riv_a_o3c[:] = self.get_map_from_1d_array(D, mask)
+        riv_a_o3h[:] = self.get_map_from_1d_array(A, mask)
+        riv_a_O2o[:] = self.get_map_from_1d_array(O, mask)
+
+        setattr(riv_a_n3n,'missing_value',1.e+20)
+        setattr(riv_a_n1p,'missing_value',1.e+20)
+        setattr(riv_a_n5s,'missing_value',1.e+20)
+        setattr(riv_a_o3c,'missing_value',1.e+20)
+        setattr(riv_a_o3h,'missing_value',1.e+20)
+        setattr(riv_a_O2o,'missing_value',1.e+20)
+        ncfile.close()
+        return
+
+
+    def get_map_from_1d_array(self,array,mask):
+        '''
+        Arguments:
+        * array * an 1D numpuy array
+        * mask  * Mask object
+        We sum because there are more rivers that can be assigned to the same cell
+
+        Returns:
+        * OUT * a 2D map
+        '''
+        _,jpj, jpi = mask.shape
+        OUT= np.ones((jpj,jpi), np.float32)*1.e+20
+        OUT[mask.mask_at_level(0)] = 0
+        for jr in range(self.nrivers):
+            ji = self.georef['indLon'][jr]-1
+            jj = self.georef['indLat'][jr]-1
+            OUT[jj,ji] += array[jr]
+        return OUT
+
 
     def load_from_file(self,filename,var):
         ''' Useful for check/debug '''
