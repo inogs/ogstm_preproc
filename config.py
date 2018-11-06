@@ -1,6 +1,6 @@
 # paths
 dir_out        = "out/"
-file_mask      = "meshmask_469.nc"
+file_mask      = "meshmask_470.nc"
 file_co2       = "CMIP5_scenarios_RCP_CO2_mixing_ratio.nc"
 file_nutrients = "VPnutrients_CO2.nc"
 file_bmask     = "out/bounmask.nc"
