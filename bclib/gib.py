@@ -38,7 +38,7 @@ class gib():
         jpk, jpj, jpi = mask.shape
         vnudg = self.config.variables
         nudg = len(vnudg)
-        GIB_missing_values = np.ones((jpz, jpj, jpi), np.float64) * 1.e+20
+        GIB_missing_values = np.ones((jpk, jpj, jpi), np.float64) * 1.e+20
         
         for time in range(4):
             
@@ -47,7 +47,7 @@ class gib():
             ncfile = nc.Dataset(filename, 'w')
             ncfile.createDimension("lon", jpi)
             ncfile.createDimension("lat", jpj)
-            ncfile.createDimension("dep", jpz)
+            ncfile.createDimension("dep", jpk)
             
             for jn in range(nudg):
                 
