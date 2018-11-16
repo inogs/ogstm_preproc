@@ -61,7 +61,8 @@ class gib():
                 # Dump netCDF file
                 vardataname = "gib_" + vnudg[jn][0]
                 ncvar = ncfile.createVariable(vardataname, 'f', ("dep", "lat", "lon"))
-                ncvar = GIB_ready
+                setattr(ncvar, 'missing_value', 1.e+20)
+                ncvar[:, :, :] = GIB_ready[:, :, :]
                 
             ncfile.close()
             
