@@ -6,8 +6,8 @@ file_nutrients = "VPnutrients_CO2.nc"
 file_bmask     = "out/bounmask.nc"
 file_river     = "river_8_on_meshgrid_v2_4.xlsx"
 
-simulation_start_time = 1999
-simulation_end_time   = 2020
+simulation_start_time = 2014
+simulation_end_time   = 2016
 
 # Atmosphere settings in Mmol/m3/y
 # origin of data should be added here
