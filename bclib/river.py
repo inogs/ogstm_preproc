@@ -350,13 +350,16 @@ class river():
         Returns:
         * OUT * a 2D map
         '''
-        _,jpj, jpi = mask.shape
-        OUT= np.ones((jpj,jpi), np.float32)*1.e+20
-        OUT[mask.mask_at_level(0)] = 0
+        _, jpj, jpi = mask.shape
+        OUT = np.ones((jpj, jpi), np.float32) * 1.e+20
+        OUT[mask.mask_at_level(0)] = -1.
         for jr in range(self.nrivers):
-            ji = self.georef['indLon'][jr]-1
-            jj = self.georef['indLat'][jr]-1
-            OUT[jj,ji] += array[jr]
+            ji = self.georef['indLon'][jr] - 1
+            jj = self.georef['indLat'][jr] - 1
+            if OUT[jj,ji] < 0.:
+                OUT[jj,ji] = array[jr] # First time
+            else:
+                OUT[jj,ji] += array[jr] # To handle cells with multiple river points
         return OUT
 
 

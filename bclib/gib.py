@@ -38,7 +38,7 @@ class gib():
         jpk, jpj, jpi = mask.shape
         vnudg = self.config.variables
         nudg = len(vnudg)
-        GIB_missing_values = np.ones((jpk, jpj, jpi), np.float64) * 1.e+20
+        #GIB_missing_values = np.ones((jpk, jpj, jpi), np.float64) * 1.e+20
         
         for time in range(4):
             
@@ -56,13 +56,15 @@ class gib():
                 isNudg = (aux != 0) & (mask.mask)
                 
                 # Final dataset
-                GIB_ready = np.where(isNudg, GIB_matrix[time, ...], GIB_missing_values)
+                #GIB_ready = np.where(isNudg, GIB_matrix[time, ...], GIB_missing_values)
+                GIB_matrix[time, ~isNudg] = -1.
+                GIB_matrix[time, ~mask.mask] = 1.e+20
                 
                 # Dump netCDF file
                 vardataname = "gib_" + vnudg[jn][0]
                 ncvar = ncfile.createVariable(vardataname, 'f', ("dep", "lat", "lon"))
                 setattr(ncvar, 'missing_value', 1.e+20)
-                ncvar[:, :, :] = GIB_ready[:, :, :]
+                ncvar[...] = GIB_matrix[time, ...]
                 
             ncfile.close()
             
