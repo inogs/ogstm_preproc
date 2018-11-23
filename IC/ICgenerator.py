@@ -4,7 +4,7 @@ from climatology import get_climatology
 import numpy as np
 import pylab as pl
 from commons.submask import SubMask
-import netCDF4
+from IC import RSTwriter
 import density
 from commons.utils import getcolor
 from commons.interpolators import shift
@@ -35,26 +35,7 @@ def smoother(maskobj,RST):
     return RST
     
 
-def RSTwriter(outfile, var,rst):
-    rst[~TheMask.mask] = 1.e+20
-    ncOUT=netCDF4.Dataset(outfile,"w", format="NETCDF4")
-    ncOUT.createDimension('x',jpi);
-    ncOUT.createDimension('y',jpj);
-    ncOUT.createDimension('z',jpk);
-    ncOUT.createDimension('time',1)
 
-    TRN   = 'TRN' + var;
-    ncvar = ncOUT.createVariable('nav_lon' ,'d',('y','x')           ); ncvar[:] = TheMask.xlevels
-    ncvar = ncOUT.createVariable('nav_lat' ,'d',('y','x')           ); ncvar[:] = TheMask.ylevels
-    ncvar = ncOUT.createVariable('nav_lev' ,'d',('z')               ); ncvar[:] = TheMask.zlevels
-    ncvar = ncOUT.createVariable('time'    ,'d',('time',)           ); ncvar    = 1.;
-    ncvar = ncOUT.createVariable(TRN       ,'d',('time','z','y','x'),zlib=True); ncvar[:] = rst;
-
-
-    setattr(ncOUT.variables[TRN]   ,'missing_value',1e+20                              );
-    setattr(ncOUT.variables['time'],'Units'        ,'seconds since 1582-10-15 00:00:00');
-    setattr(ncOUT                  ,'TimeString'   ,'20010101-00:00:00');
-    ncOUT.close()
 
 
 maskfile="/gss/gss_work/DRES_OGS_BiGe/gbolzon/masks/eas/eas_v12/ogstm/meshmask.nc"
@@ -106,5 +87,5 @@ for varname in VARLIST:
     print "writer"
     check = np.isnan(RST_s[TheMask.mask])
     print "number of nans: ", check.sum()
-    RSTwriter(outfile, varname, RST_s)
+    RSTwriter(outfile, varname, RST_s, TheMask)
 

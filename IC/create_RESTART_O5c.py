@@ -6,7 +6,7 @@
 
 import numpy as np
 from commons.mask import Mask
-import netCDF4 as NC
+from IC import RSTwriter
 
 maskfile  = 'meshmask.nc'
 
@@ -38,27 +38,7 @@ for jk in range(jpk):
 # write meshmask netcdf file !
 ##############################################################
 var="O5c"
-rst=PIC
-ncOUT=NC.Dataset(outfile,"w");
-ncOUT.createDimension('x',jpi);
-ncOUT.createDimension('y',jpj);
-ncOUT.createDimension('z',jpk);
-ncOUT.createDimension('time',time)
-    
 
+RSTwriter(outfile, var, PIC, TheMask)
 
-TRB   = 'TRB' + var;
-TRN   = 'TRN' + var;
-ncvar = ncOUT.createVariable('nav_lon' ,'d',('y','x')           ); ncvar[:] = TheMask.xlevels
-ncvar = ncOUT.createVariable('nav_lat' ,'d',('y','x')           ); ncvar[:] = TheMask.ylevels
-ncvar = ncOUT.createVariable('nav_lev' ,'d',('z')               ); ncvar[:] = nav_lev;
-ncvar = ncOUT.createVariable('time'    ,'d',('time',)           ); ncvar    = 1.;
-ncvar = ncOUT.createVariable(TRB       ,'d',('time','z','y','x')); ncvar[:] = rst;   
-ncvar = ncOUT.createVariable(TRN       ,'d',('time','z','y','x')); ncvar[:] = rst; 
-
-setattr(ncOUT.variables[TRB]   ,'missing_value',1e+20                              );     
-setattr(ncOUT.variables[TRN]   ,'missing_value',1e+20                              );
-setattr(ncOUT.variables['time'],'Units'        ,'seconds since 1582-10-15 00:00:00');
-setattr(ncOUT                  ,'TimeString'   ,'20010101-00:00:00');
-ncOUT.close()
 
