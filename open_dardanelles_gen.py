@@ -6,14 +6,16 @@ from commons.dataextractor import DataExtractor
 from basins.region import Polygon
 from basins.basin import SimplePolygonalBasin
 
-p = Polygon([24.290771484375,26.3671875,26.422119140625,24.576416015625],[40.39676430557203,40.43022363450862,39.38526381099774,39.232253141714885])
-local_sub  = SimplePolygonalBasin('aeg', p,'Near Dardanelles')
+p = Polygon([27.0483398,26.674804,24.82910,23.400878,22.456054,22.3022460,22.456054,23.07128,23.994140,27.35595], \
+            [39.960280,40.797177,41.178653,41.029643,40.680638,39.943436,39.027718,38.272688,37.544577,37.61423])
+local_sub  = SimplePolygonalBasin('aeg', p,'North Aegean')
 
 
 
 OpenMask=Mask('/gpfs/work/OGS18_PRACE_P_0/OPEN_BOUNDARY/meshmask.nc')
 maskfile="/gss/gss_work/DRES_OGS_BiGe/gbolzon/masks/eas/eas_v12/ogstm/meshmask.nc"
 TheMask=Mask(maskfile)
+mask_200= TheMask.mask_at_level(200.)
 S = SubMask(local_sub,maskobject=TheMask)
 jpk, jpj, jpi = TheMask.shape
 I=841
@@ -28,7 +30,7 @@ for var in VARLIST:
     V=DataExtractor(TheMask,inputfile,var).values
     Profile=np.zeros((jpk,),np.float32)*np.nan
     for k in range(jpk):
-        mask=S.mask[k,:,:]
+        mask=S.mask[k,:,:] & mask_200
         values =  V[k,:,:]
         if np.any(mask):
             Profile[k] = values[mask].mean()
