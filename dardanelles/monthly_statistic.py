@@ -2,7 +2,7 @@ import numpy as np
 from commons import timerequestors
 import pylab as pl
 from commons.mask import Mask
-from dard_analysis_config import maskfile
+from analysis_config import maskfile
 from commons import netcdf4
 from commons.Timelist import TimeList
 from commons.genUserDateList import getTimeList

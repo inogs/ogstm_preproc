@@ -1,7 +1,7 @@
 from commons.mask import Mask
 import numpy as np
 from commons import netcdf4
-from dard_analysis_config import VARLIST
+from analysis_config import VARLIST
 
 BOUNDARY_CONCENTRATION =  np.load('dard_boundary_values.npy')
 OUTPUTDIR="/gpfs/work/OGS18_PRACE_P_0/OPEN_BOUNDARY/INPUTS_for_MODEL/2/"

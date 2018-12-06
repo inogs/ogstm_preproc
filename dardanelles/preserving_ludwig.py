@@ -4,7 +4,7 @@ from commons.Timelist import TimeList
 from commons import timerequestors
 from commons import netcdf4
 from commons.mask import Mask
-from dard_analysis_config import maskfile, VARLIST, Seas_obj, mydtype
+from analysis_config import maskfile, VARLIST, Seas_obj, mydtype
 
 
 I=841
