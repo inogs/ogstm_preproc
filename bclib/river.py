@@ -45,6 +45,7 @@ class river():
             for iyear, y in enumerate(self.available_years):
                 river_sheet_collected_data[str(y)] =  river_spreadsheet[sheet][1:,iyear+9].copy()
             self.xls_data[sheet] =  river_sheet_collected_data.copy()
+        self.xls_data['monthly'] = river_spreadsheet["monthly"]
         logging.info("Done")
 
 
