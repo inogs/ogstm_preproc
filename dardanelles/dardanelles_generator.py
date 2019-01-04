@@ -3,8 +3,13 @@ import numpy as np
 from commons import netcdf4
 from analysis_config import VARLIST
 
-BOUNDARY_CONCENTRATION =  np.load('dard_boundary_values.npy')
+BOUNDARY_CONCENTRATION =  np.load('../dard_boundary_values.npy')
+BOUNDARY_CONCENTRATION['N1p'] = 0.05 # mmol/m3
+BOUNDARY_CONCENTRATION['N3n']=   1.3 # mol/m3
+BOUNDARY_CONCENTRATION['O3c']= 29200 # mg/m3
+BOUNDARY_CONCENTRATION['O3h']=  2850 # mmol/m3
 OUTPUTDIR="/gpfs/work/OGS18_PRACE_P_0/OPEN_BOUNDARY/INPUTS_for_MODEL/2/"
+OUTPUTDIR="/gpfs/scratch/userexternal/gbolzon0/OPEN_BOUNDARY/TEST_03/wrkdir/MODEL/BC/"
 
 OpenMask=Mask('/gpfs/work/OGS18_PRACE_P_0/OPEN_BOUNDARY/meshmask.nc')
 
