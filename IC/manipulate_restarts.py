@@ -3,12 +3,18 @@ import argparse
 def argument():
     parser = argparse.ArgumentParser(description = '''
     Performs these requests
-    RESTART da 1.12.2016 con le seguenti modifiche:
+    in ion1, ion2, ion3, lev1, lev2, lev3, lev4: N1p=N1p*0.75 in 50-500 metri  e   N1p=N1p*0.95 in 500-1000 metri
+    in nwm N1p=N1p*1.2 0-500 e N1p=N1p*1.1 500-1000
+    in nwm N3n=1 0-50; N3n=3 50-100; N3n=5 100-150; N3n=6.5 150-200; N3n=7.0 200-500
 
-    N1p=N1p*0.8  in ion1, ion2, ion3, lev1, lev2, lev3, lev4 nello strato 50-500 metri
-    O3h=O3h*0.98 in ion1 nello strato 0-100m
-    O3c=O3c*0.98 in ion1 nello strato 0-100m
-    
+
+    O3h=O3h*0.98 in swm1 swm2 nwm tyr1 tyr2 nello strato 0-50m
+    O3c=O3c*0.98 in swm1 swm2 nwm tyr1 tyr2 nello strato 0-50m
+    O3c=O3c*0.95 in ion1 nello strato 0-100m
+    O3h=O3h*0.95 in ion1 nello strato 0-100m
+    O3c=O3c*0.98 in ion2 nello strato 0-100m
+    O3h=O3h*0.98 in ion2 nello strato 0-100m
+
     ''')
     parser.add_argument(   '--inputdir', '-i',
                                 type = str,
