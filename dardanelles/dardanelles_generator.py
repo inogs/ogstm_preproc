@@ -6,9 +6,9 @@ from analysis_config import VARLIST, mydtype
 #BOUNDARY_CONCENTRATION =  np.load('../dard_boundary_values.npy')
 BOUNDARY_CONCENTRATION= np.zeros((1,),dtype=mydtype)
 BOUNDARY_CONCENTRATION['N5s'] = 2.0
-BOUNDARY_CONCENTRATION['N1p'] = 0.07 # mmol/m3
+BOUNDARY_CONCENTRATION['N1p'] = 0.065 # mmol/m3
 BOUNDARY_CONCENTRATION['N3n']=   1.3 # mol/m3
-BOUNDARY_CONCENTRATION['O3c']= 28600 # mg/m3
+BOUNDARY_CONCENTRATION['O3c']= 28700 # mg/m3
 BOUNDARY_CONCENTRATION['O3h']=  2800 # mmol/m3
 
 OUTPUTDIR="/gpfs/scratch/userexternal/gbolzon0/OPEN_BOUNDARY/TEST_05/wrkdir/MODEL/BC/"
