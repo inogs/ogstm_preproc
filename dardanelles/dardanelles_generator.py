@@ -26,7 +26,7 @@ for var in VARLIST:
     for k in range(jpk):
         BOUNDARY[k,235:238,I] = BOUNDARY_CONCENTRATION[var][0]
     BOUNDARY[~OpenMask.mask]=1.e+20
-    outfile=OUTPUTDIR + "OPE.yyyy0630-00:00:00.nc"
+    outfile=OUTPUTDIR + "OPE_yyyy0630-00:00:00.nc"
     netcdf4.write_3d_file(BOUNDARY, var, outfile, OpenMask,compression=True)
 
     
