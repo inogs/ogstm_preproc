@@ -4,10 +4,10 @@ from climatology import get_climatology
 import numpy as np
 import pylab as pl
 from commons.submask import SubMask
-from IC import RSTwriter
+from IC import RSTwriter, smoother
 import density
 from commons.utils import getcolor
-from commons.interpolators import shift
+
 
 
 def getModelProfile(climvalues):
@@ -17,23 +17,6 @@ def getModelProfile(climvalues):
     climvalues = climvalues[~ii]
     return np.interp(TheMask.zlevels,zclim,climvalues)
 
-def smoother(maskobj,RST):
-    NsmoothingCycles = 20
-    jpk,jpj,jpi = maskobj.shape
-    RST[~maskobj.mask] = np.nan
-    for k in range(jpk):
-        var2d = RST[k,:,:]
-        auxs = np.zeros((5,jpj,jpi),np.float32)
-        for _ in range(NsmoothingCycles):
-            auxs[0,:,:] = var2d
-            auxs[1,:,:] = shift(var2d,1,'r')
-            auxs[2,:,:] = shift(var2d,1,'l')
-            auxs[3,:,:] = shift(var2d,1,'u')
-            auxs[4,:,:] = shift(var2d,1,'l')
-            var2d = np.nanmean(auxs,axis=0)
-        RST[k,:,:] = var2d
-    return RST
-    
 
 
 
