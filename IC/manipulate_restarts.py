@@ -194,7 +194,7 @@ R=netcdf4.readfile(inputfile, "TRN" + var)[0,:,:,:]
 for i in range(jpi):
     for j in range(jpj):
         if S_N3n.mask[0,j,i]:
-            R[:,j,i] = R[:,j,i]*profile_N3n
+            R[:,j,i] = profile_N3n
 RST_s = smoother(TheMask, R)
 RSTwriter(outfile, var, RST_s, TheMask)
     
