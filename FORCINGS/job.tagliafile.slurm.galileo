@@ -1,0 +1,32 @@
+#! /bin/bash
+
+#SBATCH --job-name=TAGLIA
+#SBATCH -N1
+#SBATCH --ntasks-per-node=36
+#SBATCH --time=0:30:00
+#SBATCH --mem=100gb
+#SBATCH --account=OGS18_PRACE_P_0
+#SBATCH --partition=gll_usr_prod
+
+cd $SLURM_SUBMIT_DIR
+
+module purge
+module load profile/base
+module load intel/pe-xe-2018--binary intelmpi/2018--binary
+module load autoload
+module load hdf5/1.8.18--intel--pe-xe-2018--binary netcdf/4.6.1--intel--pe-xe-2018--binary
+module load mpi4py/3.0.0--intelmpi--2018--binary
+module load nco
+
+source /gpfs/work/OGS18_PRACE_P_0/COPERNICUS/py_env_2.7.12/bin/activate
+export PYTHONPATH=$PYTHONPATH:/gpfs/work/OGS18_PRACE_P_0/COPERNICUS/bit.sea
+
+
+INPUTDIR=/gpfs/scratch/userexternal/gbolzon0/CLIMA_100/4.5/MONTHLY_UNZIPPED
+OUTPUTDIR=/gpfs/scratch/userexternal/gbolzon0/CLIMA_100/4.5/DAILY
+
+date
+
+mpirun -np 24 python tagliafile.py -i $INPUTDIR -o $OUTPUTDIR
+
+date
