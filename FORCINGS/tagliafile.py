@@ -37,7 +37,7 @@ filelist=glob.glob(INPUTDIR + "*nc")
 filelist.sort()
 
 for filename in filelist[rank::nranks]:
-    command="./tagliafile.sh -i %s -o %s" %( filename, OUTPUTDIR)
+    command="./cut_singlefile.sh -i %s -o %s" %( filename, OUTPUTDIR)
     print "rank %d executes %s" % (rank, command)
     os.system(command)
     

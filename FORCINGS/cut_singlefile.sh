@@ -1,6 +1,6 @@
 #! /bin/bash
 
-####    tagliafile.sh              #           #####
+####    cut_singlefile.sh          #           #####
 #   cut a single monthly file in daily files       #
 #                                                  #
 #   Author: GB. 2019.02.11                         #
@@ -10,7 +10,7 @@
 usage() {
 echo "Generates daily files from a single monthly file "
 echo "SYNOPSYS"
-echo "tagliafile.sh [ -i INPUTDIR] [-o outputdir ]"
+echo "cut_singlefile.sh [ -i inputfile] [-o outputdir ]"
 echo "uses ncks"
 echo ""
 }
@@ -41,7 +41,7 @@ MONTH=${filename:26:2}
 for (( day=1; day < ndays+1; day++ )) ; do
           DAY=`printf %02d $day`
           DATE=${YEAR}${MONTH}${DAY}
-          DAILY=${DAILY_DIR}/${DATE}
+          outputfile=${DAILY_DIR}/${var}${DATE}-12:00:00.nc
 
-          ncks -O -F -d time_counter,$DAY,$DAY $inputfile  ${DAILY}${var}.nc
+          ncks -O -F -d time_counter,$DAY,$DAY $inputfile $outputfile
 done
