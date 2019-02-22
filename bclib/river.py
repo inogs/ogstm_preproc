@@ -43,7 +43,7 @@ class river():
             river_sheet_collected_data = {}
             self.available_years = river_spreadsheet[sheet][0][9:]
             for iyear, y in enumerate(self.available_years):
-                river_sheet_collected_data[str(y)] =  river_spreadsheet[sheet][1:,iyear+9].copy()
+                river_sheet_collected_data[str(int(y))] =  river_spreadsheet[sheet][1:,iyear+9].astype(np.float64)
             self.xls_data[sheet] =  river_sheet_collected_data.copy()
         self.xls_data['monthly'] = river_spreadsheet["monthly"]
         logging.info("Done")
@@ -132,7 +132,7 @@ class river():
         for sheet in sheet_list :
             years_data={}
             for year in self.available_years:
-                yearstr=str(year)
+                yearstr=str(int(year))
                 for r in range(self.nrivers):
                     ry = self.xls_data[sheet][yearstr][r]
                     m[r,:] =  (self.monthly_mod[r,:]*365/days_in_month)*ry
@@ -331,12 +331,12 @@ class river():
         riv_a_o3h[:] = self.get_map_from_1d_array(A, mask)
         riv_a_O2o[:] = self.get_map_from_1d_array(O, mask)
 
-        setattr(riv_a_n3n,'missing_value',1.e+20)
-        setattr(riv_a_n1p,'missing_value',1.e+20)
-        setattr(riv_a_n5s,'missing_value',1.e+20)
-        setattr(riv_a_o3c,'missing_value',1.e+20)
-        setattr(riv_a_o3h,'missing_value',1.e+20)
-        setattr(riv_a_O2o,'missing_value',1.e+20)
+        setattr(riv_a_n3n,'missing_value',np.float32(1.e+20))
+        setattr(riv_a_n1p,'missing_value',np.float32(1.e+20))
+        setattr(riv_a_n5s,'missing_value',np.float32(1.e+20))
+        setattr(riv_a_o3c,'missing_value',np.float32(1.e+20))
+        setattr(riv_a_o3h,'missing_value',np.float32(1.e+20))
+        setattr(riv_a_O2o,'missing_value',np.float32(1.e+20))
         ncfile.close()
         return
 
