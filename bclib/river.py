@@ -85,10 +85,9 @@ class river():
             coast = self._coast_line_mask(mask1)
     
             loncm = mask.xlevels[coast]
-            latcm = mask.ylevel[coast]
+            latcm = mask.ylevels[coast]
             coastline_row_index,coastline_col_index = np.nonzero(coast)
     
-            georef4 = np.matrix((coastline_row_index, coastline_col_index, loncm, latcm)).T
 
 
         ### river contributes
@@ -100,13 +99,14 @@ class river():
                 #if(mask1[georef[jr,1]-1,georef[jr,2]-1] == 0):
                 #    print("RIVER ON THE LAND")
                 #    print(georef[jr,:])
-            else: # TO BE TESTED
+            else:
                 dist = (loncm-self.lon[jr])**2 + (latcm-self.lat[jr])**2
                 ind = np.argmin(dist)
-                georef[jr,0]=jr
-                for i in range(1,5): georef[jr,i]=georef4[ind,i-1]
-                georef[jr,1]=self.georef[jr,1]+1
-                georef[jr,2]=self.georef[jr,2]+1
+                georef['lonmesh'][jr]=loncm[ind]
+                georef['latmesh'][jr]=latcm[ind]
+
+                georef['indLon'][jr] = coastline_col_index[ind]+1
+                georef['indLat'][jr] = coastline_row_index[ind]+1
 
         self.georef = georef
         logging.info("River position calculation: done ")
@@ -370,3 +370,21 @@ class river():
         M = np.array(dset[var])
         dset.close()
         return M
+if __name__=="__main__":
+    from commons.mask import Mask
+    import config as conf
+    TheMask = Mask(conf.file_mask)
+    R = river(conf)
+    #R.modularize(conf)
+    #R.gen_map_indexes(TheMask)
+    mask1 = TheMask.mask_at_level(0)
+    coast = R._coast_line_mask(mask1)
+
+    loncm = TheMask.xlevels[coast]
+    latcm = TheMask.ylevels[coast]
+    jr=0
+    dist = (loncm-R.lon[jr])**2 + (latcm-R.lat[jr])**2
+    ind = np.argmin(dist)
+    lonmesh=loncm[ind]
+    latmesh=latcm[ind]
+    i, j = TheMask.convert_lon_lat_to_indices(lonmesh, latmesh)
