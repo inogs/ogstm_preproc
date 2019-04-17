@@ -26,7 +26,7 @@ R = river(conf) # here excel is read
 R.modularize(conf)
 R.gen_map_indexes(TheMask)
 
-climatological=False
+climatological=True
 
 if climatological:
     YEARS = np.arange(2000,2011)
