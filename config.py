@@ -9,7 +9,7 @@ file_river     = "input_obc_eas2_v12.xlsx"
 simulation_start_time = 2016
 simulation_end_time   = 2022
 
-# Atmosphere settings in Mmol/m3/y
+# Atmosphere settings in Mmol/y
 # origin of data should be added here
 po4_wes = (  357. +   697)/2
 po4_eas = (  379. +   957)/2

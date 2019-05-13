@@ -38,7 +38,15 @@ class co2atm():
             setattr(self, i, b)
         self.ncfile.close()
 
-    def generate(self, mask):
+    def generate(self, mask, experiment="RCP85"):
+        '''
+        Arguments:
+        * mask * a Mask object
+        * experiment * string, can be RCP45, RCP85 or PRE2005
+        '''
+        if experiment=="RCP45"  : timeseries=self.RCP45
+        if experiment=="RCP85"  : timeseries=self.RCP85
+        if experiment=="PRE2005": timeseries=self.PRE2005
 
         l_tmask = ~ mask.mask_at_level(0)
         _, jpj, jpi = mask.shape
@@ -50,7 +58,7 @@ class co2atm():
         for it, t in enumerate(self.timelist):
             if TI.contains(t):
                 fileOUT = self.config.dir_out + "/CO2_" + t.strftime("%Y%m%d") + "-12:00:00.nc"
-                map_co2 = np.ones((jpj,jpi), dtype=np.float32) *self.RCP85[it]
+                map_co2 = np.ones((jpj,jpi), dtype=np.float32) *timeseries[it]
                 map_co2[l_tmask] = 1.e+20
 
                 ncfile = nc.Dataset(fileOUT, 'w')
