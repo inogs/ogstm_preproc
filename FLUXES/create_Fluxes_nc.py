@@ -12,18 +12,22 @@ from mydtype import *
 import scipy.io.netcdf as NC
 
 import pickle
+import pylab as pl
 
 Tr=np.loadtxt('transect.dat', dtype=trans_dt,skiprows=1)
 
+jpk, jpj,jpi = tmask.shape
 #LIST=[];
 #StoredPointsForPlot=zeros(0,6);)
 
 Matrices=[]
 Minv=[]
 LIST=np.array([],dtype=np.int)
+FLUX_MAP=np.zeros((jpj,jpi), np.float32)
+FLUX_MAP[~tmask[0,:,:]]=np.nan
 nTr = len(Tr) if Tr.shape else 1
-for i in range(nTr):
-    T = Tr[i].copy() if Tr.shape else Tr.copy()
+for iTrans in range(nTr):
+    T = Tr[iTrans].copy() if Tr.shape else Tr.copy()
 
     DIST=(glamt - T['lon1'])**2 + (gphit - T['lat1'])**2; indStart = np.array(np.unravel_index(np.argmin(DIST),DIST.shape),ind2d)
     DIST=(glamt - T['lon2'])**2 + (gphit - T['lat2'])**2; ind__End = np.array(np.unravel_index(np.argmin(DIST),DIST.shape),ind2d)
@@ -42,6 +46,8 @@ for i in range(nTr):
         nY = ind__End['lat'] - indStart['lat'] +1
         nZ = indDep__End - indDepStart +1
         indT = np.zeros((nZ,nY),int);
+
+        print Tr[iTrans]['name']
         print( indStart['lon']) 
         print( ind__End['lon']) 
         print( indStart['lat']) 
@@ -66,6 +72,7 @@ for i in range(nTr):
 
         for j in range(indStart['lat'],ind__End['lat']+1):
 
+            FLUX_MAP[j,pos] = FLUX_MAP[j,pos] + iTrans+1
             for k in range(indDepStart,indDep__End+1):
                 
                 indT[k-indDepStart, j-indStart['lat']] = index[0,k,j,pos]
@@ -84,9 +91,16 @@ for i in range(nTr):
         nZ = indDep__End - indDepStart +1
         indT = np.zeros((nZ,nX),int);
 
+        print Tr[iTrans]['name']
+        print( indStart['lon'])
+        print( ind__End['lon'])
+        print( indStart['lat'])
+        print( ind__End['lat'])
+        print( '-------------')
 
         for i in range(indStart['lon'],ind__End['lon']+1):
-            pos = np.argmin(abs(gphiv[:,i] - T['lat1']));
+            pos = indStart['lat'] #np.argmin(abs(gphiv[:,i] - T['lat1']));
+            FLUX_MAP[pos,i]=FLUX_MAP[pos,i] + iTrans+1
 
             for k in range(indDepStart,indDep__End+1):
                 indT[k-indDepStart, i-indStart['lon']] = index[0,k,pos,i];
@@ -122,6 +136,16 @@ for i in range(nTr):
     indTr = indT[ii]
     LIST=np.append(LIST,indTr)
 
+
+#FLUX_MAP[~tmask[0,:,:]]=np.nan
+fig,ax=pl.subplots()
+im=ax.pcolormesh(glamt,gphit, np.ma.masked_invalid(FLUX_MAP))
+for iTrans in range(nTr):
+    x=[Tr[iTrans]['lon1'],Tr[iTrans]['lon2']]
+    y=[Tr[iTrans]['lat1'],Tr[iTrans]['lat2']]
+    ax.plot(x,y,'r')
+pl.colorbar(im)
+fig.show()
 LIST = np.unique(LIST)
 #
 
