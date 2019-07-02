@@ -3,16 +3,35 @@
 # source /gpfs/work/IscrC_MYMEDBIO/COPERNICUS/sequence.sh
 # LOAD PACKAGES
 
+import argparse
+
+def argument():
+    parser = argparse.ArgumentParser(description = '''
+    Generates a restart for O5c, with three values: top, middle and bottom
+    ''')
+    parser.add_argument(   '--outfile', '-o',
+                                type = str,
+                                required = False,
+                                default = "RST.19950101-00:00:00.O5c.nc",
+                                help = 'Output directory of generated restarts'
+                                )
+    parser.add_argument(   '--maskfile','m',
+                                type = str,
+                                required = True,
+                                help = 'Path of the mask file'
+                                )
+    return parser.parse_args()
+
+args = argument()
+
+
 
 import numpy as np
 from commons.mask import Mask
 from IC import RSTwriter
 
-maskfile  = 'meshmask.nc'
 
-outfile = 'RESTARTS/RST.19950101-00:00:00.O5c.nc'
-
-TheMask=Mask(maskfile)
+TheMask=Mask(args.maskfile)
 
 
 jpk, jpj, jpi=TheMask.shape
@@ -39,6 +58,6 @@ for jk in range(jpk):
 ##############################################################
 var="O5c"
 
-RSTwriter(outfile, var, PIC, TheMask)
+RSTwriter(args.outfile, var, PIC, TheMask)
 
 
