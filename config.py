@@ -1,10 +1,10 @@
 # paths
-dir_out        = "/gpfs/scratch/userexternal/gbolzon0/OPEN_BOUNDARY/TEST_09/wrkdir/MODEL/BC/"
+dir_out        = "out/"
 file_mask      = "meshmask.nc"
 file_co2       = "CMIP5_scenarios_RCP_CO2_mixing_ratio.nc"
 file_nutrients = "VPnutrients_CO2.nc"
 file_bmask     = dir_out + "bounmask.nc"
-file_river     = "input_obc_eas2_v12.xlsx"
+file_river     = "Perseus-4.6_39rivers_mesh24.xlsx"
 
 simulation_start_time = 2016
 simulation_end_time   = 2022
