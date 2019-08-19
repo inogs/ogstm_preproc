@@ -2,6 +2,7 @@ import logging
 from bclib.lateral import lateral_bc
 import netCDF4 as nc
 import numpy as np
+import glob, os
 
 class gib():
     def __init__(self,conf,mask):
@@ -38,6 +39,14 @@ class gib():
         jpk, jpj, jpi = mask.shape
         vnudg = self.config.variables
         nudg = len(vnudg)
+        nudg_classic_variables=[ vnudg[k][0] for k in range(nudg)]
+        RST_LIST=glob.glob(self.config.RST_FILES)
+        OTHER_VARIABLES=[]
+        for filename in RST_LIST:
+            basename = os.path.basename(filename)
+            var  = basename.rsplit(".")[2]
+            if var not in nudg_classic_variables:
+                OTHER_VARIABLES.append(var)
         #GIB_missing_values = np.ones((jpk, jpj, jpi), np.float64) * 1.e+20
         
         for time in range(4):
@@ -55,16 +64,28 @@ class gib():
                 aux = bounmask_obj.resto[jn, ...]
                 isNudg = (aux != 0) & (mask.mask)
                 
-                # Final dataset
-                #GIB_ready = np.where(isNudg, GIB_matrix[time, ...], GIB_missing_values)
                 GIB_matrix[time, ~isNudg] = -1.
                 GIB_matrix[time, ~mask.mask] = 1.e+20
                 
                 # Dump netCDF file
                 vardataname = "gib_" + vnudg[jn][0]
                 ncvar = ncfile.createVariable(vardataname, 'f', ("dep", "lat", "lon"))
-                setattr(ncvar, 'missing_value', 1.e+20)
+                setattr(ncvar, 'missing_value', np.float32(1.e+20))
                 ncvar[...] = GIB_matrix[time, ...]
+
+            aux = bounmask_obj.resto[0, ...] # the same of N1p
+            isNudg = (aux != 0) & (mask.mask)
+            for filename in RST_LIST:
+                basename = os.path.basename(filename)
+                var  = basename.rsplit(".")[2]
+                if var in nudg_classic_variables:  continue
+                GIB_matrix = self.read(filename, "TRN" + var)
+                GIB_matrix[0, ~isNudg] = -1.
+                GIB_matrix[0, ~mask.mask] = 1.e+20
+                vardataname = "gib_" + var
+                ncvar = ncfile.createVariable(vardataname, 'f', ("dep", "lat", "lon"))
+                ncvar[:] = GIB_matrix[0, ...]
+                setattr(ncvar, 'missing_value', np.float32(1.e+20))
                 
             ncfile.close()
             

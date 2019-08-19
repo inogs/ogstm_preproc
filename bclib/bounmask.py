@@ -1,6 +1,7 @@
 import numpy as np
 import netCDF4 as nc
 import logging
+import glob,os
 
 class bounmask():
 
@@ -93,6 +94,15 @@ class bounmask():
         logging.info("Writing bounmask.nc file ...")
         vnudg = self.config.variables
         nudg = len(vnudg)
+        nudg_classic_variables=[ vnudg[k][0] for k in range(nudg)]
+        RST_LIST=glob.glob(self.config.RST_FILES)
+        OTHER_VARIABLES=[]
+        for filename in RST_LIST:
+            basename = os.path.basename(filename)
+            var  = basename.rsplit(".")[2]
+            if var not in nudg_classic_variables:
+                OTHER_VARIABLES.append(var)
+
         ncfile = nc.Dataset(self.config.file_bmask, 'w')
         jpk,jpj,jpi = mask.shape
         ncfile.createDimension('x',jpi)
@@ -111,10 +121,15 @@ class bounmask():
         for jn in range(nudg):
             corrf =[1.,1.,1.,1.,1.01,1.01,1.];
             aux= self.resto[jn,:,:,:]*corrf[jn];
-            np.transpose(aux, (2, 1, 0)).shape
             resto_wnc = ncfile.createVariable("re" + vnudg[jn][0], 'f4', ('time','z','y','x'))
             resto_wnc[0,:] = aux
-            setattr(resto_wnc,'missing_value',1.e+20)
+            setattr(resto_wnc,'missing_value',np.float32(1.e+20))
+
+        for jn in range(len(OTHER_VARIABLES)):
+            resto_wnc = ncfile.createVariable("re" + OTHER_VARIABLES[jn], 'f4', ('time','z','y','x'))
+            resto_wnc[0,:] = self.resto[0,:,:,:] # the same of N1p
+            setattr(resto_wnc,'missing_value',np.float32(1.e+20))
+
         idx_inv_wnc = ncfile.createVariable('index', 'i', ('time','z','y','x'))
         idx_inv_wnc[0,:] = self.idx
         setattr(idx_inv_wnc,'missing_value',0)

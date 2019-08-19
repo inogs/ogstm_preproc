@@ -32,6 +32,10 @@ variables=[[u'N1p', -6.5],
 
 
 
+RST_FILES ="/gpfs/work/OGS_dev_1/REA_16/1995/INIT/RST.1995*nc"
+
+
+
 river_data_sheet = ['KM3perYR_NOBLS',
  'DIP_KTperYR_NOBLS',
  'DIN_KTperYR_NOBLS',
