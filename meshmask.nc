@@ -1,1 +1,0 @@
-../../../wrkdir/MODEL/meshmask.nc
