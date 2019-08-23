@@ -25,11 +25,6 @@ G.generate(TheMask, BOUN)
 R = river(conf) # here excel is read
 R.modularize(conf)
 R.gen_map_indexes(TheMask)
-if BOUN.idx is None:
-    index = BOUN.load('index')
-else:
-    index=BOUN.idx
-idxt, positions = R.gen_boun_indexes(index)
 
 climatological=True
 
@@ -41,6 +36,6 @@ if climatological:
             year_str = str(year)
             SUM +=R.river_data[sheet][year_str]
         R.river_data[sheet]['yyyy'] = SUM/len(YEARS)
-    R.generate_climatological_monthly_files(conf, TheMask,idxt, positions)
+    R.generate_climatological_monthly_files(conf, TheMask)
 else:
-    R.generate_monthly_files(conf, TheMask,idxt, positions)
+    R.generate_monthly_files(conf, TheMask)

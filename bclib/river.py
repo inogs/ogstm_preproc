@@ -43,8 +43,9 @@ class river():
             river_sheet_collected_data = {}
             self.available_years = river_spreadsheet[sheet][0][9:]
             for iyear, y in enumerate(self.available_years):
-                river_sheet_collected_data[str(y)] =  river_spreadsheet[sheet][1:,iyear+9].copy()
+                river_sheet_collected_data[str(int(y))] =  river_spreadsheet[sheet][1:,iyear+9].astype(np.float64)
             self.xls_data[sheet] =  river_sheet_collected_data.copy()
+        self.xls_data['monthly'] = river_spreadsheet["monthly"]
         logging.info("Done")
 
 
@@ -67,31 +68,39 @@ class river():
 
         return coast
 
-    def gen_map_indexes(self,mask):
+    def gen_map_indexes(self,mask, nspread=1, delta=5):
         """
+        Arguments:
+        * mask    * a mask object
+        * nspread * integer, the number of horizontal cells in which a river will be placed
+                  * the nearest "nspread" cells to the corresponding river cell will be choosen
+        * delta   * integer, the dimension in cells (the half side)
+                    of a square box to search for nspread cells.
+
         Generates the "georef" field
-          a (nRivers,) numpy array
-        indLon, indLat, lonmesh, latmesh
+          a (nRivers,) numpy array with indLon, indLat, lonmesh, latmesh
+        or the "georef_spread" field
+           with the same meaning
 
         Warning:
         * for forced coordinates indLon and indLat are starting from one
         * the others are not tested
         """
         logging.info("River position calculation: start ")
+        self.nspread=nspread
         there_are_free_points=np.any(self.forced_coord==-1)
         if there_are_free_points:
             mask1 = mask.mask_at_level(0)
             coast = self._coast_line_mask(mask1)
     
             loncm = mask.xlevels[coast]
-            latcm = mask.ylevel[coast]
+            latcm = mask.ylevels[coast]
             coastline_row_index,coastline_col_index = np.nonzero(coast)
-    
-            georef4 = np.matrix((coastline_row_index, coastline_col_index, loncm, latcm)).T
 
 
         ### river contributes
-        georef = np.zeros((self.nrivers,),dtype=[('indLon',np.int),('indLat',np.int),('lonmesh',np.float32),('latmesh',np.float32)])
+        georef = np.zeros((self.nrivers,),                 dtype=[('indLon',np.int),('indLat',np.int),('lonmesh',np.float32),('latmesh',np.float32)])
+        georef_spread=np.zeros((self.nrivers*self.nspread),dtype=[('indLon',np.int),('indLat',np.int),('lonmesh',np.float32),('latmesh',np.float32)])
         for jr in range (self.nrivers):
             if self.forced_coord[jr,0] != -1 and self.forced_coord[jr,1] != -1:
                 georef['indLon'][jr]=self.forced_coord[jr,0]
@@ -99,15 +108,45 @@ class river():
                 #if(mask1[georef[jr,1]-1,georef[jr,2]-1] == 0):
                 #    print("RIVER ON THE LAND")
                 #    print(georef[jr,:])
-            else: # TO BE TESTED
+            else:
                 dist = (loncm-self.lon[jr])**2 + (latcm-self.lat[jr])**2
                 ind = np.argmin(dist)
-                georef[jr,0]=jr
-                for i in range(1,5): georef[jr,i]=georef4[ind,i-1]
-                georef[jr,1]=self.georef[jr,1]+1
-                georef[jr,2]=self.georef[jr,2]+1
+                indlon = coastline_col_index[ind]+1
+                indlat = coastline_row_index[ind]+1
+                if (self.nspread==1):
+                    georef['lonmesh'][jr]=loncm[ind]
+                    georef['latmesh'][jr]=latcm[ind]
 
-        self.georef = georef
+                    georef['indLon'][jr] = coastline_col_index[ind]+1
+                    georef['indLat'][jr] = coastline_row_index[ind]+1
+                else:
+                    lonmesh=loncm[ind]
+                    latmesh=latcm[ind]
+                    _, jpj, jpi=mask.shape
+                    I,J=np.meshgrid(np.arange(jpi), np.arange(jpj))
+                    localmask     =mask1[indlat-delta:indlat+delta,indlon-delta:indlon+delta]
+                    local_X=mask.xlevels[indlat-delta:indlat+delta,indlon-delta:indlon+delta]
+                    local_Y=mask.ylevels[indlat-delta:indlat+delta,indlon-delta:indlon+delta]
+                    local_I=           I[indlat-delta:indlat+delta,indlon-delta:indlon+delta]
+                    local_J=           J[indlat-delta:indlat+delta,indlon-delta:indlon+delta]
+                    nPoints=localmask.sum()
+                    NEAREST=np.zeros((nPoints,),dtype=[('I',np.int32), ('J',np.int32),('lon',np.float32), ('lat',np.float32), ('dist',np.float32)])
+                    NEAREST['I'   ]=local_I[localmask]
+                    NEAREST['J'   ]=local_J[localmask]
+                    NEAREST['lon' ]=local_X[localmask]
+                    NEAREST['lat' ]=local_Y[localmask]
+                    NEAREST['dist'] = (NEAREST['lon']-lonmesh)**2 + (NEAREST['lat']-latmesh)**2
+                    NEAREST_ORDERED=np.sort(NEAREST,order='dist')
+                    for k_spread in range(self.nspread):
+                        ind_spread= jr*self.nspread + k_spread
+                        georef_spread['indLon' ][ind_spread]=NEAREST_ORDERED['I'  ][k_spread]+1
+                        georef_spread['indLat' ][ind_spread]=NEAREST_ORDERED['J'  ][k_spread]+1
+                        georef_spread['lonmesh'][ind_spread]=NEAREST_ORDERED['lon'][k_spread]
+                        georef_spread['latmesh'][ind_spread]=NEAREST_ORDERED['lat'][k_spread]
+        if (self.nspread==1):
+            self.georef = georef
+        else:
+            self.georef_spread = georef_spread
         logging.info("River position calculation: done ")
 
 
@@ -131,7 +170,7 @@ class river():
         for sheet in sheet_list :
             years_data={}
             for year in self.available_years:
-                yearstr=str(year)
+                yearstr=str(int(year))
                 for r in range(self.nrivers):
                     ry = self.xls_data[sheet][yearstr][r]
                     m[r,:] =  (self.monthly_mod[r,:]*365/days_in_month)*ry
@@ -182,16 +221,25 @@ class river():
         return totN,totP,totS,totA,totD
 
 
+    def spread_array(self,array):
+        assert len(array)==self.nrivers
+        long_array=np.zeros((self.nrivers*self.nspread))
+        for jr in range(self.nrivers):
+            for k in range(self.nspread):
+                ind = jr*self.nspread + k
+                long_array[ind] = array[jr]/self.nspread
+        return long_array
+
     def get_monthly_data(self,yearstr,month):
         '''
         Returns monthly data, read from excel and modularized
         Arguments: 
          *yearstr* year as strig
          *month*  integer from 1 to 12
-         
+
          Returns:
          N,P,S,A,D : (nRivers, ) numpy arrays
-        
+
         '''
         N = self.river_data["DIN_KTperYR_NOBLS"  ][yearstr][:,month-1]
         P = self.river_data["DIP_KTperYR_NOBLS"  ][yearstr][:,month-1]
@@ -199,8 +247,18 @@ class river():
         A = self.river_data["ALK_GmolperYR_NOBLS"][yearstr][:,month-1]
         D = self.river_data["DIC_KTperYR_NOBLS"  ][yearstr][:,month-1]
         O = self.river_data["O2o_GmolperYR_NOBLS"][yearstr][:,month-1]
-        return N,P,S,A,D,O
-    
+        if (self.nspread==1):
+            return N,P,S,A,D,O
+        else:
+            N_long = self.spread_array(N)
+            P_long = self.spread_array(P)
+            S_long = self.spread_array(S)
+            A_long = self.spread_array(A)
+            D_long = self.spread_array(D)
+            O_long = self.spread_array(O)
+            return N_long, P_long, S_long, A_long, D_long, O_long
+
+
     
     
     def conversion(self,N,P,S,A,D,O):
@@ -234,19 +292,26 @@ class river():
         cc = w*t    
         return N*cn, P*cp, S*cs,A*ca, D*cc, O*cc
 
-    def generate_monthly_files(self,conf,mask, idxt_riv, positions):
+    def generate_monthly_files(self,conf,mask):#, idxt_riv, positions):
         '''
         Generates TIN files for every year and every month.
 
         positions is the same of georef, then it starts from zero
         '''
         logging.info("Non climatological TIN file generation : start ")
-        Area=np.zeros((self.nrivers,),np.float)
 
-        for jr in range(self.nrivers):
-            ji = self.georef['indLon'][jr]-1
-            jj = self.georef['indLat'][jr]-1
-            Area[jr] = mask.area[jj,ji]
+        if (self.nspread==1):
+            Area=np.zeros((self.nrivers,),np.float)
+            for jr in range(self.nrivers):
+                ji = self.georef['indLon'][jr]-1
+                jj = self.georef['indLat'][jr]-1
+                Area[jr] = mask.area[jj,ji]
+        else:
+            Area = np.zeros((self.nrivers*self.nspread,),np.float)
+            for jr in range(self.nrivers*self.nspread):
+                ji = self.georef_spread['indLon'][jr]-1
+                jj = self.georef_spread['indLat'][jr]-1
+                Area[jr] = mask.area[jj,ji]
 
         start_year=conf.simulation_start_time
         end___year=conf.simulation_end_time
@@ -255,30 +320,39 @@ class river():
                 filename = conf.dir_out + "TIN_%d%02d15-00:00:00.nc" %(year, month)
                 N,P,S,A,D,O = self.get_monthly_data(str(year), month)
                 N,P,S,A,D,O = self.conversion(N, P, S, A, D, O)
-                self.dump_file(filename, N/Area, P/Area, S/Area, A/Area, D/Area, O/Area, idxt_riv, positions)
+                self.dump_file(filename, N/Area, P/Area, S/Area, A/Area, D/Area, O/Area, mask)
         logging.info("Non climatological TIN file generation : done")
 
-    def generate_climatological_monthly_files(self,conf,mask,idxt_riv, positions):
+    def generate_climatological_monthly_files(self,conf,mask): #idxt_riv, positions):
         '''
         Generates 12 TIN_yyyy*nc files
         '''
         logging.info("Climatological TIN file generation : start")
         Area=np.zeros((self.nrivers,),np.float)
 
-        for jr in range(self.nrivers):
-            ji = self.georef['indLon'][jr]-1
-            jj = self.georef['indLat'][jr]-1
-            Area[jr] = mask.area[jj,ji]
+        if (self.nspread==1):
+            Area=np.zeros((self.nrivers,),np.float)
+            for jr in range(self.nrivers):
+                ji = self.georef['indLon'][jr]-1
+                jj = self.georef['indLat'][jr]-1
+                Area[jr] = mask.area[jj,ji]
+        else:
+            Area = np.zeros((self.nrivers*self.nspread,),np.float)
+            for jr in range(self.nrivers*self.nspread):
+                ji = self.georef_spread['indLon'][jr]-1
+                jj = self.georef_spread['indLat'][jr]-1
+                Area[jr] = mask.area[jj,ji]
 
         year="yyyy"
         for month in range(1,13):
             filename = conf.dir_out+"/TIN_yyyy%02d15-00:00:00.nc" %(month)
             N,P,S,A,D,O = self.get_monthly_data(str(year), month)
             N,P,S,A,D,O = self.conversion(N, P, S, A, D, O)
-            self.dump_file(filename, N/Area, P/Area, S/Area, A/Area, D/Area, O/Area, idxt_riv, positions)
+            self.dump_file(filename, N/Area, P/Area, S/Area, A/Area, D/Area, O/Area, mask)
         logging.info("Climatological TIN file generation : done")
                 
-    def dump_file(self,filename,N,P,S,A,D,O,idxt_riv,positions):
+
+    def dump_file_old(self,filename,N,P,S,A,D,O, idxt_riv,positions):
         '''
           Writes the single TIN file
           Variables are dumped as they are, all but positions (incremented by one)
@@ -296,7 +370,7 @@ class river():
         riv_a_o3c = ncfile.createVariable('riv_O3c', 'f4', ('riv_idxt',))
         riv_a_o3h = ncfile.createVariable('riv_O3h', 'f4', ('riv_idxt',))
         riv_a_O2o = ncfile.createVariable('riv_O2o', 'f4', ('riv_idxt',))
-        
+
         riv_idxt_riv[:] = idxt_riv[:]
         riv_pos[:,:] = positions+1
         riv_a_n3n[:] = N
@@ -307,9 +381,82 @@ class river():
         riv_a_O2o[:] = O
         ncfile.close()
 
+    def dump_file(self,filename,N,P,S,A,D,O,mask):
+        '''
+          Writes the single TIN file
+          Variables are dumped as they are, all but positions (incremented by one)
+        '''
+        _,jpj, jpi = mask.shape
+        ncfile = netCDF4.Dataset(filename, 'w')
+        ncfile.createDimension('lon',jpi)
+        ncfile.createDimension('lat',jpj)
+        riv_a_n3n = ncfile.createVariable('riv_N3n', 'f4', ('lat','lon'))
+        riv_a_n1p = ncfile.createVariable('riv_N1p', 'f4', ('lat','lon'))
+        riv_a_n5s = ncfile.createVariable('riv_N5s', 'f4', ('lat','lon'))
+        riv_a_o3c = ncfile.createVariable('riv_O3c', 'f4', ('lat','lon'))
+        riv_a_o3h = ncfile.createVariable('riv_O3h', 'f4', ('lat','lon'))
+        riv_a_O2o = ncfile.createVariable('riv_O2o', 'f4', ('lat','lon'))
+        riv_a_n3n[:] = self.get_map_from_1d_array(N, mask)
+        riv_a_n1p[:] = self.get_map_from_1d_array(P, mask)
+        riv_a_n5s[:] = self.get_map_from_1d_array(S, mask)
+        riv_a_o3c[:] = self.get_map_from_1d_array(D, mask)
+        riv_a_o3h[:] = self.get_map_from_1d_array(A, mask)
+        riv_a_O2o[:] = self.get_map_from_1d_array(O, mask)
+
+        setattr(riv_a_n3n,'missing_value',np.float32(1.e+20))
+        setattr(riv_a_n1p,'missing_value',np.float32(1.e+20))
+        setattr(riv_a_n5s,'missing_value',np.float32(1.e+20))
+        setattr(riv_a_o3c,'missing_value',np.float32(1.e+20))
+        setattr(riv_a_o3h,'missing_value',np.float32(1.e+20))
+        setattr(riv_a_O2o,'missing_value',np.float32(1.e+20))
+        ncfile.close()
+        return
+
+
+    def get_map_from_1d_array(self,array,mask):
+        '''
+        Arguments:
+        * array * an 1D numpuy array
+        * mask  * Mask object
+        We sum because there are more rivers that can be assigned to the same cell
+
+        Returns:
+        * OUT * a 2D map
+        '''
+        _, jpj, jpi = mask.shape
+        OUT = np.ones((jpj, jpi), np.float32) * 1.e+20
+        OUT[mask.mask_at_level(0)] = -1.
+        if (self.nspread==1):
+            for jr in range(self.nrivers):
+                ji = self.georef['indLon'][jr] - 1
+                jj = self.georef['indLat'][jr] - 1
+                if OUT[jj,ji] < 0.:
+                    OUT[jj,ji] = array[jr] # First time
+                else:
+                    OUT[jj,ji] += array[jr] # To handle cells with multiple river points
+            return OUT
+        else:
+            for jr in range(self.nrivers*self.nspread):
+                ji = self.georef_spread['indLon'][jr] - 1
+                jj = self.georef_spread['indLat'][jr] - 1
+                if OUT[jj,ji] < 0.:
+                    OUT[jj,ji] = array[jr] # First time
+                else:
+                    OUT[jj,ji] += array[jr] # To handle cells with multiple river points
+            return OUT
+
+
     def load_from_file(self,filename,var):
         ''' Useful for check/debug '''
         dset = netCDF4.Dataset(filename, 'r')
         M = np.array(dset[var])
         dset.close()
         return M
+if __name__=="__main__":
+    from commons.mask import Mask
+    import config as conf
+    TheMask = Mask(conf.file_mask)
+    R = river(conf)
+    R.modularize(conf)
+    R.gen_map_indexes(TheMask)
+    

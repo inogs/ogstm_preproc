@@ -2,6 +2,7 @@ import logging
 from bclib.lateral import lateral_bc
 import netCDF4 as nc
 import numpy as np
+import glob, os
 
 class gib():
     def __init__(self,conf,mask):
@@ -27,44 +28,69 @@ class gib():
             size_nutrients = self.gibilterra.phos.shape
             return np.ones(size_nutrients,np.float64)*0.0025  # G. Cossarini estimate
 
-    def generate(self,mask,bounmask_obj):
+    def generate(self, mask, bounmask_obj):
+        
         logging.info("GIB files generation: start")
+        
         if bounmask_obj.idx is None:
             bounmask_obj.generate(mask)
+        
+        # Common variables and definitions:
         jpk, jpj, jpi = mask.shape
         vnudg = self.config.variables
         nudg = len(vnudg)
+        nudg_classic_variables=[ vnudg[k][0] for k in range(nudg)]
+        RST_LIST=glob.glob(self.config.RST_FILES)
+        OTHER_VARIABLES=[]
+        for filename in RST_LIST:
+            basename = os.path.basename(filename)
+            var  = basename.rsplit(".")[2]
+            if var not in nudg_classic_variables:
+                OTHER_VARIABLES.append(var)
+        #GIB_missing_values = np.ones((jpk, jpj, jpi), np.float64) * 1.e+20
         
         for time in range(4):
-            filename = self.config.dir_out + "GIB_yyyy" + self.gibilterra.season[time]+".nc"
-            #print filename
+            
+            # netCDF file preparation
+            filename = self.config.dir_out + "GIB_yyyy" + self.gibilterra.season[time] + ".nc"
             ncfile = nc.Dataset(filename, 'w')
+            ncfile.createDimension("lon", jpi)
+            ncfile.createDimension("lat", jpj)
+            ncfile.createDimension("dep", jpk)
+            
             for jn in range(nudg):
+                
                 GIB_matrix = self.nutrient_dataset_by_index(jn)
-                aux = bounmask_obj.resto[jn,:,:,:]
+                aux = bounmask_obj.resto[jn, ...]
                 isNudg = (aux != 0) & (mask.mask)
-                N_nudgingpoints = isNudg.sum()
-                idx=np.zeros((N_nudgingpoints,),np.int32);
-                data=np.zeros((N_nudgingpoints,),np.float64);
-                count = 0
-                for jk in range(jpk):
-                    for jj in range(jpj):
-                        for ji in range(jpi):
-                            if (isNudg[jk,jj,ji]):
-                                idx[count] = bounmask_obj.idx[jk,jj,ji]
-                                data[count] = GIB_matrix[time,jk,jj,ji]
-                                count = count+1
+                
+                GIB_matrix[time, ~isNudg] = -1.
+                GIB_matrix[time, ~mask.mask] = 1.e+20
+                
+                # Dump netCDF file
+                vardataname = "gib_" + vnudg[jn][0]
+                ncvar = ncfile.createVariable(vardataname, 'f', ("dep", "lat", "lon"))
+                setattr(ncvar, 'missing_value', np.float32(1.e+20))
+                ncvar[...] = GIB_matrix[time, ...]
 
-
-                dimension_name = "gib_idxt_" + vnudg[jn][0]
-                vardataname    = "gib_"      + vnudg[jn][0]
-                ncfile.createDimension(dimension_name,count)
-                ncvar = ncfile.createVariable(dimension_name, 'i4', (dimension_name,))
-                ncvar[:] = idx[:]
-                ncvar = ncfile.createVariable(vardataname, 'f',(dimension_name,))
-                ncvar[:] = data[:]
+            aux = bounmask_obj.resto[0, ...] # the same of N1p
+            isNudg = (aux != 0) & (mask.mask)
+            for filename in RST_LIST:
+                basename = os.path.basename(filename)
+                var  = basename.rsplit(".")[2]
+                if var in nudg_classic_variables:  continue
+                GIB_matrix = self.read(filename, "TRN" + var)
+                GIB_matrix[0, ~isNudg] = -1.
+                GIB_matrix[0, ~mask.mask] = 1.e+20
+                vardataname = "gib_" + var
+                ncvar = ncfile.createVariable(vardataname, 'f', ("dep", "lat", "lon"))
+                ncvar[:] = GIB_matrix[0, ...]
+                setattr(ncvar, 'missing_value', np.float32(1.e+20))
+                
             ncfile.close()
+            
         logging.info("GIB files generation: done")
+        
 if __name__ == "__main__":
     from commons.mask import Mask
     import config as conf
