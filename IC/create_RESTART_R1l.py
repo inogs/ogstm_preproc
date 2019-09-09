@@ -12,7 +12,7 @@ def argument():
     parser.add_argument(   '--outfile', '-o',
                                 type = str,
                                 required = False,
-                                default = "RST.19950101-00:00:00.O5c.nc",
+                                default = "RST.19950101-00:00:00.R1l.nc",
                                 help = 'Output directory of generated restarts'
                                 )
     parser.add_argument(   '--inputfile','-i',
