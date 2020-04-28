@@ -49,6 +49,7 @@ for varname in VARLIST:
     ax.invert_yaxis()
     ax.legend()
     fig.savefig(out_img)
+    pl.close(fig)
 
 # then 3D arrays generation ---------
 for varname in VARLIST:
@@ -65,7 +66,7 @@ for varname in VARLIST:
             V[submask] =p[k]
     if varname == 'O3h':  RST = RST*rho/1000
     if varname == 'O3c':  RST = RST*rho*12/1000
-    print "smooter"
+    print "smoother"
     RST_s = smoother(TheMask, RST)
     print "writer"
     check = np.isnan(RST_s[TheMask.mask])
