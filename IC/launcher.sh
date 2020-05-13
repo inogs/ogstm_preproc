@@ -1,0 +1,8 @@
+#! /bin/bash
+
+MASKFILE=/gpfs/work/IscrC_REBIOMED/REANALISI_24/PREPROC/MASK/ogstm/meshmask.nc
+INPUTDIR=/gpfs/work/IscrC_REBIOMED/REANALISI_24/PREPROC/IC/inputs
+OUTPUTDIR=/gpfs/work/IscrC_REBIOMED/REANALISI_24/PREPROC/IC/RST
+DATE=19990101
+
+python ICgenerator_fromInputs.py -i $INPUTDIR -o $OUTPUTDIR -m $MASKFILE -d $DATE
