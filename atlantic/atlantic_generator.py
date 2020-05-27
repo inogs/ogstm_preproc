@@ -38,11 +38,10 @@ MASKFILE=args.maskfile
 
 os.system("mkdir -p " + OUTPUTDIR)
 
-
 OpenMask=Mask(MASKFILE)
 
 jpk, jpj, jpi = OpenMask.shape
-I=0
+I=1
 
 VARLIST=['N1p', 'N3n', 'N5s','O2o','O3c','O3h']
 mydtype=[(var,np.float32) for var in VARLIST]
