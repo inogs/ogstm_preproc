@@ -35,7 +35,7 @@ from commons.mask import Mask
 import numpy as np
 from commons import netcdf4
 from commons.utils import addsep
-import os, glob
+import os, glob, sys
 from scipy import interpolate
 from smoother_1d import smoother_1d
 
@@ -47,19 +47,31 @@ MASKFILE=args.maskfile
 os.system("mkdir -p " + OUTPUTDIR)
 
 OpenMask=Mask(MASKFILE)
+nav_lon=OpenMask.xlevels
+B=OpenMask.bathymetry_in_cells()
 nav_lev=OpenMask.zlevels
 jpk, jpj, jpi = OpenMask.shape
 I=1
 
+lon_max_Atl=-6.125
+diff=abs(nav_lon[0,:]-lon_max_Atl)
+idx= np.where(diff == np.min(diff))
+jpi_Gib=idx[0][0] 
+arrAtl=B[:,0:jpi_Gib]
+maxLevel = np.max(arrAtl) 
+position = np.where(arrAtl == np.max(arrAtl))
+jpj_p=position[0][0]
+jpi_p=position[1][0]
+
 os.chdir(RESTARTDIR)
 PATH_NAME='RST.*.nc'
 fileLIST = glob.glob(PATH_NAME)
-
-VARLIST=['N1p', 'N3n', 'N5s','O2o','O3c','O3h']
-
 ALLVARS=[f[-6:-3] for f in fileLIST]
 mydtype=[(var,np.float32) for var in ALLVARS]
 BOUNDARY_CONCENTRATION= np.zeros((jpk,),dtype=mydtype)
+
+VARLIST=['N1p', 'N3n', 'N5s','O2o','O3c','O3h']
+
 for var in ALLVARS:
 	if var in VARLIST:
     		filename=INPUTDIR + var + ".nc"
@@ -68,11 +80,15 @@ for var in ALLVARS:
         else:
                 filename=RESTARTDIR + fileLIST[0][0:-6] + var + ".nc"
                 profile=netcdf4.readfile(filename,"TRN"+var)
-                profile_sel=profile[0][:,102,2] #atlantic point
-                profile_smoothed=profile_sel
+                profile_sel=profile[0][:,jpj_p,jpi_p] # profile in the deepest Atlantic point
+                profile_smoothed=profile_sel[0:maxLevel] 
                 for itime in range(2):
-			profile_smoothed=smoother_1d(profile_smoothed,nav_lev)
-                BOUNDARY_CONCENTRATION[var][:]=profile_smoothed
+			profile_smoothed=smoother_1d(profile_smoothed,nav_lev[0:maxLevel])
+                check=np.max(profile_smoothed)
+                BOUNDARY_CONCENTRATION[var][0:maxLevel]=profile_smoothed
+                BOUNDARY_CONCENTRATION[var][maxLevel:-1]=profile_smoothed[-1]
+        check=np.max(BOUNDARY_CONCENTRATION[var][:])
+        print var, "max value: ", check
     	BOUNDARY = np.zeros((jpk,jpj,jpi), np.float32)
     	for k in range(jpk):
         	BOUNDARY[k,:,I] = BOUNDARY_CONCENTRATION[var][k]
