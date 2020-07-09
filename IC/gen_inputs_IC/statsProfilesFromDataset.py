@@ -46,8 +46,8 @@ from commons.utils import addsep
 import os
 
 varDataName = args.varname
-firstYear = args.first
-lastYear =args.last
+firstYear = args.start_time
+lastYear =args.end_time
 parentOutput  = addsep(args.parentoutput)
 os.system("mkdir -p " + parentOutput)
 OUTPUTDIR = addsep(parentOutput + "/" + firstYear + "_" + lastYear) 
