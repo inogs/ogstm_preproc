@@ -1,16 +1,11 @@
 import numpy as np
-from commons.Timelist import TimeList
-from commons.time_interval import TimeInterval
 import datetime
 from commons.timerequestors import Clim_day
-INPUTDIR="/gss/gss_work/DRES_OGS_BiGe/Observations/TIME_RAW_DATA/STATIC/SAT/KD490/DAILY/ORIG/"
-TI = TimeInterval("19500101","20500101","%Y%m%d")
-TL = TimeList.fromfilenames(TI, INPUTDIR,"*.nc",prefix='',dateformat='%Y%m%d')
 
 deltadays=15
 basetime=datetime.datetime(2001,1,1)
 
-def getfilelist(julian):
+def getfilelist(julian, TL):
     #central = basetime + datetime.timedelta(days=julian)
     
     i_start = julian - deltadays
