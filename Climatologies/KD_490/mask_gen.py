@@ -1,23 +1,49 @@
-'''
-Saves the mask file for KD490 1km files
-Executed once and for all.
-'''
+import argparse
+def argument():
+    parser = argparse.ArgumentParser(description = '''
+    Step 2 for the generation of a climatology
+
+    Generates the mask file for 1km Sat dataset (CHL or KD490)
+    ''',
+    formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
+
+    parser.add_argument(   '--inputfile', '-i',
+                                type = str,
+                                required = True,
+                                help = '''map_occurency.npy'''
+                                )
+    parser.add_argument(   '--maskfile', '-m',
+                                type = str,
+                                required = True,
+                                help = '''CHL_1km_meshmask.nc, output file'''
+                                )
+    parser.add_argument(   '--occurrency', '-o',
+                                type = str,
+                                required = True,
+                                help = '''CHL_occurrency.nc'''
+                                )
+    return parser.parse_args()
+
+args = argument()
+
+
 
 import numpy as np
-import scipy.io.netcdf as NC
-COUNT = np.load('Kd_map_occurency.npy')
+from netCDF4 import Dataset
+COUNT = np.load(args.inputfile)
 
 
-filename="/gss/gss_work/DRES_OGS_BiGe/Observations/TIME_RAW_DATA/STATIC/SAT/KD490/DAILY/ORIG/20150831_d-OC_CNR-L3-KD490-MedOC4AD4_SAM_1KM-MED-REP-v01.nc"
+filename="/gss/gss_work/DRES_OGS_BiGe/Observations/TIME_RAW_DATA/STATIC/SAT/CCI_1km/DAILY/ORIG/20061115_d-OC_CNR-L3-CHL-MedOC4AD4_SAM_1KM-MED-REP-v02.nc"
 
-ncIN = NC.netcdf_file(filename,'r')
-LON=ncIN.variables['lon'].data.copy()
-LAT=ncIN.variables['lat'].data.copy()
+ncIN = Dataset(filename, 'r')
+LON=ncIN.variables['lon'][:]
+LAT=ncIN.variables['lat'][:]
 ncIN.close()
 
 tmask = COUNT > 0
 jpj,jpi=COUNT.shape
-ncOUT = NC.netcdf_file('KD490_1km_meshmask.nc','w')
+ncOUT = Dataset(args.maskfile,'w')
 ncOUT.createDimension("lon", jpi)
 ncOUT.createDimension("lat", jpj)
 ncvar=ncOUT.createVariable("lon", "f", ('lon',))
@@ -29,7 +55,7 @@ ncvar[:]=tmask
 ncOUT.close()
 
 
-ncOUT = NC.netcdf_file('KD490_occurrency.nc','w')
+ncOUT = Dataset(args.occurrency,'w')
 ncOUT.createDimension("lon", jpi)
 ncOUT.createDimension("lat", jpj)
 ncvar=ncOUT.createVariable("lon", "f", ('lon',))
