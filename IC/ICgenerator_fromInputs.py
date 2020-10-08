@@ -63,7 +63,6 @@ jpk, jpj, jpi = TheMask.shape
 
 VARLIST=['N1p','N3n','O2o','N5s','O3h','O3c']
 sublist17=[ sub for sub in OGS.Pred]
-sublist17.append(OGS.atl)
 SUB17 = OGS.ComposedBasin('med',sublist17,'Mediterranean Sea with Atlantic buffer')
 
 nSub = len(sublist17)
