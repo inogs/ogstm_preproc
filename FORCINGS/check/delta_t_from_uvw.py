@@ -1,7 +1,37 @@
+import argparse
+
+def argument():
+    parser = argparse.ArgumentParser(description = '''
+    Generates a txt file for each forcing time
+    Example of name:
+       DeltaT_19990101-00:00:00.txt
+    Content:
+      900  703.634   37 138 298
+    ogstm.xx reads the first number, an integer which can be 600, 450, 360, 300
+    ''')
+    parser.add_argument(   '--inputdir', '-i',
+                                type = str,
+                                required = True,
+                                help = '/gpfs/work/OGS_prod_0/OPA/V5C/devel/wrkdir/2/MODEL/FORCINGS/')
+    parser.add_argument(   '--outdir', '-o',
+                                type = str,
+                                required = True,
+                                help = '/some/path/')
+    parser.add_argument(   '--maskfile', '-m',
+                                type = str,
+                                required = True,
+                                help = '/gpfs/scratch/userexternal/gbolzon0/OPEN_BOUNDARY/FORCINGS_CHECK/meshmask_INGV.nc')
+
+    return parser.parse_args()
+
+args = argument()
+
 from commons.mask import Mask
 from commons.dataextractor import DataExtractor
 import numpy as np
-from commons.Timelist import TimeInterval, TimeList
+from commons.Timelist import TimeList
+from commons.utils import addsep
+
 try:
     from mpi4py import MPI
     comm  = MPI.COMM_WORLD
@@ -11,8 +41,10 @@ except:
     rank   = 0
     nranks = 1
 
+INPUTDIR=addsep(args.inputdir)
+OUTPUTDIR=addsep(args.outdir)
+TheMask=Mask(args.maskfile)
 
-TheMask=Mask("/gpfs/scratch/userexternal/gbolzon0/OPEN_BOUNDARY/FORCINGS_CHECK/meshmask_INGV.nc")
 jpk, jpj, jpi = TheMask.shape
 E1T=np.zeros((jpk,jpj,jpi),np.float32)
 E2T=np.zeros((jpk,jpj,jpi),np.float32)
@@ -22,44 +54,55 @@ for k in range(jpk):
     E2T[k,:,:] = TheMask.e2t
 
 
-INPUTDIR="/gpfs/scratch/userexternal/gbolzon0/OPEN_BOUNDARY/TEST_07/wrkdir/MODEL/FORCINGS/"
-OUTPUTDIR="/gpfs/scratch/userexternal/gbolzon0/OPEN_BOUNDARY/FORCINGS_CHECK/monthly_DeltaT/"
+def impose_deltat(deltaT):
+    if deltaT > 590: return 600
+    if deltaT > 440: return 450
+    if deltaT > 350: return 360
+    return 300
+
+
 
 TL=TimeList.fromfilenames(None, INPUTDIR, "U*nc", filtervar="U", prefix="U",hour=0)
 eps=1.e-08
 Cmax=1.0
 
-MONTHLY_REQ=TL.getMonthlist()
-for req in MONTHLY_REQ[rank::nranks]:
-    outfile=OUTPUTDIR + req.string + ".txt"
-    ii,w = TL.select(req)
-    nFrames=len(ii)
-    DELTAT=np.zeros((nFrames,5),np.float32)
-    
-    for iframe, k in enumerate(ii):
-        timestr = TL.Timelist[k].strftime("%Y%m%d-%H:%M:%S")
-        print timestr
-        filenameU=INPUTDIR + "U" + timestr + ".nc"
-        filenameV=INPUTDIR + "V" + timestr + ".nc"
-        filenameW=INPUTDIR + "W" + timestr + ".nc"
 
-        U=np.abs(DataExtractor(TheMask,filenameU,"vozocrtx").values)
-        V=np.abs(DataExtractor(TheMask,filenameV,"vomecrty").values)
-        W=np.abs(DataExtractor(TheMask,filenameW,"vovecrtz").values)
-        
-        U[U==0]=eps
-        V[V==0]=eps
-        W[W==0]=eps
-        Fact = U/E1T + V/E2T + W/TheMask.e3t
-        deltat = Cmax/Fact#[:,70:170,200:382]
-        low=deltat <450
-        K,J,I = np.nonzero(deltat==deltat.min())
-        DELTAT[iframe,0]=deltat.min()
-        DELTAT[iframe,1]=low.sum()
-        DELTAT[iframe,2]=K[0]
-        DELTAT[iframe,3]=J[0]
-        DELTAT[iframe,4]=I[0]
-    np.savetxt(outfile, DELTAT,fmt="%10.3f %d %d %d %d")
+
+
+nFrames=TL.nTimes
+mydtype=[('Imposed_deltaT',np.int), ('deltaT',np.float32),('K',np.int),('J',np.int),('I',np.int)]
+
+FRAMES=range(nFrames)
+
+for iframe in FRAMES[rank::nranks]:
+    DELTAT=np.zeros((1,),dtype=mydtype)
+    timestr = TL.Timelist[iframe].strftime("%Y%m%d-%H:%M:%S")
+    print timestr
+    filenameU=INPUTDIR + "U" + timestr + ".nc"
+    filenameV=INPUTDIR + "V" + timestr + ".nc"
+    filenameW=INPUTDIR + "W" + timestr + ".nc"
+
+    U=np.abs(DataExtractor(TheMask,filenameU,"vozocrtx").values)
+    V=np.abs(DataExtractor(TheMask,filenameV,"vomecrty").values)
+    W=np.abs(DataExtractor(TheMask,filenameW,"vovecrtz").values)
+    
+    U[U==0]=eps
+    V[V==0]=eps
+    W[W==0]=eps
+    U[U>1.e+19]=eps
+    V[V>1.e+19]=eps
+    W[W>1.e+19]=eps
+    Fact = U/E1T + V/E2T + W/TheMask.e3t
+    deltat = Cmax/Fact
+    K,J,I = np.nonzero(deltat==deltat.min())
+    calculated_deltat = deltat.min()
+    DELTAT[0]['Imposed_deltaT']= impose_deltat(calculated_deltat)
+    DELTAT[0]['deltaT']=calculated_deltat
+    DELTAT[0]['K']=K[0]
+    DELTAT[0]['J']=J[0]
+    DELTAT[0]['I']=I[0]
+    outfile=OUTPUTDIR + "DeltaT_" + timestr + ".txt"
+    np.savetxt(outfile, DELTAT,fmt="%5d %10.3f %d %d %d")
     
 
 
