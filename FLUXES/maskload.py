@@ -35,7 +35,7 @@ M.close()
 
 B=NC4.Dataset(mask.bounmask,"r")
 
-index =  B.variables['index'][:,:,:,:]
+index =  np.array(B.variables['index'][:,:,:,:])
 index_inv =  B.variables['index_inv'][:,:]
 B.close()
 
