@@ -35,8 +35,7 @@ from commons.mask import Mask
 import numpy as np
 from commons import netcdf4
 from commons.utils import addsep
-import os, glob, sys
-from scipy import interpolate
+import os, glob
 from smoother_1d import smoother_1d
 
 INPUTDIR  = addsep(args.inputdir)
