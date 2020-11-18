@@ -73,27 +73,27 @@ BOUNDARY_CONCENTRATION= np.zeros((jpk,),dtype=mydtype)
 VARLIST=['N1p', 'N3n', 'N5s','O2o','O3c','O3h']
 
 for var in ALLVARS:
-	if var in VARLIST:
-    		filename=INPUTDIR + var + ".nc"
-    		profile=netcdf4.readfile(filename,var) 
-    		BOUNDARY_CONCENTRATION[var][:]=profile
-        else:
-                filename=RESTARTDIR + fileLIST[0][0:-6] + var + ".nc"
-                profile=netcdf4.readfile(filename,"TRN"+var)
-                profile_sel=profile[0][:,jpj_p,jpi_p] # profile in the deepest Atlantic point
-                profile_smoothed=profile_sel[0:maxLevel] 
-                for itime in range(2):
-			profile_smoothed=smoother_1d(profile_smoothed,nav_lev[0:maxLevel])
-                check=np.max(profile_smoothed)
-                BOUNDARY_CONCENTRATION[var][0:maxLevel]=profile_smoothed
-                BOUNDARY_CONCENTRATION[var][maxLevel:-1]=profile_smoothed[-1]
+    if var in VARLIST:
+        filename=INPUTDIR + var + ".nc"
+        profile=netcdf4.readfile(filename,var)
+        BOUNDARY_CONCENTRATION[var][:]=profile
+    else:
+        filename=RESTARTDIR + fileLIST[0][0:-6] + var + ".nc"
+        profile=netcdf4.readfile(filename,"TRN"+var)
+        profile_sel=profile[0][:,jpj_p,jpi_p] # profile in the deepest Atlantic point
+        profile_smoothed=profile_sel[0:maxLevel]
+        for itime in range(2):
+            profile_smoothed=smoother_1d(profile_smoothed,nav_lev[0:maxLevel])
+        check=np.max(profile_smoothed)
+        BOUNDARY_CONCENTRATION[var][0:maxLevel]=profile_smoothed
+        BOUNDARY_CONCENTRATION[var][maxLevel:-1]=profile_smoothed[-1]
         check=np.max(BOUNDARY_CONCENTRATION[var][:])
         print var, "max value: ", check
-    	BOUNDARY = np.zeros((jpk,jpj,jpi), np.float32)
-    	for k in range(jpk):
-        	BOUNDARY[k,:,I] = BOUNDARY_CONCENTRATION[var][k]
+        BOUNDARY = np.zeros((jpk,jpj,jpi), np.float32)
+        for k in range(jpk):
+            BOUNDARY[k,:,I] = BOUNDARY_CONCENTRATION[var][k]
         BOUNDARY[~OpenMask.mask]=1.e+20
-	outfile=OUTPUTDIR + "ATL_yyyy0630-00:00:00.nc"
-	netcdf4.write_3d_file(BOUNDARY, var, outfile, OpenMask,compression=True)
-		
+    outfile=OUTPUTDIR + "ATL_yyyy0630-00:00:00.nc"
+    netcdf4.write_3d_file(BOUNDARY, var, outfile, OpenMask,compression=True)
+
 
