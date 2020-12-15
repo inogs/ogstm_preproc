@@ -90,7 +90,7 @@ class bounmask():
         return M
 
 
-    def write_netcdf(self,mask):
+    def write_netcdf(self,mask, all_variables=True):
         logging.info("Writing bounmask.nc file ...")
         vnudg = self.config.variables
         nudg = len(vnudg)
@@ -100,8 +100,9 @@ class bounmask():
         for filename in RST_LIST:
             basename = os.path.basename(filename)
             var  = basename.rsplit(".")[2]
-            if var not in nudg_classic_variables:
-                OTHER_VARIABLES.append(var)
+            if all_variables:
+                if var not in nudg_classic_variables:
+                    OTHER_VARIABLES.append(var)
 
         ncfile = nc.Dataset(self.config.file_bmask, 'w')
         jpk,jpj,jpi = mask.shape

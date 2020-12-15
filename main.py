@@ -17,10 +17,10 @@ ATM.write_netcdf(TheMask, conf.dir_out, "Area")
 
 BOUN = bounmask(conf)
 BOUN.generate(TheMask)     # can be commented in case of test
-BOUN.write_netcdf(TheMask)
+BOUN.write_netcdf(TheMask, all_variables=True)
 
 G = gib(conf,TheMask)
-G.generate(TheMask, BOUN)
+G.generate(TheMask, BOUN, all_variables=True)
 
 R = river(conf) # here excel is read
 R.modularize(conf)

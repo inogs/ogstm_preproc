@@ -28,7 +28,7 @@ class gib():
             size_nutrients = self.gibilterra.phos.shape
             return np.ones(size_nutrients,np.float64)*0.0025  # G. Cossarini estimate
 
-    def generate(self, mask, bounmask_obj):
+    def generate(self, mask, bounmask_obj, all_variables=True):
         
         logging.info("GIB files generation: start")
         
@@ -78,6 +78,7 @@ class gib():
             for filename in RST_LIST:
                 basename = os.path.basename(filename)
                 var  = basename.rsplit(".")[2]
+                if not all_variables : continue
                 if var in nudg_classic_variables:  continue
                 GIB_matrix = self.read(filename, "TRN" + var)
                 GIB_matrix[0, ~isNudg] = -1.
