@@ -121,6 +121,7 @@ class bounmask():
         for jn in range(nudg):
             corrf =[1.,1.,1.,1.,1.01,1.01,1.];
             aux= self.resto[jn,:,:,:]*corrf[jn];
+            aux[~mask.mask] = 1.e+20
             resto_wnc = ncfile.createVariable("re" + vnudg[jn][0], 'f4', ('time','z','y','x'))
             resto_wnc[0,:] = aux
             setattr(resto_wnc,'missing_value',np.float32(1.e+20))
