@@ -9,8 +9,8 @@ class lateral_bc:
     def __init__(self,conf,maskobj):
         self.path = conf.file_nutrients
         self._extract_information()
-        self._convert_information(maskobj)
         self.season = conf.gib_season
+        self._convert_information(maskobj)
         logging.info("lateral_bc builded")
 
     def _extract_information(self):

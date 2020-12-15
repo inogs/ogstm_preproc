@@ -8,7 +8,7 @@ class gib():
     def __init__(self,conf,mask):
         self.config = conf
         logging.info("Lateral conditions : start")
-        self.gibilterra = lateral_bc(conf.file_nutrients,mask)
+        self.gibilterra = lateral_bc(conf,mask)
         logging.info("Lateral conditions done")
 
     def read(self,filename, var):
