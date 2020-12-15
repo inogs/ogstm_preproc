@@ -48,8 +48,8 @@ class gib():
             if var not in nudg_classic_variables:
                 OTHER_VARIABLES.append(var)
         #GIB_missing_values = np.ones((jpk, jpj, jpi), np.float64) * 1.e+20
-        
-        for time in range(4):
+        jpt = len(self.config.gib_season)
+        for time in range(jpt):
             
             # netCDF file preparation
             filename = self.config.dir_out + "GIB_yyyy" + self.gibilterra.season[time] + ".nc"

@@ -6,12 +6,11 @@ import logging
 
 class lateral_bc:
 
-    def __init__(self,file_nutrients,maskobj):
-        self.path = file_nutrients
+    def __init__(self,conf,maskobj):
+        self.path = conf.file_nutrients
         self._extract_information()
         self._convert_information(maskobj)
-        self.season = (["0215-12:00:00","0515-12:00:00",
-                        "0815-12:00:00","1115-12:00:00"])
+        self.season = conf.gib_season
         logging.info("lateral_bc builded")
 
     def _extract_information(self):
@@ -25,9 +24,9 @@ class lateral_bc:
         self.ncfile.close()
 
     def _convert_information(self,mask):
-        jpt = 4
+        jpt = len(self.season)
         jpk, jpj, jpi = mask.shape
-        size_nutrients = (4,jpk,jpj, jpi)
+        size_nutrients = (jpt,jpk,jpj, jpi)
         self.phos = np.zeros(size_nutrients, np.float64)
         self.ntra = np.zeros(size_nutrients, np.float64)
         self.dox  = np.zeros(size_nutrients, np.float64)
@@ -37,12 +36,12 @@ class lateral_bc:
         tmask4d   = np.zeros(size_nutrients, np.bool)
         nav_lev = mask.zlevels
         n_lev = jpk
-        vp_phos = np.zeros((4,n_lev));
-        vp_ntra = np.zeros((4,n_lev));
-        vp_sica = np.zeros((4,n_lev));
-        vp_dox  = np.zeros((4,n_lev));
-        vp_dic  = np.zeros((4,n_lev));
-        vp_alk  = np.zeros((4,n_lev));
+        vp_phos = np.zeros((jpt,n_lev));
+        vp_ntra = np.zeros((jpt,n_lev));
+        vp_sica = np.zeros((jpt,n_lev));
+        vp_dox  = np.zeros((jpt,n_lev));
+        vp_dic  = np.zeros((jpt,n_lev));
+        vp_alk  = np.zeros((jpt,n_lev));
 
         nav_lev_in=np.concatenate(([0],self.lev1,[5500]))
 
@@ -61,7 +60,7 @@ class lateral_bc:
         vp_alk_in = np.append(self.ALK[1],self.ALK[:].T)
         vp_alk_in = np.append(vp_alk_in,self.ALK[end-1]);
 
-        for i in range(4):
+        for i in range(jpt):
             jj= (~ np.isnan(vp_phos_in[i,:])) | ( vp_phos_in[i,:] < 1e19 )
             vp_phos[i,:] = np.interp(nav_lev, nav_lev_in[jj], vp_phos_in[i,jj])
             jj=~ np.isnan(vp_ntra_in[i,:]) | ( vp_ntra_in[i,:] < 1e19 )
