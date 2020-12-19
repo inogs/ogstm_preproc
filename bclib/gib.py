@@ -18,8 +18,8 @@ class gib():
         ncfile.close()
         return M
     def nutrient_dataset_by_index(self,jn):
-        if jn==0 : return self.gibilterra.phos - 0.1
-        if jn==1 : return self.gibilterra.ntra - 0.5
+        if jn==0 : return self.gibilterra.phos
+        if jn==1 : return self.gibilterra.ntra
         if jn==2 : return self.gibilterra.dox
         if jn==3 : return self.gibilterra.sica
         if jn==4 : return self.gibilterra.dic
