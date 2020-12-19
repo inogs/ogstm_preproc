@@ -86,12 +86,12 @@ for var in ALLVARS:
         check=np.max(profile_smoothed)
         BOUNDARY_CONCENTRATION[var][0:maxLevel]=profile_smoothed
         BOUNDARY_CONCENTRATION[var][maxLevel:-1]=profile_smoothed[-1]
-        check=np.max(BOUNDARY_CONCENTRATION[var][:])
-        print var, "max value: ", check
-        BOUNDARY = np.zeros((jpk,jpj,jpi), np.float32)
-        for k in range(jpk):
-            BOUNDARY[k,:,I] = BOUNDARY_CONCENTRATION[var][k]
-        BOUNDARY[~OpenMask.mask]=1.e+20
+    check=np.max(BOUNDARY_CONCENTRATION[var][:])        
+    print var, "max value: ", check
+    BOUNDARY = np.zeros((jpk,jpj,jpi), np.float32)
+    for k in range(jpk):
+        BOUNDARY[k,:,I] = BOUNDARY_CONCENTRATION[var][k]
+    BOUNDARY[~OpenMask.mask]=1.e+20
     outfile=OUTPUTDIR + "ATL_yyyy0630-00:00:00.nc"
     netcdf4.write_3d_file(BOUNDARY, var, outfile, OpenMask,compression=True)
 
