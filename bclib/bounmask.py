@@ -35,8 +35,9 @@ class bounmask():
             resto[jn,:,ii] = 1./(rdpmin*86400.)
         for jn in range(nudg):
             xlim = vnudg[jn][1]
-            ii = (glamt >= xlim)  & (glamt <= self.config.end_nudging)
-            inv_reltim = 1./rdpmin + (1./rdpmax-1./rdpmin)*(glamt-xlim)/(self.config.end_nudging-xlim)
+            end_nudging = vnudg[jn][2]
+            ii = (glamt >= xlim)  & (glamt <= end_nudging)
+            inv_reltim = 1./rdpmin + (1./rdpmax-1./rdpmin)*(glamt-xlim)/(end_nudging-xlim)
             for jk in range(jpk):
                 resto[jn,jk,ii] = inv_reltim[ii]/86400.
 
