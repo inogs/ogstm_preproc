@@ -5,7 +5,7 @@ import numpy as np
 import pylab as pl
 from commons.submask import SubMask
 from IC import RSTwriter, smoother
-import density
+from commons import density
 from commons.utils import getcolor
 
 
