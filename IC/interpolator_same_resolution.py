@@ -59,7 +59,7 @@ for filename in filelist:
     RST_old[~TheMask_orig.mask]=np.nan
     RST=RST_old[:jpk,:,:]
     
-    for k in range(8):
+    for k in range(jpk):
         rst=RST[k,:,:]
         goods  = TheMask_orig.mask[k,:,:]
         Jgoods, Igoods = np.nonzero(goods)
