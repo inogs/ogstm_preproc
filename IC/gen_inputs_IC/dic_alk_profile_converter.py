@@ -9,6 +9,9 @@ import netCDF4
 IngvMask = Mask('/gpfs/work/IscrC_REBIOMED/NRT_EAS6/PREPROC/MASK/ogstm/meshmask_CMCCfor_ogstm.nc')
 TheMask = Mask('/gpfs/work/IscrC_REBIOMED/NRT_EAS6/PREPROC/MASK/ogstm/meshmask.nc')
 filename='/gpfs/scratch/userexternal/gbolzon0/V7C/T201901.nc'
+INPUTDIR="/gpfs/work/IscrC_REBIOMED/REANALISI_24/PREPROC/IC/inputs/DIC_and_ALK/"
+OUTDIR="/gpfs/work/IscrC_REBIOMED/NRT_EAS6/PREPROC/IC/TRANSITION/inputs/"
+
 jpk, jpj, jpi = TheMask.shape
 JPK, JPJ, JPI = IngvMask.shape
 rho =density.get_density(filename, IngvMask)
@@ -40,11 +43,11 @@ for isub, sub in enumerate(V2.Pred):
         else:
             RHO[isub,k] = Weighted_Mean
 
-DIC=netcdf4.readfile("/gpfs/work/IscrC_REBIOMED/REANALISI_24/PREPROC/IC/inputs/DIC_and_ALK/DIC.nc",'DIC')
-ALK=netcdf4.readfile("/gpfs/work/IscrC_REBIOMED/REANALISI_24/PREPROC/IC/inputs/DIC_and_ALK/ALK.nc",'DIC')
+DIC=netcdf4.readfile(INPUTDIR + "DIC.nc",'DIC')
+ALK=netcdf4.readfile(INPUTDIR + "ALK.nc",'ALK')
 O3c = RHO[:16,:] * DIC * 12 /1000
 O3h = RHO[:16,:] * ALK /1000
 
 
-dumpfile('O3c.nc', O3c, 'O3c')
-dumpfile('O3h.nc', O3h, 'O3h')
+dumpfile(OUTDIR+'O3c.nc', O3c, 'O3c')
+dumpfile(OUTDIR+'O3h.nc', O3h, 'O3h')
