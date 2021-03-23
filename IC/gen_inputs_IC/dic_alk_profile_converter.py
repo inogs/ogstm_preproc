@@ -1,21 +1,21 @@
 from commons.mask import Mask
 from commons.submask import SubMask
-from commons import density
+from commons.dataextractor import DataExtractor
 from basins import V2
 import numpy as np
 from commons import netcdf4
 import netCDF4
 
-IngvMask = Mask('/gpfs/work/IscrC_REBIOMED/NRT_EAS6/PREPROC/MASK/ogstm/meshmask_CMCCfor_ogstm.nc')
+#IngvMask = Mask('/gpfs/work/IscrC_REBIOMED/NRT_EAS6/PREPROC/MASK/ogstm/meshmask_CMCCfor_ogstm.nc')
 TheMask = Mask('/gpfs/work/IscrC_REBIOMED/NRT_EAS6/PREPROC/MASK/ogstm/meshmask.nc')
-filename='/gpfs/scratch/userexternal/gbolzon0/V7C/T201901.nc'
+filename='/gpfs/scratch/userexternal/gbolzon0/V7C/RHO/rho.2019.nc'
 INPUTDIR="/gpfs/work/IscrC_REBIOMED/REANALISI_24/PREPROC/IC/inputs/DIC_and_ALK/"
 OUTDIR="/gpfs/work/IscrC_REBIOMED/NRT_EAS6/PREPROC/IC/TRANSITION/inputs/"
 
 jpk, jpj, jpi = TheMask.shape
-JPK, JPJ, JPI = IngvMask.shape
-rho =density.get_density(filename, IngvMask)
-rho=rho[:jpk,:,JPI-jpi:]
+#JPK, JPJ, JPI = IngvMask.shape
+rho =DataExtractor(TheMask,filename, 'rho')
+
 
 def dumpfile(outfile,M2d,var):
     ncOUT = netCDF4.Dataset(outfile,'w')
