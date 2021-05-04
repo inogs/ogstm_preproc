@@ -19,5 +19,5 @@ CASE=2
 BASIN=subs
 GIB=-4.9
 
-my_prex_or_die "python create_GRID_DA.py -o $OUTPUTDIR -n $NAME -m $MASKFILE -c $CASE -b $BASIN -g $GIB" #-v $VARIABLE -c $COASTNESS -b $BASIN -s $STATISTIC "
+my_prex_or_die "python create_GRID_DA.py -o $OUTPUTDIR -n $NAME -m $MASKFILE -c $CASE -b $BASIN -g $GIB"
 
