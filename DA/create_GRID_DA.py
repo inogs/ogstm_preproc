@@ -68,9 +68,12 @@ S=SubMask(V2.adr,maskobject=mask)
 basin_list=[V2.alb,V2.swm1,V2.swm2,V2.nwm,V2.tyr1,V2.tyr2,V2.adr,V2.aeg,V2.ion1,V2.ion2,V2.ion3,V2.lev1,V2.lev2,V2.lev3,V2.lev4]
 
 mask0=mask.cut_at_level(0)
+already_assigned=np.zeros(mask0.shape,dtype=np.bool)
 
 for isub,sub in enumerate(basin_list):
     S=SubMask(sub,maskobject=mask0)
+    S.mask[already_assigned] = False
+    already_assigned[S.mask] = True
     print sub.name
     S_matrix=S.mask[0,:,:].astype(np.float32)
     S_matrix=S_matrix * (isub+1)
