@@ -64,7 +64,7 @@ from basins import V2
 mask=Mask(args.maskfile)
 CASE= args.case
 name_file=args.name
-outputdir=args.outdir
+outputdir=addsep(args.outdir)
 basin_type=args.basin
 LIMITE_OSCURAMENTO_GIB=float(args.gib)
 
