@@ -1,0 +1,145 @@
+export OPA_HOME=OPA_872_OP-R22 #--- modify the OPA_HOME name opportunely
+
+mkdir -p $CINECA_SCRATCH/$OPA_HOME/wrkdir/MODEL/
+mkdir -p $CINECA_SCRATCH/$OPA_HOME/wrkdir/MODEL/RESTARTS
+mkdir -p $CINECA_SCRATCH/$OPA_HOME/wrkdir/MODEL/AVE_FREQ_1
+mkdir -p $CINECA_SCRATCH/$OPA_HOME/wrkdir/MODEL/AVE_FREQ_2
+mkdir -p $CINECA_SCRATCH/$OPA_HOME/wrkdir/MODEL/AVE_PHYS
+mkdir -p $CINECA_SCRATCH/$OPA_HOME/wrkdir/MODEL/KEXT
+mkdir -p $CINECA_SCRATCH/$OPA_HOME/wrkdir/MODEL/FLUXES
+
+mkdir -p $CINECA_SCRATCH/$OPA_HOME/wrkdir/POSTPROC
+
+
+THEDIR=/gpfs/scratch/userexternal/ateruzzi/OPA_872_OP-R11/wrkdir/MODEL
+#--- modify THEDIR opportunely (if available)
+
+
+### PREPROC  ###
+# generation of 1.aveTimes 2.aveTimes restartTimes
+source /marconi_work/OGS_dev_0/COPERNICUS/sequence.sh
+
+cd $CINECA_SCRATCH/$OPA_HOME/wrkdir/
+svn co -N https://hpc-forge.cineca.it/svn/opa_rea/chain/preproc/
+
+cd preproc/
+cp SubmissionScheme.template SubmissionScheme
+
+EDIT SubmissionScheme #--- remember, for the moment leave only the qsub lines !
+EDIT user.py
+
+python caller.py
+cp 1.aveTimes 2.aveTimes restartTimes genInputsDatelists.sh Start_End_Times ../MODEL/
+
+### MODEL DIR ###
+
+cd $CINECA_SCRATCH/$OPA_HOME/wrkdir/MODEL/
+
+# BC
+cp -r $THEDIR/BC . 
+
+# FORCINGS
+ln -s $CINECA_SCRATCH/TEST01/wrkdir/MODEL/FORCINGS 
+# or use forcing_linker.sh inside FORCINGS/ 
+
+# SATELLITE
+ln -s /gss/gss_work/DRES_OGS_BiGe/Observations/TIME_RAW_DATA/STATIC/SAT/CCI/NEW_20161702/WEEKLY_V4 SATELLITE
+
+./genInputsDatelists.sh
+
+# Start End Times
+vi Start_End_Times
+
+#example:
+#
+#20130101-00:00:00
+#20140101-00:00:00
+
+
+# MODEL CODE
+
+git clone git@gitlab.hpc.cineca.it:OGS/ModelBuild.git CODE
+cd CODE
+git branch -a
+git checkout -b $BRANCH origin/$BRANCH
+./downloader_ogstm_bfm.sh
+./builder_ogstm_bfm.sh
+
+#from wrkdir/MODEL 
+ln -s /path/CODE/OGSTM_BUILD/ogstm.xx
+
+
+# NAMELISTS
+cp $THEDIR/namelist.* .
+cp $THEDIR/*nml .
+#--- eventually modify namelists
+#--- can be taken from model svn
+#    (namelist /ogstm/release-1.2/src/namelists/namelist*)
+#    (nml /BFMv2/release-1.2/src/namelist/*nml*)
+
+# DOUBLE FREQUENCY DUMP ----IMPORTANT 
+# This new version of model takes in account the
+# possibiltiy of saving variables with two frequencies, low frequency for all
+# the variables and high frequency for a selected group (that's why we have
+# 1.aveTimes and 2.aveTimes; ave.nc files will be saved in separate directories).
+# The way to select variables of the High Frequency group is to set 
+# ctr_hf(i)   = 1 
+# dia_hf(i)   = 1
+# dia_hf_2d(i)= 1
+in namelist.passivetrc for status variables and diagnostic
+# If order to have a single frequency of dump, just like previous versions,
+# the simplest way is to set all the variables as low_frequency variables: then,
+# putting all the values ctr_hf(i)= 0, and leaving 1.aveTimes file empty.
+
+
+# MASKS
+ln -s $THEDIR/meshmask.nc .
+ln -s $THEDIR/bounmask.nc .
+cp $THEDIR/mapser.npy . #--- for postproc on kclass of coastal regions
+
+# INIT
+cd $CINECA_SCRATCH/$OPA_HOME/wrkdir/MODEL/RESTARTS/
+INITDIR=$CINECA_SCRATCH/INIT
+for I in `ls $INITDIR/*`; do ln -s  $I ; done
+#--- opportunely modify the link
+#--- or use linkInit 
+
+# JOBS 
+cd $CINECA_SCRATCH/$OPA_HOME/wrkdir/MODEL
+cp $THEDIR/job.slurm .
+# and edit
+
+
+### DA ###
+
+#--- Copy EOF, GRID, MISFIT/VAR_SAT from a previous run or mario in
+#DA_static_data
+cp -r $THEDIR/DA_static_data . # from a previpus run
+mkdir -p $CINECA_SCRATCH/$OPA_HOME/wrkdir/MODEL/DA__FREQ_1
+
+#--- must be consistent with grid version
+#--- EDIT oceanvar_nml_BFM_V# if needed (correlation radius and convergence criteria)
+
+# for float assimilation directory float_preproc
+# IMPORTANT: Check for float error definition in preproc.py 
+cd $CINECA_SCRATCH/$OPA_HOME/wrkdir
+ln -s $HOME/CODE/ogstm/src/DA/external_scripts float_preproc
+
+
+### LANCIO ###
+cd $CINECA_SCRATCH/$OPA_HOME/wrkdir/MODEL
+MARCONI : sbatch  job.slurm
+
+
+### POSTPROC ###
+cd $CINECA_SCRATCH/$OPA_HOME/wrkdir/POSTPROC
+svn co https://hpc-forge.cineca.it/svn/opa_rea/chain/postproc/ bin
+cd bin
+
+#--- EDIT VarDescriptor_1.xml and VarDescriptor_2.xml
+#--- EDIT job.POST.slurm.marconi
+
+sbatch job.POST.slurm.marconi
+
+
+
