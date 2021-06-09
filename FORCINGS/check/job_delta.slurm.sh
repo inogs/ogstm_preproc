@@ -10,7 +10,7 @@
 #SBATCH --qos=gll_qos_dbg
 
 cd $SLURM_SUBMIT_DIR
-
+. ../../profile.inc
 module purge
 module load profile/base
 module load intel/pe-xe-2018--binary intelmpi/2018--binary
@@ -26,5 +26,5 @@ OUTPUTDIR=/gpfs/scratch/userexternal/gcoidess/FORCINGS_REA24/TXT/
 INGVMASK=/gpfs/work/IscrC_REBIOMED/REANALISI_24/PREPROC/MASK/ogstm/meshmask_INGVfor_ogstm.nc
 
 
-mpirun -np 40 python delta_t_from_uvw.py -i $INPUTDIR -o $OUTPUTDIR -m $INGVMASK
+my_prex_or_die "mpirun python delta_t_from_uvw.py -i $INPUTDIR -o $OUTPUTDIR -m $INGVMASK"
 
