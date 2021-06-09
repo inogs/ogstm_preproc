@@ -10,7 +10,7 @@ source /gpfs/work/OGS20_PRACE_P/COPERNICUS/py_env_2.7.12/bin/activate
 export PYTHONPATH=$PYTHONPATH:/gpfs/work/OGS20_PRACE_P/COPERNICUS/bit.sea
 
 
-. ./profile.inc
+. ../profile.inc
 
 OUTPUTDIR=/galileo/home/userexternal/gcoidess/CODICE_ANNA/preproc/DA/
 NAME=DA_grid_5000
