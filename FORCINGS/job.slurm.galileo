@@ -2,7 +2,7 @@
 
 #SBATCH --job-name=TAGLIA
 #SBATCH -N1
-#SBATCH --ntasks-per-node=36
+#SBATCH --ntasks-per-node=24
 #SBATCH --time=0:30:00
 #SBATCH --mem=100gb
 #SBATCH --account=OGS_dev_1
@@ -24,9 +24,11 @@ export PYTHONPATH=$PYTHONPATH:/gpfs/work/OGS20_PRACE_P/COPERNICUS/bit.sea
 
 INPUTDIR=/gpfs/scratch/userexternal/gbolzon0/CLIMA_100/4.5/MONTHLY_UNZIPPED
 OUTPUTDIR=/gpfs/scratch/userexternal/gbolzon0/CLIMA_100/4.5/DAILY
+mpirun python tagliafile.py -i $INPUTDIR -o $OUTPUTDIR
 
-date
 
-mpirun -np 24 python tagliafile.py -i $INPUTDIR -o $OUTPUTDIR
+INPUTDIR=/gpfs/scratch/userexternal/gbolzon0/BI_HOURLY/2H/FORCINGS/
+OUTPUTDIR=/gpfs/scratch/userexternal/gbolzon0/BI_HOURLY/6H/FORCINGS/
+mpirun python averager.py -i $INPUTDIR -o $OUTPUTDIR -f 6
 
-date
+
