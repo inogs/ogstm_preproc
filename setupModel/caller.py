@@ -1,4 +1,4 @@
-from genUserDateList import *
+from commons.genUserDateList import *
 import writeSerialJob
 from user import *
 
