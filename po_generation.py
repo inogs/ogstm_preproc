@@ -38,8 +38,8 @@ def dump_file(filename,N,P,S,A,D,O,mask):
     return
 
 
-INPUTDIR="/gpfs/scratch/userexternal/gcoidess/EAS6_2019_PO/"
-OUTDIR="/gpfs/scratch/userexternal/gbolzon0/PO/ogstm_boundary_conditions/out/"
+INPUTDIR="/gpfs/scratch/userexternal/gbolzon0/PO/TEST_01/wrkdir/MODEL/FORCINGS/"
+OUTDIR="/gpfs/scratch/userexternal/gbolzon0/P0O/ogstm_boundary_conditions/out/"
 
 riverinput="/gpfs/scratch/userexternal/gbolzon0/PO/runoff_1d_nomask_y2019.nc"
 
@@ -71,7 +71,7 @@ PRES = np.ones((10,),np.float32)*CMCC_Mask.zlevels[0]
 
 cut =JPI - jpi
 
-TL = TimeList.fromfilenames(None, INPUTDIR, "*T.nc", prefix="assw_drpo_2019_1d_", dateformat="%Y%m%d")
+TL = TimeList.fromfilenames(None, INPUTDIR, "T*.nc", prefix="T")
 my_dtype=[(var, np.float32) for var in VARLIST]
 M2D = np.ones((jpj,JPI), dtype=my_dtype)
 PO  = np.ones((jpj,jpi), dtype=my_dtype)
