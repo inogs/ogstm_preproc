@@ -19,10 +19,10 @@ ATM.write_netcdf(TheMask, conf.dir_out, "Area")
 
 BOUN = bounmask(conf)
 BOUN.generate(TheMask)     # can be commented in case of test
-BOUN.write_netcdf(TheMask, all_variables=True)
+BOUN.write_netcdf(TheMask, all_variables=False)
 
 G = gib(conf,TheMask)
-G.generate(TheMask, BOUN, all_variables=True)
+G.generate(TheMask, BOUN, all_variables=False)
 
 R = river(conf) # here excel is read
 R.modularize(conf)
@@ -43,3 +43,4 @@ else:
     R.generate_monthly_files(conf, TheMask)
 
 dardanelles_generator.dump_files(TheMask, conf.dir_out)
+
