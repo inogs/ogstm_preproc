@@ -66,7 +66,7 @@ class co2atm():
                 ncfile.createDimension('lat', jpj)
                 ncvar = ncfile.createVariable('CO2','f', ('lat','lon'))
                 ncvar[:] = map_co2[:]
-                setattr(ncvar,"missing_value",1e+20)
+                setattr(ncvar,"missing_value",np.float32(1e+20))
                 setattr(self, 'longname', "CO2 content")
                 setattr(ncfile, 'date', datetime.datetime.now().strftime("%Y%m%d-%H:%M:%S"))
                 setattr(ncfile, 'comment', "Uniform value")
