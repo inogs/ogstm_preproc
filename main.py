@@ -7,6 +7,8 @@ from bclib.co2 import co2atm
 from bclib.river import river
 import config as conf
 import numpy as np
+from dardanelles import dardanelles_generator
+
 TheMask = Mask(conf.file_mask)
 
 CO2 =co2atm(conf)
@@ -39,3 +41,5 @@ if climatological:
     R.generate_climatological_monthly_files(conf, TheMask)
 else:
     R.generate_monthly_files(conf, TheMask)
+
+dardanelles_generator.dump_files(TheMask, conf.dir_out)
