@@ -179,6 +179,26 @@ class river():
 
         self.river_data = river_data
 
+    def get_coordinates(self,mask):
+        '''
+        Arguments:
+        * mask    * a mask object
+        Returns:
+           * LAT *  numpy ndarray
+           * LON *  numpy ndarray
+        '''
+        LAT = np.zeros((self.nrivers), np.float32)
+        LON = np.zeros((self.nrivers), np.float32)
+        for jr in range(self.nrivers):
+            jj  = self.georef[jr]['indLat']-1
+            ji  = self.georef[jr]['indLon']-1
+            LAT[jr] = mask.ylevels[jj,ji]
+            LON[jr] = mask.xlevels[jj,ji]
+
+        return LAT, LON
+
+
+
     def gen_boun_indexes(self,boun_indexes):
         '''
         For each river, generates its bounmask index
