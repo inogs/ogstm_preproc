@@ -7,6 +7,22 @@ from bclib import excel_reader
 import logging
 import netCDF4
 
+def conversion(var):
+    '''
+    from mmol or mg to KTONS(N1p,N3n,N5s,O3c,O3h)  or Gmol (O2o)
+    '''
+    Conversion={}
+    w= 1.0e-12
+    n = 14
+    p = 31
+    s = 28
+    Conversion['N1p'] =w*p
+    Conversion['N3n'] =w*n
+    Conversion['N5s'] =w*s
+    Conversion['O3h'] =w
+    Conversion['O3c'] =w
+    Conversion['O2o'] =w
+    return Conversion[var]
 
 class river():
 

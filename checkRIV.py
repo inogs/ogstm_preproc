@@ -4,7 +4,8 @@ from commons.mask import Mask
 from commons.submask import SubMask
 from basins import V2 as OGS
 import numpy as np
-from commons import timerequestors 
+from commons import timerequestors
+from bclib.river import conversion
 
 TheMask=Mask("/gpfs/scratch/userexternal/gbolzon0/OPEN_BOUNDARY/TEST_02/wrkdir/MODEL/meshmask.nc")
 Mask_0 = TheMask.cut_at_level(0)
@@ -27,22 +28,7 @@ for isub, sub in enumerate(OGS.Pred):
 
 nSub = len(OGS.P.basin_list)
 
-def conversion(var):
-    '''
-    from mmol or mg to KTONS(N1p,N3n,N5s,O3c,O3h)  or Gmol (O2o)
-    '''
-    Conversion={}
-    w= 1.0e-12
-    n = 14
-    p = 31
-    s = 28
-    Conversion['N1p'] =w*p
-    Conversion['N3n'] =w*n
-    Conversion['N5s'] =w*s
-    Conversion['O3h'] =w
-    Conversion['O3c'] =w
-    Conversion['O2o'] =w
-    return Conversion[var]
+
 
 VARLIST=["N3n","N1p","O2o","N5s","O3h","O3c"]
 BALANCE_KT_MONTH={}
