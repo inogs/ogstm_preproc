@@ -15,7 +15,7 @@ J,I = np.nonzero(ii)
 
 nPoints=ii.sum()
 
-TL = TimeList.fromfilenames(None, INPUTDIR, "*T.nc", prefix="assw_drpo_2019_1d_", dateformat="%Y%m%d")
+TL = TimeList.fromfilenames(None, INPUTDIR, "T*.nc", prefix="assw_drpo_2019_1d_", dateformat="%Y%m%d")
 
 nFrames = TL.nTimes
 PO_RUNOFF=np.zeros((nFrames,nPoints), np.float32)
@@ -32,6 +32,19 @@ np.save('nemo_runoff.npy',PO_RUNOFF)
 np.save('input_runoff.npy',INPUT_RUNOFF)
 
 
+LIST=['Po Volano',
+      'Po Goro',
+      'Po Gnocca',
+      'Po Bocca Tolle',
+      'Po Bastimento',
+      'Po Scirocco + Po Bonifazio',
+      'Po Dritta',
+      'Po Tramontana',
+      'Po Maistra ',
+      'Po Levante']
+
+
+
 import pylab as pl
 
 
@@ -44,4 +57,28 @@ for k in range(10):
     fig.savefig(outfile)
     pl.close(fig)
 
-    
+
+RIVER_CONCENTRATION={'O2o':250  ,  #mmol/m3
+                     'N1p':2.572,  #mmol/m3
+                     'N3n':150  ,  #mmol/m3
+                     'N5s':150  ,  #mmol/m3
+                     'O3c':33225,  #  mg/m3
+                     'O3h':2800 }  #mmol/m3
+
+import config as conf
+from bclib.river import river
+conf.file_river = 'Perseus-4.6_39rivers_mesh24.xlsx'
+
+PERSEUS = river(conf)
+PERSEUS.modularize(conf)
+YEARS = np.arange(2000,2011)
+CLIM={}
+for sheet in conf.river_data_sheet:
+    print sheet
+    SUM = 0.
+    for year in YEARS:
+        year_str = str(year)
+        annual_contribution=PERSEUS.xls_data[sheet][year_str][3:13].sum()
+        print year, annual_contribution
+        SUM += annual_contribution
+    CLIM[sheet] = SUM/len(YEARS)
