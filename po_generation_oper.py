@@ -17,7 +17,7 @@ def argument():
                                 type = str,
                                 required = True,
                                 help = '/some/path/outmask.nc')
-    parser.add_argument(   '--maskfile',
+    parser.add_argument(   '--maskfile','-m',
                                 type = str,
                                 required = True,
                                 help = '''NetCDF File name of the mask.
@@ -104,7 +104,7 @@ for k in range(nPoints):
 
 for iFrame, filename in enumerate(TL.filelist):
     outfile=OUTDIR + "PO__" + TL.Timelist[iFrame].strftime("%Y%m%d-%H:%M:%S") + ".nc"
-    print outfile
+    print(outfile)
     Runoff   = DataExtractor(CMCC_Mask, filename, 'sorunoff', dimvar=2).values
     TEMP     = DataExtractor(CMCC_Mask, filename, 'votemper').values[0,:]
 
