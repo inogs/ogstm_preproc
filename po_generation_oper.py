@@ -112,7 +112,6 @@ for iFrame, filename in enumerate(TL.filelist):
     RHO    = sw.dens(SALI,T,PRES)
     
     Discharge = Runoff[ii]*CMCC_Mask.area[ii]/RHO  # m^3/s
-    #daily_volume = Discharge.sum()*86400
 
     
     for var in VARLIST:
