@@ -77,7 +77,7 @@ FRAMES=range(nFrames)
 for iframe in FRAMES[rank::nranks]:
     DELTAT=np.zeros((1,),dtype=mydtype)
     timestr = TL.Timelist[iframe].strftime("%Y%m%d-%H:%M:%S")
-    print timestr
+    print(timestr)
     filenameU=INPUTDIR + "U" + timestr + ".nc"
     filenameV=INPUTDIR + "V" + timestr + ".nc"
     filenameW=INPUTDIR + "W" + timestr + ".nc"
