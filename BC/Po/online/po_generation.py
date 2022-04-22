@@ -35,7 +35,7 @@ import seawater as sw
 import netCDF4
 
 
-def dump_file(filename,N,P,S,A,D,O,mask):
+def dump_file(filename,N,P,S,A,D,O,DOC,CDOM,mask):
     '''
       Writes the single PO_ file
     '''
@@ -49,12 +49,17 @@ def dump_file(filename,N,P,S,A,D,O,mask):
     riv_a_o3c = ncfile.createVariable('riv_O3c', 'f4', ('lat','lon'))
     riv_a_o3h = ncfile.createVariable('riv_O3h', 'f4', ('lat','lon'))
     riv_a_O2o = ncfile.createVariable('riv_O2o', 'f4', ('lat','lon'))
+    riv_a_R3c = ncfile.createVariable('riv_R3c', 'f4', ('lat','lon'))
+    riv_a_R3l = ncfile.createVariable('riv_R3l', 'f4', ('lat','lon'))
+
     riv_a_n3n[:] = N
     riv_a_n1p[:] = P
     riv_a_n5s[:] = S
     riv_a_o3c[:] = D
     riv_a_o3h[:] = A
     riv_a_O2o[:] = O
+    riv_a_R3c[:] = DOC
+    riv_a_R3l[:] = CDOM
 
     setattr(riv_a_n3n,'missing_value',np.float32(1.e+20))
     setattr(riv_a_n1p,'missing_value',np.float32(1.e+20))
@@ -62,6 +67,9 @@ def dump_file(filename,N,P,S,A,D,O,mask):
     setattr(riv_a_o3c,'missing_value',np.float32(1.e+20))
     setattr(riv_a_o3h,'missing_value',np.float32(1.e+20))
     setattr(riv_a_O2o,'missing_value',np.float32(1.e+20))
+    setattr(riv_a_R3c,'missing_value',np.float32(1.e+20))
+    setattr(riv_a_R3l,'missing_value',np.float32(1.e+20))
+
     ncfile.close()
     return
 
@@ -76,14 +84,16 @@ mask0 = TheMask.mask_at_level(0)
 
 J=np.array([350, 350, 350, 352, 353, 354, 355, 356, 357, 358])
 I=np.array([730, 732, 733, 735, 736, 737, 737, 735, 733, 732])
-VARLIST=['O2o','N1p','N3n','N5s','O3c','O3h']
+VARLIST=['O2o','N1p','N3n','N5s','O3c','O3h','R3c','R3l']
 
 RIVER_CONCENTRATION={'O2o':250  ,  #mmol/m3
                      'N1p':2.572,  #mmol/m3
                      'N3n':150  ,  #mmol/m3
                      'N5s':75   ,  #mmol/m3
                      'O3c':33225,  #  mg/m3
-                     'O3h':2800 }  #mmol/m3
+                     'O3h':2800,   #mmol/m3
+                     'R3c':2300,   #  mg/m3
+                     'R3l':46   }  #  mg/m3
 
 
 
@@ -121,7 +131,7 @@ for iFrame, filename in enumerate(TL.filelist):
         PO[var] = M2D[var][:,cut:]
         PO[var][~mask0] = 1.e+20
         
-    dump_file(outfile, PO['N3n'], PO['N1p'], PO['N5s'], PO['O3h'], PO['O3c'], PO['O2o'], TheMask)
+    dump_file(outfile, PO['N3n'], PO['N1p'], PO['N5s'], PO['O3h'], PO['O3c'], PO['O2o'], PO['R3c'],PO['R3l'], TheMask)
 
 
 

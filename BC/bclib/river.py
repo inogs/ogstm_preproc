@@ -283,8 +283,11 @@ class river():
         A = self.river_data["ALK_GmolperYR_NOBLS"][yearstr][:,month-1]
         D = self.river_data["DIC_KTperYR_NOBLS"  ][yearstr][:,month-1]
         O = self.river_data["O2o_GmolperYR_NOBLS"][yearstr][:,month-1]
+        DOC  = self.river_data["DOC_KTperYR_NOBLS"][yearstr][:,month-1]
+        CDOM = self.river_data["CDOM_KTperYR_NOBLS"][yearstr][:,month-1]
+
         if (self.nspread==1):
-            return N,P,S,A,D,O
+            return N,P,S,A,D,O,DOC,CDOM
         else:
             N_long = self.spread_array(N)
             P_long = self.spread_array(P)
@@ -292,18 +295,22 @@ class river():
             A_long = self.spread_array(A)
             D_long = self.spread_array(D)
             O_long = self.spread_array(O)
-            return N_long, P_long, S_long, A_long, D_long, O_long
+            DOC_long = self.spread_array(DOC)
+            CDOM_long = self.spread_array(CDOM)
+            return N_long, P_long, S_long, A_long, D_long, O_long, DOC_long, CDOM_long
 
 
     
     
-    def conversion(self,N,P,S,A,D,O):
+    def conversion(self,N,P,S,A,D,O,DOC,CDOM):
         '''
         Performs conversion of all variables
         from KT/y to mmol/s or mg/s
 
         Arguments:
-         Nitrate, Phosphate, Silicate, Alcalinity, Dissoved Inorganic Carbon, Dissolved_Oxygen arrays
+         Nitrate, Phosphate, Silicate, Alcalinity, Dissoved Inorganic Carbon, Dissolved_Oxygen
+         Dissolved Organic Carbon, CDOM
+        arrays
 
         Returns
         * N * in mmol/s
@@ -312,6 +319,8 @@ class river():
         * A * in   mg/s
         * D * in   mg/s
         * O * in mmol/s
+        * DOC *    mg/s
+        * CDOM *   mg/s
          as (nRivers,) numpy array
 
         Data are not ready for model, they have to be divided by cell area or cell volume.
@@ -326,7 +335,7 @@ class river():
         cs = w*t*s
         ca = w*t  
         cc = w*t    
-        return N*cn, P*cp, S*cs,A*ca, D*cc, O*cc
+        return N*cn, P*cp, S*cs,A*ca, D*cc, O*cc, DOC*cc, CDOM*cc
 
     def generate_monthly_files(self,conf,mask):#, idxt_riv, positions):
         '''
@@ -354,9 +363,9 @@ class river():
         for year in range(start_year,end___year):
             for month in range(1,13):
                 filename = conf.dir_out + "TIN_%d%02d15-00:00:00.nc" %(year, month)
-                N,P,S,A,D,O = self.get_monthly_data(str(year), month)
-                N,P,S,A,D,O = self.conversion(N, P, S, A, D, O)
-                self.dump_file(filename, N/Area, P/Area, S/Area, A/Area, D/Area, O/Area, mask)
+                N,P,S,A,D,O,DOC,CDOM = self.get_monthly_data(str(year), month)
+                N,P,S,A,D,O, DOC, CDOM = self.conversion(N, P, S, A, D, O, DOC, CDOM)
+                self.dump_file(filename, N/Area, P/Area, S/Area, A/Area, D/Area, O/Area, DOC/Area, CDOM/Area, mask)
         logging.info("Non climatological TIN file generation : done")
 
     def generate_climatological_monthly_files(self,conf,mask): #idxt_riv, positions):
@@ -417,7 +426,7 @@ class river():
         riv_a_O2o[:] = O
         ncfile.close()
 
-    def dump_file(self,filename,N,P,S,A,D,O,mask):
+    def dump_file(self,filename,N,P,S,A,D,O,DOC, CDOM, mask):
         '''
           Writes the single TIN file
           Variables are dumped as they are, all but positions (incremented by one)
@@ -432,12 +441,17 @@ class river():
         riv_a_o3c = ncfile.createVariable('riv_O3c', 'f4', ('lat','lon'))
         riv_a_o3h = ncfile.createVariable('riv_O3h', 'f4', ('lat','lon'))
         riv_a_O2o = ncfile.createVariable('riv_O2o', 'f4', ('lat','lon'))
+        riv_a_R3c = ncfile.createVariable('riv_R3c', 'f4', ('lat','lon'))
+        riv_a_R3l = ncfile.createVariable('riv_R3l', 'f4', ('lat','lon'))
+
         riv_a_n3n[:] = self.get_map_from_1d_array(N, mask)
         riv_a_n1p[:] = self.get_map_from_1d_array(P, mask)
         riv_a_n5s[:] = self.get_map_from_1d_array(S, mask)
         riv_a_o3c[:] = self.get_map_from_1d_array(D, mask)
         riv_a_o3h[:] = self.get_map_from_1d_array(A, mask)
         riv_a_O2o[:] = self.get_map_from_1d_array(O, mask)
+        riv_a_R3c[:] = self.get_map_from_1d_array(DOC, mask)
+        riv_a_R3l[:] = self.get_map_from_1d_array(CDOM,mask)
 
         setattr(riv_a_n3n,'missing_value',np.float32(1.e+20))
         setattr(riv_a_n1p,'missing_value',np.float32(1.e+20))
@@ -445,6 +459,8 @@ class river():
         setattr(riv_a_o3c,'missing_value',np.float32(1.e+20))
         setattr(riv_a_o3h,'missing_value',np.float32(1.e+20))
         setattr(riv_a_O2o,'missing_value',np.float32(1.e+20))
+        setattr(riv_a_R3c,'missing_value',np.float32(1.e+20))
+        setattr(riv_a_R3l,'missing_value',np.float32(1.e+20))
         ncfile.close()
         return
 
