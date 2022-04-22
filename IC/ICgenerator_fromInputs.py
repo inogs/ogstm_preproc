@@ -83,7 +83,7 @@ for varname in VARLIST:
 for varname in VARLIST:
     CLIM = get_climatology(varname)
     outfile = OUTPUTDIR + "RST." + DATE + "-00:00:00." + varname + ".nc"
-    print outfile
+    print(outfile)
     RST = np.zeros((jpk,jpj,jpi),np.double)
     for isub, sub in enumerate(SUB17):
         p = CLIM[isub,:]
@@ -92,10 +92,10 @@ for varname in VARLIST:
             submask = S.mask[k,:,:]
             V = RST[k,:,:]
             V[submask] =p[k]
-    print "smoother"
+    print("smoother")
     RST_s = smoother(TheMask, RST)
-    print "writer"
+    print("writer")
     check = np.isnan(RST_s[TheMask.mask])
-    print "number of nans: ", check.sum()
+    print("number of nans: ", check.sum())
     RSTwriter(outfile, varname, RST_s, TheMask)
 
