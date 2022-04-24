@@ -35,7 +35,7 @@ TheMask=Mask(args.maskfile)
 jpk,jpj,jpi=TheMask.shape
 R1l = np.ones((jpk,jpj,jpi), np.float64)*0.0
 R2l = np.ones((jpk,jpj,jpi), np.float64)*0.0
-R3l = np.ones((jpk,jpj,jpi), np.float64)*12.0
+R3l = np.ones((jpk,jpj,jpi), np.float64)*1.0
 
 RSTwriter(args.outfile_prefix + ".R1l.nc", "R1l", R1l, TheMask)
 RSTwriter(args.outfile_prefix + ".R2l.nc", "R2l", R2l, TheMask)
