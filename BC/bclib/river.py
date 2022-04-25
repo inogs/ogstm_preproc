@@ -391,9 +391,9 @@ class river():
         year="yyyy"
         for month in range(1,13):
             filename = conf.dir_out+"/TIN_yyyy%02d15-00:00:00.nc" %(month)
-            N,P,S,A,D,O = self.get_monthly_data(str(year), month)
-            N,P,S,A,D,O = self.conversion(N, P, S, A, D, O)
-            self.dump_file(filename, N/Area, P/Area, S/Area, A/Area, D/Area, O/Area, mask)
+            N,P,S,A,D,O,DOC,CDOM = self.get_monthly_data(str(year), month)
+            N,P,S,A,D,O,DOC,CDOM = self.conversion(N, P, S, A, D, O, DOC,CDOM)
+            self.dump_file(filename, N/Area, P/Area, S/Area, A/Area, D/Area, O/Area, DOC/Area, CDOM/Area, mask)
         logging.info("Climatological TIN file generation : done")
                 
 
