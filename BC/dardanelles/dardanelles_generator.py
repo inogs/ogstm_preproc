@@ -1,7 +1,7 @@
 from commons.mask import Mask
 import numpy as np
 from commons import netcdf4
-from analysis_config import VARLIST, mydtype
+from dardanelles.analysis_config import VARLIST, mydtype
 
 #BOUNDARY_CONCENTRATION =  np.load('../dard_boundary_values.npy')
 BOUNDARY_CONCENTRATION= np.zeros((1,),dtype=mydtype)
