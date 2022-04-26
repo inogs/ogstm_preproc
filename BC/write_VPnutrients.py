@@ -1,8 +1,32 @@
+import argparse
+
+def argument():
+    parser = argparse.ArgumentParser(description = '''
+    Generates VPnutrients.nc, with a single season
+    starting from profiles in inputdir, in NetCDF files called
+    N1p.nc, N3n.nc etc.
+    ''')
+    parser.add_argument(   '--inputdir', '-i',
+                                type = str,
+                                required = True,
+                                help = 'Input directory with profile files for each variable'
+                                )
+    parser.add_argument(   '--maskfile','-m',
+                                type = str,
+                                required = True,
+                                help = 'Path of the mask file'
+                                )
+    return parser.parse_args()
+
+args = argument()
+
 from commons.mask import Mask
 from commons import netcdf4
 import netCDF4
-TheMask=Mask('/gpfs/work/IscrC_REBIOMED/REANALISI_24/PREPROC/MASK/ogstm/meshmask.nc', loadtmask=False)
-INPUTDIR="/gpfs/work/IscrC_REBIOMED/REANALISI_24/PREPROC/BC/inputs/20201219/"
+from commons.utils import addsep
+TheMask=Mask(args.maskfile, loadtmask=False)
+INPUTDIR=addsep(args.inputdir)
+
 jpk,_,_ = TheMask.shape
 
 ncOUT = netCDF4.Dataset('VPnutrients.nc','w')
