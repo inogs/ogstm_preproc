@@ -87,7 +87,7 @@ for var in ALLVARS:
         BOUNDARY_CONCENTRATION[var][0:maxLevel]=profile_smoothed
         BOUNDARY_CONCENTRATION[var][maxLevel:-1]=profile_smoothed[-1]
     check=np.max(BOUNDARY_CONCENTRATION[var][:])        
-    print var, "max value: ", check
+    print(var, "max value: ", check)
     BOUNDARY = np.zeros((jpk,jpj,jpi), np.float32)
     for k in range(jpk):
         BOUNDARY[k,:,I] = BOUNDARY_CONCENTRATION[var][k]

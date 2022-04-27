@@ -12,7 +12,7 @@ def smoother_1d(y, x):
 if __name__ == '__main__':
     x=np.arange(10)
     y=[0,0,0,0,0,4,4,4,4,4]
-    print "y before interpolation: ",y
+    print("y before interpolation: ",y)
     for itime in range(2):
         y=smoother_1d(y,x)
-    print "and after: ", y
+    print("and after: ", y)
