@@ -1,13 +1,13 @@
 # paths
-dir_out        = "out/"
-file_mask      = "/marconi_scratch/userexternal/gbolzon0/EAS3_06/wrkdir/MODEL/meshmask.nc"
+dir_out        = "/g100_work/OGS_prod100/OPA/V9C/RUNS_SETUP/PREPROC/BC/out/"
+file_mask      = "/g100_work/OGS_prod100/OPA/V9C/RUNS_SETUP/PREPROC/MASK/meshmask.nc"
 file_co2       = "CMIP5_scenarios_RCP_CO2_mixing_ratio.nc"
 file_nutrients = "VPnutrients_CO2.nc"
 file_bmask     = dir_out + "bounmask.nc"
-file_river     = "Perseus-4.6_39rivers_mesh24.xlsx"
+file_river     = "Perseus-4.6_38rivers_mesh24.xlsx"
 
-simulation_start_time = 2016
-simulation_end_time   = 2022
+simulation_start_time = 2018
+simulation_end_time   = 2020
 
 # Atmosphere settings in Mmol/y
 # origin of data should be added here
@@ -29,11 +29,9 @@ variables=[[u'N1p', -8.0, -6.5],
  [u'O3h', -8.0,-6.5],
  [u'N6r', -8.0,-6.5]]
 
-gib_season = (["0215-12:00:00","0515-12:00:00",
-               "0815-12:00:00","1115-12:00:00"])
+gib_season = (["0630-00:00:00"])
 
-
-RST_FILES ="/gpfs/work/OGS_dev_1/REA_16/1995/INIT/RST.1995*nc"
+RST_FILES ="/g100_work/OGS_prod100/OPA/V9C/RUNS_SETUP/PREPROC/IC/RST_2018/RST*nc"
 
 
 river_data_sheet = ['KM3perYR_NOBLS',
@@ -42,4 +40,8 @@ river_data_sheet = ['KM3perYR_NOBLS',
  'DIS_KTperYR_NOBLS',
  'DIC_KTperYR_NOBLS',
  'ALK_GmolperYR_NOBLS',
- 'O2o_GmolperYR_NOBLS']
+ 'O2o_GmolperYR_NOBLS',
+ 'DOC_KTperYR_NOBLS',
+ 'CDOM_KTperYR_NOBLS']
+
+
