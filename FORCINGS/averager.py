@@ -52,7 +52,7 @@ output_frequency_h= int(args.frequency)
 
 start=datetime.strptime(Start_time,dateformat) + timedelta(hours=output_frequency_h/2)
 
-OUT_TIMES = DL.getTimeList(start.strftime(dateformat),End_time, "hours=%d" % output_frequency_h)
+OUT_TIMES = DL.getTimeList(start.strftime(dateformat),End_time, hours=output_frequency_h)
 
 
 
@@ -65,6 +65,6 @@ for var in ["U", "V", "W", "T"]:
         files_string=""
         for k in ii: files_string +=  TL.filelist[k] + " "
         outfile = OUTDIR + var + d.strftime(dateformat) + ".nc"
-        print "rank", rank, outfile
+        print("rank", rank, outfile, flush=True)
         command = "ncea %s -O %s" %( files_string, outfile)
         os.system(command)
