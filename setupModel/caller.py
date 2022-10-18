@@ -1,15 +1,17 @@
-from commons.genUserDateList import *
+from commons.genUserDateList import getTimeList, getCouplesTimeList
 import writeSerialJob
-from user import *
+
+# USER SECTION #####################################
+AVE1 = getTimeList("20190101-00:00:00" , "20230101-00:00:00", days=1 )    
+
+AVE2 = getTimeList("20190107-00:00:00" , "20230101-00:00:00" ,days=7 )
+
+RST = getTimeList("20190107-00:00:00"  , "20230101-12:00:00", days=7  )
+
+###################################################
+
 
 dateFormat="%Y%m%d-%H:%M:%S"
-AVE1 = getTimeList(       AVE_START_TIME_1      , AVE_END___TIME_1,days=1  )    
-AVE2 = getTimeList(       AVE_START_TIME_2      , AVE_END___TIME_2,days=7 )
-
-RST = getTimeList(       RST_START_TIME      , RST_END___TIME,days=7  )
-TL  = getCouplesTimeList(TTb_START_TIME      , TTb_END___TIME,months =2 , seconds=0 )
-
-
 
 outfile=open("1.aveTimes","w")
 for dumptime in AVE1:
@@ -32,6 +34,11 @@ outfile.close()
 print("restartTimes written")
 
 
+import sys
+sys.exit()
+# This section is not maintained
+
+TL  = getCouplesTimeList("20130101-00:00:00"     , "20140101-00:00:00",months =2 , seconds=0 )
 NSTEPS_LAUNCHING_MODEL = len(TL)
 
 print('NSTEPS_LAUNCHING_MODEL=', NSTEPS_LAUNCHING_MODEL)
