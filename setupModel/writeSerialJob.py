@@ -1,7 +1,7 @@
 import os
 
 JOBS=[]
-filein=file("SubmissionScheme","r")
+filein=open("SubmissionScheme","r")
 for line in filein:
     JOBS.append(line[:-1])
 filein.close()   
@@ -14,7 +14,7 @@ def writeSerialJob(NSTEPS_LAUNCHING_MODEL):
     deflines.append("#! /bin/bash " + "\n"*2)
     deflines.append("DEPENDENCE=''" + "\n"*2)
     
-    for k in xrange(NSTEPS_LAUNCHING_MODEL):
+    for k in range(NSTEPS_LAUNCHING_MODEL):
         for jobdefline in JOBS:            
             line="JOBID=`" + jobdefline + "` "
             deflines.append(line%(k,k,k));
@@ -32,7 +32,7 @@ def writeSerialJob(NSTEPS_LAUNCHING_MODEL):
     
     
     outfilename="launcher.sh"    
-    outfile=file(outfilename,"w")
+    outfile=open(outfilename,"w")
     for line in deflines:
         outfile.writelines(line + "\n")
     outfile.close()
