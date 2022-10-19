@@ -68,8 +68,7 @@ class gib():
                 GIB_matrix[time, ~mask.mask] = 1.e+20
                 
                 # Dump netCDF file
-                vardataname = "gib_" + vnudg[jn][0]
-                ncvar = ncfile.createVariable(vardataname, 'f', ("dep", "lat", "lon"))
+                ncvar = ncfile.createVariable(vnudg[jn][0], 'f', ("dep", "lat", "lon"))
                 setattr(ncvar, 'missing_value', np.float32(1.e+20))
                 ncvar[...] = GIB_matrix[time, ...]
 
@@ -83,8 +82,7 @@ class gib():
                 GIB_matrix = self.read(filename, "TRN" + var)
                 GIB_matrix[0, ~isNudg] = -1.
                 GIB_matrix[0, ~mask.mask] = 1.e+20
-                vardataname = "gib_" + var
-                ncvar = ncfile.createVariable(vardataname, 'f', ("dep", "lat", "lon"))
+                ncvar = ncfile.createVariable(var, 'f', ("dep", "lat", "lon"))
                 ncvar[:] = GIB_matrix[0, ...]
                 setattr(ncvar, 'missing_value', np.float32(1.e+20))
                 
