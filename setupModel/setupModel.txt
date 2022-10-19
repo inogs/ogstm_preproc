@@ -17,18 +17,15 @@ THEDIR=/gpfs/scratch/userexternal/ateruzzi/OPA_872_OP-R11/wrkdir/MODEL
 
 ### PREPROC  ###
 # generation of 1.aveTimes 2.aveTimes restartTimes
-source /marconi_work/OGS_dev_0/COPERNICUS/sequence.sh
+source /g100_work/OGS21_PRACE_P/COPERNICUS/sequence3.sh
 
 cd $CINECA_SCRATCH/$OPA_HOME/wrkdir/
-svn co -N https://hpc-forge.cineca.it/svn/opa_rea/chain/preproc/
+git clone git@gitlab.hpc.cineca.it:OGS/preproc.git
 
-cd preproc/
-cp SubmissionScheme.template SubmissionScheme
-
-EDIT SubmissionScheme #--- remember, for the moment leave only the qsub lines !
-EDIT user.py
-
+cd preproc/setupModel
+EDIT caller.py
 python caller.py
+
 cp 1.aveTimes 2.aveTimes restartTimes genInputsDatelists.sh Start_End_Times ../MODEL/
 
 ### MODEL DIR ###
