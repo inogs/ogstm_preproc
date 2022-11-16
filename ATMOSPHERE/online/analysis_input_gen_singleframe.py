@@ -53,7 +53,7 @@ TL = TimeList.fromfilenames(None, INPUTDIR, "*_an00-fv11.00.nc", prefix="", date
 nframes_in_day = 1
 deltaH = 6
 
-filename=TL[0]
+filename=TL.filelist[0]
 
 
 lon= netcdf4.readfile(filename, 'lon')
