@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+<RIVERS units="mmol/m3 for N1p N3n O2o N5s O3h, mg/m3 for O3c,R3c,R3l " >
+
+<river name="Po" salinity="18.0" > 
+<concentrations>
+<var name="N3n" value="23.5" longname="Nitrate"   ></var>
+<var name="N1p" value="23.3" longname="Phosphate" ></var>
+</concentrations>
+<Mouths><mouth></mouth></Mouths>  
+
+
+</river>
+
+
+
+
+
+
+</RIVERS>
+
+</root>
