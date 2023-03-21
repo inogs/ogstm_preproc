@@ -1,26 +1,505 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root>
 
-<var name="N3n" longname="Nitrate"  units="mmol/m3"></var>
-<var name="N1p" longname="Phosphate" units="mmol/m3"></var>
-<var name="O2o" longname="Oxygen"   units="mmol/m3"></var>
-<var name="DIC" ></var>
+<var name="N3n" longname="Nitrate"  units="g/m3"></var>
+<var name="N1p" longname="Phosphate" units="g/m3"></var>
+<var name="DIC" longname="Dissolved inorganic carbon"  units="g/m3"></var>
+<var name="POC" longname="Particulate Organic Carbon" units="g/m3"></var>
+<var name="DOC" longname="Dissolved Organic Carbon" units="g/m3"></var>
+<var name="ALK" longname="Alkalinity" units="Gmol/km3"></var>
 
 <RIVERS >
 
 <river name="Po" salinity="18.0" > 
 <concentrations>
-<var name="N3n" value="23.5" ></var>
-<var name="N1p" value="23.3" ></var>
+<var name="N3n" value="1.63651938" ></var>
+<var name="N1p" value="0.05973986885" ></var>
+<var name="DIC" value="36.44620222" ></var>
+<var name="POC" value="1.516579034" ></var>
+<var name="DOC" value="2.290015211" ></var>
+<var name="ALK" value="2.915344542" ></var>
 </concentrations>
 <Mouths><mouth I="225" J="352" id="1" name="Po Volano"></mouth></Mouths>
+</river>
 
 
+<river name="Vjose" salinity="15.0" >
+<concentrations>
+<var name="N3n" value="1.63651938" ></var>
+<var name="N1p" value="0.05973986885" ></var>
+<var name="DIC" value="36.44620222" ></var>
+<var name="POC" value="1.516579034" ></var>
+<var name="DOC" value="2.290015211" ></var>
+<var name="ALK" value="2.915344542" ></var>
+</concentrations>
+<Mouths><mouth I="225" J="352" id="1" name="Vjose"></mouth></Mouths>
+</river>
+
+
+<river name="Seman" salinity="15.0" >
+<concentrations>
+<var name="N3n" value="1.63651938" ></var>
+<var name="N1p" value="0.05973986885" ></var>
+<var name="DIC" value="36.44620222" ></var>
+<var name="POC" value="1.516579034" ></var>
+<var name="DOC" value="2.290015211" ></var>
+<var name="ALK" value="2.915344542" ></var>
+</concentrations>
+<Mouths><mouth I="225" J="352" id="1" name="Seman"></mouth></Mouths>
+</river>
+
+<river name="Buna/Bojana" salinity="15.0" >
+<concentrations>
+<var name="N3n" value="1.63651938" ></var>
+<var name="N1p" value="0.05973986885" ></var>
+<var name="DIC" value="36.44620222" ></var>
+<var name="POC" value="1.516579034" ></var>
+<var name="DOC" value="2.290015211" ></var>
+<var name="ALK" value="2.915344542" ></var>
+</concentrations>
+<Mouths><mouth I="225" J="352" id="1" name="Buna/Bojana"></mouth></Mouths>
+</river>
+
+
+<river name="Piave" salinity="15.0" >
+<concentrations>
+<var name="N3n" value="1.63651938" ></var>
+<var name="N1p" value="0.05973986885" ></var>
+<var name="DIC" value="36.44620222" ></var>
+<var name="POC" value="1.516579034" ></var>
+<var name="DOC" value="2.290015211" ></var>
+<var name="ALK" value="2.915344542" ></var>
+</concentrations>
+<Mouths><mouth I="225" J="352" id="1" name="Piave"></mouth></Mouths>
+</river>
+
+
+<river name="Tagliamento" salinity="15.0" >
+<concentrations>
+<var name="N3n" value="1.63651938" ></var>
+<var name="N1p" value="0.05973986885" ></var>
+<var name="DIC" value="36.44620222" ></var>
+<var name="POC" value="1.516579034" ></var>
+<var name="DOC" value="2.290015211" ></var>
+<var name="ALK" value="2.915344542" ></var>
+</concentrations>
+<Mouths><mouth I="225" J="352" id="1" name="Tagliamento"></mouth></Mouths>
+</river>
+
+
+<river name="Soca/Isonzo" salinity="15.0" >
+<concentrations>
+<var name="N3n" value="1.63651938" ></var>
+<var name="N1p" value="0.05973986885" ></var>
+<var name="DIC" value="36.44620222" ></var>
+<var name="POC" value="1.516579034" ></var>
+<var name="DOC" value="2.290015211" ></var>
+<var name="ALK" value="2.915344542" ></var>
+</concentrations>
+<Mouths><mouth I="225" J="352" id="1" name="Soca/Isonzo"></mouth></Mouths>
+</river>
+
+
+<river name="Livenza" salinity="15.0" >
+<concentrations>
+<var name="N3n" value="1.63651938" ></var>
+<var name="N1p" value="0.05973986885" ></var>
+<var name="DIC" value="36.44620222" ></var>
+<var name="POC" value="1.516579034" ></var>
+<var name="DOC" value="2.290015211" ></var>
+<var name="ALK" value="2.915344542" ></var>
+</concentrations>
+<Mouths><mouth I="225" J="352" id="1" name="Livenza"></mouth></Mouths>
+</river>
+
+
+<river name="Brenta-Baccaglione" salinity="15.0" >
+<concentrations>
+<var name="N3n" value="1.63651938" ></var>
+<var name="N1p" value="0.05973986885" ></var>
+<var name="DIC" value="36.44620222" ></var>
+<var name="POC" value="1.516579034" ></var>
+<var name="DOC" value="2.290015211" ></var>
+<var name="ALK" value="2.915344542" ></var>
+</concentrations>
+<Mouths><mouth I="225" J="352" id="1" name="Brenta-Baccaglione"></mouth></Mouths>
+</river>
+
+<river name="Adige" salinity="15.0" >
+<concentrations>
+<var name="N3n" value="1.63651938" ></var>
+<var name="N1p" value="0.05973986885" ></var>
+<var name="DIC" value="36.44620222" ></var>
+<var name="POC" value="1.516579034" ></var>
+<var name="DOC" value="2.290015211" ></var>
+<var name="ALK" value="2.915344542" ></var>
+</concentrations>
+<Mouths><mouth I="225" J="352" id="1" name="Adige"></mouth></Mouths>
+</river>
+
+
+<river name="Lika" salinity="15.0" >
+<concentrations>
+<var name="N3n" value="1.63651938" ></var>
+<var name="N1p" value="0.05973986885" ></var>
+<var name="DIC" value="36.44620222" ></var>
+<var name="POC" value="1.516579034" ></var>
+<var name="DOC" value="2.290015211" ></var>
+<var name="ALK" value="2.915344542" ></var>
+</concentrations>
+<Mouths><mouth I="225" J="352" id="1" name="Lika"></mouth></Mouths>
+</river>
+
+<river name="Reno" salinity="15.0" >
+<concentrations>
+<var name="N3n" value="1.63651938" ></var>
+<var name="N1p" value="0.05973986885" ></var>
+<var name="DIC" value="36.44620222" ></var>
+<var name="POC" value="1.516579034" ></var>
+<var name="DOC" value="2.290015211" ></var>
+<var name="ALK" value="2.915344542" ></var>
+</concentrations>
+<Mouths><mouth I="225" J="352" id="1" name="Reno"></mouth></Mouths>
+</river>
+
+
+<river name="Krka" salinity="15.0" >
+<concentrations>
+<var name="N3n" value="1.63651938" ></var>
+<var name="N1p" value="0.05973986885" ></var>
+<var name="DIC" value="36.44620222" ></var>
+<var name="POC" value="1.516579034" ></var>
+<var name="DOC" value="2.290015211" ></var>
+<var name="ALK" value="2.915344542" ></var>
+</concentrations>
+<Mouths><mouth I="225" J="352" id="1" name="Krka"></mouth></Mouths>
+</river>
+
+
+<river name="Nerveta" salinity="15.0" >
+<concentrations>
+<var name="N3n" value="1.63651938" ></var>
+<var name="N1p" value="0.05973986885" ></var>
+<var name="DIC" value="36.44620222" ></var>
+<var name="POC" value="1.516579034" ></var>
+<var name="DOC" value="2.290015211" ></var>
+<var name="ALK" value="2.915344542" ></var>
+</concentrations>
+<Mouths><mouth I="225" J="352" id="1" name="Nerveta"></mouth></Mouths>
+</river>
+
+<river name="Trebisjnica" salinity="15.0" >
+<concentrations>
+<var name="N3n" value="1.63651938" ></var>
+<var name="N1p" value="0.05973986885" ></var>
+<var name="DIC" value="36.44620222" ></var>
+<var name="POC" value="1.516579034" ></var>
+<var name="DOC" value="2.290015211" ></var>
+<var name="ALK" value="2.915344542" ></var>
+</concentrations>
+<Mouths><mouth I="225" J="352" id="1" name="Trebisjnica"></mouth></Mouths>
+</river>
+
+<river name="Mati" salinity="15.0" >
+<concentrations>
+<var name="N3n" value="1.63651938" ></var>
+<var name="N1p" value="0.05973986885" ></var>
+<var name="DIC" value="36.44620222" ></var>
+<var name="POC" value="1.516579034" ></var>
+<var name="DOC" value="2.290015211" ></var>
+<var name="ALK" value="2.915344542" ></var>
+</concentrations>
+<Mouths><mouth I="225" J="352" id="1" name="Mati"></mouth></Mouths>
+</river>
+
+<river name="Arachtos" salinity="15.0" >
+<concentrations>
+<var name="N3n" value="1.63651938" ></var>
+<var name="N1p" value="0.05973986885" ></var>
+<var name="DIC" value="36.44620222" ></var>
+<var name="POC" value="1.516579034" ></var>
+<var name="DOC" value="2.290015211" ></var>
+<var name="ALK" value="2.915344542" ></var>
+</concentrations>
+<Mouths><mouth I="225" J="352" id="1" name="Arachtos"></mouth></Mouths>
+</river>
+
+<river name="Acheloos" salinity="15.0" >
+<concentrations>
+<var name="N3n" value="1.63651938" ></var>
+<var name="N1p" value="0.05973986885" ></var>
+<var name="DIC" value="36.44620222" ></var>
+<var name="POC" value="1.516579034" ></var>
+<var name="DOC" value="2.290015211" ></var>
+<var name="ALK" value="2.915344542" ></var>
+</concentrations>
+<Mouths><mouth I="225" J="352" id="1" name="Acheloos"></mouth></Mouths>
+</river>
+
+
+<river name="Shkumbini" salinity="15.0" >
+<concentrations>
+<var name="N3n" value="1.63651938" ></var>
+<var name="N1p" value="0.05973986885" ></var>
+<var name="DIC" value="36.44620222" ></var>
+<var name="POC" value="1.516579034" ></var>
+<var name="DOC" value="2.290015211" ></var>
+<var name="ALK" value="2.915344542" ></var>
+</concentrations>
+<Mouths><mouth I="225" J="352" id="1" name="Shkumbini"></mouth></Mouths>
+</river>
+
+
+<river name="Kopru" salinity="15.0" >
+<concentrations>
+<var name="N3n" value="2.059751119" ></var>
+<var name="N1p" value="0.08267781733" ></var>
+<var name="DIC" value="32.23431597" ></var>
+<var name="POC" value="0" ></var>
+<var name="DOC" value="0" ></var>
+<var name="ALK" value="2.517943763" ></var>
+</concentrations>
+<Mouths><mouth I="225" J="352" id="1" name="Kopru"></mouth></Mouths>
+</river>
+
+
+<river name="Manavgat" salinity="15.0" >
+<concentrations>
+<var name="N3n" value="2.059751119" ></var>
+<var name="N1p" value="0.08267781733" ></var>
+<var name="DIC" value="32.23431597" ></var>
+<var name="POC" value="0" ></var>
+<var name="DOC" value="0" ></var>
+<var name="ALK" value="2.517943763" ></var>
+</concentrations>
+<Mouths><mouth I="225" J="352" id="1" name="Manavgat"></mouth></Mouths>
+</river>
+
+<river name="Seyhan" salinity="15.0" >
+<concentrations>
+<var name="N3n" value="2.059751119" ></var>
+<var name="N1p" value="0.08267781733" ></var>
+<var name="DIC" value="32.23431597" ></var>
+<var name="POC" value="0" ></var>
+<var name="DOC" value="0" ></var>
+<var name="ALK" value="2.517943763" ></var>
+</concentrations>
+<Mouths><mouth I="225" J="352" id="1" name="Seyhan"></mouth></Mouths>
+</river>
+
+
+<river name="Ceyhan" salinity="15.0" >
+<concentrations>
+<var name="N3n" value="2.059751119" ></var>
+<var name="N1p" value="0.08267781733" ></var>
+<var name="DIC" value="32.23431597" ></var>
+<var name="POC" value="0" ></var>
+<var name="DOC" value="0" ></var>
+<var name="ALK" value="2.517943763" ></var>
+</concentrations>
+<Mouths><mouth I="225" J="352" id="1" name="Ceyhan"></mouth></Mouths>
+</river>
+
+
+<river name="Gosku" salinity="15.0" >
+<concentrations>
+<var name="N3n" value="2.059751119" ></var>
+<var name="N1p" value="0.08267781733" ></var>
+<var name="DIC" value="32.23431597" ></var>
+<var name="POC" value="0" ></var>
+<var name="DOC" value="0" ></var>
+<var name="ALK" value="2.517943763" ></var>
+</concentrations>
+<Mouths><mouth I="225" J="352" id="1" name="Gosku"></mouth></Mouths>
 </river>
 
 
 
+<river name="Asi/Orontes" salinity="15.0" >
+<concentrations>
+<var name="N3n" value="2.059751119" ></var>
+<var name="N1p" value="0.08267781733" ></var>
+<var name="DIC" value="32.23431597" ></var>
+<var name="POC" value="0" ></var>
+<var name="DOC" value="0" ></var>
+<var name="ALK" value="2.517943763" ></var>
+</concentrations>
+<Mouths><mouth I="225" J="352" id="1" name="Asi/Orontes"></mouth></Mouths>
+</river>
 
+
+<river name="Arno" salinity="15.0" >
+<concentrations>
+<var name="N3n" value="2.228379672" ></var>
+<var name="N1p" value="0.2833101354" ></var>
+<var name="DIC" value="52.96372484" ></var>
+<var name="POC" value="0" ></var>
+<var name="DOC" value="3.238446841" ></var>
+<var name="ALK" value="5.159381996" ></var>
+</concentrations>
+<Mouths><mouth I="225" J="352" id="1" name="Arno"></mouth></Mouths>
+</river>
+
+<river name="Tevere" salinity="15.0" >
+<concentrations>
+<var name="N3n" value="2.228379672" ></var>
+<var name="N1p" value="0.2833101354" ></var>
+<var name="DIC" value="52.96372484" ></var>
+<var name="POC" value="0" ></var>
+<var name="DOC" value="3.238446841" ></var>
+<var name="ALK" value="5.159381996" ></var>
+</concentrations>
+<Mouths><mouth I="225" J="352" id="1" name="Tevere"></mouth></Mouths>
+</river>
+
+<river name="Volturno" salinity="15.0" >
+<concentrations>
+<var name="N3n" value="2.228379672" ></var>
+<var name="N1p" value="0.2833101354" ></var>
+<var name="DIC" value="52.96372484" ></var>
+<var name="POC" value="0" ></var>
+<var name="DOC" value="3.238446841" ></var>
+<var name="ALK" value="5.159381996" ></var>
+</concentrations>
+<Mouths><mouth I="225" J="352" id="1" name="Volturno"></mouth></Mouths>
+</river>
+
+<river name="Medjerda" salinity="15.0" >
+<concentrations>
+<var name="N3n" value="2.55943321" ></var>
+<var name="N1p" value="0.1723111546" ></var>
+<var name="DIC" value="57.81148076" ></var>
+<var name="POC" value="0" ></var>
+<var name="DOC" value="0" ></var>
+<var name="ALK" value="5.734942379" ></var>
+</concentrations>
+<Mouths><mouth I="225" J="352" id="1" name="Medjerda"></mouth></Mouths>
+</river>
+
+<river name="Ebro" salinity="30.0" >
+<concentrations>
+<var name="N3n" value="1.610126606" ></var>
+<var name="N1p" value="0.09559021676" ></var>
+<var name="DIC" value="31.6711725" ></var>
+<var name="POC" value="1.838684022" ></var>
+<var name="DOC" value="1.720550111" ></var>
+<var name="ALK" value="2.871296943" ></var>
+</concentrations>
+<Mouths><mouth I="225" J="352" id="1" name="Ebro"></mouth></Mouths>
+</river>
+
+<river name="Rhone" salinity="25.0" >
+<concentrations>
+<var name="N3n" value="1.610126606" ></var>
+<var name="N1p" value="0.09559021676" ></var>
+<var name="DIC" value="31.6711725" ></var>
+<var name="POC" value="1.838684022" ></var>
+<var name="DOC" value="1.720550111" ></var>
+<var name="ALK" value="2.871296943" ></var>
+</concentrations>
+<Mouths><mouth I="225" J="352" id="1" name="Rhone"></mouth></Mouths>
+</river>
+
+<river name="Aude" salinity="15.0" >
+<concentrations>
+<var name="N3n" value="1.610126606" ></var>
+<var name="N1p" value="0.09559021676" ></var>
+<var name="DIC" value="31.6711725" ></var>
+<var name="POC" value="1.838684022" ></var>
+<var name="DOC" value="1.720550111" ></var>
+<var name="ALK" value="2.871296943" ></var>
+</concentrations>
+<Mouths><mouth I="225" J="352" id="1" name="Aude"></mouth></Mouths>
+</river>
+
+<river name="Struma/Strymonas" salinity="15.0" >
+<concentrations>
+<var name="N3n" value="1.707923052" ></var>
+<var name="N1p" value="0.3790870035" ></var>
+<var name="DIC" value="34.40558202" ></var>
+<var name="POC" value="0" ></var>
+<var name="DOC" value="0" ></var>
+<var name="ALK" value="2.617214852" ></var>
+</concentrations>
+<Mouths><mouth I="225" J="352" id="1" name="Struma/Strymonas"></mouth></Mouths>
+</river>
+
+
+<river name="Meric/Evros/Maritsa" salinity="15.0" >
+<concentrations>
+<var name="N3n" value="1.707923052" ></var>
+<var name="N1p" value="0.3790870035" ></var>
+<var name="DIC" value="34.40558202" ></var>
+<var name="POC" value="0" ></var>
+<var name="DOC" value="0" ></var>
+<var name="ALK" value="2.617214852" ></var>
+</concentrations>
+<Mouths><mouth I="225" J="352" id="1" name="Meric/Evros/Maritsa"></mouth></Mouths>
+</river>
+
+
+<river name="Axios/Vadar" salinity="15.0" >
+<concentrations>
+<var name="N3n" value="1.707923052" ></var>
+<var name="N1p" value="0.3790870035" ></var>
+<var name="DIC" value="34.40558202" ></var>
+<var name="POC" value="0" ></var>
+<var name="DOC" value="0" ></var>
+<var name="ALK" value="2.617214852" ></var>
+</concentrations>
+<Mouths><mouth I="225" J="352" id="1" name="Axios/Vadar"></mouth></Mouths>
+</river>
+
+
+<river name="Pinios" salinity="15.0" >
+<concentrations>
+<var name="N3n" value="1.707923052" ></var>
+<var name="N1p" value="0.3790870035" ></var>
+<var name="DIC" value="34.40558202" ></var>
+<var name="POC" value="0" ></var>
+<var name="DOC" value="0" ></var>
+<var name="ALK" value="2.617214852" ></var>
+</concentrations>
+<Mouths><mouth I="225" J="352" id="1" name="Pinios"></mouth></Mouths>
+</river>
+
+
+<river name="Gediz" salinity="15.0" >
+<concentrations>
+<var name="N3n" value="1.707923052" ></var>
+<var name="N1p" value="0.3790870035" ></var>
+<var name="DIC" value="34.40558202" ></var>
+<var name="POC" value="0" ></var>
+<var name="DOC" value="0" ></var>
+<var name="ALK" value="2.617214852" ></var>
+</concentrations>
+<Mouths><mouth I="225" J="352" id="1" name="Gediz"></mouth></Mouths>
+</river>
+
+<river name="Buyuk Menderes" salinity="15.0" >
+<concentrations>
+<var name="N3n" value="1.707923052" ></var>
+<var name="N1p" value="0.3790870035" ></var>
+<var name="DIC" value="34.40558202" ></var>
+<var name="POC" value="0" ></var>
+<var name="DOC" value="0" ></var>
+<var name="ALK" value="2.617214852" ></var>
+</concentrations>
+<Mouths><mouth I="225" J="352" id="1" name="Buyuk Menderes"></mouth></Mouths>
+</river>
+
+
+<river name="Nile" salinity="8.0" >
+<concentrations>
+<var name="N3n" value="1.6101" ></var>
+<var name="N1p" value="0.2714529606" ></var>
+<var name="DIC" value="35.33372945" ></var>
+<var name="POC" value="0" ></var>
+<var name="DOC" value="0" ></var>
+<var name="ALK" value="2.414895666" ></var>
+</concentrations>
+<Mouths><mouth I="225" J="352" id="1" name="Nile"></mouth></Mouths>
+</river>
 
 
 </RIVERS>
