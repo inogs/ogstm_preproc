@@ -98,7 +98,7 @@
 <var name="DOC" value="2.290015211" ></var>
 <var name="ALK" value="2.915344542" ></var>
 </concentrations>
-<Mouths><mouth I="5329" J="372" id="21" name="Tagliamento"></mouth></Mouths>
+<Mouths><mouth I="529" J="372" id="21" name="Tagliamento"></mouth></Mouths>
 </river>
 
 
@@ -352,7 +352,7 @@
 <var name="DOC" value="3.238446841" ></var>
 <var name="ALK" value="5.159381996" ></var>
 </concentrations>
-<Mouths><mouth I="560" J="326" id="29" name="Arno"></mouth></Mouths>
+<Mouths><mouth I="460" J="325" id="29" name="Arno"></mouth></Mouths>
 </river>
 
 <river name="Tevere" salinity="15.0" >
