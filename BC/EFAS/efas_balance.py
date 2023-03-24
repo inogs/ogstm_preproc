@@ -9,4 +9,4 @@ for ir in range(nPoints):
     daily_discharge_timeseries = DISCHARGE[:,ir]*86400. # m3
     yearly_discharge = daily_discharge_timeseries.sum() # m3
     conc = RIVER_TABLE[ir]['N1p'] #g/m3
-    mass = yearly_discharge.sum() * conc #g
+    mass = yearly_discharge * conc #g
