@@ -12,7 +12,7 @@
 
 <river name="Po" salinity="18.0" > 
 <concentrations>
-<var name="N3n" value="1.63651938" ></var>
+<var name="N3n" value="1.739964749" ></var>
 <var name="N1p" value="0.05973986885" ></var>
 <var name="DIC" value="36.44620222" ></var>
 <var name="POC" value="1.516579034" ></var>
@@ -37,7 +37,7 @@
 
 <river name="Vjose" salinity="15.0" >
 <concentrations>
-<var name="N3n" value="1.63651938" ></var>
+<var name="N3n" value="1.739964749" ></var>
 <var name="N1p" value="0.05973986885" ></var>
 <var name="DIC" value="36.44620222" ></var>
 <var name="POC" value="1.516579034" ></var>
@@ -50,7 +50,7 @@
 
 <river name="Seman" salinity="15.0" >
 <concentrations>
-<var name="N3n" value="1.63651938" ></var>
+<var name="N3n" value="1.739964749" ></var>
 <var name="N1p" value="0.05973986885" ></var>
 <var name="DIC" value="36.44620222" ></var>
 <var name="POC" value="1.516579034" ></var>
@@ -62,7 +62,7 @@
 
 <river name="Buna/Bojana" salinity="15.0" >
 <concentrations>
-<var name="N3n" value="1.63651938" ></var>
+<var name="N3n" value="1.739964749" ></var>
 <var name="N1p" value="0.05973986885" ></var>
 <var name="DIC" value="36.44620222" ></var>
 <var name="POC" value="1.516579034" ></var>
@@ -78,7 +78,7 @@
 
 <river name="Piave" salinity="15.0" >
 <concentrations>
-<var name="N3n" value="1.63651938" ></var>
+<var name="N3n" value="1.739964749" ></var>
 <var name="N1p" value="0.05973986885" ></var>
 <var name="DIC" value="36.44620222" ></var>
 <var name="POC" value="1.516579034" ></var>
@@ -91,7 +91,7 @@
 
 <river name="Tagliamento" salinity="15.0" >
 <concentrations>
-<var name="N3n" value="1.63651938" ></var>
+<var name="N3n" value="1.739964749" ></var>
 <var name="N1p" value="0.05973986885" ></var>
 <var name="DIC" value="36.44620222" ></var>
 <var name="POC" value="1.516579034" ></var>
@@ -104,7 +104,7 @@
 
 <river name="Soca/Isonzo" salinity="15.0" >
 <concentrations>
-<var name="N3n" value="1.63651938" ></var>
+<var name="N3n" value="1.739964749" ></var>
 <var name="N1p" value="0.05973986885" ></var>
 <var name="DIC" value="36.44620222" ></var>
 <var name="POC" value="1.516579034" ></var>
@@ -117,7 +117,7 @@
 
 <river name="Livenza" salinity="15.0" >
 <concentrations>
-<var name="N3n" value="1.63651938" ></var>
+<var name="N3n" value="1.739964749" ></var>
 <var name="N1p" value="0.05973986885" ></var>
 <var name="DIC" value="36.44620222" ></var>
 <var name="POC" value="1.516579034" ></var>
@@ -130,7 +130,7 @@
 
 <river name="Brenta-Baccaglione" salinity="15.0" >
 <concentrations>
-<var name="N3n" value="1.63651938" ></var>
+<var name="N3n" value="1.739964749" ></var>
 <var name="N1p" value="0.05973986885" ></var>
 <var name="DIC" value="36.44620222" ></var>
 <var name="POC" value="1.516579034" ></var>
@@ -142,7 +142,7 @@
 
 <river name="Adige" salinity="15.0" >
 <concentrations>
-<var name="N3n" value="1.63651938" ></var>
+<var name="N3n" value="1.739964749" ></var>
 <var name="N1p" value="0.05973986885" ></var>
 <var name="DIC" value="36.44620222" ></var>
 <var name="POC" value="1.516579034" ></var>
@@ -155,7 +155,7 @@
 
 <river name="Lika" salinity="15.0" >
 <concentrations>
-<var name="N3n" value="1.63651938" ></var>
+<var name="N3n" value="1.739964749" ></var>
 <var name="N1p" value="0.05973986885" ></var>
 <var name="DIC" value="36.44620222" ></var>
 <var name="POC" value="1.516579034" ></var>
@@ -167,7 +167,7 @@
 
 <river name="Reno" salinity="15.0" >
 <concentrations>
-<var name="N3n" value="1.63651938" ></var>
+<var name="N3n" value="1.739964749" ></var>
 <var name="N1p" value="0.05973986885" ></var>
 <var name="DIC" value="36.44620222" ></var>
 <var name="POC" value="1.516579034" ></var>
@@ -180,7 +180,7 @@
 
 <river name="Krka" salinity="15.0" >
 <concentrations>
-<var name="N3n" value="1.63651938" ></var>
+<var name="N3n" value="1.739964749" ></var>
 <var name="N1p" value="0.05973986885" ></var>
 <var name="DIC" value="36.44620222" ></var>
 <var name="POC" value="1.516579034" ></var>
@@ -193,7 +193,7 @@
 
 <river name="Neretva" salinity="15.0" >
 <concentrations>
-<var name="N3n" value="1.63651938" ></var>
+<var name="N3n" value="1.739964749" ></var>
 <var name="N1p" value="0.05973986885" ></var>
 <var name="DIC" value="36.44620222" ></var>
 <var name="POC" value="1.516579034" ></var>
@@ -205,7 +205,7 @@
 
 <river name="Trebisjnica" salinity="15.0" >
 <concentrations>
-<var name="N3n" value="1.63651938" ></var>
+<var name="N3n" value="1.739964749" ></var>
 <var name="N1p" value="0.05973986885" ></var>
 <var name="DIC" value="36.44620222" ></var>
 <var name="POC" value="1.516579034" ></var>
@@ -217,7 +217,7 @@
 
 <river name="Mati" salinity="15.0" >
 <concentrations>
-<var name="N3n" value="1.63651938" ></var>
+<var name="N3n" value="1.739964749" ></var>
 <var name="N1p" value="0.05973986885" ></var>
 <var name="DIC" value="36.44620222" ></var>
 <var name="POC" value="1.516579034" ></var>
@@ -229,7 +229,7 @@
 
 <river name="Arachtos" salinity="15.0" >
 <concentrations>
-<var name="N3n" value="1.63651938" ></var>
+<var name="N3n" value="1.739964749" ></var>
 <var name="N1p" value="0.05973986885" ></var>
 <var name="DIC" value="36.44620222" ></var>
 <var name="POC" value="1.516579034" ></var>
@@ -241,7 +241,7 @@
 
 <river name="Acheloos" salinity="15.0" >
 <concentrations>
-<var name="N3n" value="1.63651938" ></var>
+<var name="N3n" value="1.739964749" ></var>
 <var name="N1p" value="0.05973986885" ></var>
 <var name="DIC" value="36.44620222" ></var>
 <var name="POC" value="1.516579034" ></var>
@@ -254,7 +254,7 @@
 
 <river name="Shkumbini" salinity="15.0" >
 <concentrations>
-<var name="N3n" value="1.63651938" ></var>
+<var name="N3n" value="1.739964749" ></var>
 <var name="N1p" value="0.05973986885" ></var>
 <var name="DIC" value="36.44620222" ></var>
 <var name="POC" value="1.516579034" ></var>
