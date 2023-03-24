@@ -8,7 +8,9 @@ mydtype=[('id',int),('name','U100'), ('mouth', 'U100'),
          ('N3n',np.float32),('N1p',np.float32),
          ('DIC',np.float32),('ALK',np.float32),
          ('POC',np.float32),('DOC',np.float32)]
-RIVERS=np.zeros((52,),dtype=mydtype)
+
+nPoints=52
+RIVERS=np.zeros((nPoints,),dtype=mydtype)
 
 for RiverNode in xmldoc.getElementsByTagName('river'):
     name = RiverNode.getAttribute('name')
@@ -27,3 +29,31 @@ for RiverNode in xmldoc.getElementsByTagName('river'):
         for vn in ConcentrationsNode.getElementsByTagName('var'):
             varname = vn.getAttribute('name')
             RIVERS[ind][varname] = vn.getAttribute('value')
+
+def get_indexes_by_river(rivername):
+    '''
+    Searches all river mouths corresponding to a specific river name
+    Arguments:
+    * rivername * string, es 'Po'
+    Returns:
+    * good * logical array, True for points corresponding to rivername
+    '''
+    good=RIVERS['name']==rivername
+    return good
+
+def get_indexes_by_region(region,maskobj):
+    '''
+    Searches all river mouths corresponding to a specific subbasin
+    Arguments:
+    * region * Region object, as OGS.adr1
+    Returns:
+    * good * logical array, True for points corresponding to region
+    '''
+    good = np.zeros((nPoints),bool)
+    for ir in range(nPoints):
+        i = RIVERS[ir]['I'] -1
+        j = RIVERS[ir]['J'] -1
+        lon,lat = maskobj.convert_i_j_to_lon_lat(i, j)
+        good[ir] = region.is_inside(lon,lat)
+    return good
+
