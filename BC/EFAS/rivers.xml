@@ -430,7 +430,7 @@
 <river name="Kopru" salinity="15.0" >
 <concentrations>
 <var name="N3n" value="2.059751119" ></var>
-<var name="N1p" value="0.08267781733" ></var>
+<var name="N1p" value="0.08246172369" ></var>
 <var name="DIC" value="32.23431597" ></var>
 <var name="POC" value="0" ></var>
 <var name="DOC" value="0" ></var>
@@ -442,7 +442,7 @@
 <river name="Manavgat" salinity="15.0" >
 <concentrations>
 <var name="N3n" value="2.059751119" ></var>
-<var name="N1p" value="0.08267781733" ></var>
+<var name="N1p" value="0.08246172369" ></var>
 <var name="DIC" value="32.23431597" ></var>
 <var name="POC" value="0" ></var>
 <var name="DOC" value="0" ></var>
@@ -454,7 +454,7 @@
 <river name="Seyhan" salinity="15.0" >
 <concentrations>
 <var name="N3n" value="2.059751119" ></var>
-<var name="N1p" value="0.08267781733" ></var>
+<var name="N1p" value="0.08246172369" ></var>
 <var name="DIC" value="32.23431597" ></var>
 <var name="POC" value="0" ></var>
 <var name="DOC" value="0" ></var>
@@ -466,7 +466,7 @@
 <river name="Ceyhan" salinity="15.0" >
 <concentrations>
 <var name="N3n" value="2.059751119" ></var>
-<var name="N1p" value="0.08267781733" ></var>
+<var name="N1p" value="0.08246172369" ></var>
 <var name="DIC" value="32.23431597" ></var>
 <var name="POC" value="0" ></var>
 <var name="DOC" value="0" ></var>
@@ -478,7 +478,7 @@
 <river name="Gosku" salinity="15.0" >
 <concentrations>
 <var name="N3n" value="2.059751119" ></var>
-<var name="N1p" value="0.08267781733" ></var>
+<var name="N1p" value="0.08246172369" ></var>
 <var name="DIC" value="32.23431597" ></var>
 <var name="POC" value="0" ></var>
 <var name="DOC" value="0" ></var>
@@ -490,7 +490,7 @@
 <river name="Asi/Orontes" salinity="15.0" >
 <concentrations>
 <var name="N3n" value="2.059751119" ></var>
-<var name="N1p" value="0.08267781733" ></var>
+<var name="N1p" value="0.08246172369" ></var>
 <var name="DIC" value="32.23431597" ></var>
 <var name="POC" value="0" ></var>
 <var name="DOC" value="0" ></var>
@@ -553,7 +553,7 @@
 <river name="Asi/Orontes" salinity="15.0" >
 <concentrations>
 <var name="N3n" value="2.059751119" ></var>
-<var name="N1p" value="0.08267781733" ></var>
+<var name="N1p" value="0.08246172369" ></var>
 <var name="DIC" value="32.23431597" ></var>
 <var name="POC" value="0" ></var>
 <var name="DOC" value="0" ></var>
