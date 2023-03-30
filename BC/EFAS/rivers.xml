@@ -12,8 +12,8 @@
 
 <river name="Nile" salinity="8.0" >
 <concentrations>
-<var name="N3n" value="1.6101" ></var>
-<var name="N1p" value="0.2714529606" ></var>
+<var name="N3n" value="12.88151887" ></var>
+<var name="N1p" value="0.4920024567" ></var>
 <var name="DIC" value="35.33372945" ></var>
 <var name="POC" value="0" ></var>
 <var name="DOC" value="0" ></var>
@@ -28,8 +28,8 @@
 <river name="Ebro" salinity="30.0" >
 <concentrations>
 <var name="N3n" value="1.610126606" ></var>
-<var name="N1p" value="0.09559021676" ></var>
-<var name="DIC" value="31.6711725" ></var>
+<var name="N1p" value="0.08951526007" ></var>
+<var name="DIC" value="30.03869997" ></var>
 <var name="POC" value="1.838684022" ></var>
 <var name="DOC" value="1.720550111" ></var>
 <var name="ALK" value="2.871296943" ></var>
@@ -43,7 +43,7 @@
 <concentrations>
 <var name="N3n" value="1.739964749" ></var>
 <var name="N1p" value="0.05973986885" ></var>
-<var name="DIC" value="36.44620222" ></var>
+<var name="DIC" value="35.77818129" ></var>
 <var name="POC" value="1.516579034" ></var>
 <var name="DOC" value="2.290015211" ></var>
 <var name="ALK" value="2.915344542" ></var>
@@ -65,8 +65,8 @@
 <river name="Rhone" salinity="25.0" >
 <concentrations>
 <var name="N3n" value="1.610126606" ></var>
-<var name="N1p" value="0.09559021676" ></var>
-<var name="DIC" value="31.6711725" ></var>
+<var name="N1p" value="0.08951526007" ></var>
+<var name="DIC" value="30.03869997" ></var>
 <var name="POC" value="1.838684022" ></var>
 <var name="DOC" value="1.720550111" ></var>
 <var name="ALK" value="2.871296943" ></var>
@@ -81,7 +81,7 @@
 <concentrations>
 <var name="N3n" value="1.739964749" ></var>
 <var name="N1p" value="0.05973986885" ></var>
-<var name="DIC" value="36.44620222" ></var>
+<var name="DIC" value="35.77818129" ></var>
 <var name="POC" value="1.516579034" ></var>
 <var name="DOC" value="2.290015211" ></var>
 <var name="ALK" value="2.915344542" ></var>
@@ -96,7 +96,7 @@
 <concentrations>
 <var name="N3n" value="1.739964749" ></var>
 <var name="N1p" value="0.05973986885" ></var>
-<var name="DIC" value="36.44620222" ></var>
+<var name="DIC" value="35.77818129" ></var>
 <var name="POC" value="1.516579034" ></var>
 <var name="DOC" value="2.290015211" ></var>
 <var name="ALK" value="2.915344542" ></var>
@@ -108,7 +108,7 @@
 <concentrations>
 <var name="N3n" value="1.739964749" ></var>
 <var name="N1p" value="0.05973986885" ></var>
-<var name="DIC" value="36.44620222" ></var>
+<var name="DIC" value="35.77818129" ></var>
 <var name="POC" value="1.516579034" ></var>
 <var name="DOC" value="2.290015211" ></var>
 <var name="ALK" value="2.915344542" ></var>
@@ -124,7 +124,7 @@
 <concentrations>
 <var name="N3n" value="1.739964749" ></var>
 <var name="N1p" value="0.05973986885" ></var>
-<var name="DIC" value="36.44620222" ></var>
+<var name="DIC" value="35.77818129" ></var>
 <var name="POC" value="1.516579034" ></var>
 <var name="DOC" value="2.290015211" ></var>
 <var name="ALK" value="2.915344542" ></var>
@@ -137,7 +137,7 @@
 <concentrations>
 <var name="N3n" value="1.739964749" ></var>
 <var name="N1p" value="0.05973986885" ></var>
-<var name="DIC" value="36.44620222" ></var>
+<var name="DIC" value="35.77818129" ></var>
 <var name="POC" value="1.516579034" ></var>
 <var name="DOC" value="2.290015211" ></var>
 <var name="ALK" value="2.915344542" ></var>
@@ -149,7 +149,7 @@
 <concentrations>
 <var name="N3n" value="1.739964749" ></var>
 <var name="N1p" value="0.05973986885" ></var>
-<var name="DIC" value="36.44620222" ></var>
+<var name="DIC" value="35.77818129" ></var>
 <var name="POC" value="1.516579034" ></var>
 <var name="DOC" value="2.290015211" ></var>
 <var name="ALK" value="2.915344542" ></var>
@@ -162,7 +162,7 @@
 <concentrations>
 <var name="N3n" value="1.739964749" ></var>
 <var name="N1p" value="0.05973986885" ></var>
-<var name="DIC" value="36.44620222" ></var>
+<var name="DIC" value="35.77818129" ></var>
 <var name="POC" value="1.516579034" ></var>
 <var name="DOC" value="2.290015211" ></var>
 <var name="ALK" value="2.915344542" ></var>
@@ -175,7 +175,7 @@
 <concentrations>
 <var name="N3n" value="1.739964749" ></var>
 <var name="N1p" value="0.05973986885" ></var>
-<var name="DIC" value="36.44620222" ></var>
+<var name="DIC" value="35.77818129" ></var>
 <var name="POC" value="1.516579034" ></var>
 <var name="DOC" value="2.290015211" ></var>
 <var name="ALK" value="2.915344542" ></var>
@@ -187,7 +187,7 @@
 <concentrations>
 <var name="N3n" value="1.739964749" ></var>
 <var name="N1p" value="0.05973986885" ></var>
-<var name="DIC" value="36.44620222" ></var>
+<var name="DIC" value="35.77818129" ></var>
 <var name="POC" value="1.516579034" ></var>
 <var name="DOC" value="2.290015211" ></var>
 <var name="ALK" value="2.915344542" ></var>
@@ -199,7 +199,7 @@
 <concentrations>
 <var name="N3n" value="1.739964749" ></var>
 <var name="N1p" value="0.05973986885" ></var>
-<var name="DIC" value="36.44620222" ></var>
+<var name="DIC" value="35.77818129" ></var>
 <var name="POC" value="1.516579034" ></var>
 <var name="DOC" value="2.290015211" ></var>
 <var name="ALK" value="2.915344542" ></var>
@@ -211,7 +211,7 @@
 <concentrations>
 <var name="N3n" value="1.739964749" ></var>
 <var name="N1p" value="0.05973986885" ></var>
-<var name="DIC" value="36.44620222" ></var>
+<var name="DIC" value="35.77818129" ></var>
 <var name="POC" value="1.516579034" ></var>
 <var name="DOC" value="2.290015211" ></var>
 <var name="ALK" value="2.915344542" ></var>
@@ -223,7 +223,7 @@
 <concentrations>
 <var name="N3n" value="1.739964749" ></var>
 <var name="N1p" value="0.05973986885" ></var>
-<var name="DIC" value="36.44620222" ></var>
+<var name="DIC" value="35.77818129" ></var>
 <var name="POC" value="1.516579034" ></var>
 <var name="DOC" value="2.290015211" ></var>
 <var name="ALK" value="2.915344542" ></var>
@@ -247,7 +247,7 @@
 <concentrations>
 <var name="N3n" value="1.739964749" ></var>
 <var name="N1p" value="0.05973986885" ></var>
-<var name="DIC" value="36.44620222" ></var>
+<var name="DIC" value="35.77818129" ></var>
 <var name="POC" value="1.516579034" ></var>
 <var name="DOC" value="2.290015211" ></var>
 <var name="ALK" value="2.915344542" ></var>
@@ -258,8 +258,8 @@
 <river name="Aude" salinity="15.0" >
 <concentrations>
 <var name="N3n" value="1.610126606" ></var>
-<var name="N1p" value="0.09559021676" ></var>
-<var name="DIC" value="31.6711725" ></var>
+<var name="N1p" value="0.08951526007" ></var>
+<var name="DIC" value="30.03869997" ></var>
 <var name="POC" value="1.838684022" ></var>
 <var name="DOC" value="1.720550111" ></var>
 <var name="ALK" value="2.871296943" ></var>
@@ -271,7 +271,7 @@
 <concentrations>
 <var name="N3n" value="1.739964749" ></var>
 <var name="N1p" value="0.05973986885" ></var>
-<var name="DIC" value="36.44620222" ></var>
+<var name="DIC" value="35.77818129" ></var>
 <var name="POC" value="1.516579034" ></var>
 <var name="DOC" value="2.290015211" ></var>
 <var name="ALK" value="2.915344542" ></var>
@@ -299,7 +299,7 @@
 <concentrations>
 <var name="N3n" value="1.739964749" ></var>
 <var name="N1p" value="0.05973986885" ></var>
-<var name="DIC" value="36.44620222" ></var>
+<var name="DIC" value="35.77818129" ></var>
 <var name="POC" value="1.516579034" ></var>
 <var name="DOC" value="2.290015211" ></var>
 <var name="ALK" value="2.915344542" ></var>
@@ -323,7 +323,7 @@
 <concentrations>
 <var name="N3n" value="1.739964749" ></var>
 <var name="N1p" value="0.05973986885" ></var>
-<var name="DIC" value="36.44620222" ></var>
+<var name="DIC" value="35.77818129" ></var>
 <var name="POC" value="1.516579034" ></var>
 <var name="DOC" value="2.290015211" ></var>
 <var name="ALK" value="2.915344542" ></var>
@@ -334,7 +334,7 @@
 <river name="Struma/Strymonas" salinity="15.0" >
 <concentrations>
 <var name="N3n" value="1.707923052" ></var>
-<var name="N1p" value="0.3790870035" ></var>
+<var name="N1p" value="0.3849841078" ></var>
 <var name="DIC" value="34.40558202" ></var>
 <var name="POC" value="0" ></var>
 <var name="DOC" value="0" ></var>
@@ -346,7 +346,7 @@
 <river name="Meric/Evros/Maritsa" salinity="15.0" >
 <concentrations>
 <var name="N3n" value="1.707923052" ></var>
-<var name="N1p" value="0.3790870035" ></var>
+<var name="N1p" value="0.3849841078" ></var>
 <var name="DIC" value="34.40558202" ></var>
 <var name="POC" value="0" ></var>
 <var name="DOC" value="0" ></var>
@@ -358,7 +358,7 @@
 <river name="Axios/Vadar" salinity="15.0" >
 <concentrations>
 <var name="N3n" value="1.707923052" ></var>
-<var name="N1p" value="0.3790870035" ></var>
+<var name="N1p" value="0.3849841078" ></var>
 <var name="DIC" value="34.40558202" ></var>
 <var name="POC" value="0" ></var>
 <var name="DOC" value="0" ></var>
@@ -371,7 +371,7 @@
 <concentrations>
 <var name="N3n" value="1.739964749" ></var>
 <var name="N1p" value="0.05973986885" ></var>
-<var name="DIC" value="36.44620222" ></var>
+<var name="DIC" value="35.77818129" ></var>
 <var name="POC" value="1.516579034" ></var>
 <var name="DOC" value="2.290015211" ></var>
 <var name="ALK" value="2.915344542" ></var>
@@ -382,7 +382,7 @@
 <river name="Pinios" salinity="15.0" >
 <concentrations>
 <var name="N3n" value="1.707923052" ></var>
-<var name="N1p" value="0.3790870035" ></var>
+<var name="N1p" value="0.3849841078" ></var>
 <var name="DIC" value="34.40558202" ></var>
 <var name="POC" value="0" ></var>
 <var name="DOC" value="0" ></var>
@@ -395,7 +395,7 @@
 <concentrations>
 <var name="N3n" value="1.739964749" ></var>
 <var name="N1p" value="0.05973986885" ></var>
-<var name="DIC" value="36.44620222" ></var>
+<var name="DIC" value="35.77818129" ></var>
 <var name="POC" value="1.516579034" ></var>
 <var name="DOC" value="2.290015211" ></var>
 <var name="ALK" value="2.915344542" ></var>
@@ -406,7 +406,7 @@
 <river name="Gediz" salinity="15.0" >
 <concentrations>
 <var name="N3n" value="1.707923052" ></var>
-<var name="N1p" value="0.3790870035" ></var>
+<var name="N1p" value="0.3849841078" ></var>
 <var name="DIC" value="34.40558202" ></var>
 <var name="POC" value="0" ></var>
 <var name="DOC" value="0" ></var>
@@ -418,7 +418,7 @@
 <river name="Buyuk Menderes" salinity="15.0" >
 <concentrations>
 <var name="N3n" value="1.707923052" ></var>
-<var name="N1p" value="0.3790870035" ></var>
+<var name="N1p" value="0.3849841078" ></var>
 <var name="DIC" value="34.40558202" ></var>
 <var name="POC" value="0" ></var>
 <var name="DOC" value="0" ></var>
@@ -430,7 +430,7 @@
 <river name="Kopru" salinity="15.0" >
 <concentrations>
 <var name="N3n" value="2.059751119" ></var>
-<var name="N1p" value="0.08267781733" ></var>
+<var name="N1p" value="0.08246172369" ></var>
 <var name="DIC" value="32.23431597" ></var>
 <var name="POC" value="0" ></var>
 <var name="DOC" value="0" ></var>
@@ -442,7 +442,7 @@
 <river name="Manavgat" salinity="15.0" >
 <concentrations>
 <var name="N3n" value="2.059751119" ></var>
-<var name="N1p" value="0.08267781733" ></var>
+<var name="N1p" value="0.08246172369" ></var>
 <var name="DIC" value="32.23431597" ></var>
 <var name="POC" value="0" ></var>
 <var name="DOC" value="0" ></var>
@@ -454,7 +454,7 @@
 <river name="Seyhan" salinity="15.0" >
 <concentrations>
 <var name="N3n" value="2.059751119" ></var>
-<var name="N1p" value="0.08267781733" ></var>
+<var name="N1p" value="0.08246172369" ></var>
 <var name="DIC" value="32.23431597" ></var>
 <var name="POC" value="0" ></var>
 <var name="DOC" value="0" ></var>
@@ -466,7 +466,7 @@
 <river name="Ceyhan" salinity="15.0" >
 <concentrations>
 <var name="N3n" value="2.059751119" ></var>
-<var name="N1p" value="0.08267781733" ></var>
+<var name="N1p" value="0.08246172369" ></var>
 <var name="DIC" value="32.23431597" ></var>
 <var name="POC" value="0" ></var>
 <var name="DOC" value="0" ></var>
@@ -478,7 +478,7 @@
 <river name="Gosku" salinity="15.0" >
 <concentrations>
 <var name="N3n" value="2.059751119" ></var>
-<var name="N1p" value="0.08267781733" ></var>
+<var name="N1p" value="0.08246172369" ></var>
 <var name="DIC" value="32.23431597" ></var>
 <var name="POC" value="0" ></var>
 <var name="DOC" value="0" ></var>
@@ -490,7 +490,7 @@
 <river name="Asi/Orontes" salinity="15.0" >
 <concentrations>
 <var name="N3n" value="2.059751119" ></var>
-<var name="N1p" value="0.08267781733" ></var>
+<var name="N1p" value="0.08246172369" ></var>
 <var name="DIC" value="32.23431597" ></var>
 <var name="POC" value="0" ></var>
 <var name="DOC" value="0" ></var>
@@ -553,7 +553,7 @@
 <river name="Asi/Orontes" salinity="15.0" >
 <concentrations>
 <var name="N3n" value="2.059751119" ></var>
-<var name="N1p" value="0.08267781733" ></var>
+<var name="N1p" value="0.08246172369" ></var>
 <var name="DIC" value="32.23431597" ></var>
 <var name="POC" value="0" ></var>
 <var name="DOC" value="0" ></var>
