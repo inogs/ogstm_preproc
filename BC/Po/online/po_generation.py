@@ -93,7 +93,7 @@ RIVER_CONCENTRATION={'O2o':250  ,  #mmol/m3
                      'O3c':33225,  #  mg/m3
                      'O3h':2800,   #mmol/m3
                      'R3c':2300,   #  mg/m3
-                     'R3l':46   }  #  mg/m3
+                     'R3l':46*4 }  #  mg/m3
 
 
 
