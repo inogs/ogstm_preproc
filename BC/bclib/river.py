@@ -284,7 +284,7 @@ class river():
         D = self.river_data["DIC_KTperYR_NOBLS"  ][yearstr][:,month-1]
         O = self.river_data["O2o_GmolperYR_NOBLS"][yearstr][:,month-1]
         DOC  = self.river_data["DOC_KTperYR_NOBLS"][yearstr][:,month-1]
-        CDOM = self.river_data["CDOM_KTperYR_NOBLS"][yearstr][:,month-1]
+        CDOM = self.river_data["CDOM_KTperYR_NOBLS"][yearstr][:,month-1]*4.0
 
         if (self.nspread==1):
             return N,P,S,A,D,O,DOC,CDOM
