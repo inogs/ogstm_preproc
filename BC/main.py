@@ -31,7 +31,7 @@ R.gen_map_indexes(TheMask)
 climatological=True
 
 if climatological:
-    YEARS = np.arange(2000,2011)
+    YEARS = np.arange(2010,2021)
     for sheet in conf.river_data_sheet:
         SUM = np.zeros_like(R.river_data[sheet]['2000'], np.float32)
         for year in YEARS:
