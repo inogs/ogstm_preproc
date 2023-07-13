@@ -45,16 +45,31 @@ INPUTDIR=addsep(args.inputdir)
 OUTPUTDIR=addsep(args.outdir)
 TheMask=Mask(args.maskfile)
 
+
 jpk, jpj, jpi = TheMask.shape
-izlev=TheMask.getDepthIndex(200) + 5 #350
-M=np.zeros((jpk,jpj,jpi),np.float32)*np.nan
+Au = np.zeros((jpk,jpj,jpi),np.float32)
+Av = np.zeros((jpk,jpj,jpi),np.float32)
+Aw = np.zeros((jpk,jpj,jpi),np.float32)
+
+for k in range(jpk):
+    Aw[k,:] = TheMask.area
+for k in range(jpk):
+    Au[k,:] = TheMask.e2t*TheMask.e3t[k,:]
+    Av[k,:] = TheMask.e1t*TheMask.e3t[k,:]
+
+
+izlev=TheMask.getDepthIndex(200) + 5
+iz200=TheMask.getDepthIndex(200) + 2
+M  =np.zeros((jpk,jpj,jpi),np.float32)*np.nan
 BVF=np.zeros((jpk,jpj,jpi),np.float32)
+P  =np.zeros((izlev,jpj,jpi),np.float32)
 mask = TheMask.mask_at_level(0)
 
-for ii in range(jpi):
+for ji in range(jpi):
     for jj in range(jpj):
-        M[:,jj,ii]=TheMask.zlevels
-P=np.transpose([[TheMask.zlevels[:izlev]]* jpj] * jpi )
+        M[:,jj,ji]=TheMask.zlevels
+        P[:,jj,ji]=TheMask.zlevels[:izlev]
+
 
 layer200 = Layer(0,200)
 layer500 = Layer(200,500)
@@ -95,21 +110,19 @@ for iframe in FRAMES[rank::nranks]:
     U[U>1.e+19]=eps
     V[V>1.e+19]=eps
     W[W>1.e+19]=eps
-    KE_ratio = W**2/(U**2 + V**2)
+    KE_ratio = W**2*Aw/(U**2*Au + V**2*Av)
 
     ii=(U==eps) & (V==eps) # taking in account umask and vmask False
     KE_ratio[ii] = 0
 
-    De = DataExtractor(TheMask,rawdata=KE_ratio)
-    KE_ratio_2d = MapBuilder.get_layer_integral(De,layer200)
+    KE_ratio_2d = KE_ratio[:iz200,:,:].sum(axis=0)
     lmask = (KE_ratio_2d>0) & mask
     KE_ratio_2d[lmask] = np.log10(KE_ratio_2d[lmask])
     KE_ratio_2d[~lmask] = 1.e+20
 
 
-    KE_total = 0.5*(U**2 + V**2 + W**2)
-    De = DataExtractor(TheMask,rawdata=KE_total)
-    KE_total_2d = MapBuilder.get_layer_integral(De,layer200)
+    KE_total = 0.5*(U**2*Au + V**2*Av + W**2*Aw)
+    KE_total_2d = KE_total[:iz200,:,:].sum(axis=0)
 
     BVF[:izlev-1,:], _, p_ave = sw.bfrq(S[:izlev,:],T[:izlev,:],P)
     BVF[BVF<0]=0 # because sw.bfrw returns a negative value when S=0, T=0 is encountered as first land point
