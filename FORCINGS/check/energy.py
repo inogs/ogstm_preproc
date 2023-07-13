@@ -2,7 +2,16 @@ import argparse
 
 def argument():
     parser = argparse.ArgumentParser(description = '''
+    Calculates 2d metrics for every daily forcing
 
+
+    Provided metrics:
+    - mld
+    - KE_ratio, integrated on 0-200m
+    - KE_total, integrated on 0-200m
+    - Stratification index defined as integral on 0-200m of Brunt Vaissala frequency * z
+    - Vertical eddy diffusivity integrated on 0-200m
+    - Vertical eddy diffusivity integrated on 200-500m
     ''')
     parser.add_argument(   '--inputdir', '-i',
                                 type = str,
