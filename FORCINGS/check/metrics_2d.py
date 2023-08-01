@@ -112,6 +112,11 @@ for iframe in FRAMES[rank::nranks]:
     Eddy_diff_200 = MapBuilder.get_layer_average(K, layer200)
     Eddy_diff_500 = MapBuilder.get_layer_average(K, layer500)
 
+    Eddy_diff_100 = MapBuilder.get_layer_average(K, Layer(100,150))
+    Eddy_diff_400 = MapBuilder.get_layer_average(K, Layer(400,500))
+
+    Ratio_Eddy_diff = Eddy_diff_400/Eddy_diff_100
+
 
     U[U==0]=eps
     V[V==0]=eps
@@ -149,6 +154,6 @@ for iframe in FRAMES[rank::nranks]:
     netcdf4.write_2d_file(KE_total_2d         ,'KE_total', outfile, TheMask, compression=True)
     netcdf4.write_2d_file(Stratification_index,'stratification_index', outfile, TheMask, compression=True)
     netcdf4.write_2d_file(mld                 ,'mld' , outfile,TheMask, compression=True)
-    netcdf4.write_2d_file(Eddy_diff_200       ,'Evd_200', outfile, TheMask, compression=True)
-    netcdf4.write_2d_file(Eddy_diff_500       ,'Evd_500', outfile, TheMask, compression=True)
-
+    netcdf4.write_2d_file(Eddy_diff_200       ,'Ved_200', outfile, TheMask, compression=True)
+    netcdf4.write_2d_file(Eddy_diff_500       ,'Ved_500', outfile, TheMask, compression=True)
+    netcdf4.write_2d_file(Ratio_Eddy_diff     ,'Ved_ratio', outfile, TheMask, compression=True)
