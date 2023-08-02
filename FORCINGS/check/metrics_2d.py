@@ -56,6 +56,9 @@ TheMask=Mask(args.maskfile)
 
 
 jpk, jpj, jpi = TheMask.shape
+
+BathyCells = TheMask.bathymetry_in_cells()
+
 Au = np.zeros((jpk,jpj,jpi),np.float32)
 Av = np.zeros((jpk,jpj,jpi),np.float32)
 Aw = np.zeros((jpk,jpj,jpi),np.float32)
@@ -117,6 +120,21 @@ for iframe in FRAMES[rank::nranks]:
 
     Ratio_Eddy_diff = Eddy_diff_400/Eddy_diff_100
 
+    Count_anomalous_Eddy_diff = np.zeros((jpj,jpi),np.float32)
+    Count_anomalous_Eddy_diff[~TheMask.mask_at_level(0)] = 1.e+20
+    for i in range(jpi):
+        for j in range(jpj):
+            counter=0
+            nCells = BathyCells[j,i]
+            if nCells > 24: # index of 100m
+                K100 = K.values[24,j,i]
+                if K100 < 1.e-5:
+                    for k in range(24,nCells):
+                        if K.values[k,j,i] > 1.e-4:
+                            counter+=1
+                    Count_anomalous_Eddy_diff[j,i] = counter
+
+
 
     U[U==0]=eps
     V[V==0]=eps
@@ -157,3 +175,5 @@ for iframe in FRAMES[rank::nranks]:
     netcdf4.write_2d_file(Eddy_diff_200       ,'Ved_200', outfile, TheMask, compression=True)
     netcdf4.write_2d_file(Eddy_diff_500       ,'Ved_500', outfile, TheMask, compression=True)
     netcdf4.write_2d_file(Ratio_Eddy_diff     ,'Ved_ratio', outfile, TheMask, compression=True)
+    netcdf4.write_2d_file(Count_anomalous_Eddy_diff,'anom_counter', outfile, TheMask, compression=True)
+
