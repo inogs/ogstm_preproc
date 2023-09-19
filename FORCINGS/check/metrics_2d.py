@@ -138,8 +138,8 @@ for iframe in FRAMES[rank::nranks]:
                     Count_anomalous_Eddy_diff[j,i] = counter
 
 
-    Eddy_diff_200 = MapBuilder.get_layer_average(K_clean, layer200)
-    Eddy_diff_500 = MapBuilder.get_layer_average(K_clean, layer500)
+    Eddy_diff_150 = MapBuilder.get_layer_average(K_clean, Layer(0,150))
+    Eddy_diff_500 = MapBuilder.get_layer_average(K_clean, Layer(150,500))
 
 
     U[U==0]=eps
@@ -170,7 +170,7 @@ for iframe in FRAMES[rank::nranks]:
     Stratification_index[~mask] = 1.e+20
     KE_total_2d[~mask] = 1.e+20
     mld[~mask] = 1.e+20
-    Eddy_diff_200[~mask] = 1.e+20
+    Eddy_diff_150[~mask] = 1.e+20
     Eddy_diff_500[~mask] = 1.e+20
 
     outfile=OUTPUTDIR + "metrics." + timestr + ".nc"
@@ -178,7 +178,7 @@ for iframe in FRAMES[rank::nranks]:
     netcdf4.write_2d_file(KE_total_2d         ,'KE_total', outfile, TheMask, compression=True)
     netcdf4.write_2d_file(Stratification_index,'stratification_index', outfile, TheMask, compression=True)
     netcdf4.write_2d_file(mld                 ,'mld' , outfile,TheMask, compression=True)
-    netcdf4.write_2d_file(Eddy_diff_200       ,'Ved_200', outfile, TheMask, compression=True)
+    netcdf4.write_2d_file(Eddy_diff_150       ,'Ved_150', outfile, TheMask, compression=True)
     netcdf4.write_2d_file(Eddy_diff_500       ,'Ved_500', outfile, TheMask, compression=True)
     netcdf4.write_2d_file(Ratio_Eddy_diff     ,'Ved_ratio', outfile, TheMask, compression=True)
     netcdf4.write_2d_file(Count_anomalous_Eddy_diff,'anom_counter', outfile, TheMask, compression=True)
