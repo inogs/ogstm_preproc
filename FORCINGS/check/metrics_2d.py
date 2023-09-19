@@ -86,6 +86,9 @@ for ji in range(jpi):
 layer200 = Layer(0,200)
 layer500 = Layer(200,500)
 
+jk_50 = TheMask.getDepthIndex(50)
+jk_100 = TheMask.getDepthIndex(100)
+jk_150 = TheMask.getDepthIndex(150)
 
 TL=TimeList.fromfilenames(None, INPUTDIR, "U*nc", prefix="U")
 eps=1.e-08
@@ -112,28 +115,31 @@ for iframe in FRAMES[rank::nranks]:
     mld=np.abs(DataExtractor(TheMask,filenameT,"somxl010").values)
     
     MLD = surfaces.mld(T, TheMask)
-    Eddy_diff_200 = MapBuilder.get_layer_average(K, layer200)
-    Eddy_diff_500 = MapBuilder.get_layer_average(K, layer500)
 
     Eddy_diff_100 = MapBuilder.get_layer_average(K, Layer(100,150))
     Eddy_diff_400 = MapBuilder.get_layer_average(K, Layer(400,500))
 
     Ratio_Eddy_diff = Eddy_diff_400/Eddy_diff_100
 
+    K_clean = DataExtractor(TheMask, rawdata=K.values ) #copy
     Count_anomalous_Eddy_diff = np.zeros((jpj,jpi),np.float32)
     Count_anomalous_Eddy_diff[~TheMask.mask_at_level(0)] = 1.e+20
     for i in range(jpi):
         for j in range(jpj):
             counter=0
             nCells = BathyCells[j,i]
-            if nCells > 24: # index of 100m
-                K100 = K.values[24,j,i]
-                if K100 < 1.e-5:
-                    for k in range(24,nCells):
+            if nCells > jk_150: # index of 150m
+                Kmin = K.values[jk_50:jk_150,j,i].min()
+                if Kmin < 1.e-5:
+                    for k in range(jk_150,nCells):
                         if K.values[k,j,i] > 1.e-4:
                             counter+=1
+                            K_clean.values[k,j,i] = 1.e-7
                     Count_anomalous_Eddy_diff[j,i] = counter
 
+
+    Eddy_diff_200 = MapBuilder.get_layer_average(K_clean, layer200)
+    Eddy_diff_500 = MapBuilder.get_layer_average(K_clean, layer500)
 
 
     U[U==0]=eps
