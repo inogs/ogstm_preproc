@@ -1,0 +1,58 @@
+import numpy as np
+import matplotlib
+matplotlib.use('Qt5Agg')
+import pylab as pl
+from basins import V2 as OGS
+from commons import season
+
+
+color='b'
+INPUTDIR="/g100_work/OGS_devC/Benchmark/SETUP/PREPROC/FORCINGS/metrics/Ved_percentiles/"
+RunName = "benchmark"
+OUTPUTDIR="/g100_work/OGS_devC/Benchmark/pub/Benchmark/votkeavt/synthesis/"
+
+
+SUBlist = OGS.P.basin_list
+nSub = len(SUBlist)
+X=np.arange(nSub)
+e=0.1
+S = season.season()
+
+perc=[1,5,10,25,50,75,90,95,99]
+LIST = ['surf','deep']
+#pl.close('all')
+
+for iSeas in range(4):
+    outfile = "%sPercentiles.%s.png" %(OUTPUTDIR,S.SEASON_LIST_NAME[iSeas])
+    fig,axes=pl.subplots(2,1)
+    fig.set_size_inches(15,10)
+
+
+    for iax, name in enumerate(LIST):
+        inputfile= "%sPercentiles.%d.%s.npy" %(INPUTDIR, iSeas, name) 
+        P=np.load(inputfile)
+        ax=axes[iax]
+
+        for isub in range(nSub):
+            p1, p5,  p10, p25, p50, p75, p90, p95, p99 = np.log10(P[:,isub])
+            x = isub
+            if isub == 0: 
+                ax.plot([x,x],[ p10,p90 ], color, label=RunName)
+            else:
+                ax.plot([x,x],[ p10,p90 ], color)
+            ymin, ymax = p25, p75
+            ax.plot([x-e, x+e, x+e, x-e, x-e], [ymin, ymin, ymax, ymax, ymin] , color)
+            ax.plot(x,p50,'*', color=color)
+
+        if iax ==0 : ax.legend()
+        ax.grid(True)
+        ax.set_xticks(X)
+        subnames=[sub.name for sub in OGS.P]
+        ax.set_xticklabels(subnames)
+        ax.set_ylabel(name + ' log10(Kz)')
+
+    fig.suptitle("Percentiles " + S.SEASON_LIST_NAME[iSeas])
+    fig.savefig(outfile)
+    pl.close(fig)
+
+
