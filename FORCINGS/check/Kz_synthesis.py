@@ -81,7 +81,7 @@ for iseas in range(4):
     req = timerequestors.Season_req(2019,iseas,SeasonObj)
     print(req)
     indexes, w = TL.select(req)
-    LIST_of_ndarrays  = store_sub_arrays(TL, indexes, "Ved_200")
+    LIST_of_ndarrays  = store_sub_arrays(TL, indexes, "Ved_150")
     PERC_surf = get_percentiles(LIST_of_ndarrays)
     outfile="%sPercentiles.%s.surf.npy" %(OUTDIR,iseas)
     np.save(outfile,PERC_surf)
