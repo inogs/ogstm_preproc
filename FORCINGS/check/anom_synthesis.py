@@ -25,7 +25,7 @@ for isub, sub in enumerate(OGS.Pred):
 
 
 INPUTDIR="/g100_work/OGS_devC/Benchmark/SETUP/PREPROC/FORCINGS/metrics/output/"
-
+OUTPUTDIR="/g100_work/OGS_devC/Benchmark/pub/Benchmark/votkeavt/synthesis/"
 
 
 TL = TimeList.fromfilenames(None, INPUTDIR, "metrics*nc",prefix="metrics.")
@@ -54,7 +54,7 @@ for iseas in range(4):
 rows_names_list=[sub.name for sub in OGS.P]
 column_names = ['win','spr','sum','fal']
 
-writetable('Anom_out.txt', Mout, rows_names_list, column_names, fmt="%5.3f\t")
+writetable(OUTPUTDIR + 'Anomalies.txt', Mout, rows_names_list, column_names, fmt="%5.3f\t")
     
     
 
