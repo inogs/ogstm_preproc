@@ -24,11 +24,12 @@ INGVMASK=/g100_work/OGS_devC/Benchmark/SETUP/PREPROC/MASK/meshmask_CMCC.nc
 METRICS_2D=/g100_work/OGS_devC/Benchmark/SETUP/PREPROC/FORCINGS/metrics/output
 OUTDIR=/g100_work/OGS_devC/Benchmark/pub/Benchmark/votkeavt/synthesis/
 PERCENTILES_DIR=/g100_work/OGS_devC/Benchmark/SETUP/PREPROC/FORCINGS/metrics/Ved_percentiles/
+RUNNAME=benchmark
 my_prex_or_die "mpirun python metrics_2d.py -i $INPUTDIR -o $METRICS_2D -m $INGVMASK"
 
 my_prex_or_die "python anom_synthesis.py -i $METRICS_2D -m $INGVMASK -o $OUTDIR"
 my_prex_or_die "python Kz_synthesis.py -i $METRICS_2D -m $INGVMASK -o $PERCENTILES_DIR"
-my_prex_or_die "python Kz_statplot.py -i $PERCENTILES_DIR -o $OUTDIR"
+my_prex_or_die "python Kz_statplot.py -i $PERCENTILES_DIR -o $OUTDIR -n $BENCHMARK"
  
 
 exit 0

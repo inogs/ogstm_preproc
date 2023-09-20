@@ -31,6 +31,7 @@ from basins import V2 as OGS
 from commons import season
 from commons import timerequestors
 from commons.utils import addsep
+from commons.layer import Layer
 
 
 
@@ -101,6 +102,8 @@ def get_percentiles(LIST_of_arrays):
             PERC[:,isub] = np.percentile(l[good],perc)
     return PERC 
 
+L150 = Layer(0,150)
+L500 = Layer(150,500)
 for iseas in range(4):
         
     req = timerequestors.Season_req(2019,iseas,SeasonObj)
@@ -108,12 +111,12 @@ for iseas in range(4):
     indexes, w = TL.select(req)
     LIST_of_ndarrays  = store_sub_arrays(TL, indexes, "Ved_150")
     PERC_surf = get_percentiles(LIST_of_ndarrays)
-    outfile="%sPercentiles.%s.surf.npy" %(OUTDIR,iseas)
+    outfile="%sPercentiles.%s.%s.npy" %(OUTDIR,iseas,L150.string())
     np.save(outfile,PERC_surf)
     
     LIST_of_ndarrays  = store_sub_arrays(TL, indexes, "Ved_500")
     PERC_deep = get_percentiles(LIST_of_ndarrays)
-    outfile="%sPercentiles.%s.deep.npy" %(OUTDIR,iseas)
+    outfile="%sPercentiles.%s.%s.npy" %(OUTDIR,iseas, L500.string())
     np.save(outfile,PERC_deep)
 
         

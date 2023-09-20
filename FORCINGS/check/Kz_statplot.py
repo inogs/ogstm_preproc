@@ -37,6 +37,7 @@ import pylab as pl
 from basins import V2 as OGS
 from commons import season
 from commons.utils import addsep
+from commons.layer import Layer
 
 
 color='b'
@@ -52,7 +53,8 @@ e=0.1
 S = season.season()
 
 perc=[1,5,10,25,50,75,90,95,99]
-LIST = ['surf','deep']
+LAYERLIST = [Layer(0,150), Layer(150,500)]
+
 #pl.close('all')
 
 for iSeas in range(4):
@@ -61,8 +63,8 @@ for iSeas in range(4):
     fig.set_size_inches(15,10)
 
 
-    for iax, name in enumerate(LIST):
-        inputfile= "%sPercentiles.%d.%s.npy" %(INPUTDIR, iSeas, name) 
+    for iax, layer in enumerate(LAYERLIST):
+        inputfile= "%sPercentiles.%d.%s.npy" %(INPUTDIR, iSeas, layer.string())
         P=np.load(inputfile)
         ax=axes[iax]
 
@@ -82,7 +84,7 @@ for iSeas in range(4):
         ax.set_xticks(X)
         subnames=[sub.name for sub in OGS.P]
         ax.set_xticklabels(subnames)
-        ax.set_ylabel(name + ' log10(Kz)')
+        ax.set_ylabel(layer.string() + ' log10(Kz) m2/s')
 
     fig.suptitle("Percentiles " + S.SEASON_LIST_NAME[iSeas])
     fig.savefig(outfile)
