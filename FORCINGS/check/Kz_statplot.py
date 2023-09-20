@@ -1,15 +1,48 @@
+import argparse
+
+def argument():
+    parser = argparse.ArgumentParser(description = '''
+    Generates 4 seasonal images
+    with subbasin errorbar, for two layers.
+    Each errorbar has:
+    - a line for percentiles 10-90
+    - a box for percentiles 25-75
+    - a star for percentile 50
+    Example
+    https://medeaf.inogs.it/internal-validation/Benchmark/votkeavt/synthesis/Percentiles.fall.png
+
+    ''')
+    parser.add_argument(   '--inputdir', '-i',
+                                type = str,
+                                required = True,
+                                help = 'percentiles dir')
+    parser.add_argument(   '--outdir', '-o',
+                                type = str,
+                                required = True,
+                                help = '/some/path/')
+    parser.add_argument(   '--runname', '-n',
+                                type = str,
+                                required = True,
+                                help = 'benchmark')
+
+    return parser.parse_args()
+
+args = argument()
+
+
 import numpy as np
 import matplotlib
 matplotlib.use('Qt5Agg')
 import pylab as pl
 from basins import V2 as OGS
 from commons import season
+from commons.utils import addsep
 
 
 color='b'
-INPUTDIR="/g100_work/OGS_devC/Benchmark/SETUP/PREPROC/FORCINGS/metrics/Ved_percentiles/"
-RunName = "benchmark"
-OUTPUTDIR="/g100_work/OGS_devC/Benchmark/pub/Benchmark/votkeavt/synthesis/"
+INPUTDIR=addsep(args.inputdir)
+RunName = args.runname
+OUTPUTDIR=addsep(args.outdir)
 
 
 SUBlist = OGS.P.basin_list

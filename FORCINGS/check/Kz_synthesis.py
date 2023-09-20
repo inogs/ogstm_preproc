@@ -1,3 +1,27 @@
+import argparse
+
+def argument():
+    parser = argparse.ArgumentParser(description = '''
+
+    ''')
+    parser.add_argument(   '--inputdir', '-i',
+                                type = str,
+                                required = True,
+                                help = 'metrics_2d dir')
+    parser.add_argument(   '--outdir', '-o',
+                                type = str,
+                                required = True,
+                                help = '/some/path/')
+    parser.add_argument(   '--maskfile', '-m',
+                                type = str,
+                                required = True,
+                                help = '/gpfs/scratch/userexternal/gbolzon0/OPEN_BOUNDARY/FORCINGS_CHECK/meshmask_INGV.nc')
+
+    return parser.parse_args()
+
+args = argument()
+
+
 import numpy as np
 from commons.mask import Mask
 from commons.submask import SubMask
@@ -6,16 +30,17 @@ from commons.Timelist import TimeList
 from basins import V2 as OGS
 from commons import season
 from commons import timerequestors
+from commons.utils import addsep
 
 
 
 
 SeasonObj = season.season()
-INPUTDIR="/g100_work/OGS_devC/Benchmark/SETUP/PREPROC/FORCINGS/metrics/output/"
-OUTDIR = "/g100_work/OGS_devC/Benchmark/SETUP/PREPROC/FORCINGS/metrics/Ved_percentiles/"
+INPUTDIR=addsep(args.inputdir)
+OUTDIR = addsep(args.outdir)
 
 
-TheMask=Mask('/g100_work/OGS_devC/Benchmark/SETUP/PREPROC/MASK/meshmask_CMCC.nc')
+TheMask=Mask(args.maskfile)
 jpk, jpj, jpi = TheMask.shape
 TheMask.cut_at_level(0)
 
