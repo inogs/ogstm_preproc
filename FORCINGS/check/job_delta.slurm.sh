@@ -25,6 +25,7 @@ METRICS_2D=/g100_work/OGS_devC/Benchmark/SETUP/PREPROC/FORCINGS/metrics/output
 OUTDIR=/g100_work/OGS_devC/Benchmark/pub/Benchmark/votkeavt/synthesis/
 PERCENTILES_DIR=/g100_work/OGS_devC/Benchmark/SETUP/PREPROC/FORCINGS/metrics/Ved_percentiles/
 RUNNAME=benchmark
+mkdir -p $METRICS_2D $OUTDIR $PERCENTILES_DIR
 my_prex_or_die "mpirun python metrics_2d.py -i $INPUTDIR -o $METRICS_2D -m $INGVMASK"
 
 my_prex_or_die "python anom_synthesis.py -i $METRICS_2D -m $INGVMASK -o $OUTDIR"
