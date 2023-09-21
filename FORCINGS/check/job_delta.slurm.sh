@@ -28,9 +28,9 @@ RUNNAME=benchmark
 mkdir -p $METRICS_2D $OUTDIR $PERCENTILES_DIR
 my_prex_or_die "mpirun python metrics_2d.py -i $INPUTDIR -o $METRICS_2D -m $INGVMASK"
 
-my_prex_or_die "python anom_synthesis.py -i $METRICS_2D -m $INGVMASK -o $OUTDIR"
+my_prex_or_die "python Kz_anom_synthesis.py -i $METRICS_2D -m $INGVMASK -o $OUTDIR"
 my_prex_or_die "python metrics_2d_percentiles.py -i $METRICS_2D -m $INGVMASK -o $PERCENTILES_DIR"
-my_prex_or_die "python Kz_statplot.py -i $PERCENTILES_DIR -o $OUTDIR -n $BENCHMARK"
+my_prex_or_die "python metrics_2d_percentiles_plot.py -i $PERCENTILES_DIR -o $OUTDIR -n $RUNNAME"
  
 
 exit 0
