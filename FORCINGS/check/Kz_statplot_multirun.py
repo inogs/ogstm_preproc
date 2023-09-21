@@ -30,10 +30,9 @@ S = season.season()
 perc=[1,5,10,25,50,75,90,95,99]
 LAYERLIST = [Layer(0,150), Layer(150,500)]
 
-#pl.close('all')
 
 for iSeas in range(4):
-    outfile = "%sPercentiles.%s.png" %(OUTPUTDIR,S.SEASON_LIST_NAME[iSeas])
+    outfile = "%sKz_Percentiles.%s.png" %(OUTPUTDIR,S.SEASON_LIST_NAME[iSeas])
     fig,axes=pl.subplots(2,1)
     fig.set_size_inches(15,10)
 
@@ -66,8 +65,43 @@ for iSeas in range(4):
         ax.set_xticklabels(subnames)
         ax.set_ylabel(layer.string() + ' log10(Kz) m2/s')
 
-    fig.suptitle("Percentiles " + S.SEASON_LIST_NAME[iSeas])
+    fig.suptitle("Kz_Percentiles " + S.SEASON_LIST_NAME[iSeas])
     fig.savefig(outfile)
     pl.close(fig)
 
+
+VARLIST=["mld", "stratification_index", "KE_total", "KE_ratio"]
+UNITS = ['m', ' ', 'm4/s2', ' ']
+for iSeas in range(4):
+    for ivar, var in enumerate(VARLIST):
+        outfile = "%s%s_Percentiles.%s.png" %(OUTPUTDIR,var, S.SEASON_LIST_NAME[iSeas])
+        fig,ax=pl.subplots(1,1)
+        fig.set_size_inches(15,5)
+        for run in [D1, D2, D3]:
+            INPUTDIR=run['INPUTDIR']
+            color=run['color']
+            RunName=run['runname']
+            shift =run['shift']
+            inputfile= "%sPercentiles.%d.%s.npy" %(INPUTDIR, iSeas, var)
+            P=np.load(inputfile)
+            for isub in range(nSub):
+                p1, p5,  p10, p25, p50, p75, p90, p95, p99 = P[:,isub]
+                x = isub + shift
+                if isub == 0:
+                    ax.plot([x,x],[ p10,p90 ], color, label=RunName)
+                else:
+                    ax.plot([x,x],[ p10,p90 ], color)
+                ymin, ymax = p25, p75
+                ax.plot([x-e, x+e, x+e, x-e, x-e], [ymin, ymin, ymax, ymax, ymin] , color)
+                ax.plot(x,p50,'*', color=color)
+        ax.legend()
+        ax.grid(True)
+        ax.set_xticks(X)
+        subnames=[sub.name for sub in OGS.P]
+        ax.set_xticklabels(subnames)
+        ax.set_ylabel(var + " " + UNITS[ivar])
+
+        fig.suptitle(var + " Percentiles " + S.SEASON_LIST_NAME[iSeas])
+        fig.savefig(outfile)
+        pl.close(fig)
 
