@@ -2,8 +2,8 @@ import argparse
 
 def argument():
     parser = argparse.ArgumentParser(description = '''
-    Generates Anomalies.txt, about Vertical Eddy Diffusivity
-    The txt file contains is a table [sub, season ] of ratio
+    Generates Kz_Anomalies.txt and Kz_Anomalies.png, about Vertical Eddy Diffusivity
+    The two file contains is a table [sub, season ] of ratio
     column with anomalous values / total of watercolumns
     ''')
     parser.add_argument(   '--inputdir', '-i',
@@ -17,7 +17,7 @@ def argument():
     parser.add_argument(   '--maskfile', '-m',
                                 type = str,
                                 required = True,
-                                help = '/gpfs/scratch/userexternal/gbolzon0/OPEN_BOUNDARY/FORCINGS_CHECK/meshmask_INGV.nc')
+                                help = 'meshmask_INGV.nc')
 
     return parser.parse_args()
 
@@ -35,6 +35,9 @@ from commons import season
 from commons import timerequestors
 from commons.utils import writetable
 from commons.utils import addsep
+import matplotlib
+matplotlib.use('Agg')
+import pylab as pl
 
 SeasonObj = season.season()
 
@@ -82,7 +85,27 @@ for iseas in range(4):
 rows_names_list=[sub.name for sub in OGS.P]
 column_names = ['win','spr','sum','fal']
 
-writetable(OUTPUTDIR + 'Anomalies.txt', Mout, rows_names_list, column_names, fmt="%5.3f\t")
-    
+writetable(OUTPUTDIR + 'Kz_Anomalies.txt', Mout, rows_names_list, column_names, fmt="%5.3f\t")
 
-    
+
+pl.close('all')
+fig,ax=pl.subplots()
+fig.set_size_inches(5,5)
+ax.set_position([0.08, 0.13, 0.78, 0.78])
+cmap=pl.get_cmap('viridis',10)
+im=ax.imshow(Mout*100, aspect='auto',extent=[-.5,3.5,-0.5,17.5], cmap=cmap)
+
+im.set_clim(0, 20)
+
+cbar_ticks_list = np.arange(0,22,2)
+cbar = fig.colorbar(im,ticks=cbar_ticks_list)
+
+ax.set_yticks(np.arange(nSub))
+ax.set_yticklabels(rows_names_list[-1::-1])
+ax.set_xticks(np.arange(4))
+ax.set_xticklabels(column_names)
+fig.suptitle("% Kz anomalies in 150 - 500m")
+fig.savefig(OUTPUTDIR + 'Kz_anomalies.png',dpi=150)
+
+
+
