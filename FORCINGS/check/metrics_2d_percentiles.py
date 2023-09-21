@@ -31,7 +31,6 @@ from basins import V2 as OGS
 from commons import season
 from commons import timerequestors
 from commons.utils import addsep
-from commons.layer import Layer
 
 
 
@@ -88,6 +87,8 @@ def store_sub_arrays(TL, indexes, varname):
             mask = SUB[sub.name]
             l[nPoints*iframe:nPoints*(iframe+1)]  = M2d[mask]
     return LIST_of_ndarrays
+
+
 def get_percentiles(LIST_of_arrays): 
     '''
     returns a 2d array [nPerc, nSub] of percentiles
@@ -102,22 +103,18 @@ def get_percentiles(LIST_of_arrays):
             PERC[:,isub] = np.percentile(l[good],perc)
     return PERC 
 
-L150 = Layer(0,150)
-L500 = Layer(150,500)
+
 for iseas in range(4):
         
     req = timerequestors.Season_req(2019,iseas,SeasonObj)
     print(req)
     indexes, w = TL.select(req)
-    LIST_of_ndarrays  = store_sub_arrays(TL, indexes, "Ved_150")
-    PERC_surf = get_percentiles(LIST_of_ndarrays)
-    outfile="%sPercentiles.%s.%s.npy" %(OUTDIR,iseas,L150.string())
-    np.save(outfile,PERC_surf)
-    
-    LIST_of_ndarrays  = store_sub_arrays(TL, indexes, "Ved_500")
-    PERC_deep = get_percentiles(LIST_of_ndarrays)
-    outfile="%sPercentiles.%s.%s.npy" %(OUTDIR,iseas, L500.string())
-    np.save(outfile,PERC_deep)
+    for var in ["Ved_150", "Ved_500", "KE_total", "KE_ratio", "stratification_index","mld"] :
+        LIST_of_ndarrays  = store_sub_arrays(TL, indexes, var)
+        PERC = get_percentiles(LIST_of_ndarrays)
+        outfile="%sPercentiles.%s.%s.npy" %(OUTDIR,iseas, var)
+        np.save(outfile,PERC)
+
 
         
             
