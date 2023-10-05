@@ -1,12 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root>
-
-<var name="N3n" longname="Nitrate"  units="g/m3"></var>
-<var name="N1p" longname="Phosphate" units="g/m3"></var>
-<var name="DIC" longname="Dissolved inorganic carbon"  units="g/m3"></var>
-<var name="POC" longname="Particulate Organic Carbon" units="g/m3"></var>
-<var name="DOC" longname="Dissolved Organic Carbon" units="g/m3"></var>
-<var name="ALK" longname="Alkalinity" units="Gmol/km3"></var>
+    <Variables>
+        <var>
+            <name>N3n</name>
+            <longname>Nitrate</longname>
+            <units>g/m3</units>
+        </var>
+        <var>
+            <name>N1p</name>
+            <longname>Phosphate</longname>
+            <units>g/m3</units>
+        </var>
+        <var>
+            <name>DIC</name>
+            <longname>Dissolved inorganic carbon</longname>
+            <units>g/m3</units>
+        </var>
+        <var>
+            <name>POC</name>
+            <longname>Particulate Organic Carbon</longname>
+            <units>g/m3</units>
+        </var>
+        <var>
+            <name>DOC</name>
+            <longname>Dissolved Organic Carbon</longname>
+            <units>g/m3</units>
+        </var>
+        <var>
+            <name>ALK</name>
+            <longname>Alkalinity</longname>
+            <units>Gmol/km3</units>
+        </var>
+    </Variables>
 
 <RIVERS >
 
