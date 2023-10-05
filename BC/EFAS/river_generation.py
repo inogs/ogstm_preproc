@@ -1,0 +1,202 @@
+import argparse
+from collections import namedtuple
+import numpy as np
+import netCDF4
+from os import path
+import seawater as sw
+
+from commons.utils import addsep
+from commons.Timelist import TimeList
+from commons.mask import Mask
+from commons.dataextractor import DataExtractor
+
+from river_reader import RIVERS, BGC_VARS
+
+# These are the variables that we have for the Po river but that are not
+# included in the rivers.xml file
+PO_SUPPLEMENTARY_VARIABLES = {
+    'O2o': 250,  # mmol/m3
+    'R3l': 46 * 4
+}
+
+
+# Some variables must be computed by changing the name and/or the units of
+# measurements of the original ones. In this dictionary, we save the conversion:
+# we associate the original name to a pair with the new name and the
+# coefficient we use to multiply the original variable. If a variable is not in
+# this dictionary, it will be copied "as is"
+VARS_CONVERSION = {
+    'ALK': ('O3h', '1. / rho'),
+    'DIC': ('O3c', '1. / rho'),
+    'POC': ('R6c', '1. / rho'),
+    'DOC': ('R3c', '1. / rho'),
+    'N3n': ('N5s', 28.0855 / 14.0067)
+}
+
+
+OutputVariable = namedtuple(
+    'OutputVariable',
+    ('name', 'lon_positions', 'lat_positions', 'values')
+)
+
+
+def read_command_line_args():
+    parser = argparse.ArgumentParser(
+        description='Generates PO files reading runoff from forcings'
+    )
+    parser.add_argument(
+        '--inputdir',
+        '-i',
+        type=str,
+        required=True,
+        help='/some/path/'
+    )
+    parser.add_argument(
+        '--outdir',
+        "-o",
+        type=str,
+        required=True,
+        help='/some/path/'
+    )
+    parser.add_argument(
+        '--cmccmaskfile', '-M',
+        type=str,
+        required=True,
+        help='/some/path/outmask.nc'
+    )
+    parser.add_argument(
+        '--maskfile', '-m',
+        type=str,
+        required=True,
+        help='''NetCDF File name of the mask.''')
+
+    return parser.parse_args()
+
+
+def main():
+    args = read_command_line_args()
+
+    input_dir = addsep(args.inputdir)
+    output_dir = addsep(args.outdir)
+
+    cmcc_mask = Mask(args.cmccmaskfile)
+    ogs_mask = Mask(args.maskfile)
+
+    # Check the size of the region of CMCC mask on the left of the strait of
+    # Gibraltar that is missing in the OGS model
+    mask_cut = cmcc_mask.shape[-1] - ogs_mask.shape[-1]
+
+    lon_positions = RIVERS['I']
+    lat_positions = RIVERS['J']
+
+    # Check which points belong to the Po river
+    po_mask = RIVERS['name'] == 'Po'
+
+    surface_level_height = cmcc_mask.zlevels[0]
+    pressure = np.ones_like(lon_positions, dtype=np.float32)
+    pressure *= surface_level_height
+
+    time_list = TimeList.fromfilenames(None, input_dir, "T*.nc", prefix="T")
+
+    for timestep, filename in enumerate(time_list.filelist):
+        runoff = DataExtractor(
+            cmcc_mask,
+            filename,
+            'sorunoff',
+            dimvar=2
+        ).values[lat_positions, lon_positions + mask_cut]
+
+        surface_potential_temperature = DataExtractor(
+            cmcc_mask,
+            filename,
+            'votemper',
+            dimvar=2
+        ).values[lat_positions, lon_positions + mask_cut]
+
+        surface_temperature = sw.temp(
+            s=RIVERS['SAL'],
+            pt=surface_potential_temperature,
+            p=pressure
+        )
+
+        density = sw.dens(
+            s=RIVERS['SAL'],
+            t=surface_temperature,
+            p=pressure
+        )
+
+        cell_areas = cmcc_mask.area[lat_positions, lon_positions + mask_cut]
+
+        discharge = runoff * cell_areas / density  # m^3/s
+
+        output_data = []
+        for variable in BGC_VARS:
+            var_name = variable.name
+            var_concentration = np.copy(RIVERS[var_name])
+            conversion_factor = 1.
+
+            if var_name in VARS_CONVERSION:
+                var_name, conversion_factor_raw = VARS_CONVERSION[var_name]
+                if isinstance(conversion_factor_raw, str):
+                    conversion_factor = np.asarray(eval(
+                        conversion_factor_raw,
+                        {'rho': density}
+                    ))
+
+            var_concentration *= conversion_factor
+            var_data = discharge * var_concentration / cell_areas
+
+            current_var = OutputVariable(
+                name=var_name,
+                lon_positions=lon_positions,
+                lat_positions=lat_positions,
+                values=var_data
+            )
+            output_data.append(current_var)
+
+        po_discharge = discharge[po_mask]
+        po_cell_areas = cell_areas[po_mask]
+        for var_name, var_concentration in PO_SUPPLEMENTARY_VARIABLES.items():
+            var_data = po_discharge * var_concentration / po_cell_areas
+            current_var = OutputVariable(
+                name=var_name,
+                lon_positions=lon_positions[po_mask],
+                lat_positions=lat_positions[po_mask],
+                values=var_data
+            )
+            output_data.append(current_var)
+
+        # Now we write the content of the output_data dictionary on a netcdf
+        # file
+        date_str = time_list.Timelist[timestep].strftime("%Y%m%d-%H:%M:%S")
+        outfile = path.join(
+            output_dir,
+            "TIN_{}.nc".format(date_str)
+        )
+
+        with netCDF4.Dataset(outfile, 'w') as nc_file:
+            nc_file.createDimension('lon', ogs_mask.shape[2])
+            nc_file.createDimension('lat', ogs_mask.shape[1])
+
+            for output_var in output_data:
+                nc_var = nc_file.createVariable(
+                    'riv_{}'.format(output_var.name),
+                    datatype='f4',
+                    dimensions=('lat', 'lon'),
+                    fill_value=1e20,
+                    chunksizes=(10, 10),
+                    compression='zlib',
+                    complevel=2
+                )
+
+                coordinates = zip(
+                    output_var.lat_positions,
+                    output_var.lon_positions
+                )
+
+                for i, (lat_index, lon_index) in enumerate(coordinates):
+                    nc_var[lat_index, lon_index] = output_var.values[i]
+
+
+if __name__ == '__main__':
+    main()
