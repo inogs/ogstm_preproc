@@ -74,6 +74,9 @@ VARS_CONVERSIONS = {
 }
 
 
+FILL_VALUE = 1e20
+
+
 OutputVariable = namedtuple(
     'OutputVariable',
     ('name', 'lon_positions', 'lat_positions', 'values')
@@ -195,19 +198,25 @@ def main():
                     'riv_{}'.format(output_var.name),
                     datatype='f4',
                     dimensions=('lat', 'lon'),
-                    fill_value=1e20,
-                    chunksizes=(10, 10),
+                    fill_value=FILL_VALUE,
                     compression='zlib',
                     complevel=2
                 )
 
-                coordinates = zip(
-                    output_var.lat_positions,
-                    output_var.lon_positions
+                nc_var_data = np.empty(
+                    shape=ogs_mask.shape[-2:],
+                    dtype=np.float32
                 )
+                nc_var_data[:] = FILL_VALUE
 
-                for i, (lat_index, lon_index) in enumerate(coordinates):
-                    nc_var[lat_index, lon_index] = output_var.values[i]
+                # Fill water points with -1 to help visualization
+                nc_var_data[ogs_mask.mask_at_level(0)] = -1
+
+                lon_pos = output_var.lon_positions
+                lat_pos = output_var.lat_positions
+                nc_var_data[(lat_pos, lon_pos)] = output_var.values
+
+                nc_var[:] = nc_var_data
 
 
 if __name__ == '__main__':
