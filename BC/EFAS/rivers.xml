@@ -31,6 +31,16 @@
             <longname>Alkalinity</longname>
             <units>Gmol/km3</units>
         </var>
+        <var>
+            <name>O2o</name>
+            <longname>Oxygen</longname>
+            <units>mmol/m3</units>
+        </var>
+        <var>
+            <name>R3l</name>
+            <longname>Colored dissolved organic matter</longname>
+            <units>mg/m3</units>
+        </var>
     </Variables>
 
 <RIVERS >
@@ -39,8 +49,6 @@
 <var name="N3n" value="12.88151887"/>
 <var name="N1p" value="0.4920024567"/>
 <var name="DIC" value="35.33372945"/>
-<var name="POC" value="0"/>
-<var name="DOC" value="0"/>
 <var name="ALK" value="2.414895666"/>
 </concentrations>
 <Mouths>
@@ -71,6 +79,8 @@
 <var name="POC" value="1.516579034"/>
 <var name="DOC" value="2.290015211"/>
 <var name="ALK" value="3.004012311"/>
+<var name="O2o" value="250"/>
+<var name="R3l" value="184"/>
 </concentrations>
 <Mouths>
 <mouth I="512" J="358" id="4" name="Po Maistra"/>
@@ -260,7 +270,6 @@
 <var name="N3n" value="2.228379672"/>
 <var name="N1p" value="0.2833101354"/>
 <var name="DIC" value="52.96372484"/>
-<var name="POC" value="0"/>
 <var name="DOC" value="3.238446841"/>
 <var name="ALK" value="5.159381996"/>
 </concentrations>
@@ -309,7 +318,6 @@
 <var name="N3n" value="2.228379672"/>
 <var name="N1p" value="0.2833101354"/>
 <var name="DIC" value="52.96372484"/>
-<var name="POC" value="0"/>
 <var name="DOC" value="3.238446841"/>
 <var name="ALK" value="5.159381996"/>
 </concentrations>
@@ -336,7 +344,6 @@
 <var name="N3n" value="2.228379672"/>
 <var name="N1p" value="0.2833101354"/>
 <var name="DIC" value="52.96372484"/>
-<var name="POC" value="0"/>
 <var name="DOC" value="3.238446841"/>
 <var name="ALK" value="5.159381996"/>
 </concentrations>
@@ -360,8 +367,6 @@
 <var name="N3n" value="1.707923052"/>
 <var name="N1p" value="0.3849841078"/>
 <var name="DIC" value="34.40558202"/>
-<var name="POC" value="0"/>
-<var name="DOC" value="0"/>
 <var name="ALK" value="2.617214852"/>
 </concentrations>
 <Mouths><mouth I="786" J="255" id="38" name="Struma/Strymonas"/></Mouths>
@@ -372,8 +377,6 @@
 <var name="N3n" value="1.707923052"/>
 <var name="N1p" value="0.3849841078"/>
 <var name="DIC" value="34.40558202"/>
-<var name="POC" value="0"/>
-<var name="DOC" value="0"/>
 <var name="ALK" value="2.617214852"/>
 </concentrations>
 <Mouths><mouth I="838" J="254" id="39" name="Meric/Evros/Maritsa"/></Mouths>
@@ -384,8 +387,6 @@
 <var name="N3n" value="1.707923052"/>
 <var name="N1p" value="0.3849841078"/>
 <var name="DIC" value="34.40558202"/>
-<var name="POC" value="0"/>
-<var name="DOC" value="0"/>
 <var name="ALK" value="2.617214852"/>
 </concentrations>
 <Mouths><mouth I="759" J="248" id="40" name="Axios/Vadar"/></Mouths>
@@ -408,8 +409,6 @@
 <var name="N3n" value="1.707923052"/>
 <var name="N1p" value="0.3849841078"/>
 <var name="DIC" value="34.40558202"/>
-<var name="POC" value="0"/>
-<var name="DOC" value="0"/>
 <var name="ALK" value="2.617214852"/>
 </concentrations>
 <Mouths><mouth I="760" J="235" id="42" name="Pinios"/></Mouths>
@@ -432,8 +431,6 @@
 <var name="N3n" value="1.707923052"/>
 <var name="N1p" value="0.3849841078"/>
 <var name="DIC" value="34.40558202"/>
-<var name="POC" value="0"/>
-<var name="DOC" value="0"/>
 <var name="ALK" value="2.617214852"/>
 </concentrations>
 <Mouths><mouth I="856" J="203" id="44" name="Gediz"/></Mouths>
@@ -444,8 +441,6 @@
 <var name="N3n" value="1.707923052"/>
 <var name="N1p" value="0.3849841078"/>
 <var name="DIC" value="34.40558202"/>
-<var name="POC" value="0"/>
-<var name="DOC" value="0"/>
 <var name="ALK" value="2.617214852"/>
 </concentrations>
 <Mouths><mouth I="866" J="177" id="45" name="Buyuk Menderes"/></Mouths>
@@ -456,8 +451,6 @@
 <var name="N3n" value="2.059751119"/>
 <var name="N1p" value="0.08246172369"/>
 <var name="DIC" value="32.23431597"/>
-<var name="POC" value="0"/>
-<var name="DOC" value="0"/>
 <var name="ALK" value="2.517943763"/>
 </concentrations>
 <Mouths><mouth I="962" J="160" id="46" name="Kopru"/></Mouths>
@@ -468,8 +461,6 @@
 <var name="N3n" value="2.059751119"/>
 <var name="N1p" value="0.08246172369"/>
 <var name="DIC" value="32.23431597"/>
-<var name="POC" value="0"/>
-<var name="DOC" value="0"/>
 <var name="ALK" value="2.517943763"/>
 </concentrations>
 <Mouths><mouth I="969" J="158" id="47" name="Manavgat"/></Mouths>
@@ -480,8 +471,6 @@
 <var name="N3n" value="2.059751119"/>
 <var name="N1p" value="0.08246172369"/>
 <var name="DIC" value="32.23431597"/>
-<var name="POC" value="0"/>
-<var name="DOC" value="0"/>
 <var name="ALK" value="2.517943763"/>
 </concentrations>
 <Mouths><mouth I="1051" J="158" id="48" name="Seyhan"/></Mouths>
@@ -492,8 +481,6 @@
 <var name="N3n" value="2.059751119"/>
 <var name="N1p" value="0.08246172369"/>
 <var name="DIC" value="32.23431597"/>
-<var name="POC" value="0"/>
-<var name="DOC" value="0"/>
 <var name="ALK" value="2.517943763"/>
 </concentrations>
 <Mouths><mouth I="1067" J="154" id="49" name="Ceyhan"/></Mouths>
@@ -504,8 +491,6 @@
 <var name="N3n" value="2.059751119"/>
 <var name="N1p" value="0.08246172369"/>
 <var name="DIC" value="32.23431597"/>
-<var name="POC" value="0"/>
-<var name="DOC" value="0"/>
 <var name="ALK" value="2.517943763"/>
 </concentrations>
 <Mouths><mouth I="1031" J="147" id="50" name="Gosku"/></Mouths>
@@ -516,8 +501,6 @@
 <var name="N3n" value="2.55943321"/>
 <var name="N1p" value="0.1723111546"/>
 <var name="DIC" value="57.81148076"/>
-<var name="POC" value="0"/>
-<var name="DOC" value="0"/>
 <var name="ALK" value="5.734942379"/>
 </concentrations>
 <Mouths><mouth I="459" J="165" id="51" name="Medjerda"/></Mouths>
@@ -528,8 +511,6 @@
 <var name="N3n" value="2.059751119"/>
 <var name="N1p" value="0.08246172369"/>
 <var name="DIC" value="32.23431597"/>
-<var name="POC" value="0"/>
-<var name="DOC" value="0"/>
 <var name="ALK" value="2.517943763"/>
 </concentrations>
 <Mouths><mouth I="1076" J="142" id="52" name="Asi/Orontes"/></Mouths>

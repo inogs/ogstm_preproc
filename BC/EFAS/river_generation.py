@@ -52,10 +52,7 @@ from river_reader import RIVERS, BGC_VARS
 
 # These are the variables that we have for the Po river but that are not
 # included in the rivers.xml file
-PO_SUPPLEMENTARY_VARIABLES = {
-    'O2o': 250,  # mmol/m3
-    'R3l': 46 * 4
-}
+PO_SUPPLEMENTARY_VARIABLES = {}
 
 
 # Some variables must be computed by changing the name and/or the units of
