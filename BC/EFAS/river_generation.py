@@ -21,16 +21,18 @@ PO_SUPPLEMENTARY_VARIABLES = {
 
 
 # Some variables must be computed by changing the name and/or the units of
-# measurements of the original ones. In this dictionary, we save the conversion:
-# we associate the original name to a pair with the new name and the
+# measurements of the original ones. In this dictionary, we save the
+# conversions of each variable: we associate the original name to a tuple of
+# conversions; each conversion is a pair that contains a new name and the
 # coefficient we use to multiply the original variable. If a variable is not in
-# this dictionary, it will be copied "as is"
-VARS_CONVERSION = {
-    'ALK': ('O3h', '1. / rho'),
-    'DIC': ('O3c', '1. / rho'),
-    'POC': ('R6c', '1. / rho'),
-    'DOC': ('R3c', '1. / rho'),
-    'N3n': ('N5s', 28.0855 / 14.0067)
+# this dictionary, it will be copied "as is" (i.e., its conversion will be the
+# tuple that contains only the pair (original_name, 1.))
+VARS_CONVERSIONS = {
+    'ALK': (('O3h', '1. / rho'),),
+    'DIC': (('O3c', '1. / rho'),),
+    'POC': (('R6c', '1. / rho'),),
+    'DOC': (('R3c', '1. / rho'),),
+    'N3n': (('N5s', 28.0855 / 14.0067), ('N3n', 1.))
 }
 
 
@@ -131,28 +133,35 @@ def main():
 
         output_data = []
         for variable in BGC_VARS:
-            var_name = variable.name
-            var_concentration = np.copy(RIVERS[var_name])
-            conversion_factor = 1.
+            # If there is not the name of the variable on the VARS_CONVERSIONS
+            # dict, create a dummy conversion with the same name and coefficient
+            # equal to 1.
+            var_conversions = VARS_CONVERSIONS.get(
+                variable.name,
+                ((variable.name, 1.),)
+            )
 
-            if var_name in VARS_CONVERSION:
-                var_name, conversion_factor_raw = VARS_CONVERSION[var_name]
+            raw_var_concentration = RIVERS[variable.name]
+
+            for var_name, conversion_factor_raw in var_conversions:
                 if isinstance(conversion_factor_raw, str):
                     conversion_factor = np.asarray(eval(
                         conversion_factor_raw,
                         {'rho': density}
                     ))
+                else:
+                    conversion_factor = conversion_factor_raw
 
-            var_concentration *= conversion_factor
-            var_data = discharge * var_concentration / cell_areas
+                var_concentration = raw_var_concentration * conversion_factor
+                var_data = discharge * var_concentration / cell_areas
 
-            current_var = OutputVariable(
-                name=var_name,
-                lon_positions=lon_positions,
-                lat_positions=lat_positions,
-                values=var_data
-            )
-            output_data.append(current_var)
+                current_var = OutputVariable(
+                    name=var_name,
+                    lon_positions=lon_positions,
+                    lat_positions=lat_positions,
+                    values=var_data
+                )
+                output_data.append(current_var)
 
         po_discharge = discharge[po_mask]
         po_cell_areas = cell_areas[po_mask]
