@@ -50,10 +50,6 @@ from commons.dataextractor import DataExtractor
 
 from river_reader import RIVERS, BGC_VARS
 
-# These are the variables that we have for the Po river but that are not
-# included in the rivers.xml file
-PO_SUPPLEMENTARY_VARIABLES = {}
-
 
 # Some variables must be computed by changing the name and/or the units of
 # measurements of the original ones. In this dictionary, we save the
@@ -93,9 +89,6 @@ def main():
 
     lon_positions = RIVERS['I']
     lat_positions = RIVERS['J']
-
-    # Check which points belong to the Po river
-    po_mask = RIVERS['name'] == 'Po'
 
     surface_level_height = cmcc_mask.zlevels[0]
     pressure = np.ones_like(lon_positions, dtype=np.float32)
@@ -144,39 +137,32 @@ def main():
                 ((variable.name, 1.),)
             )
 
-            raw_var_concentration = RIVERS[variable.name]
+            var_mask = RIVERS.get_variable_mask(variable)
+            raw_var_concentration = RIVERS[variable.name][var_mask]
+
+            # Keep only the values related to the current variable
+            var_discharge = discharge[var_mask]
+            var_cell_areas = cell_areas[var_mask]
 
             for var_name, conversion_factor_raw in var_conversions:
                 if isinstance(conversion_factor_raw, str):
                     conversion_factor = np.asarray(eval(
                         conversion_factor_raw,
-                        {'rho': density}
+                        {'rho': density[var_mask]}
                     ))
                 else:
                     conversion_factor = conversion_factor_raw
 
                 var_concentration = raw_var_concentration * conversion_factor
-                var_data = discharge * var_concentration / cell_areas
+                var_data = var_discharge * var_concentration / var_cell_areas
 
                 current_var = OutputVariable(
                     name=var_name,
-                    lon_positions=lon_positions,
-                    lat_positions=lat_positions,
+                    lon_positions=lon_positions[var_mask],
+                    lat_positions=lat_positions[var_mask],
                     values=var_data
                 )
                 output_data.append(current_var)
-
-        po_discharge = discharge[po_mask]
-        po_cell_areas = cell_areas[po_mask]
-        for var_name, var_concentration in PO_SUPPLEMENTARY_VARIABLES.items():
-            var_data = po_discharge * var_concentration / po_cell_areas
-            current_var = OutputVariable(
-                name=var_name,
-                lon_positions=lon_positions[po_mask],
-                lat_positions=lat_positions[po_mask],
-                values=var_data
-            )
-            output_data.append(current_var)
 
         # Now we write the content of the output_data dictionary on a netcdf
         # file
