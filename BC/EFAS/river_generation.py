@@ -1,4 +1,42 @@
 import argparse
+
+
+def read_command_line_args():
+    parser = argparse.ArgumentParser(
+        description='Generates PO files reading runoff from forcings'
+    )
+    parser.add_argument(
+        '--inputdir',
+        '-i',
+        type=str,
+        required=True,
+        help='/some/path/'
+    )
+    parser.add_argument(
+        '--outdir',
+        "-o",
+        type=str,
+        required=True,
+        help='/some/path/'
+    )
+    parser.add_argument(
+        '--cmccmaskfile', '-M',
+        type=str,
+        required=True,
+        help='/some/path/outmask.nc'
+    )
+    parser.add_argument(
+        '--maskfile', '-m',
+        type=str,
+        required=True,
+        help='''NetCDF File name of the mask.''')
+
+    return parser.parse_args()
+
+
+ARGS = read_command_line_args()
+
+
 from collections import namedtuple
 import numpy as np
 import netCDF4
@@ -42,47 +80,12 @@ OutputVariable = namedtuple(
 )
 
 
-def read_command_line_args():
-    parser = argparse.ArgumentParser(
-        description='Generates PO files reading runoff from forcings'
-    )
-    parser.add_argument(
-        '--inputdir',
-        '-i',
-        type=str,
-        required=True,
-        help='/some/path/'
-    )
-    parser.add_argument(
-        '--outdir',
-        "-o",
-        type=str,
-        required=True,
-        help='/some/path/'
-    )
-    parser.add_argument(
-        '--cmccmaskfile', '-M',
-        type=str,
-        required=True,
-        help='/some/path/outmask.nc'
-    )
-    parser.add_argument(
-        '--maskfile', '-m',
-        type=str,
-        required=True,
-        help='''NetCDF File name of the mask.''')
-
-    return parser.parse_args()
-
-
 def main():
-    args = read_command_line_args()
+    input_dir = addsep(ARGS.inputdir)
+    output_dir = addsep(ARGS.outdir)
 
-    input_dir = addsep(args.inputdir)
-    output_dir = addsep(args.outdir)
-
-    cmcc_mask = Mask(args.cmccmaskfile)
-    ogs_mask = Mask(args.maskfile)
+    cmcc_mask = Mask(ARGS.cmccmaskfile)
+    ogs_mask = Mask(ARGS.maskfile)
 
     # Check the size of the region of CMCC mask on the left of the strait of
     # Gibraltar that is missing in the OGS model
