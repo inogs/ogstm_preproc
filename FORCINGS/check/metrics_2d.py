@@ -1,4 +1,5 @@
 import argparse
+CO2airflux
 
 def argument():
     parser = argparse.ArgumentParser(description = '''
@@ -100,7 +101,7 @@ FRAMES=range(nFrames)
 
 for iframe in FRAMES[rank::nranks]:
     timestr = TL.Timelist[iframe].strftime("%Y%m%d-%H:%M:%S")
-    print(timestr)
+    print(timestr,flush=True)
     filenameU=INPUTDIR + "U" + timestr + ".nc"
     filenameV=INPUTDIR + "V" + timestr + ".nc"
     filenameW=INPUTDIR + "W" + timestr + ".nc"
