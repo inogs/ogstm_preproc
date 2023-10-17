@@ -9,15 +9,17 @@ from commons.layer import Layer
 
 
 INPUTDIR1="/g100_work/OGS_devC/Benchmark/SETUP/PREPROC/FORCINGS/metrics/Ved_percentiles/"
-INPUTDIR2="/g100_scratch/userexternal/gbolzon0/V10C/FORCINGS_EAS8/metrics/6H/Ved_percentiles/"
-INPUTDIR3="/g100_scratch/userexternal/gbolzon0/V10C/FORCINGS_EAS8/metrics/24H/Ved_percentiles/"
+INPUTDIR2="/g100_scratch/userexternal/gbolzon0/V10C/FORCINGS_EAS8/metrics/24H/Ved_percentiles/"
+INPUTDIR3="/g100_scratch/userexternal/gbolzon0/V10C/FORCINGS_EAS8/metrics/6H/Ved_percentiles/"
 D1={'color':'b', 'INPUTDIR': INPUTDIR1, 'runname': 'benchmark', 'shift':0}
-D2={'color':'r', 'INPUTDIR': INPUTDIR2, 'runname': 'eas8_6h', 'shift':0.20}
-D3={'color':'g', 'INPUTDIR': INPUTDIR3, 'runname': 'eas8_24h', 'shift':0.40}
+D2={'color':'g', 'INPUTDIR': INPUTDIR2, 'runname': 'eas8_24h', 'shift':0.20}
+D3={'color':'r', 'INPUTDIR': INPUTDIR3, 'runname': 'eas8_6h', 'shift':0.40}
 
 
 
-OUTPUTDIR="/g100_work/OGS_devC/Benchmark/pub/Benchmark/votkeavt/synthesis/"
+
+
+OUTPUTDIR="/g100_work/OGS_devC/Benchmark/pub/Benchmark/eas7_V10C/multirun_vs_eas8/"
 
 
 
@@ -32,7 +34,7 @@ LAYERLIST = [Layer(0,150), Layer(150,500)]
 
 
 for iSeas in range(4):
-    outfile = "%sKz_Percentiles.%s.png" %(OUTPUTDIR,S.SEASON_LIST_NAME[iSeas])
+    outfile = "%s/Kz/Kz_Percentiles.%s.png" %(OUTPUTDIR,S.SEASON_LIST_NAME[iSeas])
     fig,axes=pl.subplots(2,1)
     fig.set_size_inches(15,10)
 
@@ -43,7 +45,7 @@ for iSeas in range(4):
             color=run['color']
             RunName=run['runname']
             shift =run['shift']
-            inputfile= "%sPercentiles.%d.%s.npy" %(INPUTDIR, iSeas, layer.string())
+            inputfile= "%sPercentiles.%d.Ved_%d.npy" %(INPUTDIR, iSeas, layer.bottom)
             P=np.load(inputfile)
             ax=axes[iax]
     
@@ -61,7 +63,7 @@ for iSeas in range(4):
         if iax ==0 : ax.legend()
         ax.grid(True)
         ax.set_xticks(X)
-        subnames=[sub.name for sub in OGS.P]
+        subnames=[sub.name for sub in SUBlist]
         ax.set_xticklabels(subnames)
         ax.set_ylabel(layer.string() + ' log10(Kz) m2/s')
 
@@ -74,7 +76,7 @@ VARLIST=["mld", "stratification_index", "KE_total", "KE_ratio"]
 UNITS = ['m', ' ', 'm4/s2', ' ']
 for iSeas in range(4):
     for ivar, var in enumerate(VARLIST):
-        outfile = "%s%s_Percentiles.%s.png" %(OUTPUTDIR,var, S.SEASON_LIST_NAME[iSeas])
+        outfile = "%s/%s/%s_Percentiles.%s.png" %(OUTPUTDIR,var,var, S.SEASON_LIST_NAME[iSeas])
         fig,ax=pl.subplots(1,1)
         fig.set_size_inches(15,5)
         for run in [D1, D2, D3]:
@@ -97,7 +99,7 @@ for iSeas in range(4):
         ax.legend()
         ax.grid(True)
         ax.set_xticks(X)
-        subnames=[sub.name for sub in OGS.P]
+        subnames=[sub.name for sub in SUBlist]
         ax.set_xticklabels(subnames)
         ax.set_ylabel(var + " " + UNITS[ivar])
 
