@@ -21,19 +21,21 @@ INPUTDIR=/g100_work/OGS_devC/Benchmark/SETUP/PREPROC/FORCINGS/READY_FOR_MODEL
 INGVMASK=/g100_work/OGS_devC/Benchmark/SETUP/PREPROC/MASK/meshmask_CMCC.nc
 
 
-METRICS_2D=/g100_work/OGS_devC/Benchmark/SETUP/PREPROC/FORCINGS/metrics/output
-OUTDIR=/g100_work/OGS_devC/Benchmark/pub/Benchmark/eas7_V10C/PHYS
+     METRICS_2D=/g100_work/OGS_devC/Benchmark/SETUP/PREPROC/FORCINGS/metrics/output
 PERCENTILES_DIR=/g100_work/OGS_devC/Benchmark/SETUP/PREPROC/FORCINGS/metrics/percentiles/
+         PUBDIR=/g100_work/OGS_devC/Benchmark/pub/Benchmark/eas7_V10C/PHYS
+
 RUNNAME=benchmark
-mkdir -p $METRICS_2D $OUTDIR $PERCENTILES_DIR
+
+mkdir -p $METRICS_2D $PERCENTILES_DIR $PUBDIR
 my_prex_or_die "mpirun python metrics_2d.py -i $INPUTDIR -o $METRICS_2D -m $INGVMASK"
 
-my_prex_or_die "python Kz_anom_synthesis.py -i $METRICS_2D -m $INGVMASK -o $OUTDIR"
+my_prex_or_die "python Kz_anom_synthesis.py -i $METRICS_2D -m $INGVMASK -o $PUBDIR"
 my_prex_or_die "python metrics_2d_percentiles.py -i $METRICS_2D -m $INGVMASK -o $PERCENTILES_DIR"
-my_prex_or_die "python metrics_2d_percentiles_plot.py -i $PERCENTILES_DIR -o $OUTDIR -n $RUNNAME"
- 
+my_prex_or_die "python metrics_2d_percentiles_plot.py -i $PERCENTILES_DIR -o $PUBDIR -n $RUNNAME"
 
-exit 0
+# my_prex "python metrics_2d_percentiles_plot_multirun.py" # to plot in https://medeaf.ogs.it/internal-validation/Benchmark/eas7_V10C/multirun_vs_eas8/
+
 OUTPUTDIR=/g100_work/OGS_prod100/OPA/V9C/RUNS_SETUP/PREPROC/FORCINGS/DELTAT
 my_prex_or_die "mpirun python delta_t_from_uvw.py -i $INPUTDIR -o $OUTPUTDIR -m $INGVMASK"
 
