@@ -1,5 +1,4 @@
 import argparse
-CO2airflux
 
 def argument():
     parser = argparse.ArgumentParser(description = '''
