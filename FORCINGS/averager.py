@@ -46,18 +46,24 @@ OUTDIR = addsep(args.outputdir)
 
 dateformat="%Y%m%d-%H:%M:%S"
 
-Start_time="20190101-00:00:00"
-End_time = "20200101-00:00:00"
+#Start_time="20210101-00:00:00"
+#End_time = "20220101-00:00:00"
 output_frequency_h= int(args.frequency)
 
-start=datetime.strptime(Start_time,dateformat) + timedelta(hours=output_frequency_h/2)
+#start=datetime.strptime(Start_time,dateformat) + timedelta(hours=output_frequency_h/2)
 
-OUT_TIMES = DL.getTimeList(start.strftime(dateformat),End_time, hours=output_frequency_h)
+#OUT_TIMES = DL.getTimeList(start.strftime(dateformat),End_time, hours=output_frequency_h)
 
 
 
 for var in ["U", "V", "W", "T"]:
     TL = TimeList.fromfilenames(None, INPUTDIR, var + "*nc",prefix=var)
+    d0=TL.Timelist[0]
+    dm1=TL.Timelist[-1]
+    End_time=dm1.strftime(dateformat)
+    start=datetime(d0.year,d0.month,d0.day) + timedelta(hours=output_frequency_h/2)
+    OUT_TIMES = DL.getTimeList(start.strftime(dateformat),End_time, hours=output_frequency_h)
+
 
     for d in OUT_TIMES[rank::nranks]:
         req = timerequestors.Hourly_req(d.year,d.month,d.day, d.hour, delta_hours=output_frequency_h)
