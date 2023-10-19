@@ -82,10 +82,12 @@ def main():
 
     cmcc_mask = Mask(ARGS.cmccmaskfile)
     ogs_mask = Mask(ARGS.maskfile)
+    _,jpj,jpi=ogs_mask.shape
+    _,_,JPI =cmcc_mask.shape
 
     # Check the size of the region of CMCC mask on the left of the strait of
     # Gibraltar that is missing in the OGS model
-    mask_cut = cmcc_mask.shape[-1] - ogs_mask.shape[-1]
+    mask_cut = JPI - jpi
 
     lon_positions = RIVERS['I']
     lat_positions = RIVERS['J']
@@ -94,9 +96,9 @@ def main():
     pressure = np.ones_like(lon_positions, dtype=np.float32)
     pressure *= surface_level_height
 
-    time_list = TimeList.fromfilenames(None, input_dir, "T*.nc", prefix="T")
+    TL = TimeList.fromfilenames(None, input_dir, "T*.nc", prefix="T")
 
-    for timestep, filename in enumerate(time_list.filelist):
+    for timestep, filename in enumerate(TL.filelist):
         runoff = DataExtractor(
             cmcc_mask,
             filename,
@@ -146,10 +148,8 @@ def main():
 
             for var_name, conversion_factor_raw in var_conversions:
                 if isinstance(conversion_factor_raw, str):
-                    conversion_factor = np.asarray(eval(
-                        conversion_factor_raw,
-                        {'rho': density[var_mask]}
-                    ))
+                    rho=density[var_mask]
+                    conversion_factor = np.asarray(eval(conversion_factor_raw))
                 else:
                     conversion_factor = conversion_factor_raw
 
@@ -166,31 +166,18 @@ def main():
 
         # Now we write the content of the output_data dictionary on a netcdf
         # file
-        date_str = time_list.Timelist[timestep].strftime("%Y%m%d-%H:%M:%S")
+        date_str = TL.Timelist[timestep].strftime("%Y%m%d-%H:%M:%S")
         outfile = path.join(
             output_dir,
             "TIN_{}.nc".format(date_str)
         )
-
+        print(outfile,flush=True)
         with netCDF4.Dataset(outfile, 'w') as nc_file:
-            nc_file.createDimension('lon', ogs_mask.shape[2])
-            nc_file.createDimension('lat', ogs_mask.shape[1])
+            nc_file.createDimension('lon', jpi)
+            nc_file.createDimension('lat', jpj)
 
             for output_var in output_data:
-                nc_var = nc_file.createVariable(
-                    'riv_{}'.format(output_var.name),
-                    datatype='f4',
-                    dimensions=('lat', 'lon'),
-                    fill_value=FILL_VALUE,
-                    compression='zlib',
-                    complevel=2
-                )
-
-                nc_var_data = np.empty(
-                    shape=ogs_mask.shape[-2:],
-                    dtype=np.float32
-                )
-                nc_var_data[:] = FILL_VALUE
+                nc_var_data=np.ones((jpj,jpi),np.float32)*FILL_VALUE
 
                 # Fill water points with -1 to help visualization
                 nc_var_data[ogs_mask.mask_at_level(0)] = -1
@@ -198,6 +185,15 @@ def main():
                 lon_pos = output_var.lon_positions
                 lat_pos = output_var.lat_positions
                 nc_var_data[(lat_pos, lon_pos)] = output_var.values
+
+                nc_var = nc_file.createVariable(
+                    'riv_{}'.format(output_var.name),
+                    datatype='f4',
+                    dimensions=('lat', 'lon'),
+                    fill_value=FILL_VALUE,
+                    zlib=True,
+                    complevel=2
+                )
 
                 nc_var[:] = nc_var_data
 
