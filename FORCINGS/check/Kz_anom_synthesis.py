@@ -104,6 +104,16 @@ ax.set_yticks(np.arange(nSub))
 ax.set_yticklabels(rows_names_list[-1::-1])
 ax.set_xticks(np.arange(4))
 ax.set_xticklabels(column_names)
+
+for isub,sub in enumerate(OGS.P):
+    for iseas in range(4):
+        y=nSub-1-isub
+        x=iseas
+        value=Mout[isub,iseas]*100
+        color="w"
+        if value>12: color="k"
+        text="%3.2f" %(value)
+        ax.text(x,y,text,color=color, fontsize=8, ha='center', va='center')
 fig.suptitle("% Kz anomalies in 150 - 500m")
 fig.savefig(OUTPUTDIR + 'Kz_anomalies.png',dpi=150)
 
