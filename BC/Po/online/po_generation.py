@@ -107,7 +107,7 @@ M2D = np.ones((jpj,JPI), dtype=my_dtype)
 PO  = np.ones((jpj,jpi), dtype=my_dtype)
 TL = TimeList.fromfilenames(None, INPUTDIR, "T*.nc", prefix="T")
 
-ii = np.zeros((jpj,JPI),np.bool)
+ii = np.zeros((jpj,JPI),bool)
 for k in range(nPoints): 
     ii[J[k],I[k]]=True
 

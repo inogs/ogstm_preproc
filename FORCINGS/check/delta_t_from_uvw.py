@@ -70,7 +70,7 @@ Cmax=1.0
 
 
 nFrames=TL.nTimes
-mydtype=[('Imposed_deltaT',np.int), ('deltaT',np.float32),('K',np.int),('J',np.int),('I',np.int)]
+mydtype=[('Imposed_deltaT',int), ('deltaT',np.float32),('K',int),('J',int),('I',int)]
 
 FRAMES=range(nFrames)
 
