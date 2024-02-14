@@ -47,7 +47,7 @@ for iTrans in range(nTr):
         nZ = indDep__End - indDepStart +1
         indT = np.zeros((nZ,nY),int);
 
-        print Tr[iTrans]['name']
+        print(Tr[iTrans]['name'])
         print( indStart['lon']) 
         print( ind__End['lon']) 
         print( indStart['lat']) 
@@ -91,7 +91,7 @@ for iTrans in range(nTr):
         nZ = indDep__End - indDepStart +1
         indT = np.zeros((nZ,nX),int);
 
-        print Tr[iTrans]['name']
+        print(Tr[iTrans]['name'])
         print( indStart['lon'])
         print( ind__End['lon'])
         print( indStart['lat'])
@@ -172,7 +172,7 @@ fid.close()
 
 n=len(LIST)
 
-print n
+print(n)
 
 ncOUT=NC.netcdf_file('Fluxes.nc',"w")
 
