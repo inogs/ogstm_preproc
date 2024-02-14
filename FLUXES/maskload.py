@@ -25,9 +25,9 @@ glamu     =  M.variables['glamu'][0,0,:,:]
 glamt     =  M.variables['glamt'][0,0,:,:]
 gphiv     =  M.variables['gphiv'][0,0,:,:]
 gphit     =  M.variables['gphit'][0,0,:,:]
-tmask   = (M.variables['tmask'][0,:,:,:]).astype(np.bool)
-umask   = (M.variables['umask'][0,:,:,:]).astype(np.bool)
-vmask   = (M.variables['vmask'][0,:,:,:]).astype(np.bool)
+tmask   = (M.variables['tmask'][0,:,:,:]).astype(bool)
+umask   = (M.variables['umask'][0,:,:,:]).astype(bool)
+vmask   = (M.variables['vmask'][0,:,:,:]).astype(bool)
 
 
 M.close()
