@@ -22,7 +22,7 @@ jpk, jpj,jpi = tmask.shape
 
 Matrices=[]
 Minv=[]
-LIST=np.array([],dtype=np.int)
+LIST=np.array([],dtype=int)
 FLUX_MAP=np.zeros((jpj,jpi), np.float32)
 FLUX_MAP[~tmask[0,:,:]]=np.nan
 nTr = len(Tr) if Tr.shape else 1

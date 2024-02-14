@@ -3,7 +3,7 @@
 import numpy as np
 
 
-trans_dt=np.dtype([('name','S12'),('type','S12'),('lon1',np.float32),('lon2',np.float32),\
+trans_dt=np.dtype([('name','U12'),('type','U12'),('lon1',np.float32),('lon2',np.float32),\
                                                 ('lat1',np.float32),('lat2',np.float32),\
                                                 ('depth1',np.float32),('depth2',np.float32)])
 
