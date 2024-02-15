@@ -115,8 +115,8 @@ class river():
 
 
         ### river contributes
-        georef = np.zeros((self.nrivers,),                 dtype=[('indLon',np.int),('indLat',np.int),('lonmesh',np.float32),('latmesh',np.float32)])
-        georef_spread=np.zeros((self.nrivers*self.nspread),dtype=[('indLon',np.int),('indLat',np.int),('lonmesh',np.float32),('latmesh',np.float32)])
+        georef = np.zeros((self.nrivers,),                 dtype=[('indLon',int),('indLat',int),('lonmesh',np.float32),('latmesh',np.float32)])
+        georef_spread=np.zeros((self.nrivers*self.nspread),dtype=[('indLon',int),('indLat',int),('lonmesh',np.float32),('latmesh',np.float32)])
         for jr in range (self.nrivers):
             if self.forced_coord[jr,0] != -1 and self.forced_coord[jr,1] != -1:
                 georef['indLon'][jr]=self.forced_coord[jr,0]
@@ -231,8 +231,8 @@ class river():
         * excel data i,j  are indexes starting from one
         '''
 
-        position    = np.zeros((self.nrivers,3), dtype = np.int);
-        index_riv_a = np.zeros((self.nrivers,) , dtype = np.int);
+        position    = np.zeros((self.nrivers,3), dtype = int);
+        index_riv_a = np.zeros((self.nrivers,) , dtype = int);
         for jr in range(self.nrivers):
             jj  = self.georef[jr]['indLat']-1;
             ji  = self.georef[jr]['indLon']-1;
@@ -373,16 +373,16 @@ class river():
         Generates 12 TIN_yyyy*nc files
         '''
         logging.info("Climatological TIN file generation : start")
-        Area=np.zeros((self.nrivers,),np.float)
+        Area=np.zeros((self.nrivers,),np.float32)
 
         if (self.nspread==1):
-            Area=np.zeros((self.nrivers,),np.float)
+            Area=np.zeros((self.nrivers,),np.float32)
             for jr in range(self.nrivers):
                 ji = self.georef['indLon'][jr]-1
                 jj = self.georef['indLat'][jr]-1
                 Area[jr] = mask.area[jj,ji]
         else:
-            Area = np.zeros((self.nrivers*self.nspread,),np.float)
+            Area = np.zeros((self.nrivers*self.nspread,),np.float32)
             for jr in range(self.nrivers*self.nspread):
                 ji = self.georef_spread['indLon'][jr]-1
                 jj = self.georef_spread['indLat'][jr]-1
