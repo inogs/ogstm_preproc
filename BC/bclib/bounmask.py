@@ -43,9 +43,9 @@ class bounmask():
 
         resto[:,~mask.mask] = 1.e+20;
         count = 0
-        idx = np.zeros((jpk,jpjglo,jpiglo),dtype=np.int)
+        idx = np.zeros((jpk,jpjglo,jpiglo),dtype=int)
         self.water_points = np.sum(mask.mask)
-        idx_inv = np.zeros((self.water_points,3),dtype=np.int);
+        idx_inv = np.zeros((self.water_points,3),dtype=int);
 
         for jk in range(jpk):
             for jj in range(jpjglo):

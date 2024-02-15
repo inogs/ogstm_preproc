@@ -9,7 +9,7 @@ import numpy as np
 
 from mydtype import *
 
-import scipy.io.netcdf as NC
+import scipy.io as NC
 
 import pickle
 import pylab as pl
