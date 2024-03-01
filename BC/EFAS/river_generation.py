@@ -59,11 +59,12 @@ from river_reader import RIVERS, BGC_VARS
 # this dictionary, it will be copied "as is" (i.e., its conversion will be the
 # tuple that contains only the pair (original_name, 1.))
 VARS_CONVERSIONS = {
-    'ALK': (('O3h', '1. / rho'),),
-    'DIC': (('O3c', '1. / rho'),),
-    'POC': (('R6c', '1. / rho'),),
-    'DOC': (('R3c', '1. / rho'),),
-    'N3n': (('N5s', 28.0855 / 14.0067), ('N3n', 1.))
+    'ALK': (('O3h', '1000.0'),),
+    'DIC': (('O3c', '1000.0'),),
+    'POC': (('R6c', '1000.0'),),
+    'DOC': (('R3c', '1000.0'),),
+    'N1p': (('N1p', '1000.0/30.973761'),),
+    'N3n': (('N5s', 28.0855*1000.0 / (14.0067*14.0067)), ('N3n', 1000.0/14.0067))   
 }
 
 
