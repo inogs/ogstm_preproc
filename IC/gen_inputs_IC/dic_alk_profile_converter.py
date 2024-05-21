@@ -1,20 +1,22 @@
 from commons.mask import Mask
 from commons.submask import SubMask
 from commons.dataextractor import DataExtractor
+from commons import density
 from basins import V2
 import numpy as np
 from commons import netcdf4
 import netCDF4
 
-#IngvMask = Mask('/gpfs/work/IscrC_REBIOMED/NRT_EAS6/PREPROC/MASK/ogstm/meshmask_CMCCfor_ogstm.nc')
-TheMask = Mask('/gpfs/work/IscrC_REBIOMED/NRT_EAS6/PREPROC/MASK/ogstm/meshmask.nc')
-filename='/gpfs/scratch/userexternal/gbolzon0/V7C/RHO/rho.2019.nc'
-INPUTDIR="/gpfs/work/IscrC_REBIOMED/REANALISI_24/PREPROC/IC/inputs/DIC_and_ALK/"
-OUTDIR="/gpfs/work/IscrC_REBIOMED/NRT_EAS6/PREPROC/IC/TRANSITION/inputs/"
+MaskCMCC = Mask("/g100_work/OGS_devC/V9C/RUNS_SETUP/PREPROC/MASK/meshmask_CMCC.nc")
+TheMask = Mask("/g100_work/OGS_devC/V9C/RUNS_SETUP/PREPROC/MASK/meshmask.nc")
+filename='/g100_work/OGS_devC/V11C/ICs/RUN_QUID/IC/T.transition.nc'
+INPUTDIR="/g100_work/OGS_devC/V11C/ICs/RUN_QUID/IC/inputs/"
+OUTDIR=INPUTDIR
 
 jpk, jpj, jpi = TheMask.shape
-#JPK, JPJ, JPI = IngvMask.shape
-rho =DataExtractor(TheMask,filename, 'rho')
+JPK, JPJ, JPI = MaskCMCC.shape
+rho = density.get_density(filename, MaskCMCC)
+rho=rho[:jpk,:,JPI-jpi:]
 
 
 def dumpfile(outfile,M2d,var):
@@ -27,7 +29,7 @@ def dumpfile(outfile,M2d,var):
 RHO = np.zeros((17,jpk))
 
 for isub, sub in enumerate(V2.Pred):
-    print isub
+    print(isub)
     S = SubMask(sub,maskobject=TheMask)    
     for k in range(jpk):
         submask = S.mask[k,:,:]
