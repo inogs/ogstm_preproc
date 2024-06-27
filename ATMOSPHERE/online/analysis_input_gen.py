@@ -151,7 +151,7 @@ def dumpfile(filename, maskObj, sp,msl, t2m,d2m, tcc,w10):
     setattr(ncvar,'code', '165 and 166')
     ncvar[:] = w10
 
-    setattr(ncOUT, 'input_file', inputfile)
+    setattr(ncOUT, 'input_file', str(inputfile))
     ncOUT.close()
 
 

@@ -68,8 +68,7 @@ for var in ["U", "V", "W", "T"]:
     for d in OUT_TIMES[rank::nranks]:
         req = timerequestors.Hourly_req(d.year,d.month,d.day, d.hour, delta_hours=output_frequency_h)
         ii,w = TL.select(req)
-        files_string=""
-        for k in ii: files_string +=  TL.filelist[k] + " "
+        files_string = ' '.join([str(k) for k in TL.filelist])
         outfile = OUTDIR + var + d.strftime(dateformat) + ".nc"
         print("rank", rank, outfile, flush=True)
         command = "ncea %s -O %s" %( files_string, outfile)
