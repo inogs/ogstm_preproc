@@ -3,16 +3,15 @@
 #SBATCH --job-name=deltat
 #SBATCH -N2
 #SBATCH --ntasks-per-node=30
-#SBATCH --time=02:00:00
+#SBATCH --time=01:00:00
 #SBATCH --mem=300gb
 #SBATCH --account=OGS23_PRACE_IT
-#SBATCH --partition=g100_usr_prod
-#SBATCH --qos=g100_qos_dbg
+#SBATCH --partition=g100_usr_dbg
 
 cd $SLURM_SUBMIT_DIR
 . ../../profile.inc
 
-source /g100_work/OGS21_PRACE_P/COPERNICUS/sequence3.sh
+source /g100_work/OGS23_PRACE_IT/COPERNICUS/sequence3.sh
 
 unset I_MPI_PMI_LIBRARY
 
