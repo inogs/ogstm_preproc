@@ -162,6 +162,9 @@ for iframe in FRAMES[rank::nranks]:
     KE_total = 0.5*(U**2*Au + V**2*Av + W**2*Aw)
     KE_total_2d = KE_total[:iz200,:,:].sum(axis=0)
 
+    KE_vert = 0.5*(W**2*Aw)
+    KE_vert_2D = KE_vert[:iz200,:,:].sum(axis=0)
+
     BVF[:izlev-1,:], _, p_ave = sw.bfrq(S[:izlev,:],T[:izlev,:],P)
     BVF[BVF<0]=0 # because sw.bfrw returns a negative value when S=0, T=0 is encountered as first land point
     De = DataExtractor(TheMask,rawdata=BVF*M)
@@ -169,6 +172,7 @@ for iframe in FRAMES[rank::nranks]:
 
     Stratification_index[~mask] = 1.e+20
     KE_total_2d[~mask] = 1.e+20
+    KE_vert_2D[~mask] = 1.e+20
     mld[~mask] = 1.e+20
     Eddy_diff_150[~mask] = 1.e+20
     Eddy_diff_500[~mask] = 1.e+20
@@ -176,6 +180,7 @@ for iframe in FRAMES[rank::nranks]:
     outfile=OUTPUTDIR + "metrics." + timestr + ".nc"
     netcdf4.write_2d_file(KE_ratio_2d         ,'KE_ratio', outfile, TheMask, compression=True)
     netcdf4.write_2d_file(KE_total_2d         ,'KE_total', outfile, TheMask, compression=True)
+    netcdf4.write_2d_file(KE_vert_2d         ,'KE_vert', outfile, TheMask, compression=True)
     netcdf4.write_2d_file(Stratification_index,'stratification_index', outfile, TheMask, compression=True)
     netcdf4.write_2d_file(mld                 ,'mld' , outfile,TheMask, compression=True)
     netcdf4.write_2d_file(Eddy_diff_150       ,'Ved_150', outfile, TheMask, compression=True)
