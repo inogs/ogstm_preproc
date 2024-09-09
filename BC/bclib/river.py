@@ -346,13 +346,13 @@ class river():
         logging.info("Non climatological TIN file generation : start ")
 
         if (self.nspread==1):
-            Area=np.zeros((self.nrivers,),np.float)
+            Area=np.zeros((self.nrivers,),float)
             for jr in range(self.nrivers):
                 ji = self.georef['indLon'][jr]-1
                 jj = self.georef['indLat'][jr]-1
                 Area[jr] = mask.area[jj,ji]
         else:
-            Area = np.zeros((self.nrivers*self.nspread,),np.float)
+            Area = np.zeros((self.nrivers*self.nspread,),float)
             for jr in range(self.nrivers*self.nspread):
                 ji = self.georef_spread['indLon'][jr]-1
                 jj = self.georef_spread['indLat'][jr]-1

@@ -44,9 +44,9 @@ class xlsx:
 
         ws = self.wb[worsheet]
         if dtype=="d":
-            a = np.zeros((len(x_range),len(y_range)),dtype=np.float)
+            a = np.zeros((len(x_range),len(y_range)),dtype=float)
         if dtype=="i":
-            a = np.zeros((len(x_range),len(y_range)),dtype=np.int)
+            a = np.zeros((len(x_range),len(y_range)),dtype=int)
 
         for x in x_range:
             for y in y_range:
