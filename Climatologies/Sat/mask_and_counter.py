@@ -30,10 +30,10 @@ def argument():
 args = argument()
 
 
-from commons.Timelist import TimeList
-import Sat.SatManager as Sat
+from bitsea.commons.Timelist import TimeList
+import bitsea.Sat.SatManager as Sat
 import numpy as np
-from commons.utils import addsep
+from bitsea.commons.utils import addsep
 
 INPUTDIR=addsep(args.inputdir)
 

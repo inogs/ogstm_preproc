@@ -1,10 +1,10 @@
-from commons.mask import Mask
-from commons.submask import SubMask
-from commons.dataextractor import DataExtractor
-from commons import density
-from basins import V2
+from bitsea.commons.mask import Mask
+from bitsea.commons.submask import SubMask
+from bitsea.commons.dataextractor import DataExtractor
+from bitsea.commons import density
+from bitsea.basins import V2
 import numpy as np
-from commons import netcdf4
+from bitsea.commons import netcdf4
 import netCDF4
 
 MaskCMCC = Mask("/g100_work/OGS_devC/V9C/RUNS_SETUP/PREPROC/MASK/meshmask_CMCC.nc")

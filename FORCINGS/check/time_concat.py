@@ -1,8 +1,8 @@
-from commons import netcdf4
-from commons.Timelist import TimeList
+from bitsea.commons import netcdf4
+from bitsea.commons.Timelist import TimeList
 import netCDF4
 import numpy as np
-from commons.mask import Mask
+from bitsea.commons.mask import Mask
 import datetime
 
 var="KE_ratio"

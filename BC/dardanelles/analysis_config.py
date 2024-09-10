@@ -1,5 +1,5 @@
-from commons.Timelist import TimeInterval,TimeList
-from commons import season
+from bitsea.commons.Timelist import TimeInterval,TimeList
+from bitsea.commons import season
 import numpy as np
 Seas_obj=season.season()
 Seas_obj.setseasons(["0101","0701"], ["winter","summer"])

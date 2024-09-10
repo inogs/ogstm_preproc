@@ -2,10 +2,10 @@ import numpy as np
 import matplotlib
 matplotlib.use('Qt5Agg')
 import pylab as pl
-from commons.mask import Mask
-from commons.dataextractor import DataExtractor
+from bitsea.commons.mask import Mask
+from bitsea.commons.dataextractor import DataExtractor
 import os
-from commons import netcdf4
+from bitsea.commons import netcdf4
 from datetime import datetime, timedelta
 
 TheMask=Mask('/g100_work/OGS_devC/Benchmark/SETUP/PREPROC/MASK/meshmask.nc')

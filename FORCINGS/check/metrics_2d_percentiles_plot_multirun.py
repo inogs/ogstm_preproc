@@ -2,9 +2,9 @@ import numpy as np
 import matplotlib
 matplotlib.use('Qt5Agg')
 import pylab as pl
-from basins import V2 as OGS
-from commons import season
-from commons.layer import Layer
+from bitsea.basins import V2 as OGS
+from bitsea.commons import season
+from bitsea.commons.layer import Layer
 
 
 

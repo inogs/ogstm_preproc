@@ -31,15 +31,15 @@ def argument():
 
 
 args = argument()
-from commons.mask import Mask
+from bitsea.commons.mask import Mask
 import numpy as np
 import pylab as pl
-from commons.submask import SubMask
+from bitsea.commons.submask import SubMask
 from IC import RSTwriter, smoother
-from commons.utils import getcolor
-from commons import netcdf4
-from basins import V2 as OGS
-from commons.utils import addsep
+from bitsea.commons.utils import getcolor
+from bitsea.commons import netcdf4
+from bitsea.basins import V2 as OGS
+from bitsea.commons.utils import addsep
 import os
 
 INPUTDIR  = addsep(args.inputdir)

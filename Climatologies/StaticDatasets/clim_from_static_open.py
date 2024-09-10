@@ -6,16 +6,16 @@
 # A NetCDF with the same structure of the previous clim is provided for each variable,
 # but with added nprofiles and explicit global attributes
 
-from commons.time_interval import TimeInterval
-from commons import season,timerequestors
-from static.Nutrients_reader import NutrientsReader
-from static.Carbon_reader import CarbonReader
-from instruments.var_conversions import NUTRVARS
+from bitsea.commons.time_interval import TimeInterval
+from bitsea.commons import season,timerequestors
+from bitsea.static.Nutrients_reader import NutrientsReader
+from bitsea.static.Carbon_reader import CarbonReader
+from bitsea.instruments.var_conversions import NUTRVARS
 import numpy as np
-from commons.layer import Layer
+from bitsea.commons.layer import Layer
 import scipy.optimize as opt
 from config import LayerList, REQUESTORS_LIST, basV2
-from commons.mask import Mask
+from bitsea.commons.mask import Mask
 
 # EDIT part
 modelvarname = "N1p"

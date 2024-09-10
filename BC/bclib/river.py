@@ -505,7 +505,7 @@ class river():
         dset.close()
         return M
 if __name__=="__main__":
-    from commons.mask import Mask
+    from bitsea.commons.mask import Mask
     import config as conf
     TheMask = Mask(conf.file_mask)
     R = river(conf)

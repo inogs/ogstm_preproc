@@ -20,10 +20,10 @@ def argument():
 
 args = argument()
 
-from commons.mask import Mask
-from commons import netcdf4
+from bitsea.commons.mask import Mask
+from bitsea.commons import netcdf4
 import netCDF4
-from commons.utils import addsep
+from bitsea.commons.utils import addsep
 TheMask=Mask(args.maskfile, loadtmask=False)
 INPUTDIR=addsep(args.inputdir)
 

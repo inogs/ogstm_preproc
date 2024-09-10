@@ -33,7 +33,7 @@ args = argument()
 import netCDF4
 import numpy as np
 import dom_dec
-from commons.utils import addsep
+from bitsea.commons.utils import addsep
 
 
 INPUTDIR=addsep(args.inputdir)

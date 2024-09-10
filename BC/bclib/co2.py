@@ -1,7 +1,7 @@
 import numpy as np
 import netCDF4 as nc
 import datetime
-from commons.time_interval import TimeInterval
+from bitsea.commons.time_interval import TimeInterval
 
 import logging
 
@@ -75,7 +75,7 @@ class co2atm():
 
         logging.info("CO2 files written")
 if __name__ == "__main__":
-    from commons.mask import Mask
+    from bitsea.commons.mask import Mask
     import config as conf
     conf.file_mask="../masks/meshmask_872.nc"
     conf.dir_out = "../out"

@@ -31,16 +31,16 @@ def argument():
 
 args = argument()
 
-from commons.mask import Mask
-from commons.dataextractor import DataExtractor
+from bitsea.commons.mask import Mask
+from bitsea.commons.dataextractor import DataExtractor
 import numpy as np
-from commons.Timelist import TimeList
-from commons.utils import addsep
-from commons.layer import Layer
-from commons import netcdf4
+from bitsea.commons.Timelist import TimeList
+from bitsea.commons.utils import addsep
+from bitsea.commons.layer import Layer
+from bitsea.commons import netcdf4
 import sys
-from commons.submask import SubMask
-from basins import V2 as OGS
+from bitsea.commons.submask import SubMask
+from bitsea.basins import V2 as OGS
 
 INPUTDIR=addsep(args.inputdir)
 OUTPUTDIR=addsep(args.outdir)
@@ -82,8 +82,8 @@ SUBPoints[index_med] = SUBM['med'].sum()
 bins=[0,1.e-7,1.e-6,1.e-5, 1.e-4, 1.e-3, 1.e-2, 1.e-1, 1, 10]
 nbins=len(bins)
 
-from commons import season
-from commons import timerequestors
+from bitsea.commons import season
+from bitsea.commons import timerequestors
 SeasonObj = season.season()
 
 for iseas in range(4):

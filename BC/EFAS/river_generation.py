@@ -43,10 +43,10 @@ import netCDF4
 from os import path
 import seawater as sw
 
-from commons.utils import addsep
-from commons.Timelist import TimeList
-from commons.mask import Mask
-from commons.dataextractor import DataExtractor
+from bitsea.commons.utils import addsep
+from bitsea.commons.Timelist import TimeList
+from bitsea.commons.mask import Mask
+from bitsea.commons.dataextractor import DataExtractor
 
 from river_reader import RIVERS, BGC_VARS
 

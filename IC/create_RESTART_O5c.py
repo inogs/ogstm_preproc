@@ -27,7 +27,7 @@ args = argument()
 
 
 import numpy as np
-from commons.mask import Mask
+from bitsea.commons.mask import Mask
 from IC import RSTwriter
 
 

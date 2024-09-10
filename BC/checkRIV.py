@@ -1,10 +1,10 @@
-from commons import netcdf4
-from commons.Timelist import TimeList,TimeInterval
-from commons.mask import Mask
-from commons.submask import SubMask
-from basins import V2 as OGS
+from bitsea.commons import netcdf4
+from bitsea.commons.Timelist import TimeList,TimeInterval
+from bitsea.commons.mask import Mask
+from bitsea.commons.submask import SubMask
+from bitsea.basins import V2 as OGS
 import numpy as np
-from commons import timerequestors
+from bitsea.commons import timerequestors
 from bclib.river import conversion
 
 TheMask=Mask("/gpfs/scratch/userexternal/gbolzon0/OPEN_BOUNDARY/TEST_02/wrkdir/MODEL/meshmask.nc")
@@ -57,7 +57,7 @@ TABLE= np.zeros((nSub,nvars),np.float32)
 for ivar, var in enumerate(VARLIST):
     for isub, sub in enumerate(OGS.P):
         TABLE[isub,ivar]= BALANCE_KT_MONTH[var][sub.name].sum()
-from commons.utils import writetable
+from bitsea.commons.utils import writetable
 rows_names_list= [sub.name for sub in OGS.P]
 writetable('KTon_2017_subbasins.txt', TABLE, rows_names_list, VARLIST)
 

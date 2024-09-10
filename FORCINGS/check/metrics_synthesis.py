@@ -1,10 +1,10 @@
 # similar to aveScan
 import numpy as np
-from commons.mask import Mask
-from commons.submask import SubMask
-from basins import V2 as OGS
-from commons.dataextractor import DataExtractor
-from commons.Timelist import TimeList
+from bitsea.commons.mask import Mask
+from bitsea.commons.submask import SubMask
+from bitsea.basins import V2 as OGS
+from bitsea.commons.dataextractor import DataExtractor
+from bitsea.commons.Timelist import TimeList
 import sys
 import pylab as pl
 
@@ -76,9 +76,9 @@ for isub, sub in enumerate(OGS.P):
     pl.close(fig)
 
 
-from commons.utils import writetable
-from commons import timerequestors
-from commons import season
+from bitsea.commons.utils import writetable
+from bitsea.commons import timerequestors
+from bitsea.commons import season
 SUBLIST=[ sub.name for sub in OGS.P ]
 SeasonObj=season.season()
 

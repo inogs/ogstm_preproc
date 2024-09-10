@@ -1,8 +1,8 @@
 import numpy as np
-from basins import V2 as OGS
-from commons.mask import Mask
-from commons.submask import SubMask
-from commons import netcdf4
+from bitsea.basins import V2 as OGS
+from bitsea.commons.mask import Mask
+from bitsea.commons.submask import SubMask
+from bitsea.commons import netcdf4
 
 filename="atmDep_16sub_openAndCoast_winAndSum.txt"
 maskfile="/Users/gbolzon/eclipse-workspace/preproc/IC/meshmask.nc"

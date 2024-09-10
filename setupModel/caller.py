@@ -1,4 +1,4 @@
-from commons.genUserDateList import getTimeList, getCouplesTimeList
+from bitsea.commons.genUserDateList import getTimeList, getCouplesTimeList
 import writeSerialJob
 
 # USER SECTION #####################################

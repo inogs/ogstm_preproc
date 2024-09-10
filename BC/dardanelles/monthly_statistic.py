@@ -1,11 +1,11 @@
 import numpy as np
-from commons import timerequestors
+from bitsea.commons import timerequestors
 import pylab as pl
-from commons.mask import Mask
+from bitsea.commons.mask import Mask
 from analysis_config import maskfile
-from commons import netcdf4
-from commons.Timelist import TimeList
-from commons.genUserDateList import getTimeList
+from bitsea.commons import netcdf4
+from bitsea.commons.Timelist import TimeList
+from bitsea.commons.genUserDateList import getTimeList
 I=841
 area=np.zeros((14,3),np.float32)
 

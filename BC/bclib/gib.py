@@ -91,7 +91,7 @@ class gib():
         logging.info("GIB files generation: done")
         
 if __name__ == "__main__":
-    from commons.mask import Mask
+    from bitsea.commons.mask import Mask
     import config as conf
     conf.file_nutrients = "../"+ conf.file_nutrients
     conf.file_mask="../masks/meshmask_872.nc"

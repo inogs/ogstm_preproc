@@ -35,13 +35,13 @@ args = argument()
 
 
 import numpy as np
-from commons.mask import Mask
-from commons.dataextractor import DataExtractor
+from bitsea.commons.mask import Mask
+from bitsea.commons.dataextractor import DataExtractor
 import os,glob
 import scipy.interpolate
 import netCDF4
 from IC import RSTwriter
-from commons.utils import addsep
+from bitsea.commons.utils import addsep
 
 TheMask_new=Mask(args.newmask)
 TheMask_orig =Mask(args.origmask)

@@ -30,13 +30,13 @@ args = argument()
 
 import os
 from datetime import datetime, timedelta
-from commons import netcdf4
+from bitsea.commons import netcdf4
 import numpy as np
 from scipy import interpolate
-from commons.mask import Mask
+from bitsea.commons.mask import Mask
 import netCDF4
-from commons.utils import addsep
-from commons import genUserDateList as DL
+from bitsea.commons.utils import addsep
+from bitsea.commons import genUserDateList as DL
 
 try:
     from mpi4py import MPI

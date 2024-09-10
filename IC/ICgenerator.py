@@ -1,12 +1,12 @@
 from config import ICdef, LayerList
-from commons.mask import Mask
+from bitsea.commons.mask import Mask
 from climatology import get_climatology
 import numpy as np
 import pylab as pl
-from commons.submask import SubMask
+from bitsea.commons.submask import SubMask
 from IC import RSTwriter, smoother
-from commons import density
-from commons.utils import getcolor
+from bitsea.commons import density
+from bitsea.commons.utils import getcolor
 
 
 

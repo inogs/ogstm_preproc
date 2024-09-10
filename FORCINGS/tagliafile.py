@@ -17,7 +17,7 @@ args = argument()
 
 import glob
 import os
-from commons.utils import addsep
+from bitsea.commons.utils import addsep
 try:
     from mpi4py import MPI
     comm  = MPI.COMM_WORLD

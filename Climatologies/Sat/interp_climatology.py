@@ -25,9 +25,9 @@ def argument():
 
 args = argument()
 
-from commons.mask import Mask
-from Sat import interp2d 
-from Sat import SatManager as Sat
+from bitsea.commons.mask import Mask
+from bitsea.Sat import interp2d 
+from bitsea.Sat import SatManager as Sat
 import numpy as np
 import netCDF4
 

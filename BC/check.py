@@ -1,7 +1,7 @@
 import config as conf
 from bclib.river import river
 from bclib.bounmask import bounmask
-from commons.mask import Mask
+from bitsea.commons.mask import Mask
 import numpy as np
 
 BOUN = bounmask(conf)
@@ -42,7 +42,7 @@ for ip in range(R.nrivers):
 print diff.max()
 
 
-from layer_integral.mapplot import mapplot
+from bitsea.layer_integral.mapplot import mapplot
 Map2d = TheMask.mask_at_level(0)
 fig, ax = mapplot({'data':Map2d, 'clim':[0,1]})
 xp = R.forced_coord[:,0]-1

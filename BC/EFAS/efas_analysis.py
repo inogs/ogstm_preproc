@@ -1,8 +1,8 @@
 import numpy as np
-from commons.Timelist import TimeList
-from commons.mask import Mask
+from bitsea.commons.Timelist import TimeList
+from bitsea.commons.mask import Mask
 import river_reader as rr
-from commons.dataextractor import DataExtractor
+from bitsea.commons.dataextractor import DataExtractor
 import seawater as sw
 
 CMCC_Mask=Mask('/g100_work/OGS_devC/V9C/RUNS_SETUP/PREPROC/MASK/meshmask_CMCC.nc')

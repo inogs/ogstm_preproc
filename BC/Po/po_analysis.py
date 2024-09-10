@@ -1,6 +1,6 @@
 import numpy as np
-from commons import netcdf4
-from commons.Timelist import TimeList
+from bitsea.commons import netcdf4
+from bitsea.commons.Timelist import TimeList
 
 INPUTDIR="/gpfs/scratch/userexternal/gcoidess/EAS6_2019_PO/"
 

@@ -1,7 +1,7 @@
-from commons.Timelist import TimeInterval, TimeList
+from bitsea.commons.Timelist import TimeInterval, TimeList
 import numpy as np
 import pylab as pl
-from commons.utils import writetable
+from bitsea.commons.utils import writetable
 #TI=TimeInterval("20161001","20161031","%Y%m%d")
 INPUTDIR="/gpfs/scratch/userexternal/gbolzon0/OPEN_BOUNDARY/TEST_07/wrkdir/MODEL/FORCINGS/"
 TL=TimeList.fromfilenames(None, INPUTDIR, "U*nc", filtervar="U", prefix="U",hour=0)

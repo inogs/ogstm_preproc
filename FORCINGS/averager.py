@@ -25,11 +25,11 @@ def argument():
 args = argument()
 
 
-from commons.Timelist import TimeList
-from commons import timerequestors
-from commons import genUserDateList as DL
+from bitsea.commons.Timelist import TimeList
+from bitsea.commons import timerequestors
+from bitsea.commons import genUserDateList as DL
 import os
-from commons.utils import addsep
+from bitsea.commons.utils import addsep
 from datetime import datetime, timedelta
 
 try:

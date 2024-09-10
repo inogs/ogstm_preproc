@@ -37,15 +37,15 @@ def argument():
 args = argument()
 
 import numpy as np
-from commons.layer import Layer
+from bitsea.commons.layer import Layer
 import pylab as pl
-from basins import V2
-from basins.basin import ComposedBasin
-from commons import netcdf4
-from commons.mask import Mask
-from commons.submask import SubMask
+from bitsea.basins import V2
+from bitsea.basins.basin import ComposedBasin
+from bitsea.commons import netcdf4
+from bitsea.commons.mask import Mask
+from bitsea.commons.submask import SubMask
 from IC import RSTwriter, smoother
-from commons.utils import addsep
+from bitsea.commons.utils import addsep
 TheMask=Mask(args.maskfile)
 
 INPUTDIR=addsep(args.inputdir) #"/gpfs/scratch/userexternal/gbolzon0/OPEN_BOUNDARY/TEST_03/wrkdir/MODEL/RESTARTS/"

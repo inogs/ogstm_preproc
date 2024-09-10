@@ -31,9 +31,9 @@ args = argument()
 
 
 
-from commons.mask import Mask
+from bitsea.commons.mask import Mask
 from IC import RSTwriter
-from commons.dataextractor import DataExtractor
+from bitsea.commons.dataextractor import DataExtractor
 
 TheMask=Mask(args.maskfile)
 

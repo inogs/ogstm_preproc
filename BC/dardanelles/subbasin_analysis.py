@@ -24,19 +24,19 @@ def argument():
     return parser.parse_args()
 
 args = argument()
-from commons.mask import Mask
-from commons.submask import SubMask
-from commons.Timelist import TimeList
+from bitsea.commons.mask import Mask
+from bitsea.commons.submask import SubMask
+from bitsea.commons.Timelist import TimeList
 import numpy as np
-from commons import netcdf4
-from commons.dataextractor import DataExtractor
-from basins.region import Polygon
-from basins.basin import SimplePolygonalBasin
-from commons import timerequestors
-from commons.time_averagers import TimeAverager3D
-from commons.layer import Layer
-from layer_integral.mapbuilder import MapBuilder
-from commons.utils import addsep
+from bitsea.commons import netcdf4
+from bitsea.commons.dataextractor import DataExtractor
+from bitsea.basins.region import Polygon
+from bitsea.basins.basin import SimplePolygonalBasin
+from bitsea.commons import timerequestors
+from bitsea.commons.time_averagers import TimeAverager3D
+from bitsea.commons.layer import Layer
+from bitsea.layer_integral.mapbuilder import MapBuilder
+from bitsea.commons.utils import addsep
 from analysis_config import maskfile, VARLIST, Seas_obj,  mydtype, INPUTDIR, TI
 
 OUTDIR=addsep(args.outputdir)

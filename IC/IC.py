@@ -1,5 +1,5 @@
 import netCDF4
-from commons.interpolators import shift
+from bitsea.commons.interpolators import shift
 import numpy as np
 
 def smoother(maskobj,RST):

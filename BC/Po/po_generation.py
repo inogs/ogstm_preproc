@@ -1,8 +1,8 @@
 import numpy as np
-from commons import netcdf4
-from commons.Timelist import TimeList, TimeInterval
-from commons.mask import Mask
-from commons.dataextractor import DataExtractor
+from bitsea.commons import netcdf4
+from bitsea.commons.Timelist import TimeList, TimeInterval
+from bitsea.commons.mask import Mask
+from bitsea.commons.dataextractor import DataExtractor
 import seawater as sw
 import netCDF4
 from bclib.river import conversion

@@ -1,9 +1,9 @@
 # Definitions of climatology parameters: 
 # Layers, subregions, seasons
 
-import basins.V2 as basV2
-from commons.layer import Layer
-from commons import season, timerequestors
+import bitsea.basins.V2 as basV2
+from bitsea.commons.layer import Layer
+from bitsea.commons import season, timerequestors
 import numpy as np
 
 PresDOWN=np.array([25,50,75,100,125,150,200,400,600,800,1000,1500,2000,2500])

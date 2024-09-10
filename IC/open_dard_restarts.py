@@ -1,5 +1,5 @@
-from commons import netcdf4
-from commons.mask import Mask
+from bitsea.commons import netcdf4
+from bitsea.commons.mask import Mask
 from IC import RSTwriter
 import os,glob
 import numpy as np

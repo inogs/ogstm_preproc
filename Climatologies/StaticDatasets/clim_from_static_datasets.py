@@ -1,9 +1,9 @@
 # Generates Clim file and images for Static datasets
 
-from static.Nutrients_reader import NutrientsReader
-from static.Carbon_reader import CarbonReader
+from bitsea.static.Nutrients_reader import NutrientsReader
+from bitsea.static.Carbon_reader import CarbonReader
 
-from instruments.var_conversions import NUTRVARS
+from bitsea.instruments.var_conversions import NUTRVARS
 from config import LayerList, REQUESTORS_LIST, basV2
 import numpy as np
 N=NutrientsReader()

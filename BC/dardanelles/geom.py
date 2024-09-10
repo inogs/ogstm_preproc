@@ -1,6 +1,6 @@
-from commons.mask import Mask
+from bitsea.commons.mask import Mask
 import numpy as np
-from commons import netcdf4
+from bitsea.commons import netcdf4
 
 maskfile="/gpfs/work/OGS18_PRACE_P_0/OPEN_BOUNDARY/meshmask.nc"
 TheMask=Mask(maskfile)

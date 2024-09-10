@@ -1,10 +1,10 @@
-from commons.time_interval import TimeInterval
-from static.Nutrients_reader import NutrientsReader
-from static.Carbon_reader import CarbonReader
-from instruments.var_conversions import NUTRVARS
+from bitsea.commons.time_interval import TimeInterval
+from bitsea.static.Nutrients_reader import NutrientsReader
+from bitsea.static.Carbon_reader import CarbonReader
+from bitsea.instruments.var_conversions import NUTRVARS
 import numpy as np
-from commons import timerequestors
-from commons import season
+from bitsea.commons import timerequestors
+from bitsea.commons import season
 
 N=NutrientsReader()
 C=CarbonReader()

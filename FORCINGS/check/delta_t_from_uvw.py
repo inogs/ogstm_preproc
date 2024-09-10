@@ -26,11 +26,11 @@ def argument():
 
 args = argument()
 
-from commons.mask import Mask
-from commons.dataextractor import DataExtractor
+from bitsea.commons.mask import Mask
+from bitsea.commons.dataextractor import DataExtractor
 import numpy as np
-from commons.Timelist import TimeList
-from commons.utils import addsep
+from bitsea.commons.Timelist import TimeList
+from bitsea.commons.utils import addsep
 
 try:
     from mpi4py import MPI

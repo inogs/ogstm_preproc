@@ -35,10 +35,10 @@ args = argument()
 
 import netCDF4
 import numpy as np
-from commons.Timelist import TimeList
-import Sat.SatManager as Sat
+from bitsea.commons.Timelist import TimeList
+import bitsea.Sat.SatManager as Sat
 import dom_dec
-from commons.utils import addsep
+from bitsea.commons.utils import addsep
 
 try:
     from mpi4py import MPI

@@ -50,13 +50,13 @@ def argument():
 args = argument()
 
 
-from commons.mask import Mask
+from bitsea.commons.mask import Mask
 import numpy as np
-from commons import netcdf4
+from bitsea.commons import netcdf4
 import netCDF4 as NC
-from commons.utils import addsep
-from commons.submask import SubMask
-from basins import V2
+from bitsea.commons.utils import addsep
+from bitsea.commons.submask import SubMask
+from bitsea.basins import V2
 
 
 

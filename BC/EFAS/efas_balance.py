@@ -1,9 +1,9 @@
 import numpy as np
 import river_reader as rr
-from commons.mask import Mask
-from basins import V2 as OGS
+from bitsea.commons.mask import Mask
+from bitsea.basins import V2 as OGS
 import os
-from commons.utils import writetable
+from bitsea.commons.utils import writetable
 
 # EFAS input
 RIVER_TABLE = rr.RIVERS

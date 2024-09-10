@@ -1,5 +1,5 @@
 
-from commons.mask import Mask
+from bitsea.commons.mask import Mask
 from bclib.bounmask import bounmask
 from bclib import atmosphere
 from bclib.gib import gib

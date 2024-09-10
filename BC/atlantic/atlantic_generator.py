@@ -31,10 +31,10 @@ def argument():
 
 args = argument()
 
-from commons.mask import Mask
+from bitsea.commons.mask import Mask
 import numpy as np
-from commons import netcdf4
-from commons.utils import addsep
+from bitsea.commons import netcdf4
+from bitsea.commons.utils import addsep
 import os, glob
 from smoother_1d import smoother_1d
 

@@ -1,9 +1,9 @@
 import numpy as np
-from commons.genUserDateList import getTimeList
-from commons.Timelist import TimeList
-from commons import timerequestors
-from commons import netcdf4
-from commons.mask import Mask
+from bitsea.commons.genUserDateList import getTimeList
+from bitsea.commons.Timelist import TimeList
+from bitsea.commons import timerequestors
+from bitsea.commons import netcdf4
+from bitsea.commons.mask import Mask
 from analysis_config import maskfile, VARLIST, Seas_obj, mydtype
 
 

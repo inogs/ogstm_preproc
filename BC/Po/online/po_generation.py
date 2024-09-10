@@ -26,11 +26,11 @@ def argument():
 
 
 args = argument()
-from commons.utils import addsep
+from bitsea.commons.utils import addsep
 import numpy as np
-from commons.Timelist import TimeList
-from commons.mask import Mask
-from commons.dataextractor import DataExtractor
+from bitsea.commons.Timelist import TimeList
+from bitsea.commons.mask import Mask
+from bitsea.commons.dataextractor import DataExtractor
 import seawater as sw
 import netCDF4
 

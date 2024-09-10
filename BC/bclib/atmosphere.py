@@ -1,9 +1,9 @@
 import numpy as np
 import netCDF4 as nc
 import logging
-from commons.submask import SubMask
-from basins import V2
-from basins.basin import ComposedBasin
+from bitsea.commons.submask import SubMask
+from bitsea.basins import V2
+from bitsea.basins.basin import ComposedBasin
 
 class atmosphere():
 

@@ -33,16 +33,16 @@ def argument():
 
 args = argument()
 
-from commons.time_interval import TimeInterval
-from basins import V2 as OGS
+from bitsea.commons.time_interval import TimeInterval
+from bitsea.basins import V2 as OGS
 import doStats as doStats
-from commons.layer import Layer
-from commons import timerequestors
-from commons import season
+from bitsea.commons.layer import Layer
+from bitsea.commons import timerequestors
+from bitsea.commons import season
 import numpy as np
 import matplotlib.pyplot as plt
-from instruments.var_conversions import NUTRVARS
-from commons.utils import addsep
+from bitsea.instruments.var_conversions import NUTRVARS
+from bitsea.commons.utils import addsep
 import os
 
 varDataName = args.varname

@@ -1,8 +1,8 @@
 import numpy as np
 import netCDF4
-from commons.mask import Mask
-from commons import netcdf4
-from basins import V2
+from bitsea.commons.mask import Mask
+from bitsea.commons import netcdf4
+from bitsea.basins import V2
 
 TheMask=Mask('/gss/gss_work/DRES_OGS_BiGe/ateruzzi/RA_24/input/setup/PREPROC/MASK/gdept_3d/ogstm/meshmask.nc',loadtmask=False)
 jpk,_,_ = TheMask.shape

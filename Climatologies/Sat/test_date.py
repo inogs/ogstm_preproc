@@ -1,10 +1,10 @@
 import numpy as np
-from commons.Timelist import TimeList
-from commons.time_interval import TimeInterval
+from bitsea.commons.Timelist import TimeList
+from bitsea.commons.time_interval import TimeInterval
 import datetime
-from commons.timerequestors import Clim_day
+from bitsea.commons.timerequestors import Clim_day
 
-import commons.genUserDateList as DL
+import bitsea.commons.genUserDateList as DL
 daily=DL.getTimeList("19970601-00:00:00", "20010502-12:00:00", "days=1")
 TL = TimeList(daily)
 

@@ -1,5 +1,5 @@
-from commons.Timelist import TimeList, TimeInterval
-from commons import netcdf4
+from bitsea.commons.Timelist import TimeList, TimeInterval
+from bitsea.commons import netcdf4
 import numpy as np
 
 

@@ -143,7 +143,7 @@ class bounmask():
         logging.info("bounmask.nc file written")
 
 if __name__ == '__main__':
-    from commons.mask import Mask
+    from bitsea.commons.mask import Mask
     import config as conf
     conf.file_mask="../meshmask_872.nc"
     conf.file_bmask="bounmask.nc"

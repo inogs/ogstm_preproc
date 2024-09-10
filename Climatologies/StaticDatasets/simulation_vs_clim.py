@@ -1,14 +1,14 @@
 from config import LayerList, REQUESTORS_LIST, basV2
 import clim_reader
 import figure_generator
-from commons.time_interval import TimeInterval
-from commons.Timelist import TimeList
-from timeseries.plot import Hovmoeller_matrix
+from bitsea.commons.time_interval import TimeInterval
+from bitsea.commons.Timelist import TimeList
+from bitsea.timeseries.plot import Hovmoeller_matrix
 import numpy as np
-from commons.mask import Mask
-from commons.submask import SubMask
+from bitsea.commons.mask import Mask
+from bitsea.commons.submask import SubMask
 import pylab as pl
-from commons.utils import getcolor
+from bitsea.commons.utils import getcolor
 IDrun='eas_11'
 OUTDIR="IMG/"
 MODDIR="/pico/scratch/userexternal/gbolzon0/eas_v12/eas_v12_11/wrkdir/POSTPROC/output/AVE_FREQ_2/STAT_PROFILES/"

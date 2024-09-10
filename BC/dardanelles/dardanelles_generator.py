@@ -1,6 +1,6 @@
-from commons.mask import Mask
+from bitsea.commons.mask import Mask
 import numpy as np
-from commons import netcdf4
+from bitsea.commons import netcdf4
 from dardanelles.analysis_config import VARLIST, mydtype
 
 #BOUNDARY_CONCENTRATION =  np.load('../dard_boundary_values.npy')

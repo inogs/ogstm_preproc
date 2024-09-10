@@ -24,7 +24,7 @@ args = argument()
 
 
 
-from commons.mask import Mask
+from bitsea.commons.mask import Mask
 from IC import RSTwriter
 import numpy as np
 

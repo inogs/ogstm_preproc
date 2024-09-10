@@ -1,6 +1,6 @@
 import glob,os
-from commons.mask import Mask
-from commons.dataextractor import DataExtractor
+from bitsea.commons.mask import Mask
+from bitsea.commons.dataextractor import DataExtractor
 from IC import RSTwriter
 import numpy as np
 

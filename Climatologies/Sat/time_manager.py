@@ -1,6 +1,6 @@
 import numpy as np
 import datetime
-from commons.timerequestors import Clim_day
+from bitsea.commons.timerequestors import Clim_day
 
 deltadays=15
 basetime=datetime.datetime(2001,1,1)

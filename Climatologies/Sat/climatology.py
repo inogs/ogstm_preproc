@@ -45,10 +45,10 @@ args = argument()
 
 import netCDF4
 import numpy as np
-from commons.Timelist import TimeList
+from bitsea.commons.Timelist import TimeList
 import dom_dec
 import time_manager
-from commons.utils import addsep
+from bitsea.commons.utils import addsep
 
 try:
     from mpi4py import MPI

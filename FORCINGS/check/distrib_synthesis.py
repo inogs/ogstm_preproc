@@ -1,7 +1,7 @@
-from commons.layer import Layer
-from basins import V2 as OGS
+from bitsea.commons.layer import Layer
+from bitsea.basins import V2 as OGS
 import numpy as np
-from commons.utils import writetable
+from bitsea.commons.utils import writetable
 
 LayerList=[Layer(0,50), Layer(50,100), Layer(100,150), Layer(150,200), Layer(200,300), Layer(300,400), Layer(400,500)]
 
