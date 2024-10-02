@@ -1,7 +1,6 @@
 import argparse
 from bitsea.utilities.argparse_types import existing_dir_path, existing_file_path
 
-
 def read_command_line_args():
     parser = argparse.ArgumentParser(
         description='Generates PO files reading runoff from forcings'
@@ -38,10 +37,10 @@ def read_command_line_args():
 ARGS = read_command_line_args()
 
 
+
 from collections import namedtuple
 import numpy as np
 import netCDF4
-from os import path
 import seawater as sw
 
 from bitsea.commons.Timelist import TimeList
@@ -49,7 +48,11 @@ from bitsea.commons.mask import Mask
 from bitsea.commons.dataextractor import DataExtractor
 
 from river_reader import RIVERS, BGC_VARS
-
+import mpi4py
+from bitsea.utilities.mpi_serial_interface import get_mpi_communicator
+comm = get_mpi_communicator()
+rank  = comm.Get_rank()
+nranks =comm.size
 
 # Some variables must be computed by changing the name and/or the units of
 # measurements of the original ones. In this dictionary, we save the
@@ -64,7 +67,7 @@ VARS_CONVERSIONS = {
     'POC': (('R6c', '1000.0'),),
     'DOC': (('R3c', '1000.0'),),
     'N1p': (('N1p', '1000.0/30.973761'),),
-    'N3n': (('N5s', 28.0855*1000.0 / (14.0067*14.0067)), ('N3n', 1000.0/14.0067))   
+    'N3n': (('N5s', 28.0855*1000.0 / (14.0067*14.0067)), ('N3n', 1000.0/14.0067))
 }
 
 
@@ -98,8 +101,10 @@ def main():
     pressure *= surface_level_height
 
     TL = TimeList.fromfilenames(None, input_dir, "T*.nc", prefix="T")
+    filelist=TL.filelist[rank::nranks]
+    timelist=TL.Timelist[rank::nranks]
 
-    for timestep, filename in enumerate(TL.filelist):
+    for timestep, filename in enumerate(filelist):
         runoff = DataExtractor(
             cmcc_mask,
             filename,
@@ -167,11 +172,10 @@ def main():
 
         # Now we write the content of the output_data dictionary on a netcdf
         # file
-        date_str = TL.Timelist[timestep].strftime("%Y%m%d-%H:%M:%S")
-        outfile = path.join(
-            output_dir,
-            "TIN_{}.nc".format(date_str)
-        )
+        date_str = timelist[timestep].strftime("%Y%m%d-%H:%M:%S")
+
+        outfile = output_dir / "TIN_{}.nc".format(date_str)
+
         print(outfile,flush=True)
         with netCDF4.Dataset(outfile, 'w') as nc_file:
             nc_file.createDimension('lon', jpi)
