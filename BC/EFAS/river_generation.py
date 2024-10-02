@@ -1,4 +1,5 @@
 import argparse
+from bitsea.utilities.argparse_types import existing_dir_path, existing_file_path
 
 
 def read_command_line_args():
@@ -8,28 +9,28 @@ def read_command_line_args():
     parser.add_argument(
         '--inputdir',
         '-i',
-        type=str,
+        type=existing_dir_path,
         required=True,
         help='/some/path/'
     )
     parser.add_argument(
         '--outdir',
         "-o",
-        type=str,
+        type=existing_dir_path,
         required=True,
         help='/some/path/'
     )
     parser.add_argument(
         '--cmccmaskfile', '-M',
-        type=str,
+        type=existing_file_path,
         required=True,
-        help='/some/path/outmask.nc'
+        help='/some/path/CMCCmask.nc'
     )
     parser.add_argument(
         '--maskfile', '-m',
-        type=str,
+        type=existing_file_path,
         required=True,
-        help='''NetCDF File name of the mask.''')
+        help='''mask filename of output files''')
 
     return parser.parse_args()
 
@@ -43,7 +44,6 @@ import netCDF4
 from os import path
 import seawater as sw
 
-from bitsea.commons.utils import addsep
 from bitsea.commons.Timelist import TimeList
 from bitsea.commons.mask import Mask
 from bitsea.commons.dataextractor import DataExtractor
@@ -78,8 +78,8 @@ OutputVariable = namedtuple(
 
 
 def main():
-    input_dir = addsep(ARGS.inputdir)
-    output_dir = addsep(ARGS.outdir)
+    input_dir = ARGS.inputdir
+    output_dir = ARGS.outdir
 
     cmcc_mask = Mask(ARGS.cmccmaskfile)
     ogs_mask = Mask(ARGS.maskfile)
