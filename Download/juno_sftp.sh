@@ -14,4 +14,4 @@ REMOTEDIR=/medsea_oce/nrt/dev/medfs_simu_clim/2019/
 LOCALDIR=/g100_scratch/userexternal/gbolzon0/V11C/EFAS
 KEY=/g100/home/userexternal/gbolzon0/.ssh/g100_cmcc-key
 
-my_prex  " echo \" get -R $REMOTEDIR $LOCALDIR \" | sftp -i $KEY  -P 20022 ogs@dtn01.cmcc.it"
+my_prex  " echo \" mget $REMOTEDIR/*nc $LOCALDIR \" | sftp -i $KEY  -P 20022 ogs@dtn01.cmcc.it"
