@@ -33,7 +33,7 @@ done
 
 filename=`basename $inputfile`
 var=${filename:${#filename}-4:1}
-date8=${filename:${#filename}-18:8}
+date8=${filename:${#filename}-22:8}
 
 for (( iframe=1; iframe < 5; iframe++ )) ; do
 	  hr=$((  $(( $iframe * 6 )) - 3 ))
