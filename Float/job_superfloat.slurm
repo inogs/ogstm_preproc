@@ -33,6 +33,15 @@ COMMONS="-s 20120101 -e 20250101 -o $SUPERFLOAT_DIR"
 my_prex_or_die "python superfloat_chla.py $COMMONS"
 my_prex_or_die "cp -r $SUPERFLOAT_DIR /g100_scratch/userexternal/gbolzon0/V11C/SUPERFLOAT_CHLA/"
 
+export CLIM_MED_BGC_INS_FILE=/g100_scratch/userexternal/gbolzon0/V11C/FLOAT/Climatology_N3n_600_800m.nc
 my_prex_or_die "python superfloat_nitrate.py $COMMONS"
 my_prex_or_die "cp -r $SUPERFLOAT_DIR /g100_scratch/userexternal/gbolzon0/V11C/SUPERFLOAT_NITRATE/"
+mkdir -p /g100_scratch/userexternal/gbolzon0/V11C/SUPERFLOAT/Oxydiag
+my_prex_or_die "python superfloat_oxygen.py $COMMONS -O /g100_scratch/userexternal/gbolzon0/V11C/SUPERFLOAT/Oxydiag/"
+
+my_prex_or_die "cp -r $SUPERFLOAT_DIR /g100_scratch/userexternal/gbolzon0/V11C/SUPERFLOAT_DOXY/"
+my_prex_or_die "python superfloat_bbp700.py $COMMONS -f "
+my_prex_or_die "python superfloat_kd490.py $COMMONS"
+my_prex_or_die "python superfloat_par.py $COMMONS"
+my_prex_or_die "python superfloat_ph.py $COMMONS"
 
