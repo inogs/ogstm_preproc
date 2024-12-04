@@ -52,5 +52,5 @@ for YEAR in $( seq 2012 2024 ) ; do
 done
 
 
-my_prex_or_die "python dump_index.py -i $ONLINE_REPO${PPCON} -o $ONLINE_REPO${PPCON}/Float_Index.txt -t ppcon_float"
+my_prex_or_die "python dump_index.py -i ${ONLINE_REPO}/PPCON -o ${ONLINE_REPO}/PPCON/Float_Index.txt -t ppcon_float"
 
