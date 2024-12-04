@@ -33,7 +33,12 @@ from bitsea.commons.mask import Mask
 from bitsea.commons.dataextractor import DataExtractor
 import seawater as sw
 import netCDF4
+from bitsea.utilities.mpi_serial_interface import get_mpi_communicator
+import mpi4py.MPI
 
+comm = get_mpi_communicator()
+rank = comm.Get_rank()
+nranks = comm.size
 
 def dump_file(filename,N,P,S,A,D,O,DOC,CDOM,mask):
     '''
@@ -111,10 +116,11 @@ ii = np.zeros((jpj,JPI),bool)
 for k in range(nPoints): 
     ii[J[k],I[k]]=True
 
-
-for iFrame, filename in enumerate(TL.filelist):
-    outfile=OUTDIR + "PO__" + TL.Timelist[iFrame].strftime("%Y%m%d-%H:%M:%S") + ".nc"
-    print(outfile)
+filelist=TL.filelist[rank::nranks]
+timelist=TL.Timelist[rank::nranks]
+for iFrame, filename in enumerate(filelist):
+    outfile=OUTDIR + "PO__" + timelist[iFrame].strftime("%Y%m%d-%H:%M:%S") + ".nc"
+    print(outfile,flush=True)
     Runoff   = DataExtractor(CMCC_Mask, filename, 'sorunoff', dimvar=2).values
     TEMP     = DataExtractor(CMCC_Mask, filename, 'votemper').values[0,:]
 
