@@ -90,8 +90,13 @@ def readframe(filename,var, timeframe):
     return A[-1::-1,:]
 
 def interp(Min):
-    f = interpolate.interp2d(lon, lat, Min, kind='linear')
-    Mout  = f(TheMask.xlevels[0,:], TheMask.ylevels[:,0])
+    X,Y = np.meshgrid(lon,lat)
+    nPoints = X.size
+    Xpoints = np.zeros((nPoints,2),float)
+    Xpoints[:,0] = X.ravel()
+    Xpoints[:,1] = Y.ravel()
+    f = interpolate.NearestNDInterpolator(Xpoints, Min.ravel())
+    Mout  = f(TheMask.lon, TheMask.lat)
     return Mout
 
 def getframe(filename,var, timeframe):
