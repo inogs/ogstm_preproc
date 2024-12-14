@@ -88,7 +88,7 @@ def interp(Min):
     Xpoints[:,0] = X.ravel()
     Xpoints[:,1] = Y.ravel()
     f = interpolate.NearestNDInterpolator(Xpoints, Min.ravel())
-    Mout  = f(TheMask.lon, TheMask.lat)
+    Mout  = f(TheMask.xlevels, TheMask.ylevels)
     return Mout
 
 def getframe(filename,var, timeframe):
