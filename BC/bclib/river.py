@@ -16,12 +16,15 @@ def conversion(var):
     n = 14
     p = 31
     s = 28
+    h = 200590000    #/200.59*1000000.
     Conversion['N1p'] =w*p
     Conversion['N3n'] =w*n
     Conversion['N5s'] =w*s
     Conversion['O3h'] =w
     Conversion['O3c'] =w
     Conversion['O2o'] =w
+    Conversion['Hg2'] =h
+    Conversion['MMHg'] =h
     return Conversion[var]
 
 class river():
@@ -254,7 +257,9 @@ class river():
         totS = self.river_data["DIS_KTperYR_NOBLS"  ][str(year)].sum(axis=1)/12;
         totA = self.river_data["ALK_GmolperYR_NOBLS"][str(year)].sum(axis=1)/12;
         totD = self.river_data["DIC_KTperYR_NOBLS"  ][str(year)].sum(axis=1)/12;
-        return totN,totP,totS,totA,totD
+        totH = self.river_data["HgII_KTperYR_NOBLS"  ][str(year)].sum(axis=1)/12;
+        totM = self.river_data["MMHg_KTperYR_NOBLS"  ][str(year)].sum(axis=1)/12;
+        return totN,totP,totS,totA,totD,totH,totM
 
 
     def spread_array(self,array):
@@ -283,11 +288,13 @@ class river():
         A = self.river_data["ALK_GmolperYR_NOBLS"][yearstr][:,month-1]
         D = self.river_data["DIC_KTperYR_NOBLS"  ][yearstr][:,month-1]
         O = self.river_data["O2o_GmolperYR_NOBLS"][yearstr][:,month-1]
+        H = self.river_data["HgII_KTperYR_NOBLS"][yearstr][:,month-1]
+        M = self.river_data["MMHg_KTperYR_NOBLS"][yearstr][:,month-1]
         DOC  = self.river_data["DOC_KTperYR_NOBLS"][yearstr][:,month-1]
         CDOM = self.river_data["CDOM_KTperYR_NOBLS"][yearstr][:,month-1]*4.0
 
         if (self.nspread==1):
-            return N,P,S,A,D,O,DOC,CDOM
+            return N,P,S,A,D,O,H,M,DOC,CDOM
         else:
             N_long = self.spread_array(N)
             P_long = self.spread_array(P)
@@ -295,14 +302,16 @@ class river():
             A_long = self.spread_array(A)
             D_long = self.spread_array(D)
             O_long = self.spread_array(O)
+            H_long = self.spread_array(H)
+            M_long = self.spread_array(M)
             DOC_long = self.spread_array(DOC)
             CDOM_long = self.spread_array(CDOM)
-            return N_long, P_long, S_long, A_long, D_long, O_long, DOC_long, CDOM_long
+            return N_long, P_long, S_long, A_long, D_long, O_long,H_long,M_long,DOC_long, CDOM_long
 
 
     
     
-    def conversion(self,N,P,S,A,D,O,DOC,CDOM):
+    def conversion(self,N,P,S,A,D,O,H,M,DOC,CDOM):
         '''
         Performs conversion of all variables
         from KT/y to mmol/s or mg/s
@@ -321,21 +330,26 @@ class river():
         * O * in mmol/s
         * DOC *    mg/s
         * CDOM *   mg/s
+        * Hg *   nmol/s
+        * MeHg * nmol/s
          as (nRivers,) numpy array
 
         Data are not ready for model, they have to be divided by cell area or cell volume.
         ''' 
         w= 1.0e+12;
+        w2= 1.0e+6;
         t = 1./(365 * 86400)
         n = 1./14;
         p = 1./31;
         s = 1./28;
+        h = 1./200.59;
         cn = w*t*n
         cp = w*t*p
         cs = w*t*s
         ca = w*t  
         cc = w*t    
-        return N*cn, P*cp, S*cs,A*ca, D*cc, O*cc, DOC*cc, CDOM*cc
+        ch = w*w2*t*h   #check conversion for mercury
+        return N*cn, P*cp, S*cs,A*ca, D*cc, O*cc,H*ch,M*ch, DOC*cc, CDOM*cc
 
     def generate_monthly_files(self,conf,mask):#, idxt_riv, positions):
         '''
@@ -363,9 +377,9 @@ class river():
         for year in range(start_year,end___year):
             for month in range(1,13):
                 filename = conf.dir_out + "TIN_%d%02d15-00:00:00.nc" %(year, month)
-                N,P,S,A,D,O,DOC,CDOM = self.get_monthly_data(str(year), month)
-                N,P,S,A,D,O, DOC, CDOM = self.conversion(N, P, S, A, D, O, DOC, CDOM)
-                self.dump_file(filename, N/Area, P/Area, S/Area, A/Area, D/Area, O/Area, DOC/Area, CDOM/Area, mask)
+                N,P,S,A,D,O,H,M,DOC,CDOM = self.get_monthly_data(str(year), month)
+                N,P,S,A,D,O,H,M,DOC, CDOM = self.conversion(N, P, S, A, D, O,H,M,DOC, CDOM)
+                self.dump_file(filename, N/Area, P/Area, S/Area, A/Area, D/Area, O/Area,H/Area, M/Area, DOC/Area, CDOM/Area, mask)
         logging.info("Non climatological TIN file generation : done")
 
     def generate_climatological_monthly_files(self,conf,mask): #idxt_riv, positions):
@@ -391,13 +405,13 @@ class river():
         year="yyyy"
         for month in range(1,13):
             filename = conf.dir_out+"/TIN_yyyy%02d15-00:00:00.nc" %(month)
-            N,P,S,A,D,O,DOC,CDOM = self.get_monthly_data(str(year), month)
-            N,P,S,A,D,O,DOC,CDOM = self.conversion(N, P, S, A, D, O, DOC,CDOM)
-            self.dump_file(filename, N/Area, P/Area, S/Area, A/Area, D/Area, O/Area, DOC/Area, CDOM/Area, mask)
+            N,P,S,A,D,O,H,M,DOC,CDOM = self.get_monthly_data(str(year), month)
+            N,P,S,A,D,O,H,M,DOC,CDOM = self.conversion(N, P, S, A, D, O,H,M, DOC,CDOM)
+            self.dump_file(filename, N/Area, P/Area, S/Area, A/Area, D/Area, O/Area, H/Area,M/Area,DOC/Area, CDOM/Area, mask)
         logging.info("Climatological TIN file generation : done")
                 
 
-    def dump_file_old(self,filename,N,P,S,A,D,O, idxt_riv,positions):
+    def dump_file_old(self,filename,N,P,S,A,D,O,H,M, idxt_riv,positions):
         '''
           Writes the single TIN file
           Variables are dumped as they are, all but positions (incremented by one)
@@ -415,6 +429,8 @@ class river():
         riv_a_o3c = ncfile.createVariable('riv_O3c', 'f4', ('riv_idxt',))
         riv_a_o3h = ncfile.createVariable('riv_O3h', 'f4', ('riv_idxt',))
         riv_a_O2o = ncfile.createVariable('riv_O2o', 'f4', ('riv_idxt',))
+        riv_a_Hg2 = ncfile.createVariable('riv_Hg2', 'f4', ('riv_idxt',))
+        riv_a_MMHg = ncfile.createVariable('riv_MMHg', 'f4', ('riv_idxt',))
 
         riv_idxt_riv[:] = idxt_riv[:]
         riv_pos[:,:] = positions+1
@@ -424,9 +440,11 @@ class river():
         riv_a_o3c[:] = D
         riv_a_o3h[:] = A
         riv_a_O2o[:] = O
+        riv_a_Hg2[:] = H
+        riv_a_MMHg[:] = M
         ncfile.close()
 
-    def dump_file(self,filename,N,P,S,A,D,O,DOC, CDOM, mask):
+    def dump_file(self,filename,N,P,S,A,D,O,H,M,DOC, CDOM, mask):
         '''
           Writes the single TIN file
           Variables are dumped as they are, all but positions (incremented by one)
@@ -441,6 +459,8 @@ class river():
         riv_a_o3c = ncfile.createVariable('riv_O3c', 'f4', ('lat','lon'))
         riv_a_o3h = ncfile.createVariable('riv_O3h', 'f4', ('lat','lon'))
         riv_a_O2o = ncfile.createVariable('riv_O2o', 'f4', ('lat','lon'))
+        riv_a_Hg2 = ncfile.createVariable('riv_Hg2', 'f4', ('lat','lon'))
+        riv_a_MMHg = ncfile.createVariable('riv_MMHg', 'f4', ('lat','lon'))
         riv_a_R3c = ncfile.createVariable('riv_R3c', 'f4', ('lat','lon'))
         riv_a_R3l = ncfile.createVariable('riv_R3l', 'f4', ('lat','lon'))
 
@@ -450,6 +470,8 @@ class river():
         riv_a_o3c[:] = self.get_map_from_1d_array(D, mask)
         riv_a_o3h[:] = self.get_map_from_1d_array(A, mask)
         riv_a_O2o[:] = self.get_map_from_1d_array(O, mask)
+        riv_a_Hg2[:] = self.get_map_from_1d_array(H, mask)
+        riv_a_MMHg[:] = self.get_map_from_1d_array(M, mask)
         riv_a_R3c[:] = self.get_map_from_1d_array(DOC, mask)
         riv_a_R3l[:] = self.get_map_from_1d_array(CDOM,mask)
 
@@ -459,6 +481,8 @@ class river():
         setattr(riv_a_o3c,'missing_value',np.float32(1.e+20))
         setattr(riv_a_o3h,'missing_value',np.float32(1.e+20))
         setattr(riv_a_O2o,'missing_value',np.float32(1.e+20))
+        setattr(riv_a_Hg2,'missing_value',np.float32(1.e+20))
+        setattr(riv_a_MMHg,'missing_value',np.float32(1.e+20))
         setattr(riv_a_R3c,'missing_value',np.float32(1.e+20))
         setattr(riv_a_R3l,'missing_value',np.float32(1.e+20))
         ncfile.close()

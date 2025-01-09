@@ -11,22 +11,21 @@ from dardanelles import dardanelles_generator
 
 TheMask = Mask(conf.file_mask)
 
-CO2 =co2atm(conf)
-CO2.generate(TheMask, experiment="RCP85")
-ATM=atmosphere.atmosphere(TheMask,conf)
-ATM.write_netcdf(TheMask, conf.dir_out, "Area")
+#CO2 =co2atm(conf)
+#CO2.generate(TheMask, experiment="RCP85")
+ #ATM=atmosphere.atmosphere(TheMask,conf)
+#ATM.write_netcdf(TheMask, conf.dir_out, "Area")
 
-
-BOUN = bounmask(conf)
-BOUN.generate(TheMask)     # can be commented in case of test
-BOUN.write_netcdf(TheMask, all_variables=False)
+#BOUN = bounmask(conf)
+#BOUN.generate(TheMask)     # can be commented in case of test
+#BOUN.write_netcdf(TheMask, all_variables=False)
 
 G = gib(conf,TheMask)
 G.generate(TheMask, BOUN, all_variables=False)
 
-R = river(conf) # here excel is read
-R.modularize(conf)
-R.gen_map_indexes(TheMask)
+# R = river(conf) # here excel is read
+#R.modularize(conf)
+#R.gen_map_indexes(TheMask)
 
 climatological=True
 

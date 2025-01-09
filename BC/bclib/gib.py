@@ -27,6 +27,10 @@ class gib():
         if jn==6 :
             size_nutrients = self.gibilterra.phos.shape
             return np.ones(size_nutrients,np.float64)*0.0025  # G. Cossarini estimate
+        if jn==7 : return self.gibilterra.Hg0
+        if jn==8 : return self.gibilterra.Hg2
+        if jn==9 : return self.gibilterra.MMHg
+        if jn==10: return self.gibilterra.DMHg
 
     def generate(self, mask, bounmask_obj, all_variables=True):
         
@@ -63,6 +67,7 @@ class gib():
                 GIB_matrix = self.nutrient_dataset_by_index(jn)
                 aux = bounmask_obj.resto[jn, ...]
                 isNudg = (aux != 0) & (mask.mask)
+                print (jn, nudg, vnudg[jn][0])
                 
                 GIB_matrix[time, ~isNudg] = -1.
                 GIB_matrix[time, ~mask.mask] = 1.e+20
