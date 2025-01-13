@@ -4,9 +4,9 @@ file_mask      = "/g100_work/OGS23_PRACE_IT/grosati/NECCTON/PREPROC_ogstm/ogstm_
 file_co2       = "CMIP5_scenarios_RCP_CO2_mixing_ratio.nc"
 file_nutrients = "VPnutrients_CO2Hg.nc"
 file_bmask     = "/g100_scratch/userexternal/camadio0/Neccton_hindcast1999_2022/wrkdir/MODEL/bounmask.nc"
-file_river     = "Perseus-4.6_38rivers_mesh24Hg.xlsx"
+file_river     = "Perseus-4.6_40rivers_genericmesh_withDissHg.xlsx"
 
-simulation_start_time = 2005
+simulation_start_time = 2015
 simulation_end_time   = 2020
 
 # Atmosphere settings in Mmol/y
@@ -33,12 +33,13 @@ variables=[[u'N1p', -8.0, -6.5],
  [u'N6r', -8.0,-6.5],
  [u'Hg0', -8.0,-6.5],
  [u'Hg2', -8.0,-6.5],
- [u'MMHg',-8.0,-6.5],
- [u'DMHg',-8.0,-6.5]]
+ [u'MHg',-8.0,-6.5],
+ [u'DHg',-8.0,-6.5]]
 
 gib_season = (["0630-00:00:00"])
 
-RST_FILES ="../PREPROC/IC/RST_2018/RST*nc"
+#RST_FILES ="../PREPROC/IC/RST_2018/RST*nc"
+RST_FILES ="/g100_work/OGS23_PRACE_IT/grosati/NECCTON/PREPROC_ogstm/ogstm_preproc/IC/RST_const/RST*nc"
 
 
 river_data_sheet = ['KM3perYR_NOBLS',
