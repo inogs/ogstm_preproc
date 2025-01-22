@@ -165,7 +165,7 @@ class lateral_bc:
                     self.DHg[ jt,jk,:,:] = vp_DHg[ jt,jk]
 
 
-            for jt in range(jpt): tmask4d[jt,:,:,:]=mask.mask
+            for jt in range(jpt): tmask4d[jt,:,:,:]=mask[:]
 
             self.phos[~tmask4d]=1.e+20
             self.ntra[~tmask4d]=1.e+20
