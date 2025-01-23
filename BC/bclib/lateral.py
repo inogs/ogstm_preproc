@@ -161,13 +161,12 @@ class lateral_bc:
                     self.pl2[ jt,jk,:,:] = vp_P2h[ jt,jk]
                     self.pl3[ jt,jk,:,:] = vp_P3h[ jt,jk]
                     self.pl4[ jt,jk,:,:] = vp_P4h[ jt,jk]
-
                     self.zo6[ jt,jk,:,:] = vp_Z6h[ jt,jk]
                     self.zo5[ jt,jk,:,:] = vp_Z5h[ jt,jk]
                     self.zo4[ jt,jk,:,:] = vp_Z4h[ jt,jk]
                     self.zo3[ jt,jk,:,:] = vp_Z3h[ jt,jk]
 
-           # for jt in range(jpt): tmask4d[jt,:,:,:]=mask.mask
+
             for jt in range(jpt): tmask4d[jt,:,:,:]=mask[:]
 
             self.phos[~tmask4d]=1.e+20
