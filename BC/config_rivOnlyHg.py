@@ -3,7 +3,7 @@ dir_out        = "/g100_work/OGS23_PRACE_IT/grosati/NECCTON/PREPROC_ogstm/ogstm_
 file_mask      = "/g100_work/OGS23_PRACE_IT/grosati/NECCTON/PREPROC_ogstm/ogstm_preproc/BC/meshmask.nc"
 file_co2       = "CMIP5_scenarios_RCP_CO2_mixing_ratio.nc"
 file_nutrients = "VPnutrients_CO2Hg.nc"
-file_bmask     = "/g100_scratch/userexternal/camadio0/Neccton_hindcast1999_2022/wrkdir/MODEL/bounmask.nc"
+file_bmask     = "bounmask.nc"
 file_river     = "Perseus-4.6_40rivers_genericmesh_withDissHg.xlsx"
 
 simulation_start_time = 2015
@@ -43,6 +43,11 @@ RST_FILES ="/g100_work/OGS23_PRACE_IT/grosati/NECCTON/PREPROC_ogstm/ogstm_prepro
 
 
 river_data_sheet = ['KM3perYR_NOBLS',
+ 'HgII_KTperYR_NOBLS',
+ 'MMHg_KTperYR_NOBLS']
+
+'''
+river_data_sheet = ['KM3perYR_NOBLS',
  'DIP_KTperYR_NOBLS',
  'DIN_KTperYR_NOBLS',
  'DIS_KTperYR_NOBLS',
@@ -53,5 +58,4 @@ river_data_sheet = ['KM3perYR_NOBLS',
  'MMHg_KTperYR_NOBLS',
  'DOC_KTperYR_NOBLS',
  'CDOM_KTperYR_NOBLS']
-
-
+ '''

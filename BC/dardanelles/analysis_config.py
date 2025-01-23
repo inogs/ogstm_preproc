@@ -14,5 +14,5 @@ maskfile="/gpfs/scratch/userexternal/gbolzon0/TRANSITION_24/meshmask.nc"
 INPUTDIR="/gpfs/scratch/userexternal/gbolzon0/TRANSITION_24/AVE/"
 TI = TimeInterval("2016","2018","%Y")
 
-VARLIST=['N1p', 'N3n', 'N5s','O3c','O3h']
+VARLIST=['N1p', 'N3n', 'N5s','O3c','O3h','HgII','MMHg']
 mydtype=[(var,np.float32) for var in VARLIST]

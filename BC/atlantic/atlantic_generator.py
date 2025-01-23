@@ -69,7 +69,7 @@ ALLVARS=[f[-6:-3] for f in fileLIST]
 mydtype=[(var,np.float32) for var in ALLVARS]
 BOUNDARY_CONCENTRATION= np.zeros((jpk,),dtype=mydtype)
 
-VARLIST=['N1p', 'N3n', 'N5s','O2o','O3c','O3h']
+VARLIST=['N1p', 'N3n', 'N5s','O2o','O3c','O3h','Hg2','Hg0','MHg','DHg','P1h','P2h','P3h','P4h','Z6h','Z5h','Z4h','Z3h']
 
 for var in ALLVARS:
     if var in VARLIST:
