@@ -4,7 +4,7 @@ def argument():
     parser = argparse.ArgumentParser(description = '''
     Generates daily files for OASIM by reading ECMWF file provided by CMCC
     Valid for analysis file having a single frame
-    YYYYMMDD-ECMWF---AM0100-MEDATL-bYYYYMMDD_an00-fv11.00.nc analisi at 00 of the same day YYYYMMDD
+    YYYYMMDD-ECMWF---AM0100-MEDATL-bYYYYMMDD_an00-fv12.00.nc analisi at 00 of the same day YYYYMMDD
     ''',
     formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
@@ -48,7 +48,7 @@ jpk,jpj,jpi = TheMask.shape
 INPUTDIR=addsep(args.inputdir)
 OUTDIR = addsep(args.outdir)
 
-TL = TimeList.fromfilenames(None, INPUTDIR, "*_an00-fv11.00.nc", prefix="", dateformat="%Y%m%d")
+TL = TimeList.fromfilenames(None, INPUTDIR, "*_an00-fv12.00.nc", prefix="", dateformat="%Y%m%d")
 
 nframes_in_day = 1
 deltaH = 6
