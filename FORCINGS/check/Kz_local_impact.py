@@ -8,7 +8,7 @@ import os
 from bitsea.commons import netcdf4
 from datetime import datetime, timedelta
 
-TheMask=Mask('/g100_work/OGS_devC/Benchmark/SETUP/PREPROC/MASK/meshmask.nc')
+TheMask=Mask.from_file('/g100_work/OGS_devC/Benchmark/SETUP/PREPROC/MASK/meshmask.nc')
 DIR1="/g100_scratch/userexternal/gbolzon0/V10C/run1.2/wrkdir/MODEL/AVE_FREQ_1/"
 DIR2="/g100_scratch/userexternal/gbolzon0/V10C/run1.3/wrkdir/MODEL/AVE_FREQ_1/"
 FORCINGSDIR="/g100_scratch/userexternal/gbolzon0/V10C/run1.2/wrkdir/MODEL/FORCINGS/"

@@ -80,8 +80,8 @@ def dump_file(filename,N,P,S,A,D,O,DOC,CDOM,mask):
 
 INPUTDIR=addsep(args.inputdir)
 OUTDIR = addsep(args.outdir)
-CMCC_Mask=Mask(args.cmccmaskfile)
-TheMask=Mask(args.maskfile)
+CMCC_Mask=Mask.from_file(args.cmccmaskfile)
+TheMask=Mask.from_file(args.maskfile)
 jpk, jpj, JPI = CMCC_Mask.shape
 jpk, jpj, jpi = TheMask.shape
 mask0 = TheMask.mask_at_level(0)

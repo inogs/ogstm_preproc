@@ -31,7 +31,7 @@ from bitsea.commons.mask import Mask
 from IC import RSTwriter
 
 
-TheMask=Mask(args.maskfile)
+TheMask=Mask.from_file(args.maskfile)
 
 
 jpk, jpj, jpi=TheMask.shape

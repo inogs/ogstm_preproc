@@ -50,8 +50,8 @@ local_sub  = SimplePolygonalBasin('dar', p,'Near Dardanelles')
 LAYERLIST=[ Layer(0,14), Layer(14,50)]
 nLayers = len(LAYERLIST)
 nSeas = Seas_obj.numbers_season
-TheMask=Mask(maskfile)
-S = SubMask(local_sub,maskobject=TheMask)
+TheMask=Mask.from_file(maskfile)
+S = SubMask(local_sub, TheMask)
 mask = S.mask[0,:,:]
 
 

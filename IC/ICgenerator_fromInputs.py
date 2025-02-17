@@ -57,7 +57,7 @@ def get_climatology(varname):
     return CLIM_17
 
 
-TheMask = Mask(MASKFILE)
+TheMask = Mask.from_file(MASKFILE)
 
 jpk, jpj, jpi = TheMask.shape
 
@@ -87,7 +87,7 @@ for varname in VARLIST:
     RST = np.zeros((jpk,jpj,jpi),np.double)
     for isub, sub in enumerate(SUB17):
         p = CLIM[isub,:]
-        S =SubMask(sub, maskobject=TheMask)
+        S =SubMask(sub, TheMask)
         for k in range(jpk):
             submask = S.mask[k,:,:]
             V = RST[k,:,:]

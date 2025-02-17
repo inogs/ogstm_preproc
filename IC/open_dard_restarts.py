@@ -6,7 +6,7 @@ import numpy as np
 
 INPUTDIR="/gpfs/work/OGS18_PRACE_P_0/OPEN_BOUNDARY/IC/RST_CLOSE_DARD/"
 OUTPUTDIR="/gpfs/work/OGS18_PRACE_P_0/OPEN_BOUNDARY/IC/RST_OPEN__DARD/"
-TheMask=Mask("/gpfs/work/OGS18_PRACE_P_0/OPEN_BOUNDARY/meshmask.nc")
+TheMask=Mask.from_file("/gpfs/work/OGS18_PRACE_P_0/OPEN_BOUNDARY/meshmask.nc")
 
 filelist=glob.glob(INPUTDIR+"*nc")
 

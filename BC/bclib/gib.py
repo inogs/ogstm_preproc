@@ -96,7 +96,7 @@ if __name__ == "__main__":
     conf.file_nutrients = "../"+ conf.file_nutrients
     conf.file_mask="../masks/meshmask_872.nc"
     conf.dir_out = "../out"
-    TheMask = Mask(conf.file_mask)
+    TheMask = Mask.from_file(conf.file_mask)
     GIB = gib(conf,TheMask)
     from bounmask import bounmask
     BOUN=bounmask(conf)

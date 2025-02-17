@@ -29,7 +29,7 @@ from IC import RSTwriter
 import numpy as np
 
 
-TheMask=Mask(args.maskfile)
+TheMask=Mask.from_file(args.maskfile)
 
 
 jpk,jpj,jpi=TheMask.shape

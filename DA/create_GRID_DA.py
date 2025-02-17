@@ -60,8 +60,8 @@ from bitsea.basins import V2
 
 
 
-#mask=Mask("/gpfs/scratch/userexternal/ateruzzi/MASKS24_NRTV7C/meshmask.nc")
-mask=Mask(args.maskfile)
+#mask=Mask.from_file("/gpfs/scratch/userexternal/ateruzzi/MASKS24_NRTV7C/meshmask.nc")
+mask=Mask.from_file(args.maskfile)
 CASE= args.case
 name_file=args.name
 outputdir=addsep(args.outdir)
@@ -127,7 +127,7 @@ already_assigned=np.zeros(mask0.shape,dtype=np.bool)
 
 if basin_type == 'subs':
     for isub,sub in enumerate(basin_list):
-        S=SubMask(sub,maskobject=mask0)
+        S=SubMask(sub, mask0)
         S.mask[already_assigned] = False
         already_assigned[S.mask] = True
         print sub.name

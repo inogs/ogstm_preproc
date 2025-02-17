@@ -8,7 +8,7 @@ from bitsea.commons.Timelist import TimeList
 import sys
 import pylab as pl
 
-TheMask=Mask('/g100_work/OGS_devC/Benchmark/SETUP/PREPROC/MASK/meshmask_CMCC.nc')
+TheMask=Mask.from_file('/g100_work/OGS_devC/Benchmark/SETUP/PREPROC/MASK/meshmask_CMCC.nc')
 INPUTDIR="/g100_work/OGS_devC/Benchmark/SETUP/PREPROC/FORCINGS/metrics/output/"
 OUTDIR = "/g100_work/OGS_devC/Benchmark/pub/Benchmark/votkeavt/Ved_ratio/"
 
@@ -17,7 +17,7 @@ bool_dtype=[(sub.name,bool)    for sub in OGS.P]
 Mask_0 = TheMask.cut_at_level(0)
 SUBM = np.zeros((jpj, jpi), dtype=bool_dtype)
 for isub, sub in enumerate(OGS.Pred):
-    S=SubMask(sub, maskobject=Mask_0)
+    S=SubMask(sub, Mask_0)
     SUBM[sub.name]=S.mask
     SUBM['med']=(SUBM['med'] | SUBM[sub.name])
     
