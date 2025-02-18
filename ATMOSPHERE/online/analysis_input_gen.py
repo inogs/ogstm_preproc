@@ -47,7 +47,7 @@ except:
     nranks = 1
 
 
-TheMask=Mask(args.maskfile)
+TheMask=Mask.from_file(args.maskfile)
 jpk,jpj,jpi = TheMask.shape
 
 INPUTDIR=addsep(args.inputdir)

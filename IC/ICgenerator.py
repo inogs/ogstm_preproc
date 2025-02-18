@@ -25,8 +25,8 @@ maskfile="/gss/gss_work/DRES_OGS_BiGe/gbolzon/masks/eas/eas_v12/ogstm/meshmask.n
 maskfile_ingv="/gss/gss_work/DRES_OGS_BiGe/gbolzon/masks/eas/eas_v12/ogstm/meshmask_sizeINGV.nc"
 filename="/pico/scratch/userexternal/gbolzon0/eas_v12/eas_v12_11/FORCINGS/eas2_v12_notint_1d_20140101_20140102_grid_T.nc"
 
-TheMask = Mask(maskfile)
-IngvMask= Mask(maskfile_ingv)
+TheMask = Mask.from_file(maskfile)
+IngvMask= Mask.from_file(maskfile_ingv)
 
 PresCEN = np.array([(l.bottom+l.top)/2  for l in LayerList])
 jpk, jpj, jpi = TheMask.shape
@@ -59,7 +59,7 @@ for varname in VARLIST:
     RST = np.zeros((jpk,jpj,jpi),np.double)
     for isub, sub in enumerate(ICdef):
         p = getModelProfile(CLIM[isub,:])
-        S =SubMask(sub, maskobject=TheMask)
+        S =SubMask(sub, TheMask)
         for k in range(jpk):
             submask = S.mask[k,:,:]
             V = RST[k,:,:]

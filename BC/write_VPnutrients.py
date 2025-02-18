@@ -20,11 +20,11 @@ def argument():
 
 args = argument()
 
-from bitsea.commons.mask import Mask
+from bitsea.commons.mesh import Mesh
 from bitsea.commons import netcdf4
 import netCDF4
 from bitsea.commons.utils import addsep
-TheMask=Mask(args.maskfile, loadtmask=False)
+TheMask=Mesh.from_file(args.maskfile)
 INPUTDIR=addsep(args.inputdir)
 
 jpk,_,_ = TheMask.shape

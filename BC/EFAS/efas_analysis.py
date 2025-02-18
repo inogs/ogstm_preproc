@@ -5,7 +5,7 @@ import river_reader as rr
 from bitsea.commons.dataextractor import DataExtractor
 import seawater as sw
 
-CMCC_Mask=Mask('/g100_work/OGS_devC/V9C/RUNS_SETUP/PREPROC/MASK/meshmask_CMCC.nc')
+CMCC_Mask=Mask.from_file('/g100_work/OGS_devC/V9C/RUNS_SETUP/PREPROC/MASK/meshmask_CMCC.nc')
 RIVER_TABLE = rr.RIVERS
 nPoints = RIVER_TABLE.size
 PRES = np.ones((nPoints,),np.float32)*CMCC_Mask.zlevels[0]

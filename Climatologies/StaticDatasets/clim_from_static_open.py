@@ -96,7 +96,7 @@ else: # default values
 # References for the climatology
 TI = TimeInterval('19950101','20240101',"%Y%m%d")
 meshmaskfile ='/g100_work/OGS_devC/Benchmark/SETUP/PREPROC/MASK/meshmask.nc'
-TheMask= Mask(meshmaskfile)
+TheMask= Mask.from_file(meshmaskfile)
 mask200 = TheMask.mask_at_level(200.0)
 obsdepthlim=50.0
 #

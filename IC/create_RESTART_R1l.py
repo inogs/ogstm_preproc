@@ -35,7 +35,7 @@ from bitsea.commons.mask import Mask
 from IC import RSTwriter
 from bitsea.commons.dataextractor import DataExtractor
 
-TheMask=Mask(args.maskfile)
+TheMask=Mask.from_file(args.maskfile)
 
 
 R3c = DataExtractor(TheMask, args.inputfile, "TRNR3c").values

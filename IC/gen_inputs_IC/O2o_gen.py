@@ -1,10 +1,14 @@
+from pathlib import Path
+
 import numpy as np
 import netCDF4
-from bitsea.commons.mask import Mask
+from bitsea.commons.mesh import Mesh
 from bitsea.commons import netcdf4
 from bitsea.basins import V2
 
-TheMask=Mask('/gss/gss_work/DRES_OGS_BiGe/ateruzzi/RA_24/input/setup/PREPROC/MASK/gdept_3d/ogstm/meshmask.nc',loadtmask=False)
+TheMask=Mesh.from_file(
+    Path('/gss/gss_work/DRES_OGS_BiGe/ateruzzi/RA_24/input/setup/PREPROC/MASK/gdept_3d/ogstm/meshmask.nc'),
+)
 jpk,_,_ = TheMask.shape
 FLOAT_CLIM = netcdf4.readfile("/g100/home/userexternal/camadio0/float_preproc/CLIMATOLOGIE/FLOAT_CLIMATOLOGIES/new_clim_SF_V8C_2012_2021_swm2/yr_Avg_O2o.nc", "O2o")
 EMODNET    = netcdf4.readfile("/gss/gss_work/DRES_OGS_BiGe/ateruzzi/RA_24/input/setup/PREPROC/IC/inputs/O2o.nc","O2o")

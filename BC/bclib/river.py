@@ -507,7 +507,7 @@ class river():
 if __name__=="__main__":
     from bitsea.commons.mask import Mask
     import config as conf
-    TheMask = Mask(conf.file_mask)
+    TheMask = Mask.from_file(conf.file_mask)
     R = river(conf)
     R.modularize(conf)
     R.gen_map_indexes(TheMask)

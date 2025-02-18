@@ -52,7 +52,7 @@ except:
 
 INPUTDIR=addsep(args.inputdir)
 OUTPUTDIR=addsep(args.outdir)
-TheMask=Mask(args.maskfile)
+TheMask=Mask.from_file(args.maskfile)
 
 
 jpk, jpj, jpi = TheMask.shape

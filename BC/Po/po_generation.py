@@ -44,8 +44,8 @@ OUTDIR="/gpfs/scratch/userexternal/gbolzon0/PO/ogstm_boundary_conditions/out/"
 
 riverinput="/gpfs/scratch/userexternal/gbolzon0/PO/runoff_1d_nomask_y2019.nc"
 
-CMCC_Mask=Mask('/gpfs/work/IscrC_REBIOMED/NRT_EAS6/PREPROC/MASK/ogstm/meshmask_CMCCfor_ogstm.nc')
-TheMask=Mask('/gpfs/work/IscrC_REBIOMED/NRT_EAS6/PREPROC/MASK/ogstm/meshmask.nc')
+CMCC_Mask=Mask.from_file('/gpfs/work/IscrC_REBIOMED/NRT_EAS6/PREPROC/MASK/ogstm/meshmask_CMCCfor_ogstm.nc')
+TheMask=Mask.from_file('/gpfs/work/IscrC_REBIOMED/NRT_EAS6/PREPROC/MASK/ogstm/meshmask.nc')
 jpk, jpj, JPI = CMCC_Mask.shape
 jpk, jpj, jpi = TheMask.shape
 mask0 = TheMask.mask_at_level(0)

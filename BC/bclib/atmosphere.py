@@ -28,9 +28,9 @@ class atmosphere():
         V2.wes.region.border_latitudes  = [32,45]
         #---------------------------------------------
         print("wes")
-        wes = SubMask(V2.wes,maskobject=mask0).mask_at_level(0)
+        wes = SubMask(V2.wes, mask0).mask_at_level(0)
         print("eas")
-        eas = SubMask(EAS,   maskobject=mask0).mask_at_level(0)
+        eas = SubMask(EAS, mask0).mask_at_level(0)
         print("done")
         
         e3t       = mask0.dz
