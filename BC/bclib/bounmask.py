@@ -121,7 +121,7 @@ class bounmask():
         navlev_wnc = ncfile.createVariable('nav_lev', 'f', 'z')
         navlev_wnc[:] = mask.zlevels
         for jn in range(nudg):
-            corrf =[1.,1.,1.,1.,1.01,1.01,1.];
+            corrf =[1.,1.,1.,1.,1.01,1.01,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.];
             aux= self.resto[jn,:,:,:]*corrf[jn];
             aux[~mask.mask] = 1.e+20
             resto_wnc = ncfile.createVariable("re" + vnudg[jn][0], 'f4', ('time','z','y','x'))
@@ -145,7 +145,7 @@ class bounmask():
 if __name__ == '__main__':
     from bitsea.commons.mask import Mask
     import config as conf
-    conf.file_mask="../meshmask_872.nc"
+#    conf.file_mask="../meshmask_872.nc"
     conf.file_bmask="bounmask.nc"
     TheMask = Mask(conf.file_mask)
     B=bounmask(conf)

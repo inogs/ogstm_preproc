@@ -27,6 +27,18 @@ class gib():
         if jn==6 :
             size_nutrients = self.gibilterra.phos.shape
             return np.ones(size_nutrients,np.float64)*0.0025  # G. Cossarini estimate
+        if jn==7 : return self.gibilterra.me0
+        if jn==8 : return self.gibilterra.me2
+        if jn==9 : return self.gibilterra.mmh
+        if jn==10: return self.gibilterra.dmh
+        if jn==11: return self.gibilterra.pl1
+        if jn==12: return self.gibilterra.pl2
+        if jn==13: return self.gibilterra.pl3
+        if jn==14: return self.gibilterra.pl4
+        if jn==15: return self.gibilterra.zo6
+        if jn==16: return self.gibilterra.zo5
+        if jn==17: return self.gibilterra.zo4
+        if jn==18: return self.gibilterra.zo3
 
     def generate(self, mask, bounmask_obj, all_variables=True):
         
@@ -63,6 +75,7 @@ class gib():
                 GIB_matrix = self.nutrient_dataset_by_index(jn)
                 aux = bounmask_obj.resto[jn, ...]
                 isNudg = (aux != 0) & (mask.mask)
+                print (jn, nudg, vnudg[jn][0])
                 
                 GIB_matrix[time, ~isNudg] = -1.
                 GIB_matrix[time, ~mask.mask] = 1.e+20
@@ -94,7 +107,8 @@ if __name__ == "__main__":
     from bitsea.commons.mask import Mask
     import config as conf
     conf.file_nutrients = "../"+ conf.file_nutrients
-    conf.file_mask="../masks/meshmask_872.nc"
+#    conf.file_mask="../masks/meshmask_872.nc"
+    conf.file_mask="../meshmask.nc"
     conf.dir_out = "../out"
     TheMask = Mask(conf.file_mask)
     GIB = gib(conf,TheMask)
