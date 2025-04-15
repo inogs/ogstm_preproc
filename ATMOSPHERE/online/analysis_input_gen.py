@@ -103,7 +103,7 @@ def getframe(filename,var, timeframe):
     M2d_orig = readframe(filename, var, timeframe)
     return  interp(M2d_orig)
 
-def dumpfile(filename, maskObj, sp,msl, t2m,d2m, tcc,w10):
+def dumpfile(filename, maskObj, sp,msl, t2m,d2m, tcc,u10,v10,tclw,tco3):
     ncOUT   = netCDF4.Dataset(filename,"w");
 
     ncOUT.createDimension('lon',jpi);
@@ -150,11 +150,28 @@ def dumpfile(filename, maskObj, sp,msl, t2m,d2m, tcc,w10):
     setattr(ncvar, 'code', 164)
     ncvar[:] = tcc
 
-    ncvar = ncOUT.createVariable('w10','f',('lat','lon'))
+    ncvar = ncOUT.createVariable('u10','f',('lat','lon'))
     setattr(ncvar,'units','m/s')
-    setattr(ncvar,'long_name','10 metre wind speed module')
-    setattr(ncvar,'code', '165 and 166')
-    ncvar[:] = w10
+    setattr(ncvar,'long_name','zonal 10 metre wind speed')
+    setattr(ncvar,'code', 165)
+    ncvar[:] = u10
+    ncvar = ncOUT.createVariable('v10','f',('lat','lon'))
+    setattr(ncvar,'units','m/s')
+    setattr(ncvar,'long_name','meridional 10 metre wind speed module')
+    setattr(ncvar,'code', 166)
+    ncvar[:] = v10
+
+    ncvar = ncOUT.createVariable('tclw','f',('lat','lon'))
+    ncvar[:]=tclw
+    setattr(ncvar, 'long_name',  'Total column cloud liquid water' )
+    setattr(ncvar, 'units','kg m**-2' )
+    setattr(ncvar, 'orig', 'climatology')
+
+    ncvar = ncOUT.createVariable('tco3','f',('lat','lon'))
+    ncvar[:]=tco3
+    setattr(ncvar, 'long_name',  'Total column ozone' )
+    setattr(ncvar, 'units','kg m**-2' )
+    setattr(ncvar, 'orig', 'climatology')
 
     setattr(ncOUT, 'input_file', str(inputfile))
     ncOUT.close()
@@ -175,7 +192,8 @@ for inputfile in TL.filelist[rank::nranks]:
         t2m = getframe(inputfile,'T2M' , iframe)
         d2m = getframe(inputfile,'D2M' , iframe)
         tcc = getframe(inputfile,'TCC' , iframe)
+        tclw = np.zeros((jpj,jpi), np.float32)
+        tco3 = np.zeros((jpj,jpi), np.float32)
     
-        w10 = np.sqrt(u10**2 + v10**2)
-        dumpfile(outfile, TheMask, sp,msl, t2m,d2m, tcc,w10)
+        dumpfile(outfile, TheMask, sp,msl, t2m,d2m, tcc,u10,v10,tclw,tco3)
     
