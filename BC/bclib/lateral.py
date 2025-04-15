@@ -33,7 +33,7 @@ class lateral_bc:
         self.sica = np.zeros(size_nutrients, np.float64)
         self.dic  = np.zeros(size_nutrients, np.float64)
         self.alk  = np.zeros(size_nutrients, np.float64)
-        tmask4d   = np.zeros(size_nutrients, np.bool)
+        tmask4d   = np.zeros(size_nutrients, bool)
         nav_lev = mask.zlevels
         n_lev = jpk
         vp_phos = np.zeros((jpt,n_lev));
