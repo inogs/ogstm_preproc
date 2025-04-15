@@ -34,6 +34,12 @@ import numpy as np
 
 TheMask=Mask.from_file(args.maskfile)
 
+def CDOM_profile(surface_value,bottom_value,depth,depth0):
+    k=0.05
+    b=bottom_value/surface_value -1.0
+    res=surface_value + (bottom_value-surface_value)/(1.0+np.exp(-k*(depth-depth0)))
+    return res
+
 EAS=ComposedBasin('eas',[V2.eas,V2.adr1,V2.adr2,V2.aeg],'East with marginal seas')
 # Here we use basin objet features to run faster
 EAS.region.border_longitudes    = [ 9,36]
@@ -48,14 +54,20 @@ eas = SubMask(EAS,   mask=TheMask)
 
 
 jpk,jpj,jpi=TheMask.shape
-R1l = np.ones((jpk,jpj,jpi), np.float64)*0.0
-R2l = np.ones((jpk,jpj,jpi), np.float64)*0.0
+#R1l = np.ones((jpk,jpj,jpi), np.float64)*0.0
+#R2l = np.ones((jpk,jpj,jpi), np.float64)*0.0
 R3l = np.ones((jpk,jpj,jpi), np.float64)*1.0
 
-R3l[wes.mask]=1.0
-R3l[eas.mask]=0.6
-RSTwriter(args.outfile_prefix + ".R1l.nc", "R1l", R1l, TheMask)
-RSTwriter(args.outfile_prefix + ".R2l.nc", "R2l", R2l, TheMask)
+nav_lev=TheMask.zlevels
+for jk,depth in enumerate(nav_lev):
+    print(depth)
+    print('profile value west: ', CDOM_profile(0.8,1.0,depth,150.))
+    print('profile value east: ', CDOM_profile(0.4,0.9,depth,150.))
+    R3l[jk,wes.mask[jk,:,:]]=CDOM_profile(0.8,1.0,depth,150.)
+    R3l[jk,eas.mask[jk,:,:]]=CDOM_profile(0.4,0.9,depth,150.)
+
+#RSTwriter(args.outfile_prefix + ".R1l.nc", "R1l", R1l, TheMask)
+#RSTwriter(args.outfile_prefix + ".R2l.nc", "R2l", R2l, TheMask)
 RSTwriter(args.outfile_prefix + ".R3l.nc", "R3l", R3l, TheMask)
 print("done")
 
