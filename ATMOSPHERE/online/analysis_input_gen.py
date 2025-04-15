@@ -3,13 +3,19 @@ import argparse
 def argument():
     parser = argparse.ArgumentParser(description = '''
     Generates daily files for OASIM by reading ECMWF file provided by CMCC
+    and climatologies for tclw and tco3
     ''',
     formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
     parser.add_argument(   '--inputdir', '-i',
                                 type = str,
                                 required = True,
-                                help = ''' Input CMCC file'''
+                                help = ''' Input ECMWF dir provided by CMCC'''
+                                )
+    parser.add_argument(   '--climdir', '-c',
+                                type = str,
+                                required = True,
+                                help = ''' Input climatology dir'''
                                 )
     parser.add_argument(   '--maskfile', '-m',
                                 type = str,
@@ -51,6 +57,7 @@ TheMask=Mask(args.maskfile)
 jpk,jpj,jpi = TheMask.shape
 
 INPUTDIR=addsep(args.inputdir)
+CLIMDIR=addsep(args.climdir)
 OUTDIR = addsep(args.outdir)
 
 TL = TimeList.fromfilenames(None, INPUTDIR, "*_an-fv12.00.nc", prefix="", dateformat="%Y%m%d")
@@ -192,8 +199,9 @@ for inputfile in TL.filelist[rank::nranks]:
         t2m = getframe(inputfile,'T2M' , iframe)
         d2m = getframe(inputfile,'D2M' , iframe)
         tcc = getframe(inputfile,'TCC' , iframe)
-        tclw = np.zeros((jpj,jpi), np.float32)
-        tco3 = np.zeros((jpj,jpi), np.float32)
+        input_climfile=CLIMDIR + d.strftime("climatm.yyyy%m15-00:00:00.nc")
+        tclw = netcdf4.readfile(input_climfile,"tclw")
+        tco3 = netcdf4.readfile(input_climfile,"tco3")
     
         dumpfile(outfile, TheMask, sp,msl, t2m,d2m, tcc,u10,v10,tclw,tco3)
     
