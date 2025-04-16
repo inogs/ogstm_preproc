@@ -21,4 +21,9 @@ OUTDIR=/g100_scratch/userexternal/gbolzon0/V9C/ONLINE_ATM/out
 MASKFILE=/g100_work/OGS_devC/V9C/RUNS_SETUP/PREPROC/MASK/meshmask.nc
 
 mkdir -p $OUTDIR
+ECMWF_DIR=/g100_work/OGS_prodC/OPA/V11C-prod/inpdir/analysis/20250408/ECMWF
+CLIM_DIR=/g100_work/OGS_prodC/OPA/V11C-prod/etc/static-data/MODEL/ATM
+opa_prex_or_die "mpirun -np 7 python analysis_input_gen.py -i $ECMWF_DIR -c $CLIM_DIR -o $OUTDIR -m $MASKFILE"
+
+
 my_prex_or_die "mpirun -np 10 python forecast_input_gen.py -i $INPUTFILE -o $OUTDIR -m $MASKFILE"
