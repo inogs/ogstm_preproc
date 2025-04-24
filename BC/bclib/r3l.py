@@ -29,4 +29,4 @@ if __name__=="__main__":
     args = argument()
    
     TheMask = Mask.from_file(args.maskfile)
-    generate(Themask,args.outfile)
+    generate(TheMask,args.outfile)
