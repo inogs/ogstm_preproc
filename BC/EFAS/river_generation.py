@@ -84,8 +84,8 @@ def main():
     input_dir = ARGS.inputdir
     output_dir = ARGS.outdir
 
-    cmcc_mask = Mask(ARGS.cmccmaskfile)
-    ogs_mask = Mask(ARGS.maskfile)
+    cmcc_mask = Mask.from_file(ARGS.cmccmaskfile)
+    ogs_mask = Mask.from_file(ARGS.maskfile)
     _,jpj,jpi=ogs_mask.shape
     _,_,JPI =cmcc_mask.shape
 

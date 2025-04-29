@@ -43,8 +43,8 @@ import netCDF4
 from IC import RSTwriter
 from bitsea.commons.utils import addsep
 
-TheMask_new=Mask(args.newmask)
-TheMask_orig =Mask(args.origmask)
+TheMask_new=Mask.from_file(args.newmask)
+TheMask_orig =Mask.from_file(args.origmask)
 ORIGDIR= addsep(args.inputdir) #"/gpfs/scratch/userexternal/ateruzzi/DA_FloatNut/RUN_REFnew/wrkdir/MODEL/RESTARTS/"
 OUTDIR = addsep(args.outdir) #"/gpfs/scratch/userexternal/ateruzzi/DA_FloatNut/RUN_REFnew/INIT/"
 

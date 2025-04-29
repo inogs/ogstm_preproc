@@ -31,7 +31,7 @@ from bitsea.Sat import SatManager as Sat
 import numpy as np
 import netCDF4
 
-TheMask=Mask(args.maskfile)
+TheMask=Mask.from_file(args.maskfile)
 CLIM_FILE=args.inputfile
 MEAN,STD = Sat.readClimatology(CLIM_FILE)
 

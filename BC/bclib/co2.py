@@ -79,7 +79,7 @@ if __name__ == "__main__":
     import config as conf
     conf.file_mask="../masks/meshmask_872.nc"
     conf.dir_out = "../out"
-    TheMask = Mask(conf.file_mask)
+    TheMask = Mask.from_file(conf.file_mask)
     conf.file_co2="../CMIP5_scenarios_RCP_CO2_mixing_ratio.nc"
     CO2 =co2atm(conf)
     CO2.generate(TheMask)

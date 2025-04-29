@@ -15,8 +15,8 @@ MODDIR="/pico/scratch/userexternal/gbolzon0/eas_v12/eas_v12_11/wrkdir/POSTPROC/o
 TI = TimeInterval("20140101","20180101","%Y%m%d")
 maskfile ="/pico/scratch/userexternal/gbolzon0/eas_v12/eas_v12_8/wrkdir/MODEL/meshmask.nc"
 maskfile8="/gss/gss_work/DRES_OGS_BiGe/gbolzon/masks/V1/meshmask_872.nc"
-Mask8 = Mask(maskfile8)
-TheMask= Mask(maskfile)
+Mask8 = Mask.from_file(maskfile8)
+TheMask= Mask.from_file(maskfile)
 jpk,jpj,jpi = TheMask.shape
 z = -TheMask.zlevels
 
@@ -68,7 +68,7 @@ for iSeas, SeasReq in enumerate(REQUESTORS_LIST):
     if iSeas<4 : continue
     ii_seas,w = TL.select(SeasReq)
     for iSub, sub in enumerate(basV2.P):
-        submask = SubMask(sub,maskobject=Mask8)
+        submask = SubMask(sub, Mask8)
         F = figure_generator.figure_generator(submask)
         fig, axes = F.gen_structure_1(IDrun,SeasReq.string,sub.name)
         outfile = OUTDIR + "prof_mean_confronto_1_" + SeasReq.string + "." + sub.name + ".png"
@@ -126,7 +126,7 @@ for iSeas, SeasReq in enumerate(REQUESTORS_LIST):
     if iSeas<4 : continue
     ii_seas,w = TL.select(SeasReq)
     for iSub, sub in enumerate(basV2.P):
-        submask = SubMask(sub,maskobject=Mask8)
+        submask = SubMask(sub, Mask8)
         F = figure_generator.figure_generator(submask)
         fig, axes = F.gen_structure_2(IDrun,SeasReq.string,sub.name)
         outfile = OUTDIR + "prof_mean_confronto_2_" + SeasReq.string + "." + sub.name + ".png"
@@ -168,7 +168,7 @@ for iSeas, SeasReq in enumerate(REQUESTORS_LIST):
     if iSeas<4 : continue
     ii_seas,w = TL.select(SeasReq)
     for iSub, sub in enumerate(basV2.P):
-        submask = SubMask(sub,maskobject=Mask8)
+        submask = SubMask(sub, Mask8)
         F = figure_generator.figure_generator(submask)
         fig, axes = F.gen_structure_3(IDrun,SeasReq.string,sub.name)
         outfile = OUTDIR + "prof_mean_confronto_3_" + SeasReq.string + "." + sub.name + ".png"
