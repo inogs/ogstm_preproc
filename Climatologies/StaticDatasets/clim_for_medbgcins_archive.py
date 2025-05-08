@@ -14,14 +14,6 @@ def argument():
                                 default = None,
                                 required = True,
                                 help = "")
-    parser.add_argument(   '--starttime','-s',
-                                type = str,
-                                required = True,
-                                help = 'start date in yyyymmdd format')
-    parser.add_argument(   '--endtime','-e',
-                                type = str,
-                                required = True,
-                                help = 'start date in yyyymmdd format')
     return parser.parse_args()
 
 args = argument()
@@ -43,7 +35,7 @@ PresDOWN=np.array([0,25,50,75,100,125,150,200,400,600,800,1000,1500,2000,2500])
 LayerList_plot=[ Layer(PresDOWN[k], PresDOWN[k+1])  for k in range(len(PresDOWN)-1)]
 
 OUTDIR = addsep(args.outdir)
-TI = TimeInterval(args.starttime,args.endtime,"%Y%m%d")
+TI = TimeInterval("19990101","20240101","%Y%m%d")
 
 TheMask = Mask.from_file(args.maskfile)
 jpk,jpj,jpi = TheMask.shape
