@@ -28,6 +28,38 @@ from bitsea.commons.utils import addsep
 from bitsea.commons import timerequestors
 import xarray as xr
 
+
+def QualityCheck(var, sub):
+    """
+    Similar to bit.sea.static.climatology.QualityCheck
+    Specific for N4n
+    returns True if expert evaluation tells to keep the data, False when it tells rejection
+    """
+    if sub.name == "adr1":
+        return False
+
+    if var == "N4n":
+        if sub.name in [
+            "alb",
+            "adr1",
+            "ion1",
+            "ion2",
+            "ion3",
+            "lev1",
+            "lev3",
+        ]:
+            return False
+
+    if var == "O2o":
+        if sub.name == "tyr1":
+            return True
+
+    if var in ["O3c", "O3h", "DIC", "ALK", "pH", "PH", "PCO2"]:
+        if sub.name in ["tyr1", "adr1", "lev3"]:
+            return False
+
+    return True
+
 LayerList_metrics = [Layer(0,10), Layer(10,30), Layer(30,60), Layer(60,100), Layer(100,150), Layer(150,300), Layer(300,600), Layer(600,1000)]
 
 
@@ -112,7 +144,7 @@ for ivar, var in enumerate(VARLIST1):
 for ivar, var in enumerate(VARLIST2):
     included=np.ones((nSub,),int)
     for isub, sub in enumerate(SUBlist):
-        included[isub] = climatology.QualityCheck(var, sub)
+        included[isub] = QualityCheck(var, sub)
     print("included=",included)
 
 for ivar, var in enumerate(VARLIST2):
