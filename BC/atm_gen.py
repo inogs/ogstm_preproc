@@ -6,7 +6,7 @@ from bitsea.commons import netcdf4
 
 filename="atmDep_16sub_openAndCoast_winAndSum.txt"
 maskfile="/Users/gbolzon/eclipse-workspace/preproc/IC/meshmask.nc"
-TheMask=Mask(maskfile)
+TheMask=Mask.from_file(maskfile)
 jpk, jpj, jpi = TheMask.shape
 Mask0 = TheMask.cut_at_level(0)
 mask200= TheMask.mask_at_level(200)
@@ -21,7 +21,7 @@ A[A['sub']=='alb']['NCw']
 dtype = [(sub.name, bool) for sub in OGS.Pred]
 SUB = np.zeros((jpj,jpi),dtype=dtype)
 for sub in OGS.Pred:
-    sbmask         = SubMask(sub,maskobject=Mask0).mask
+    sbmask         = SubMask(sub, Mask0).mask
     SUB[sub.name]  = sbmask[0,:,:]
 
 N3n_win = np.zeros((jpj,jpi),np.float32)

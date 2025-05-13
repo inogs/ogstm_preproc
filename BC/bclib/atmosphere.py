@@ -30,11 +30,11 @@ class atmosphere():
         V2.med.region.border_latitudes  = [30,46]
         #---------------------------------------------
         print("wes")
-        wes = SubMask(V2.wes,maskobject=mask0).mask_at_level(0)
+        wes = SubMask(V2.wes, mask0).mask_at_level(0)
         print("eas")
-        eas = SubMask(EAS,   maskobject=mask0).mask_at_level(0)
+        eas = SubMask(EAS, mask0).mask_at_level(0)
         print("med")
-        med = SubMask(V2.med,maskobject=mask0).mask_at_level(0)
+        med = SubMask(V2.med,mask0).mask_at_level(0)
         print("done")
         
         e3t       = mask0.dz
@@ -134,7 +134,7 @@ class atmosphere():
 
         # now is ready to dump
 
-        fileOUT = outdir + "ATM_yyyy0630-00:00:00.nc"
+        fileOUT = outdir + "ATM_yyyy0630-00:00:00_LOWHg.nc"
         _,jpj,jpi = mask.shape
 
         ncfile = nc.Dataset(fileOUT, "w", format="NETCDF4")
@@ -173,7 +173,7 @@ class atmosphere():
         ncfile.createDimension('lat', jpj)
         h = ncfile.createVariable('atm_Hg0','f', ('lat','lon'))
         h[:] = self.Hg0atm[:]
-        setattr(h,"units", "check")
+        setattr(h,"units", "ug m-3")
         ncfile.close()
 
         logging.info("Hg0 at mNetcdf written.")

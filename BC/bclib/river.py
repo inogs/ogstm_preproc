@@ -10,6 +10,7 @@ import netCDF4
 def conversion(var):
     '''
     from mmol or mg to KTONS(N1p,N3n,N5s,O3c,O3h)  or Gmol (O2o)
+    from nmol to KTONS (Hg, MMHg)
     '''
     Conversion={}
     w= 1.0e-12
@@ -23,8 +24,8 @@ def conversion(var):
     Conversion['O3h'] =w
     Conversion['O3c'] =w
     Conversion['O2o'] =w
-    Conversion['Hg2'] =h
-    Conversion['MMHg'] =h
+    Conversion['Hg2'] =w*h
+    Conversion['MMHg'] =w*h
     return Conversion[var]
 
 class river():
@@ -314,7 +315,7 @@ class river():
     def conversion(self,N,P,S,A,D,O,H,M,DOC,CDOM):
         '''
         Performs conversion of all variables
-        from KT/y to mmol/s or mg/s
+        from KT/y to mmol/s or mg/s or nmol/s
 
         Arguments:
          Nitrate, Phosphate, Silicate, Alcalinity, Dissoved Inorganic Carbon, Dissolved_Oxygen
@@ -348,7 +349,7 @@ class river():
         cs = w*t*s
         ca = w*t  
         cc = w*t    
-        ch = w*w2*t*h   #check conversion for mercury
+        ch = w*w2*h*t    
         return N*cn, P*cp, S*cs,A*ca, D*cc, O*cc,H*ch,M*ch, DOC*cc, CDOM*cc
 
     def generate_monthly_files(self,conf,mask):#, idxt_riv, positions):
@@ -531,7 +532,7 @@ class river():
 if __name__=="__main__":
     from bitsea.commons.mask import Mask
     import config as conf
-    TheMask = Mask(conf.file_mask)
+    TheMask = Mask.from_file(conf.file_mask)
     R = river(conf)
     R.modularize(conf)
     R.gen_map_indexes(TheMask)

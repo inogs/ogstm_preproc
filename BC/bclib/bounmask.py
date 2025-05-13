@@ -147,7 +147,7 @@ if __name__ == '__main__':
     import config as conf
 #    conf.file_mask="../meshmask_872.nc"
     conf.file_bmask="bounmask.nc"
-    TheMask = Mask(conf.file_mask)
+    TheMask = Mask.from_file(conf.file_mask)
     B=bounmask(conf)
     B.generate(TheMask)
     B.write_netcdf(TheMask)
