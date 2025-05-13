@@ -127,17 +127,23 @@ for ivar, var in enumerate(VARLIST2):
     outfile =OUTDIR + var + "_clim_plot.nc"
     dumpfile(outfile,z_clim_plot, CLIM_REF_static, STD_Ref_static,included, Nprofs)
 
-# Metrics section (QC=True)
+# Metrics section (QC=False)
 
 z_clim_metrics = np.array([-(el.bottom+el.top)/2  for el in LayerList_metrics])
 nLayers = len(LayerList_metrics)
 for ivar, var in enumerate(VARLIST1):
     included=np.ones((nSub,),int)
     for isub, sub in enumerate(SUBlist):
-        included[isub] = climatology.QualityCheck(var, sub)
+        included[isub] = QualityCheck(var, sub)
     print("included=",included)
 
-    CLIM_REF_static,STD_Ref_static,_,Nprofs = climatology.get_climatology_open(var,SUBlist, LayerList_metrics, TheMask, useLogistic=False, basin_expand=False,QC=True, climatology_interval=TI)
+    CLIM_REF_static,STD_Ref_static,_,Nprofs = climatology.get_climatology_open(var,SUBlist, LayerList_metrics, TheMask, useLogistic=False, basin_expand=False,QC=False, climatology_interval=TI)
+    for isub, sub in enumerate(SUBlist):
+        if not included[isub]:
+            CLIM_REF_static[isub,:] = np.nan
+            STD_Ref_static[isub,:] = np.nan
+            Nprofs[isub] = 0
+
     outfile =OUTDIR + var + "_clim_metrics.nc"
     dumpfile(outfile,z_clim_metrics, CLIM_REF_static, STD_Ref_static,included,Nprofs)
 
@@ -149,12 +155,17 @@ for ivar, var in enumerate(VARLIST2):
 
 for ivar, var in enumerate(VARLIST2):
     if var=='N1p':
-        CLIM_REF_static,STD_Ref_static,_,Nprofs = climatology.get_climatology_open(var, SUBlist, LayerList_metrics, TheMask, useLogistic=True,startpt=np.asarray([0.1, 0.1, 1000, 0.4],dtype=np.float64), basin_expand=False, QC=True, climatology_interval=TI)
+        CLIM_REF_static,STD_Ref_static,_,Nprofs = climatology.get_climatology_open(var, SUBlist, LayerList_metrics, TheMask, useLogistic=True,startpt=np.asarray([0.1, 0.1, 1000, 0.4],dtype=np.float64), basin_expand=False, QC=False, climatology_interval=TI)
     elif var=='N3n' or var=='N5s':
-        CLIM_REF_static,STD_Ref_static,_,Nprofs= climatology.get_climatology_open(var, SUBlist, LayerList_metrics, TheMask, useLogistic=True,startpt=np.asarray([0.1, 0.1, 500, 4],dtype=np.float64),basin_expand=False, QC=True, climatology_interval=TI)
+        CLIM_REF_static,STD_Ref_static,_,Nprofs= climatology.get_climatology_open(var, SUBlist, LayerList_metrics, TheMask, useLogistic=True,startpt=np.asarray([0.1, 0.1, 500, 4],dtype=np.float64),basin_expand=False, QC=False, climatology_interval=TI)
     else:
         print("VARLIST2 can include only N1p, N3n, N5s")
 
+    for isub, sub in enumerate(SUBlist):
+        if not included[isub]:
+            CLIM_REF_static[isub,:] = np.nan
+            STD_Ref_static[isub,:] = np.nan
+            Nprofs[isub] = 0
     outfile =OUTDIR + var + "_clim_metrics.nc"
     dumpfile(outfile,z_clim_metrics, CLIM_REF_static, STD_Ref_static,included,Nprofs)
 
