@@ -19,7 +19,6 @@ class atmosphere():
         logging.info("Atmosphere start calculation")
         _,jpj,jpi = mask.shape
 
-        mask0 = mask.cut_at_level(0)
         EAS=ComposedBasin('eas',[V2.eas,V2.adr1,V2.adr2,V2.aeg],'East with marginal seas')
         # Here we use basin objet features to run faster
         EAS.region.border_longitudes    = [ 9,36]
@@ -30,18 +29,18 @@ class atmosphere():
         V2.med.region.border_latitudes  = [30,46]
         #---------------------------------------------
         print("wes")
-        wes = SubMask(V2.wes, mask0).mask_at_level(0)
+        wes = SubMask(V2.wes, mask)
         print("eas")
-        eas = SubMask(EAS, mask0).mask_at_level(0)
-        print("med")
-        med = SubMask(V2.med,mask0).mask_at_level(0)
+        eas = SubMask(EAS,  mask)
+ #       print("med")
+ #       med = SubMask(V2.med,mask0).mask_at_level(0)
         print("done")
         
-        e3t       = mask0.dz
-        Volume = mask0.area*e3t[0]
-        Nwes = Volume[wes].sum()
-        Neas = Volume[eas].sum()
-        Nmed = Volume[med].sum()
+        e3t       = mask.dz
+        Volume = mask.area*e3t[0]
+        Nwes = Volume[wes[0]].sum()
+        Neas = Volume[eas[0]].sum()
+      #       Nmed = Volume[med].sum()
 
         self.nitrate   = np.zeros((jpj,jpi),np.float32);
         self.phosphate = np.zeros((jpj,jpi),np.float32);
@@ -49,18 +48,13 @@ class atmosphere():
         self.MMHg      = np.zeros((jpj,jpi),np.float32);
         self.Hg0atm    = np.zeros((jpj,jpi),np.float32);
 
-        self.nitrate[wes]  = conf.n3n_wes/Nwes
-        self.phosphate[wes]= conf.po4_wes/Nwes
-        self.nitrate[eas]  = conf.n3n_eas/Neas
-        self.phosphate[eas]= conf.po4_eas/Neas
-        self.HgII[med]     = conf.HgII_med/Nmed
-        self.MMHg[med]     = conf.MMHg_med/Nmed
-        self.Hg0atm[med]  = conf.Hg0atm_med/Nmed
-#       self.Hg0atm[eas]   = conf.Hg0atm_eas/Neas
-#       self.HgII[eas]     = conf.HgII_eas/Neas
-#       self.MMHg[eas]     = conf.MMHg_eas/Neas
-
-
+        self.nitrate[wes[0]]  = conf.n3n_wes/Nwes
+        self.phosphate[wes[0]]= conf.po4_wes/Nwes
+        self.nitrate[eas[0]]  = conf.n3n_eas/Neas
+        self.phosphate[eas[0]]= conf.po4_eas/Neas
+        self.HgII[eas[0]]     = conf.HgII_eas/Neas
+        self.MMHg[eas[0]]     = conf.MMHg_eas/Neas
+        self.Hg0atm[eas[0]]  =  conf.Hg0atm_eas/Neas
 
 
         logging.info("Atmosphere finish calculation")
@@ -71,6 +65,7 @@ class atmosphere():
         n = 1./14
         p = 1./31
         h=1./200.59
+        vol_layer0 = mask.area * mask.dz[0]
         totP     = .0
         totN     = .0
         totHgII  = .0
@@ -79,21 +74,7 @@ class atmosphere():
         totP_KTy = .0
         totHgII_KTy=.0
         totMMHg_KTy=.0
-
-        for jj in range(jpj):
-            for ji in range(jpi):
-                VolCell1=mask.area[jj,ji]*mask.dz[0]
-                totN = totN + self.nitrate[jj,ji]  *VolCell1
-                totP = totP + self.phosphate[jj,ji]*VolCell1
-                totHgII = totHgII + self.HgII[jj,ji]  *VolCell1
-                totMMHg = totMMHg + self.MMHg[jj,ji]  *VolCell1
-
-                totN_KTy = totN_KTy + self.nitrate[jj,ji]  *(1.e-3/n)*VolCell1
-                totP_KTy = totP_KTy + self.phosphate[jj,ji]*(1.e-3/p)*VolCell1
-                totHgII_KTy = totHgII_KTy + self.HgII[jj,ji]*(1.e-3/h)*VolCell1
-                totMMHg_KTy = totMMHg_KTy + self.MMHg[jj,ji]*(1.e-3/h)*VolCell1
         return totN,totP,totHgII,totMMHg, totN_KTy, totP_KTy,totHgII_KTy, totMMHg_KTy
-
 
 
     def write_netcdf(self,mask,outdir,concentration_dimension="Volume"):
@@ -108,11 +89,12 @@ class atmosphere():
         # Check is done using volume concentrations
         totN,totP,totHgII, totMMHg, totN_KTy, totP_KTy,totHgII_KTy, totMMHg_KTy = self.check(mask)
         #conversion from Mmol/y to mmol/s
+        # Hg conversion from Mmol/y to nmol/s
         w = 1.0e+09
         w_hg = 1.0e+15
         t = 1./(365 * 86400)
         cn = w*t
-        cn_hg=w_hg*t     #CHECK MERCURY CONVERSIONS
+        cn_hg=w_hg*t    
         self.nitrate   = self.nitrate*cn
         self.phosphate = self.phosphate*cn
         self.HgII      = self.HgII*cn_hg
@@ -130,8 +112,6 @@ class atmosphere():
             self.phosphate = self.phosphate * mask.dz[0]
             self.HgII = self.HgII * mask.dz[0]
             self.MMHg = self.MMHg * mask.dz[0]
-
-
         # now is ready to dump
 
         fileOUT = outdir + "ATM_yyyy0630-00:00:00_LOWHg.nc"
