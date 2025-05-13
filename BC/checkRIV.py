@@ -7,13 +7,13 @@ import numpy as np
 from bitsea.commons import timerequestors
 from bclib.river import conversion
 
-TheMask=Mask("/gpfs/scratch/userexternal/gbolzon0/OPEN_BOUNDARY/TEST_02/wrkdir/MODEL/meshmask.nc")
+TheMask=Mask("/g100_work/OGS23_PRACE_IT/grosati/NECCTON/wrkdir/MODEL/meshmask.nc")
 Mask_0 = TheMask.cut_at_level(0)
 area = TheMask.area
 jpk, jpj, jpi= TheMask.shape
 
-INPUTDIR="/gpfs/scratch/userexternal/gbolzon0/OPEN_BOUNDARY/TEST_02/wrkdir/MODEL/BC"
-TI = TimeInterval("2017","2018","%Y")
+INPUTDIR="/g100_work/OGS23_PRACE_IT/grosati/NECCTON/wrkdir/MODEL/BC"
+TI = TimeInterval("2015","%Y")
 TL =TimeList.fromfilenames(TI, INPUTDIR, "TIN_2*", prefix="TIN_")
 nFrames = TL.nTimes
 
@@ -22,7 +22,7 @@ sub__dtype=[(sub.name,np.float32) for sub in OGS.P]
 
 SUBM = np.zeros((jpj, jpi), dtype=bool_dtype)
 for isub, sub in enumerate(OGS.Pred):
-    S=SubMask(sub, maskobject=Mask_0)
+    S=SubMask(sub, Mask_0)
     SUBM[sub.name]=S.mask
     SUBM['med']=(SUBM['med'] | SUBM[sub.name])
 
@@ -30,14 +30,14 @@ nSub = len(OGS.P.basin_list)
 
 
 
-VARLIST=["N3n","N1p","O2o","N5s","O3h","O3c"]
+VARLIST=["N3n","N1p","O2o","N5s","O3h","O3c","Hg2","MMHg"]
 BALANCE_KT_MONTH={}
 for var in VARLIST:
-    print var
+    print (var)
     MMOL_MONTH = np.zeros((nFrames,),dtype=sub__dtype)
     KTON_MONTH = np.zeros((nFrames,),dtype=sub__dtype)
     for iFrame, filename in enumerate(TL.filelist):
-        req = timerequestors.Monthly_req(2017,iFrame+1)
+        req = timerequestors.Monthly_req(2015,iFrame+1)
         B=netcdf4.readfile(filename, "riv_" + var)
         good = B > -1
         for isub, sub in enumerate(OGS.P):
@@ -49,8 +49,8 @@ for var in VARLIST:
             KTON_MONTH[sub.name][iFrame] = river_on_sub *time * conversion(var)
     BALANCE_KT_MONTH[var]=KTON_MONTH
 
-print BALANCE_KT_MONTH['N3n']['adr1']
-print BALANCE_KT_MONTH['N3n']['adr1'].sum()
+print (BALANCE_KT_MONTH['Hg2']['adr1'])
+print (BALANCE_KT_MONTH['Hg2']['adr1'].sum())
 
 nvars = len(VARLIST)
 TABLE= np.zeros((nSub,nvars),np.float32)
