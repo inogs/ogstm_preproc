@@ -137,23 +137,23 @@
 <var name="ALK" value="3.004012311"/>
 <var name="O2o" value="250"/>
 <var name="R3l" value="184"/>
-<var name="P1l" value="0.8"/>
-<var name="P2l" value="0.5"/>
-<var name="P3l" value="0.5"/>
-<var name="P4l" value="0.2"/>
-<var name="P1p" value="0.031446541"/>
-<var name="P2p" value="0.019654088"/>
-<var name="P3p" value="0.019654088"/>
-<var name="P4p" value="0.007861635"/>
-<var name="P1n" value="0.503144654"/>
-<var name="P2n" value="0.314465409"/>
-<var name="P3n" value="0.314465409"/>
-<var name="P4n" value="0.125786164"/>
-<var name="P1c" value="40"/>
-<var name="P2c" value="25"/>
-<var name="P3c" value="25"/>
-<var name="P4c" value="10"/>
-<var name="P1s" value="0.503144654"/>
+<var name="P1l" value="1.6"/>
+<var name="P2l" value="1.0"/>
+<var name="P3l" value="1.0"/>
+<var name="P4l" value="0.4"/>
+<var name="P1p" value="0.062893082"/>
+<var name="P2p" value="0.039308176"/>
+<var name="P3p" value="0.039308176"/>
+<var name="P4p" value="0.01572327"/>
+<var name="P1n" value="1.006289308"/>
+<var name="P2n" value="0.628930818"/>
+<var name="P3n" value="0.628930818"/>
+<var name="P4n" value="0.251572328"/>
+<var name="P1c" value="80"/>
+<var name="P2c" value="50"/>
+<var name="P3c" value="50"/>
+<var name="P4c" value="20"/>
+<var name="P1s" value="1.006289308"/>
 </common_concentrations>
 
 <RIVERS >
