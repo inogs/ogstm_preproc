@@ -1,11 +1,3 @@
-# to load them it is needed the following virtual environment:
-# source /g100_work/OGS21_PRACE_P/COPERNICUS/sequence3.sh
-# usage:
-# opfx='/g100_work/OGS23_PRACE_IT/ggalli00/NECCTON/SCRIPTS/RST.19950101-00:00:00'
-# maskfile='/g100_scratch/userexternal/camadio0/Neccton_hindcast1999_2022_v6/wrkdir/MODEL/meshmask.nc'
-# csvfile='/g100_work/OGS23_PRACE_IT/ggalli00/NECCTON/SCRIPTS/mean_R3l_from_RRS412.csv'
-# python create_N-basins_restarts.py -o $opfx -m $maskfile -c $csvfile
-
 from bitsea.commons.mask import Mask
 from bitsea.commons.submask import SubMask
 from bitsea.basins import V2
@@ -19,7 +11,7 @@ import argparse
 
 def argument():
     parser = argparse.ArgumentParser(description = '''
-    Generates a restart for R1l, R2l R3l, R3c
+    Generates restart and nudging file for R3l
     ''')
     parser.add_argument(   '--outdir', '-o',
                                 type = str,
@@ -79,7 +71,6 @@ def smoother2D(mask,RST):
     RST[mask ==0 ] = np.nan
     auxs = np.zeros((5,jpj,jpi),np.float32)
     for ss in range(NsmoothingCycles):
-        print(f'{ss}/{NsmoothingCycles}')
         auxs[0,:,:] = RST
         auxs[1,:,:] = shift(RST,1,'r')
         auxs[2,:,:] = shift(RST,1,'l')
@@ -120,6 +111,5 @@ outdir = args.outdir
 outfile_rst = outdir+args.rst_file+'.R3l.nc'
 outfile_ndg = outdir+args.ndg_file
 RSTwriter(outfile_rst, "R3l", R3l_s, TheMask)
-print("done")
 netcdf4.write_3d_file(R3l_s, "R3l", outfile_ndg, TheMask, compression=True)
 

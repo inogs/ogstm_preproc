@@ -6,25 +6,40 @@ from glob import glob
 #bitsea stuff
 from bitsea.basins import V2 as OGS
 from bitsea.commons.grid import RegularGrid
+import argparse
 
-'''
-creates a csv file with mean surface R3l in each subbasin,
-with gradient estimated from satellite reflectance and
-absolute value from our tuned R3l values in nwm and lev3.
-these values are then fed to ANOTHER SCRIPT that extends at depth and
-create the 3D nudging file
+def argument():
+    parser = argparse.ArgumentParser(description="""
+    creates a csv file with mean surface R3l in each subbasin,
+    with gradient estimated from satellite reflectance and
+    absolute value from our tuned R3l values in nwm and lev3.
+    these values are then fed to ANOTHER SCRIPT that extends at depth and
+    create the 3D nudging file
 
 
-SPiani notes
+    SPiani notes
 
-for mysub in OGS.P:
-    print(mysub)
+    for mysub in OGS.P:
+        print(mysub)
+    MM = mysub.is_inside(Lon_rrs[:,np.newaxis], Lat_rrs)
 
-MM = mysub.is_inside(Lon_rrs[:,np.newaxis], Lat_rrs)
+    R = RegularGrid(lon=Lon_rrs, lat=Lat_rrs)
+    Area = R.area
+    """,
+    formatter_class=argparse.RawTextHelpFormatter
+    )
 
-R = RegularGrid(lon=Lon_rrs, lat=Lat_rrs)
-Area = R.area
-'''
+
+    parser.add_argument('--outfile','-o ',
+                        type=str,
+                        default=None,
+                        required=True,
+                        help=''' output csv file''')
+    return parser.parse_args()
+
+
+args = argument()
+
 
 def get_submask(mysub, lat, lon, X):
     seamask = ~np.isnan(X)
@@ -152,10 +167,7 @@ Vals_Dict['atl'] = Vals_Dict['alb']
 Vals_Dict['aeg'] = 0.55
 
 C = pd.DataFrame.from_dict(Vals_Dict, orient='index', columns=['R3l'])
-outdir = '/g100_work/OGS23_PRACE_IT/ggalli00/NECCTON/SCRIPTS/'
-outfile = outdir+'mean_R3l_from_RRS412.csv'
-print('saving: '+outfile)
-C.to_csv(outfile)
+C.to_csv(args.outfile)
 
 
 #for mysub in OGS.P:
