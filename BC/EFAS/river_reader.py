@@ -59,21 +59,28 @@ def read_xml_vars(xml_dataset):
     return tuple(bgc_vars)
 
 
-def read_commons(xml_dataset):
+def read_defaults(xml_dataset):
     """
     Read the field "common_concentrations" of the rivers.xml file
     """
-    commons_node=xmldoc.getElementsByTagName("common_concentrations")
-    commons={}
-    for node in commons_node[0].getElementsByTagName("var"):
-        var_name = node.getAttribute("name")
-        value = float(node.getAttribute("value"))
-        commons[var_name]=value
-    return commons
+    default_node=xml_dataset.getElementsByTagName("default_concentrations")
+    defaults={}
+    for node in default_node[0].getElementsByTagName("var"):
+        try:
+            var_name = node.getAttribute("name")
+            value = float(node.getAttribute("value"))
+            defaults[var_name]=value
+        except Exception:
+            raise InvalidRiverXMLFile(
+                'Error while reading the following var node:\n{}'.format(
+                    node.toxml()
+                )
+            )
+    return defaults
 
 xmldoc = minidom.parse("rivers.xml")
 BGC_VARS = read_xml_vars(xmldoc)
-COMMONS = read_commons(xmldoc)
+DEFAULTS = read_defaults(xmldoc)
 
 
 class Rivers:
@@ -147,10 +154,10 @@ class Rivers:
                 rivers[ind]['SAL'] = salinity
                 rivers[ind]['name'] = name
                 rivers[ind]['mouth'] = mn.getAttribute('name')
-                for varname in COMMONS:
+                for varname in DEFAULTS:
                     if varname not in self.__bgc_var_dict:
                         raise ValueError('Unknown variable: {}'.format(varname))
-                    rivers[ind][varname] = COMMONS[varname]
+                    rivers[ind][varname] = DEFAULTS[varname]
 
                 for vn in concentrations_node.getElementsByTagName('var'):
                     varname = vn.getAttribute('name')

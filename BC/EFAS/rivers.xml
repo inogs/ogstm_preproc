@@ -128,7 +128,7 @@
         </var>
     </Variables>
 
-<common_concentrations>
+<default_concentrations>
 <var name="N3n" value="1.739964749"/>
 <var name="N1p" value="0.05973986885"/>
 <var name="DIC" value="36.07935762"/>
@@ -154,7 +154,7 @@
 <var name="P3c" value="50"/>
 <var name="P4c" value="20"/>
 <var name="P1s" value="1.006289308"/>
-</common_concentrations>
+</default_concentrations>
 
 <RIVERS >
 <river name="Nile" salinity="8.0">
