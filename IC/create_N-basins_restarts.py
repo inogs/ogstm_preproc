@@ -13,23 +13,17 @@ def argument():
     parser = argparse.ArgumentParser(description = '''
     Generates restart and nudging file for R3l
     ''')
-    parser.add_argument(   '--outdir', '-o',
-                                type = str,
-                                required = True,
-                                default = "out/dir/",
-                                help = 'Path of outfiles'
-                                )
     parser.add_argument(   '--rst_file', '-r',
                                 type = str,
                                 required = True,
-                                default = "/RST.19950101-00:00:00",
-                                help = 'outfiles without .R1l.nc'
+                                default = "RST.19950101-00:00:00.R3l.nc",
+                                help = "Path of restart file"
                                 )
     parser.add_argument(   '--ndg_file', '-n',
                                 type = str,
                                 required = True,
-                                default = "",
-                                help = 'outfiles without .R1l.nc'
+                                default = "R3l.yyyy0630-00:00:00.R3l.nc",
+                                help = 'Path of nudging file'
                                 )
     parser.add_argument(   '--maskfile','-m',
                                 type = str,
@@ -107,9 +101,7 @@ R3l_s = smoother2D(tmask_3D[0,:,:], R3l_0[0,:,:])
 
 R3l_s = CDOM_profile(R3l_s[np.newaxis,:,:], 1.0, nav_lev[:,np.newaxis,np.newaxis], 150.0)
 
-outdir = args.outdir
-outfile_rst = outdir+args.rst_file+'.R3l.nc'
-outfile_ndg = outdir+args.ndg_file
-RSTwriter(outfile_rst, "R3l", R3l_s, TheMask)
-netcdf4.write_3d_file(R3l_s, "R3l", outfile_ndg, TheMask, compression=True)
+
+RSTwriter(args.rst_file, "R3l", R3l_s, TheMask)
+netcdf4.write_3d_file(R3l_s, "R3l", args.ndg_file, TheMask, compression=True)
 
