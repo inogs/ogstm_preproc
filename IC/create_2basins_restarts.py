@@ -30,6 +30,7 @@ from bitsea.basins import V2
 from bitsea.basins.basin import ComposedBasin
 from IC import RSTwriter
 import numpy as np
+from bitsea.commons import netcdf4
 
 
 TheMask=Mask.from_file(args.maskfile)
@@ -70,4 +71,5 @@ for jk,depth in enumerate(nav_lev):
 #RSTwriter(args.outfile_prefix + ".R2l.nc", "R2l", R2l, TheMask)
 RSTwriter(args.outfile_prefix + ".R3l.nc", "R3l", R3l, TheMask)
 print("done")
+netcdf4.write_3d_file(R3l, "R3l", "R3l_yyyy0630-00:00:00.nc", TheMask, compression=True)
 
