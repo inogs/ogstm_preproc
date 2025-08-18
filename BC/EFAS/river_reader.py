@@ -159,6 +159,10 @@ class Rivers:
                         raise ValueError('Unknown variable: {}'.format(varname))
                     rivers[ind][varname] = DEFAULTS[varname]
 
+                    bgc_var = self.__bgc_var_dict[varname]
+                    assert not self.__var_defined[bgc_var][ind]
+                    self.__var_defined[bgc_var][ind] = True
+
                 for vn in concentrations_node.getElementsByTagName('var'):
                     varname = vn.getAttribute('name')
                     if varname not in self.__bgc_var_dict:
@@ -167,8 +171,8 @@ class Rivers:
 
                     rivers[ind][varname] = vn.getAttribute('value')
 
-                    assert not self.__var_defined[bgc_var][ind]
-                    self.__var_defined[bgc_var][ind] = True
+                    if not self.__var_defined[bgc_var][ind]:
+                        self.__var_defined[bgc_var][ind] = True
 
                 visited_ids[ind] = True
 
