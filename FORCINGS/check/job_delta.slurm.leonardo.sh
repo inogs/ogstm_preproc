@@ -1,8 +1,8 @@
 #! /bin/bash
 
 #SBATCH --job-name=deltat
-#SBATCH -N1
-#SBATCH --ntasks-per-node=60
+#SBATCH -N2
+#SBATCH --ntasks-per-node=30
 #SBATCH --time=00:30:00
 #SBATCH --mem=300gb
 #SBATCH --account=OGS_test2528_0
