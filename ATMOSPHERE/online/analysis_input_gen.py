@@ -53,7 +53,7 @@ jpk,jpj,jpi = TheMask.shape
 INPUTDIR=addsep(args.inputdir)
 OUTDIR = addsep(args.outdir)
 
-TL = TimeList.fromfilenames(None, INPUTDIR, "*_an-fv12.00.nc", prefix="", dateformat="%Y%m%d")
+TL = TimeList.fromfilenames(None, INPUTDIR, "*_an-fv1[2-9].00.nc", prefix="", dateformat="%Y%m%d")
 
 filename=TL.filelist[0]
 ncIN=netCDF4.Dataset(filename)
