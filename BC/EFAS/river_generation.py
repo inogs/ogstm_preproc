@@ -79,6 +79,7 @@ OutputVariable = namedtuple(
     ('name', 'lon_positions', 'lat_positions', 'values')
 )
 
+SAVE_DISCHARGE_asNC=False
 
 def main():
     input_dir = ARGS.inputdir
@@ -136,6 +137,7 @@ def main():
         discharge = runoff * cell_areas / density  # m^3/s
 
         output_data = []
+        output_discharge = []
         for variable in BGC_VARS:
             # If there is not the name of the variable on the VARS_CONVERSIONS
             # dict, create a dummy conversion with the same name and coefficient
@@ -170,6 +172,16 @@ def main():
                 )
                 output_data.append(current_var)
 
+        if SAVE_DISCHARGE_asNC:
+           # add discharge data
+           current_dis = OutputVariable(
+                   name='discharge',
+                   lon_positions=lon_positions[var_mask],
+                   lat_positions=lat_positions[var_mask],
+                   values=var_discharge
+               )
+           output_discharge.append(current_dis)
+
         # Now we write the content of the output_data dictionary on a netcdf
         # file
         date_str = timelist[timestep].strftime("%Y%m%d-%H:%M:%S")
@@ -201,6 +213,36 @@ def main():
                 )
 
                 nc_var[:] = nc_var_data
+
+        if SAVE_DISCHARGE_asNC:
+            # add discharge file
+            outfile_dis = output_dir / "dis_{}.nc".format(date_str)
+
+            print(outfile_dis,flush=True)
+            with netCDF4.Dataset(outfile_dis, 'w') as nc_file:
+                nc_file.createDimension('lon', jpi)
+                nc_file.createDimension('lat', jpj)
+
+                for output_var in output_discharge:
+                    nc_var_data=np.ones((jpj,jpi),np.float32)*FILL_VALUE
+
+                    # Fill water points with -1 to help visualization
+                    nc_var_data[ogs_mask.mask_at_level(0)] = -1
+                    lon_pos = output_var.lon_positions
+                    lat_pos = output_var.lat_positions
+                    nc_var_data[(lat_pos, lon_pos)] = output_var.values
+
+                    nc_var = nc_file.createVariable(
+                        'riv_{}'.format(output_var.name),
+                        datatype='f4',
+                        dimensions=('lat', 'lon'),
+                        fill_value=FILL_VALUE,
+                        zlib=True,
+                        complevel=2
+                    )
+
+                    nc_var[:] = nc_var_data
+
 
 
 if __name__ == '__main__':
