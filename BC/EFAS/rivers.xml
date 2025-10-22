@@ -128,6 +128,34 @@
         </var>
     </Variables>
 
+<default_concentrations>
+<var name="N3n" value="1.739964749"/>
+<var name="N1p" value="0.05973986885"/>
+<var name="DIC" value="36.07935762"/>
+<var name="POC" value="1.516579034"/>
+<var name="DOC" value="2.290015211"/>
+<var name="ALK" value="3.004012311"/>
+<var name="O2o" value="250"/>
+<var name="R3l" value="184"/>
+<var name="P1l" value="1.6"/>
+<var name="P2l" value="1.0"/>
+<var name="P3l" value="1.0"/>
+<var name="P4l" value="0.4"/>
+<var name="P1p" value="0.062893082"/>
+<var name="P2p" value="0.039308176"/>
+<var name="P3p" value="0.039308176"/>
+<var name="P4p" value="0.01572327"/>
+<var name="P1n" value="1.006289308"/>
+<var name="P2n" value="0.628930818"/>
+<var name="P3n" value="0.628930818"/>
+<var name="P4n" value="0.251572328"/>
+<var name="P1c" value="80"/>
+<var name="P2c" value="50"/>
+<var name="P3c" value="50"/>
+<var name="P4c" value="20"/>
+<var name="P1s" value="1.006289308"/>
+</default_concentrations>
+
 <RIVERS >
 <river name="Nile" salinity="8.0">
 <concentrations>
@@ -137,25 +165,6 @@
 <var name="POC" value="1.677631528"/>
 <var name="DOC" value="2.005282661"/>
 <var name="ALK" value="2.414895666"/>
-<var name="O2o" value="250"/>
-<var name="R3l" value="184"/>
-<var name="P1l" value="0.8"/>
-<var name="P2l" value="0.5"/>
-<var name="P3l" value="0.5"/>
-<var name="P4l" value="0.2"/>
-<var name="P1p" value="0.031446541"/>
-<var name="P2p" value="0.019654088"/>
-<var name="P3p" value="0.019654088"/>
-<var name="P4p" value="0.007861635"/>
-<var name="P1n" value="0.503144654"/>
-<var name="P2n" value="0.314465409"/>
-<var name="P3n" value="0.314465409"/>
-<var name="P4n" value="0.125786164"/>
-<var name="P1c" value="40"/>
-<var name="P2c" value="25"/>
-<var name="P3c" value="25"/>
-<var name="P4c" value="10"/>
-<var name="P1s" value="0.503144654"/>
 </concentrations>
 <Mouths>
 <mouth I="943" J="33" id="1" name="Nile1"/>
@@ -171,25 +180,6 @@
 <var name="POC" value="1.838684022"/>
 <var name="DOC" value="1.720550111"/>
 <var name="ALK" value="2.871296943"/>
-<var name="O2o" value="250"/>
-<var name="R3l" value="184"/>
-<var name="P1l" value="0.8"/>
-<var name="P2l" value="0.5"/>
-<var name="P3l" value="0.5"/>
-<var name="P4l" value="0.2"/>
-<var name="P1p" value="0.031446541"/>
-<var name="P2p" value="0.019654088"/>
-<var name="P3p" value="0.019654088"/>
-<var name="P4p" value="0.007861635"/>
-<var name="P1n" value="0.503144654"/>
-<var name="P2n" value="0.314465409"/>
-<var name="P3n" value="0.314465409"/>
-<var name="P4n" value="0.125786164"/>
-<var name="P1c" value="40"/>
-<var name="P2c" value="25"/>
-<var name="P3c" value="25"/>
-<var name="P4c" value="10"/>
-<var name="P1s" value="0.503144654"/>
 </concentrations>
 <Mouths>
 <mouth I="236" J="254" id="3" name="Ebro"/>
@@ -204,25 +194,6 @@
 <var name="POC" value="1.516579034"/>
 <var name="DOC" value="2.290015211"/>
 <var name="ALK" value="3.004012311"/>
-<var name="O2o" value="250"/>
-<var name="R3l" value="184"/>
-<var name="P1l" value="0.8"/>
-<var name="P2l" value="0.5"/>
-<var name="P3l" value="0.5"/>
-<var name="P4l" value="0.2"/>
-<var name="P1p" value="0.031446541"/>
-<var name="P2p" value="0.019654088"/>
-<var name="P3p" value="0.019654088"/>
-<var name="P4p" value="0.007861635"/>
-<var name="P1n" value="0.503144654"/>
-<var name="P2n" value="0.314465409"/>
-<var name="P3n" value="0.314465409"/>
-<var name="P4n" value="0.125786164"/>
-<var name="P1c" value="40"/>
-<var name="P2c" value="25"/>
-<var name="P3c" value="25"/>
-<var name="P4c" value="10"/>
-<var name="P1s" value="0.503144654"/>
 </concentrations>
 <Mouths>
 <mouth I="512" J="358" id="4" name="Po Maistra"/>
@@ -246,25 +217,6 @@
 <var name="POC" value="1.838684022"/>
 <var name="DOC" value="1.720550111"/>
 <var name="ALK" value="2.871296943"/>
-<var name="O2o" value="250"/>
-<var name="R3l" value="184"/>
-<var name="P1l" value="0.8"/>
-<var name="P2l" value="0.5"/>
-<var name="P3l" value="0.5"/>
-<var name="P4l" value="0.2"/>
-<var name="P1p" value="0.031446541"/>
-<var name="P2p" value="0.019654088"/>
-<var name="P3p" value="0.019654088"/>
-<var name="P4p" value="0.007861635"/>
-<var name="P1n" value="0.503144654"/>
-<var name="P2n" value="0.314465409"/>
-<var name="P3n" value="0.314465409"/>
-<var name="P4n" value="0.125786164"/>
-<var name="P1c" value="40"/>
-<var name="P2c" value="25"/>
-<var name="P3c" value="25"/>
-<var name="P4c" value="10"/>
-<var name="P1s" value="0.503144654"/>
 </concentrations>
 <Mouths>
 <mouth I="330" J="316" id="14" name="Grand Rhone"/>
@@ -280,25 +232,6 @@
 <var name="POC" value="1.516579034"/>
 <var name="DOC" value="2.290015211"/>
 <var name="ALK" value="3.004012311"/>
-<var name="O2o" value="250"/>
-<var name="R3l" value="184"/>
-<var name="P1l" value="0.8"/>
-<var name="P2l" value="0.5"/>
-<var name="P3l" value="0.5"/>
-<var name="P4l" value="0.2"/>
-<var name="P1p" value="0.031446541"/>
-<var name="P2p" value="0.019654088"/>
-<var name="P3p" value="0.019654088"/>
-<var name="P4p" value="0.007861635"/>
-<var name="P1n" value="0.503144654"/>
-<var name="P2n" value="0.314465409"/>
-<var name="P3n" value="0.314465409"/>
-<var name="P4n" value="0.125786164"/>
-<var name="P1c" value="40"/>
-<var name="P2c" value="25"/>
-<var name="P3c" value="25"/>
-<var name="P4c" value="10"/>
-<var name="P1s" value="0.503144654"/>
 </concentrations>
 <Mouths>
 <mouth I="677" J="252" id="16" name="Vjose"/>
@@ -313,25 +246,6 @@
 <var name="POC" value="1.516579034"/>
 <var name="DOC" value="2.290015211"/>
 <var name="ALK" value="3.004012311"/>
-<var name="O2o" value="250"/>
-<var name="R3l" value="184"/>
-<var name="P1l" value="0.8"/>
-<var name="P2l" value="0.5"/>
-<var name="P3l" value="0.5"/>
-<var name="P4l" value="0.2"/>
-<var name="P1p" value="0.031446541"/>
-<var name="P2p" value="0.019654088"/>
-<var name="P3p" value="0.019654088"/>
-<var name="P4p" value="0.007861635"/>
-<var name="P1n" value="0.503144654"/>
-<var name="P2n" value="0.314465409"/>
-<var name="P3n" value="0.314465409"/>
-<var name="P4n" value="0.125786164"/>
-<var name="P1c" value="40"/>
-<var name="P2c" value="25"/>
-<var name="P3c" value="25"/>
-<var name="P4c" value="10"/>
-<var name="P1s" value="0.503144654"/>
 </concentrations>
 <Mouths><mouth I="679" J="256" id="17" name="Seman"/></Mouths>
 </river>
@@ -344,25 +258,6 @@
 <var name="POC" value="1.516579034"/>
 <var name="DOC" value="2.290015211"/>
 <var name="ALK" value="3.004012311"/>
-<var name="O2o" value="250"/>
-<var name="R3l" value="184"/>
-<var name="P1l" value="0.8"/>
-<var name="P2l" value="0.5"/>
-<var name="P3l" value="0.5"/>
-<var name="P4l" value="0.2"/>
-<var name="P1p" value="0.031446541"/>
-<var name="P2p" value="0.019654088"/>
-<var name="P3p" value="0.019654088"/>
-<var name="P4p" value="0.007861635"/>
-<var name="P1n" value="0.503144654"/>
-<var name="P2n" value="0.314465409"/>
-<var name="P3n" value="0.314465409"/>
-<var name="P4n" value="0.125786164"/>
-<var name="P1c" value="40"/>
-<var name="P2c" value="25"/>
-<var name="P3c" value="25"/>
-<var name="P4c" value="10"/>
-<var name="P1s" value="0.503144654"/>
 </concentrations>
 <Mouths>
 <mouth I="679" J="280" id="18" name="Bojana Sud"/>
@@ -378,25 +273,6 @@
 <var name="POC" value="1.516579034"/>
 <var name="DOC" value="2.290015211"/>
 <var name="ALK" value="3.004012311"/>
-<var name="O2o" value="250"/>
-<var name="R3l" value="184"/>
-<var name="P1l" value="0.8"/>
-<var name="P2l" value="0.5"/>
-<var name="P3l" value="0.5"/>
-<var name="P4l" value="0.2"/>
-<var name="P1p" value="0.031446541"/>
-<var name="P2p" value="0.019654088"/>
-<var name="P3p" value="0.019654088"/>
-<var name="P4p" value="0.007861635"/>
-<var name="P1n" value="0.503144654"/>
-<var name="P2n" value="0.314465409"/>
-<var name="P3n" value="0.314465409"/>
-<var name="P4n" value="0.125786164"/>
-<var name="P1c" value="40"/>
-<var name="P2c" value="25"/>
-<var name="P3c" value="25"/>
-<var name="P4c" value="10"/>
-<var name="P1s" value="0.503144654"/>
 </concentrations>
 <Mouths><mouth I="519" J="369" id="20" name="Piave"/></Mouths>
 </river>
@@ -409,25 +285,6 @@
 <var name="POC" value="1.516579034"/>
 <var name="DOC" value="2.290015211"/>
 <var name="ALK" value="3.004012311"/>
-<var name="O2o" value="250"/>
-<var name="R3l" value="184"/>
-<var name="P1l" value="0.8"/>
-<var name="P2l" value="0.5"/>
-<var name="P3l" value="0.5"/>
-<var name="P4l" value="0.2"/>
-<var name="P1p" value="0.031446541"/>
-<var name="P2p" value="0.019654088"/>
-<var name="P3p" value="0.019654088"/>
-<var name="P4p" value="0.007861635"/>
-<var name="P1n" value="0.503144654"/>
-<var name="P2n" value="0.314465409"/>
-<var name="P3n" value="0.314465409"/>
-<var name="P4n" value="0.125786164"/>
-<var name="P1c" value="40"/>
-<var name="P2c" value="25"/>
-<var name="P3c" value="25"/>
-<var name="P4c" value="10"/>
-<var name="P1s" value="0.503144654"/>
 </concentrations>
 <Mouths><mouth I="529" J="372" id="21" name="Tagliamento"/></Mouths>
 </river>
@@ -440,25 +297,6 @@
 <var name="POC" value="1.516579034"/>
 <var name="DOC" value="2.290015211"/>
 <var name="ALK" value="3.004012311"/>
-<var name="O2o" value="250"/>
-<var name="R3l" value="184"/>
-<var name="P1l" value="0.8"/>
-<var name="P2l" value="0.5"/>
-<var name="P3l" value="0.5"/>
-<var name="P4l" value="0.2"/>
-<var name="P1p" value="0.031446541"/>
-<var name="P2p" value="0.019654088"/>
-<var name="P3p" value="0.019654088"/>
-<var name="P4p" value="0.007861635"/>
-<var name="P1n" value="0.503144654"/>
-<var name="P2n" value="0.314465409"/>
-<var name="P3n" value="0.314465409"/>
-<var name="P4n" value="0.125786164"/>
-<var name="P1c" value="40"/>
-<var name="P2c" value="25"/>
-<var name="P3c" value="25"/>
-<var name="P4c" value="10"/>
-<var name="P1s" value="0.503144654"/>
 </concentrations>
 <Mouths><mouth I="539" J="374" id="22" name="Soca/Isonzo"/></Mouths>
 </river>
@@ -471,25 +309,6 @@
 <var name="POC" value="1.516579034"/>
 <var name="DOC" value="2.290015211"/>
 <var name="ALK" value="3.004012311"/>
-<var name="O2o" value="250"/>
-<var name="R3l" value="184"/>
-<var name="P1l" value="0.8"/>
-<var name="P2l" value="0.5"/>
-<var name="P3l" value="0.5"/>
-<var name="P4l" value="0.2"/>
-<var name="P1p" value="0.031446541"/>
-<var name="P2p" value="0.019654088"/>
-<var name="P3p" value="0.019654088"/>
-<var name="P4p" value="0.007861635"/>
-<var name="P1n" value="0.503144654"/>
-<var name="P2n" value="0.314465409"/>
-<var name="P3n" value="0.314465409"/>
-<var name="P4n" value="0.125786164"/>
-<var name="P1c" value="40"/>
-<var name="P2c" value="25"/>
-<var name="P3c" value="25"/>
-<var name="P4c" value="10"/>
-<var name="P1s" value="0.503144654"/>
 </concentrations>
 <Mouths><mouth I="523" J="370" id="23" name="Livenza"/></Mouths>
 </river>
@@ -501,26 +320,7 @@
 <var name="DIC" value="36.07935762"/>
 <var name="POC" value="1.516579034"/>
 <var name="DOC" value="2.290015211"/>
-<var name="ALK" value="3.004012311"/>
-<var name="O2o" value="250"/>
-<var name="R3l" value="184"/>
-<var name="P1l" value="0.8"/>
-<var name="P2l" value="0.5"/>
-<var name="P3l" value="0.5"/>
-<var name="P4l" value="0.2"/>
-<var name="P1p" value="0.031446541"/>
-<var name="P2p" value="0.019654088"/>
-<var name="P3p" value="0.019654088"/>
-<var name="P4p" value="0.007861635"/>
-<var name="P1n" value="0.503144654"/>
-<var name="P2n" value="0.314465409"/>
-<var name="P3n" value="0.314465409"/>
-<var name="P4n" value="0.125786164"/>
-<var name="P1c" value="40"/>
-<var name="P2c" value="25"/>
-<var name="P3c" value="25"/>
-<var name="P4c" value="10"/>
-<var name="P1s" value="0.503144654"/>
+<var name="ALK" value="3.004012311"/>>
 </concentrations>
 <Mouths><mouth I="510" J="361" id="24" name="Brenta-Baccaglione"/></Mouths>
 </river>
@@ -533,25 +333,6 @@
 <var name="POC" value="1.516579034"/>
 <var name="DOC" value="2.290015211"/>
 <var name="ALK" value="3.004012311"/>
-<var name="O2o" value="250"/>
-<var name="R3l" value="184"/>
-<var name="P1l" value="0.8"/>
-<var name="P2l" value="0.5"/>
-<var name="P3l" value="0.5"/>
-<var name="P4l" value="0.2"/>
-<var name="P1p" value="0.031446541"/>
-<var name="P2p" value="0.019654088"/>
-<var name="P3p" value="0.019654088"/>
-<var name="P4p" value="0.007861635"/>
-<var name="P1n" value="0.503144654"/>
-<var name="P2n" value="0.314465409"/>
-<var name="P3n" value="0.314465409"/>
-<var name="P4n" value="0.125786164"/>
-<var name="P1c" value="40"/>
-<var name="P2c" value="25"/>
-<var name="P3c" value="25"/>
-<var name="P4c" value="10"/>
-<var name="P1s" value="0.503144654"/>
 </concentrations>
 <Mouths><mouth I="511" J="360" id="25" name="Adige"/></Mouths>
 </river>
@@ -564,25 +345,6 @@
 <var name="POC" value="1.516579034"/>
 <var name="DOC" value="2.290015211"/>
 <var name="ALK" value="3.004012311"/>
-<var name="O2o" value="250"/>
-<var name="R3l" value="184"/>
-<var name="P1l" value="0.8"/>
-<var name="P2l" value="0.5"/>
-<var name="P3l" value="0.5"/>
-<var name="P4l" value="0.2"/>
-<var name="P1p" value="0.031446541"/>
-<var name="P2p" value="0.019654088"/>
-<var name="P3p" value="0.019654088"/>
-<var name="P4p" value="0.007861635"/>
-<var name="P1n" value="0.503144654"/>
-<var name="P2n" value="0.314465409"/>
-<var name="P3n" value="0.314465409"/>
-<var name="P4n" value="0.125786164"/>
-<var name="P1c" value="40"/>
-<var name="P2c" value="25"/>
-<var name="P3c" value="25"/>
-<var name="P4c" value="10"/>
-<var name="P1s" value="0.503144654"/>
 </concentrations>
 <Mouths><mouth I="569" J="347" id="26" name="Lika"/></Mouths>
 </river>
@@ -595,25 +357,6 @@
 <var name="POC" value="1.516579034"/>
 <var name="DOC" value="2.290015211"/>
 <var name="ALK" value="3.004012311"/>
-<var name="O2o" value="250"/>
-<var name="R3l" value="184"/>
-<var name="P1l" value="0.8"/>
-<var name="P2l" value="0.5"/>
-<var name="P3l" value="0.5"/>
-<var name="P4l" value="0.2"/>
-<var name="P1p" value="0.031446541"/>
-<var name="P2p" value="0.019654088"/>
-<var name="P3p" value="0.019654088"/>
-<var name="P4p" value="0.007861635"/>
-<var name="P1n" value="0.503144654"/>
-<var name="P2n" value="0.314465409"/>
-<var name="P3n" value="0.314465409"/>
-<var name="P4n" value="0.125786164"/>
-<var name="P1c" value="40"/>
-<var name="P2c" value="25"/>
-<var name="P3c" value="25"/>
-<var name="P4c" value="10"/>
-<var name="P1s" value="0.503144654"/>
 </concentrations>
 <Mouths><mouth I="509" J="347" id="27" name="Reno"/></Mouths>
 </river>
@@ -626,25 +369,6 @@
 <var name="POC" value="1.516579034"/>
 <var name="DOC" value="2.290015211"/>
 <var name="ALK" value="3.004012311"/>
-<var name="O2o" value="250"/>
-<var name="R3l" value="184"/>
-<var name="P1l" value="0.8"/>
-<var name="P2l" value="0.5"/>
-<var name="P3l" value="0.5"/>
-<var name="P4l" value="0.2"/>
-<var name="P1p" value="0.031446541"/>
-<var name="P2p" value="0.019654088"/>
-<var name="P3p" value="0.019654088"/>
-<var name="P4p" value="0.007861635"/>
-<var name="P1n" value="0.503144654"/>
-<var name="P2n" value="0.314465409"/>
-<var name="P3n" value="0.314465409"/>
-<var name="P4n" value="0.125786164"/>
-<var name="P1c" value="40"/>
-<var name="P2c" value="25"/>
-<var name="P3c" value="25"/>
-<var name="P4c" value="10"/>
-<var name="P1s" value="0.503144654"/>
 </concentrations>
 <Mouths><mouth I="594" J="324" id="28" name="Krka"/></Mouths>
 </river>
@@ -657,25 +381,6 @@
 <var name="POC" value="1.677631528"/>
 <var name="DOC" value="3.238446841"/>
 <var name="ALK" value="5.159381996"/>
-<var name="O2o" value="250"/>
-<var name="R3l" value="184"/>
-<var name="P1l" value="0.8"/>
-<var name="P2l" value="0.5"/>
-<var name="P3l" value="0.5"/>
-<var name="P4l" value="0.2"/>
-<var name="P1p" value="0.031446541"/>
-<var name="P2p" value="0.019654088"/>
-<var name="P3p" value="0.019654088"/>
-<var name="P4p" value="0.007861635"/>
-<var name="P1n" value="0.503144654"/>
-<var name="P2n" value="0.314465409"/>
-<var name="P3n" value="0.314465409"/>
-<var name="P4n" value="0.125786164"/>
-<var name="P1c" value="40"/>
-<var name="P2c" value="25"/>
-<var name="P3c" value="25"/>
-<var name="P4c" value="10"/>
-<var name="P1s" value="0.503144654"/>
 </concentrations>
 <Mouths><mouth I="460" J="325" id="29" name="Arno"/></Mouths>
 </river>
@@ -688,25 +393,6 @@
 <var name="POC" value="1.516579034"/>
 <var name="DOC" value="2.290015211"/>
 <var name="ALK" value="3.004012311"/>
-<var name="O2o" value="250"/>
-<var name="R3l" value="184"/>
-<var name="P1l" value="0.8"/>
-<var name="P2l" value="0.5"/>
-<var name="P3l" value="0.5"/>
-<var name="P4l" value="0.2"/>
-<var name="P1p" value="0.031446541"/>
-<var name="P2p" value="0.019654088"/>
-<var name="P3p" value="0.019654088"/>
-<var name="P4p" value="0.007861635"/>
-<var name="P1n" value="0.503144654"/>
-<var name="P2n" value="0.314465409"/>
-<var name="P3n" value="0.314465409"/>
-<var name="P4n" value="0.125786164"/>
-<var name="P1c" value="40"/>
-<var name="P2c" value="25"/>
-<var name="P3c" value="25"/>
-<var name="P4c" value="10"/>
-<var name="P1s" value="0.503144654"/>
 </concentrations>
 <Mouths><mouth I="631" J="309" id="30" name="Neretva"/></Mouths>
 </river>
@@ -719,25 +405,6 @@
 <var name="POC" value="1.838684022"/>
 <var name="DOC" value="1.720550111"/>
 <var name="ALK" value="2.871296943"/>
-<var name="O2o" value="250"/>
-<var name="R3l" value="184"/>
-<var name="P1l" value="0.8"/>
-<var name="P2l" value="0.5"/>
-<var name="P3l" value="0.5"/>
-<var name="P4l" value="0.2"/>
-<var name="P1p" value="0.031446541"/>
-<var name="P2p" value="0.019654088"/>
-<var name="P3p" value="0.019654088"/>
-<var name="P4p" value="0.007861635"/>
-<var name="P1n" value="0.503144654"/>
-<var name="P2n" value="0.314465409"/>
-<var name="P3n" value="0.314465409"/>
-<var name="P4n" value="0.125786164"/>
-<var name="P1c" value="40"/>
-<var name="P2c" value="25"/>
-<var name="P3c" value="25"/>
-<var name="P4c" value="10"/>
-<var name="P1s" value="0.503144654"/>
 </concentrations>
 <Mouths><mouth I="292" J="313" id="31" name="Aude"/></Mouths>
 </river>
@@ -750,25 +417,6 @@
 <var name="POC" value="1.516579034"/>
 <var name="DOC" value="2.290015211"/>
 <var name="ALK" value="3.004012311"/>
-<var name="O2o" value="250"/>
-<var name="R3l" value="184"/>
-<var name="P1l" value="0.8"/>
-<var name="P2l" value="0.5"/>
-<var name="P3l" value="0.5"/>
-<var name="P4l" value="0.2"/>
-<var name="P1p" value="0.031446541"/>
-<var name="P2p" value="0.019654088"/>
-<var name="P3p" value="0.019654088"/>
-<var name="P4p" value="0.007861635"/>
-<var name="P1n" value="0.503144654"/>
-<var name="P2n" value="0.314465409"/>
-<var name="P3n" value="0.314465409"/>
-<var name="P4n" value="0.125786164"/>
-<var name="P1c" value="40"/>
-<var name="P2c" value="25"/>
-<var name="P3c" value="25"/>
-<var name="P4c" value="10"/>
-<var name="P1s" value="0.503144654"/>
 </concentrations>
 <Mouths><mouth I="651" J="298" id="32" name="Trebisjnica"/></Mouths>
 </river>
@@ -781,25 +429,6 @@
 <var name="POC" value="1.677631528"/>
 <var name="DOC" value="3.238446841"/>
 <var name="ALK" value="5.159381996"/>
-<var name="O2o" value="250"/>
-<var name="R3l" value="184"/>
-<var name="P1l" value="0.8"/>
-<var name="P2l" value="0.5"/>
-<var name="P3l" value="0.5"/>
-<var name="P4l" value="0.2"/>
-<var name="P1p" value="0.031446541"/>
-<var name="P2p" value="0.019654088"/>
-<var name="P3p" value="0.019654088"/>
-<var name="P4p" value="0.007861635"/>
-<var name="P1n" value="0.503144654"/>
-<var name="P2n" value="0.314465409"/>
-<var name="P3n" value="0.314465409"/>
-<var name="P4n" value="0.125786164"/>
-<var name="P1c" value="40"/>
-<var name="P2c" value="25"/>
-<var name="P3c" value="25"/>
-<var name="P4c" value="10"/>
-<var name="P1s" value="0.503144654"/>
 </concentrations>
 <Mouths>
 <mouth I="507" J="278" id="33" name="Tevere 1"/>
@@ -815,25 +444,6 @@
 <var name="POC" value="1.516579034"/>
 <var name="DOC" value="2.290015211"/>
 <var name="ALK" value="3.004012311"/>
-<var name="O2o" value="250"/>
-<var name="R3l" value="184"/>
-<var name="P1l" value="0.8"/>
-<var name="P2l" value="0.5"/>
-<var name="P3l" value="0.5"/>
-<var name="P4l" value="0.2"/>
-<var name="P1p" value="0.031446541"/>
-<var name="P2p" value="0.019654088"/>
-<var name="P3p" value="0.019654088"/>
-<var name="P4p" value="0.007861635"/>
-<var name="P1n" value="0.503144654"/>
-<var name="P2n" value="0.314465409"/>
-<var name="P3n" value="0.314465409"/>
-<var name="P4n" value="0.125786164"/>
-<var name="P1c" value="40"/>
-<var name="P2c" value="25"/>
-<var name="P3c" value="25"/>
-<var name="P4c" value="10"/>
-<var name="P1s" value="0.503144654"/>
 </concentrations>
 <Mouths><mouth I="683" J="276" id="35" name="Mati"/></Mouths>
 </river>
@@ -846,25 +456,6 @@
 <var name="POC" value="1.677631528"/>
 <var name="DOC" value="3.238446841"/>
 <var name="ALK" value="5.159381996"/>
-<var name="O2o" value="250"/>
-<var name="R3l" value="184"/>
-<var name="P1l" value="0.8"/>
-<var name="P2l" value="0.5"/>
-<var name="P3l" value="0.5"/>
-<var name="P4l" value="0.2"/>
-<var name="P1p" value="0.031446541"/>
-<var name="P2p" value="0.019654088"/>
-<var name="P3p" value="0.019654088"/>
-<var name="P4p" value="0.007861635"/>
-<var name="P1n" value="0.503144654"/>
-<var name="P2n" value="0.314465409"/>
-<var name="P3n" value="0.314465409"/>
-<var name="P4n" value="0.125786164"/>
-<var name="P1c" value="40"/>
-<var name="P2c" value="25"/>
-<var name="P3c" value="25"/>
-<var name="P4c" value="10"/>
-<var name="P1s" value="0.503144654"/>
 </concentrations>
 <Mouths><mouth I="547" J="261" id="36" name="Volturno"/></Mouths>
 </river>
@@ -877,25 +468,6 @@
 <var name="POC" value="1.516579034"/>
 <var name="DOC" value="2.290015211"/>
 <var name="ALK" value="3.004012311"/>
-<var name="O2o" value="250"/>
-<var name="R3l" value="184"/>
-<var name="P1l" value="0.8"/>
-<var name="P2l" value="0.5"/>
-<var name="P3l" value="0.5"/>
-<var name="P4l" value="0.2"/>
-<var name="P1p" value="0.031446541"/>
-<var name="P2p" value="0.019654088"/>
-<var name="P3p" value="0.019654088"/>
-<var name="P4p" value="0.007861635"/>
-<var name="P1n" value="0.503144654"/>
-<var name="P2n" value="0.314465409"/>
-<var name="P3n" value="0.314465409"/>
-<var name="P4n" value="0.125786164"/>
-<var name="P1c" value="40"/>
-<var name="P2c" value="25"/>
-<var name="P3c" value="25"/>
-<var name="P4c" value="10"/>
-<var name="P1s" value="0.503144654"/>
 </concentrations>
 <Mouths><mouth I="680" J="261" id="37" name="Shkumbini"/></Mouths>
 </river>
@@ -908,25 +480,6 @@
 <var name="POC" value="1.677631528"/>
 <var name="DOC" value="2.005282661"/>
 <var name="ALK" value="2.617214852"/>
-<var name="O2o" value="250"/>
-<var name="R3l" value="184"/>
-<var name="P1l" value="0.8"/>
-<var name="P2l" value="0.5"/>
-<var name="P3l" value="0.5"/>
-<var name="P4l" value="0.2"/>
-<var name="P1p" value="0.031446541"/>
-<var name="P2p" value="0.019654088"/>
-<var name="P3p" value="0.019654088"/>
-<var name="P4p" value="0.007861635"/>
-<var name="P1n" value="0.503144654"/>
-<var name="P2n" value="0.314465409"/>
-<var name="P3n" value="0.314465409"/>
-<var name="P4n" value="0.125786164"/>
-<var name="P1c" value="40"/>
-<var name="P2c" value="25"/>
-<var name="P3c" value="25"/>
-<var name="P4c" value="10"/>
-<var name="P1s" value="0.503144654"/>
 </concentrations>
 <Mouths><mouth I="786" J="255" id="38" name="Struma/Strymonas"/></Mouths>
 </river>
@@ -939,25 +492,6 @@
 <var name="POC" value="1.677631528"/>
 <var name="DOC" value="2.005282661"/>
 <var name="ALK" value="2.617214852"/>
-<var name="O2o" value="250"/>
-<var name="R3l" value="184"/>
-<var name="P1l" value="0.8"/>
-<var name="P2l" value="0.5"/>
-<var name="P3l" value="0.5"/>
-<var name="P4l" value="0.2"/>
-<var name="P1p" value="0.031446541"/>
-<var name="P2p" value="0.019654088"/>
-<var name="P3p" value="0.019654088"/>
-<var name="P4p" value="0.007861635"/>
-<var name="P1n" value="0.503144654"/>
-<var name="P2n" value="0.314465409"/>
-<var name="P3n" value="0.314465409"/>
-<var name="P4n" value="0.125786164"/>
-<var name="P1c" value="40"/>
-<var name="P2c" value="25"/>
-<var name="P3c" value="25"/>
-<var name="P4c" value="10"/>
-<var name="P1s" value="0.503144654"/>
 </concentrations>
 <Mouths><mouth I="838" J="254" id="39" name="Meric/Evros/Maritsa"/></Mouths>
 </river>
@@ -970,25 +504,6 @@
 <var name="POC" value="1.677631528"/>
 <var name="DOC" value="2.005282661"/>
 <var name="ALK" value="2.617214852"/>
-<var name="O2o" value="250"/>
-<var name="R3l" value="184"/>
-<var name="P1l" value="0.8"/>
-<var name="P2l" value="0.5"/>
-<var name="P3l" value="0.5"/>
-<var name="P4l" value="0.2"/>
-<var name="P1p" value="0.031446541"/>
-<var name="P2p" value="0.019654088"/>
-<var name="P3p" value="0.019654088"/>
-<var name="P4p" value="0.007861635"/>
-<var name="P1n" value="0.503144654"/>
-<var name="P2n" value="0.314465409"/>
-<var name="P3n" value="0.314465409"/>
-<var name="P4n" value="0.125786164"/>
-<var name="P1c" value="40"/>
-<var name="P2c" value="25"/>
-<var name="P3c" value="25"/>
-<var name="P4c" value="10"/>
-<var name="P1s" value="0.503144654"/>
 </concentrations>
 <Mouths><mouth I="759" J="248" id="40" name="Axios/Vadar"/></Mouths>
 </river>
@@ -1001,25 +516,6 @@
 <var name="POC" value="1.516579034"/>
 <var name="DOC" value="2.290015211"/>
 <var name="ALK" value="3.004012311"/>
-<var name="O2o" value="250"/>
-<var name="R3l" value="184"/>
-<var name="P1l" value="0.8"/>
-<var name="P2l" value="0.5"/>
-<var name="P3l" value="0.5"/>
-<var name="P4l" value="0.2"/>
-<var name="P1p" value="0.031446541"/>
-<var name="P2p" value="0.019654088"/>
-<var name="P3p" value="0.019654088"/>
-<var name="P4p" value="0.007861635"/>
-<var name="P1n" value="0.503144654"/>
-<var name="P2n" value="0.314465409"/>
-<var name="P3n" value="0.314465409"/>
-<var name="P4n" value="0.125786164"/>
-<var name="P1c" value="40"/>
-<var name="P2c" value="25"/>
-<var name="P3c" value="25"/>
-<var name="P4c" value="10"/>
-<var name="P1s" value="0.503144654"/>
 </concentrations>
 <Mouths><mouth I="710" J="213" id="41" name="Arachtos"/></Mouths>
 </river>
@@ -1032,25 +528,6 @@
 <var name="POC" value="1.677631528"/>
 <var name="DOC" value="2.005282661"/>
 <var name="ALK" value="2.617214852"/>
-<var name="O2o" value="250"/>
-<var name="R3l" value="184"/>
-<var name="P1l" value="0.8"/>
-<var name="P2l" value="0.5"/>
-<var name="P3l" value="0.5"/>
-<var name="P4l" value="0.2"/>
-<var name="P1p" value="0.031446541"/>
-<var name="P2p" value="0.019654088"/>
-<var name="P3p" value="0.019654088"/>
-<var name="P4p" value="0.007861635"/>
-<var name="P1n" value="0.503144654"/>
-<var name="P2n" value="0.314465409"/>
-<var name="P3n" value="0.314465409"/>
-<var name="P4n" value="0.125786164"/>
-<var name="P1c" value="40"/>
-<var name="P2c" value="25"/>
-<var name="P3c" value="25"/>
-<var name="P4c" value="10"/>
-<var name="P1s" value="0.503144654"/>
 </concentrations>
 <Mouths><mouth I="760" J="235" id="42" name="Pinios"/></Mouths>
 </river>
@@ -1063,25 +540,6 @@
 <var name="POC" value="1.516579034"/>
 <var name="DOC" value="2.290015211"/>
 <var name="ALK" value="3.004012311"/>
-<var name="O2o" value="250"/>
-<var name="R3l" value="184"/>
-<var name="P1l" value="0.8"/>
-<var name="P2l" value="0.5"/>
-<var name="P3l" value="0.5"/>
-<var name="P4l" value="0.2"/>
-<var name="P1p" value="0.031446541"/>
-<var name="P2p" value="0.019654088"/>
-<var name="P3p" value="0.019654088"/>
-<var name="P4p" value="0.007861635"/>
-<var name="P1n" value="0.503144654"/>
-<var name="P2n" value="0.314465409"/>
-<var name="P3n" value="0.314465409"/>
-<var name="P4n" value="0.125786164"/>
-<var name="P1c" value="40"/>
-<var name="P2c" value="25"/>
-<var name="P3c" value="25"/>
-<var name="P4c" value="10"/>
-<var name="P1s" value="0.503144654"/>
 </concentrations>
 <Mouths><mouth I="720" J="197" id="43" name="Acheloos"/></Mouths>
 </river>
@@ -1094,25 +552,6 @@
 <var name="POC" value="1.677631528"/>
 <var name="DOC" value="2.005282661"/>
 <var name="ALK" value="2.617214852"/>
-<var name="O2o" value="250"/>
-<var name="R3l" value="184"/>
-<var name="P1l" value="0.8"/>
-<var name="P2l" value="0.5"/>
-<var name="P3l" value="0.5"/>
-<var name="P4l" value="0.2"/>
-<var name="P1p" value="0.031446541"/>
-<var name="P2p" value="0.019654088"/>
-<var name="P3p" value="0.019654088"/>
-<var name="P4p" value="0.007861635"/>
-<var name="P1n" value="0.503144654"/>
-<var name="P2n" value="0.314465409"/>
-<var name="P3n" value="0.314465409"/>
-<var name="P4n" value="0.125786164"/>
-<var name="P1c" value="40"/>
-<var name="P2c" value="25"/>
-<var name="P3c" value="25"/>
-<var name="P4c" value="10"/>
-<var name="P1s" value="0.503144654"/>
 </concentrations>
 <Mouths><mouth I="856" J="203" id="44" name="Gediz"/></Mouths>
 </river>
@@ -1125,25 +564,6 @@
 <var name="POC" value="1.677631528"/>
 <var name="DOC" value="2.005282661"/>
 <var name="ALK" value="2.617214852"/>
-<var name="O2o" value="250"/>
-<var name="R3l" value="184"/>
-<var name="P1l" value="0.8"/>
-<var name="P2l" value="0.5"/>
-<var name="P3l" value="0.5"/>
-<var name="P4l" value="0.2"/>
-<var name="P1p" value="0.031446541"/>
-<var name="P2p" value="0.019654088"/>
-<var name="P3p" value="0.019654088"/>
-<var name="P4p" value="0.007861635"/>
-<var name="P1n" value="0.503144654"/>
-<var name="P2n" value="0.314465409"/>
-<var name="P3n" value="0.314465409"/>
-<var name="P4n" value="0.125786164"/>
-<var name="P1c" value="40"/>
-<var name="P2c" value="25"/>
-<var name="P3c" value="25"/>
-<var name="P4c" value="10"/>
-<var name="P1s" value="0.503144654"/>
 </concentrations>
 <Mouths><mouth I="866" J="177" id="45" name="Buyuk Menderes"/></Mouths>
 </river>
@@ -1156,25 +576,6 @@
 <var name="POC" value="1.677631528"/>
 <var name="DOC" value="2.005282661"/>
 <var name="ALK" value="2.517943763"/>
-<var name="O2o" value="250"/>
-<var name="R3l" value="184"/>
-<var name="P1l" value="0.8"/>
-<var name="P2l" value="0.5"/>
-<var name="P3l" value="0.5"/>
-<var name="P4l" value="0.2"/>
-<var name="P1p" value="0.031446541"/>
-<var name="P2p" value="0.019654088"/>
-<var name="P3p" value="0.019654088"/>
-<var name="P4p" value="0.007861635"/>
-<var name="P1n" value="0.503144654"/>
-<var name="P2n" value="0.314465409"/>
-<var name="P3n" value="0.314465409"/>
-<var name="P4n" value="0.125786164"/>
-<var name="P1c" value="40"/>
-<var name="P2c" value="25"/>
-<var name="P3c" value="25"/>
-<var name="P4c" value="10"/>
-<var name="P1s" value="0.503144654"/>
 </concentrations>
 <Mouths><mouth I="962" J="160" id="46" name="Kopru"/></Mouths>
 </river>
@@ -1187,25 +588,6 @@
 <var name="POC" value="1.677631528"/>
 <var name="DOC" value="2.005282661"/>
 <var name="ALK" value="2.517943763"/>
-<var name="O2o" value="250"/>
-<var name="R3l" value="184"/>
-<var name="P1l" value="0.8"/>
-<var name="P2l" value="0.5"/>
-<var name="P3l" value="0.5"/>
-<var name="P4l" value="0.2"/>
-<var name="P1p" value="0.031446541"/>
-<var name="P2p" value="0.019654088"/>
-<var name="P3p" value="0.019654088"/>
-<var name="P4p" value="0.007861635"/>
-<var name="P1n" value="0.503144654"/>
-<var name="P2n" value="0.314465409"/>
-<var name="P3n" value="0.314465409"/>
-<var name="P4n" value="0.125786164"/>
-<var name="P1c" value="40"/>
-<var name="P2c" value="25"/>
-<var name="P3c" value="25"/>
-<var name="P4c" value="10"/>
-<var name="P1s" value="0.503144654"/>
 </concentrations>
 <Mouths><mouth I="969" J="158" id="47" name="Manavgat"/></Mouths>
 </river>
@@ -1218,25 +600,6 @@
 <var name="POC" value="1.677631528"/>
 <var name="DOC" value="2.005282661"/>
 <var name="ALK" value="2.517943763"/>
-<var name="O2o" value="250"/>
-<var name="R3l" value="184"/>
-<var name="P1l" value="0.8"/>
-<var name="P2l" value="0.5"/>
-<var name="P3l" value="0.5"/>
-<var name="P4l" value="0.2"/>
-<var name="P1p" value="0.031446541"/>
-<var name="P2p" value="0.019654088"/>
-<var name="P3p" value="0.019654088"/>
-<var name="P4p" value="0.007861635"/>
-<var name="P1n" value="0.503144654"/>
-<var name="P2n" value="0.314465409"/>
-<var name="P3n" value="0.314465409"/>
-<var name="P4n" value="0.125786164"/>
-<var name="P1c" value="40"/>
-<var name="P2c" value="25"/>
-<var name="P3c" value="25"/>
-<var name="P4c" value="10"/>
-<var name="P1s" value="0.503144654"/>
 </concentrations>
 <Mouths><mouth I="1051" J="158" id="48" name="Seyhan"/></Mouths>
 </river>
@@ -1249,25 +612,6 @@
 <var name="POC" value="1.677631528"/>
 <var name="DOC" value="2.005282661"/>
 <var name="ALK" value="2.517943763"/>
-<var name="O2o" value="250"/>
-<var name="R3l" value="184"/>
-<var name="P1l" value="0.8"/>
-<var name="P2l" value="0.5"/>
-<var name="P3l" value="0.5"/>
-<var name="P4l" value="0.2"/>
-<var name="P1p" value="0.031446541"/>
-<var name="P2p" value="0.019654088"/>
-<var name="P3p" value="0.019654088"/>
-<var name="P4p" value="0.007861635"/>
-<var name="P1n" value="0.503144654"/>
-<var name="P2n" value="0.314465409"/>
-<var name="P3n" value="0.314465409"/>
-<var name="P4n" value="0.125786164"/>
-<var name="P1c" value="40"/>
-<var name="P2c" value="25"/>
-<var name="P3c" value="25"/>
-<var name="P4c" value="10"/>
-<var name="P1s" value="0.503144654"/>
 </concentrations>
 <Mouths><mouth I="1067" J="154" id="49" name="Ceyhan"/></Mouths>
 </river>
@@ -1280,25 +624,6 @@
 <var name="POC" value="1.677631528"/>
 <var name="DOC" value="2.005282661"/>
 <var name="ALK" value="2.517943763"/>
-<var name="O2o" value="250"/>
-<var name="R3l" value="184"/>
-<var name="P1l" value="0.8"/>
-<var name="P2l" value="0.5"/>
-<var name="P3l" value="0.5"/>
-<var name="P4l" value="0.2"/>
-<var name="P1p" value="0.031446541"/>
-<var name="P2p" value="0.019654088"/>
-<var name="P3p" value="0.019654088"/>
-<var name="P4p" value="0.007861635"/>
-<var name="P1n" value="0.503144654"/>
-<var name="P2n" value="0.314465409"/>
-<var name="P3n" value="0.314465409"/>
-<var name="P4n" value="0.125786164"/>
-<var name="P1c" value="40"/>
-<var name="P2c" value="25"/>
-<var name="P3c" value="25"/>
-<var name="P4c" value="10"/>
-<var name="P1s" value="0.503144654"/>
 </concentrations>
 <Mouths><mouth I="1031" J="147" id="50" name="Gosku"/></Mouths>
 </river>
@@ -1311,25 +636,6 @@
 <var name="POC" value="1.677631528"/>
 <var name="DOC" value="2.005282661"/>
 <var name="ALK" value="5.734942379"/>
-<var name="O2o" value="250"/>
-<var name="R3l" value="184"/>
-<var name="P1l" value="0.8"/>
-<var name="P2l" value="0.5"/>
-<var name="P3l" value="0.5"/>
-<var name="P4l" value="0.2"/>
-<var name="P1p" value="0.031446541"/>
-<var name="P2p" value="0.019654088"/>
-<var name="P3p" value="0.019654088"/>
-<var name="P4p" value="0.007861635"/>
-<var name="P1n" value="0.503144654"/>
-<var name="P2n" value="0.314465409"/>
-<var name="P3n" value="0.314465409"/>
-<var name="P4n" value="0.125786164"/>
-<var name="P1c" value="40"/>
-<var name="P2c" value="25"/>
-<var name="P3c" value="25"/>
-<var name="P4c" value="10"/>
-<var name="P1s" value="0.503144654"/>
 </concentrations>
 <Mouths><mouth I="459" J="165" id="51" name="Medjerda"/></Mouths>
 </river>
@@ -1342,25 +648,6 @@
 <var name="POC" value="1.677631528"/>
 <var name="DOC" value="2.005282661"/>
 <var name="ALK" value="2.517943763"/>
-<var name="O2o" value="250"/>
-<var name="R3l" value="184"/>
-<var name="P1l" value="0.8"/>
-<var name="P2l" value="0.5"/>
-<var name="P3l" value="0.5"/>
-<var name="P4l" value="0.2"/>
-<var name="P1p" value="0.031446541"/>
-<var name="P2p" value="0.019654088"/>
-<var name="P3p" value="0.019654088"/>
-<var name="P4p" value="0.007861635"/>
-<var name="P1n" value="0.503144654"/>
-<var name="P2n" value="0.314465409"/>
-<var name="P3n" value="0.314465409"/>
-<var name="P4n" value="0.125786164"/>
-<var name="P1c" value="40"/>
-<var name="P2c" value="25"/>
-<var name="P3c" value="25"/>
-<var name="P4c" value="10"/>
-<var name="P1s" value="0.503144654"/>
 </concentrations>
 <Mouths><mouth I="1076" J="142" id="52" name="Asi/Orontes"/></Mouths>
 </river>

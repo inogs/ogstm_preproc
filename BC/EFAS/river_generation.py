@@ -148,6 +148,11 @@ def main():
             )
 
             var_mask = RIVERS.get_variable_mask(variable)
+            if not np.any(var_mask):
+                # If var_mask is False for any river, print a message
+                print(f"Warning: {variable.name} empty, it is not defined for any river")
+
+
             raw_var_concentration = RIVERS[variable.name][var_mask]
 
             # Keep only the values related to the current variable

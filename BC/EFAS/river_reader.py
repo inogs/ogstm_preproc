@@ -59,8 +59,28 @@ def read_xml_vars(xml_dataset):
     return tuple(bgc_vars)
 
 
+def read_defaults(xml_dataset):
+    """
+    Read the field "common_concentrations" of the rivers.xml file
+    """
+    default_node=xml_dataset.getElementsByTagName("default_concentrations")
+    defaults={}
+    for node in default_node[0].getElementsByTagName("var"):
+        try:
+            var_name = node.getAttribute("name")
+            value = float(node.getAttribute("value"))
+            defaults[var_name]=value
+        except Exception:
+            raise InvalidRiverXMLFile(
+                'Error while reading the following var node:\n{}'.format(
+                    node.toxml()
+                )
+            )
+    return defaults
+
 xmldoc = minidom.parse("rivers.xml")
 BGC_VARS = read_xml_vars(xmldoc)
+DEFAULTS = read_defaults(xmldoc)
 
 
 class Rivers:
@@ -134,6 +154,15 @@ class Rivers:
                 rivers[ind]['SAL'] = salinity
                 rivers[ind]['name'] = name
                 rivers[ind]['mouth'] = mn.getAttribute('name')
+                for varname in DEFAULTS:
+                    if varname not in self.__bgc_var_dict:
+                        raise ValueError('Unknown variable: {}'.format(varname))
+                    rivers[ind][varname] = DEFAULTS[varname]
+
+                    bgc_var = self.__bgc_var_dict[varname]
+                    assert not self.__var_defined[bgc_var][ind]
+                    self.__var_defined[bgc_var][ind] = True
+
                 for vn in concentrations_node.getElementsByTagName('var'):
                     varname = vn.getAttribute('name')
                     if varname not in self.__bgc_var_dict:
@@ -142,8 +171,8 @@ class Rivers:
 
                     rivers[ind][varname] = vn.getAttribute('value')
 
-                    assert not self.__var_defined[bgc_var][ind]
-                    self.__var_defined[bgc_var][ind] = True
+                    if not self.__var_defined[bgc_var][ind]:
+                        self.__var_defined[bgc_var][ind] = True
 
                 visited_ids[ind] = True
 
