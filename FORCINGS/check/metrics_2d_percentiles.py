@@ -106,7 +106,8 @@ def get_percentiles(LIST_of_arrays):
 
 for iseas in range(4):
         
-    req = timerequestors.Season_req(2019,iseas,SeasonObj)
+#    req = timerequestors.Season_req(2019,iseas,SeasonObj)
+    req = timerequestors.Clim_season(iseas,SeasonObj)
     print(req)
     indexes, w = TL.select(req)
     for var in ["Ved_150", "Ved_500", "KE_total", "KE_ratio", "stratification_index","mld"] :

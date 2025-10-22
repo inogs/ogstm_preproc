@@ -67,7 +67,8 @@ THRESHOLD = 2
 
 for iseas in range(4):
     M2d_sum = np.zeros((jpj,jpi),int)
-    req = timerequestors.Season_req(2019,iseas,SeasonObj)
+#    req = timerequestors.Season_req(2019,iseas,SeasonObj)
+    req = timerequestors.Clim_season(iseas,SeasonObj)
     print(req)
     indexes, w = TL.select(req)
     nFrames_season = len(indexes)
