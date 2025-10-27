@@ -53,7 +53,7 @@ jpk,jpj,jpi = TheMask.shape
 INPUTDIR=addsep(args.inputdir)
 OUTDIR = addsep(args.outdir)
 
-TL = TimeList.fromfilenames(None, INPUTDIR, "*_an-fv12.00.nc", prefix="", dateformat="%Y%m%d")
+TL = TimeList.fromfilenames(None, INPUTDIR, "*_an-fv1?.00.nc", prefix="", dateformat="%Y%m%d")
 
 filename=TL.filelist[0]
 ncIN=netCDF4.Dataset(filename)
@@ -165,7 +165,7 @@ for inputfile in TL.filelist[rank::nranks]:
     for iframe in range(nframes_in_day):
         d=datetime.strptime(yyyymmdd,'%Y%m%d') + timedelta(hours = (deltaH*iframe + deltaH/2))
         outfile = OUTDIR + d.strftime("atm.%Y%m%d-%H:%M:%S.nc")
-        print(outfile)
+        print(outfile,flush=True)
 
 
         msl = getframe(inputfile,'MSL' , iframe)

@@ -48,7 +48,8 @@ jpk,jpj,jpi = TheMask.shape
 INPUTDIR=addsep(args.inputdir)
 OUTDIR = addsep(args.outdir)
 
-TL = TimeList.fromfilenames(None, INPUTDIR, "*_an00-fv12.00.nc", prefix="", dateformat="%Y%m%d")
+TL = TimeList.fromfilenames(None, INPUTDIR, "*_an00-fv1?.00.nc", prefix="", dateformat="%Y%m%d")
+
 
 nframes_in_day = 1
 deltaH = 6
