@@ -1,4 +1,5 @@
 from collections import namedtuple
+from pathlib import Path
 from xml.dom import minidom
 import numpy as np
 
@@ -59,7 +60,10 @@ def read_xml_vars(xml_dataset):
     return tuple(bgc_vars)
 
 
-xmldoc = minidom.parse("rivers.xml")
+CURRENT_DIR = Path(__file__).absolute().parent
+xmldoc = minidom.parse(
+    str(CURRENT_DIR / "rivers.xml")
+)
 BGC_VARS = read_xml_vars(xmldoc)
 
 
