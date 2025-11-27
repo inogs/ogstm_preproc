@@ -35,7 +35,7 @@ if not os.path.exists(OUTDIR):
 
 ds = xr.open_dataset(file_nc)
 fill_value = np.nan
-meshmask_file = "/g100_scratch/userexternal/camadio0/Neccton_hindcast1999_2022_v1/wrkdir/MODEL/meshmask.nc"
+meshmask_file = "/g100_work/OGS_prodC/OPA/Interim-dev/etc/static-data/MED24_125/meshmask.nc"
 meshmask = xr.open_dataset(meshmask_file)
 #tmask = meshmask["tmask"].isel(time=0, z=0)
 lons = meshmask["nav_lon"][:]
@@ -69,7 +69,7 @@ for month in range (0,var.shape[0]):
     new_ds[varmod].attrs[varmod+':_FillValue'] = 1.e+20  # Setting _FillValue
     new_ds[varmod].attrs[varmod+':fillValue'] = 1.e+20   # Setting fillValue
     fileout = os.path.join(OUTDIR, f"ave.yyyy{MM}15-00:00:00.{varmod}.nc")  # Salva nella directory OUTDIR
-    new_ds.to_netcdf(fileout)
+    new_ds.to_netcdf(fileout,encoding={varmod:{ "zlib":True,  "complevel": 9, "least_significant_digit": 2 }})
 
 
 """
