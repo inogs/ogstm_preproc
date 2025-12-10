@@ -9,6 +9,7 @@
 #SBATCH --partition=g100_meteo_prod
 #SBATCH --qos=qos_meteo
 
+. ../../profile.inc
 module load autoload
 module load intel/oneapi-2021--binary
 module load intelmpi/oneapi-2021--binary
@@ -17,20 +18,24 @@ module load netcdf/4.7.4--oneapi--2021.2.0-ifort
 module load netcdff/4.5.3--oneapi--2021.2.0-ifort
 source /g100_work/OGS23_PRACE_IT/COPERNICUS/py_env_3.9.18_new/bin/activate
 
-INPUTFILE="cmems_mod_med_bgc_my_4.2km-climatology_P1M-m_multi-vars_5.54W-36.29E_30.19N-45.98N_1.02-4152.90m_1999-01-01-1999-12-01.nc"
-OUTDIR="_CLIM"
+INPUTDIR="/g100_scratch/userexternal/gbolzon0/V12C/MVR"
+OUTDIR="/g100_scratch/userexternal/gbolzon0/V12C/MVR/OUTPUT"
+INPUTFILE=$INPUTDIR/cmems_mod_med_bgc_my_4.2km-climatology_P1M-m_multi-vars_5.54W-36.29E_30.19N-45.98N_1.02-4152.90m_1999-01-01-1999-12-01.nc
 
+mkdir -p $OUTDIR
 
 #if [ ! -f "$INPUTFILE" ]; then
 #    python download_data.py
 #else
 #    echo "File $INPUTFILE already exists. Skipping download."
 #fi
+MASKFILE="/g100_work/OGS_prodC/OPA/Interim-dev/etc/static-data/MED24_125/meshmask.nc"
 
-for VAR in o2_avg no3_avg chl_avg; do
-	echo "processing var: $VAR"
-	#python adjust_coordinates_dims.py -i "$INPUTFILE" -o "$OUTDIR" -v "$VAR"
-done
+my_prex_or_die "python netcdf_clim_generator.py -i $INPUTFILE -o $OUTDIR -v o2_avg  --least_significant_digit 2 -m $MASKFILE"
+my_prex_or_die "python netcdf_clim_generator.py -i $INPUTFILE -o $OUTDIR -v no3_avg --least_significant_digit 3 -m $MASKFILE"
+my_prex_or_die "python netcdf_clim_generator.py -i $INPUTFILE -o $OUTDIR -v chl_avg  --least_significant_digit 4 -m $MASKFILE"
+exit 0
+
 
 OUTPUT_DIR=3D_LINKS
 mkdir -p $OUTPUT_DIR

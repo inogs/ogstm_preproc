@@ -1,90 +1,64 @@
 import xarray as xr
 import numpy as np
 import argparse
-import os
-import sys
+from bitsea.commons.mask import Mask
+from bitsea.utilities.argparse_types import existing_dir_path, existing_file_path
+
 
 # Parsing command-line arguments
 parser = argparse.ArgumentParser(description="Adjust coordinates in NetCDF files.")
-parser.add_argument('-i', '--input',    type=str, required=True, help="Input NetCDF file")
-parser.add_argument('-o', '--output',   type=str, required=True, help="Output NetCDF file")
-parser.add_argument('-v', '--variable', type=str, required=True, help="variable NetCDF file")
+parser.add_argument('-i', '--input',    type=existing_file_path, required=True, help="Input NetCDF file")
+parser.add_argument('-o', '--outdir',   type=existing_dir_path, required=True, help="string for output directory")
+parser.add_argument('-v', '--variable', type=str, required=True, choices=['chl_avg', 'no3_avg', 'o2_avg'], help="variable NetCDF file")
+parser.add_argument('-m', '--maskfile', type=existing_file_path, required=True, help="meshmask file")
+parser.add_argument('-d', '--least_significant_digit', type=int, required=False, default=0, help="least significant digit for compression")
 args = parser.parse_args()
 
-# File di input e output
-file_nc = args.input
-OUTDIR = args.output
 VAR=args.variable
 
-
-if VAR.startswith('ch'):
-    varmod='P_l'
-    OUTDIR='CHL'+OUTDIR
-elif VAR.startswith('no'):
-    varmod='N3n'
-    OUTDIR='NO3'+OUTDIR
-elif VAR.startswith('o2'):
-    varmod='O2o'
-    OUTDIR='O2'+OUTDIR
+VARMOD={
+    'chl_avg':'P_l',
+    'no3_avg':'N3n',
+    'o2_avg':'O2o'
+}
+varmod=VARMOD[VAR]
+if args.least_significant_digit == 0:
+    least_significant_digit = None
 else:
-    sys.exit('new vars must be implemented')
+    least_significant_digit = args.least_significant_digit
+
+TheMask = Mask.from_file(args.maskfile)
+jpk,jpi,jpj = TheMask.shape
+
+with xr.open_dataset(args.input) as ds:
+    var = ds.variables[VAR][:]
+fill_value = 1.e+20
 
 
-if not os.path.exists(OUTDIR):
-    os.makedirs(OUTDIR)
+for month in range(12):
+    fileout = args.outdir / f"ave.yyyy{month+1:02d}15-00:00:00.{varmod}.nc"
+    print(f"Saving to {fileout} with least_significant_digit = {least_significant_digit}", flush=True)
+    cmems_clim = var[month,:,:,:]
 
-ds = xr.open_dataset(file_nc)
-fill_value = np.nan
-meshmask_file = "/g100_work/OGS_prodC/OPA/Interim-dev/etc/static-data/MED24_125/meshmask.nc"
-meshmask = xr.open_dataset(meshmask_file)
-#tmask = meshmask["tmask"].isel(time=0, z=0)
-lons = meshmask["nav_lon"][:]
-lats = meshmask["nav_lat"][:]
-depth   = meshmask["nav_lev"][:] 
-new_longitude = lons.values[0,:]
+    new_data = np.full(TheMask.shape, fill_value, dtype=np.float32)
+    new_data[:,:,80:] = cmems_clim.values
 
-
-var = ds.variables[VAR][:]
-
-for month in range (0,var.shape[0]):
-    MM=month+1
-    if len(str(MM)) <=1:
-        MM="0"+str( MM) 
-    else:
-        MM=str(MM)
-    tmp = var[month,:,:,:]
-    new_shape = list(tmp.shape) 
-    new_shape[-1] = 1085
-    new_data = np.full(new_shape, fill_value, dtype=tmp.dtype)
-    new_data[..., 80:] = tmp.values
     new_ds = xr.Dataset(
             {varmod: (["depth", "latitude", "longitude"], new_data)},
         coords={
-            "longitude": (["longitude"], new_longitude),
-            "latitude": (["latitude"], lats.values[:,0] ),
-            "depth": (["depth"], depth.values),
+            "longitude": (["longitude"], TheMask.lon),
+            "latitude": (["latitude"], TheMask.lat),
+            "depth": (["depth"], TheMask.zlevels),
         }
     )
 
-    new_ds[varmod].attrs[varmod+':_FillValue'] = 1.e+20  # Setting _FillValue
-    new_ds[varmod].attrs[varmod+':fillValue'] = 1.e+20   # Setting fillValue
-    fileout = os.path.join(OUTDIR, f"ave.yyyy{MM}15-00:00:00.{varmod}.nc")  # Salva nella directory OUTDIR
-    new_ds.to_netcdf(fileout,encoding={varmod:{ "zlib":True,  "complevel": 9, "least_significant_digit": 2 }})
-
-
-"""
-# Crea il nuovo dataset con le variabili aggiornate
-ds_new = ds.drop_vars("longitude")
-ds_new = ds_new.assign(updated_vars)
-
-# Salva il file modificato
-ds_new.to_netcdf(output_nc)
-
-
-meshmask_file = "/g100_scratch/userexternal/camadio0/Neccton_hindcast1999_2022_v1/wrkdir/MODEL/meshmask.nc"
-meshmask = xr.open_dataset(meshmask_file)
-tmask = meshmask["tmask"].isel(time=0, z=0)
-lons = meshmask["nav_lon"][:]
-lats = meshmask["nav_lat"][:]
-meshmask.close()
-"""
+    new_ds.to_netcdf(fileout,
+                     encoding={varmod:{ 
+                         "zlib":True,  
+                         "_FillValue": fill_value, 
+                         "complevel": 9, 
+                         "least_significant_digit": least_significant_digit,
+                         }
+                         }
+                     )
+    new_ds.close()
