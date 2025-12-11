@@ -1,13 +1,13 @@
 # paths
-dir_out        = "/g100_work/OGS_prod100/OPA/V9C/RUNS_SETUP/PREPROC/BC/out/"
-file_mask      = "/g100_work/OGS_prod100/OPA/V9C/RUNS_SETUP/PREPROC/MASK/meshmask.nc"
+dir_out        = "/leonardo_work/OGS23_PRACE_IT_0/ggalli00/OGSTM-BFM/REGRID/FORCINGS/"
+file_mask      = "/leonardo_work/OGS23_PRACE_IT_0/ggalli00/OGSTM-BFM/REGRID/PROVA_OUT/meshmask_025_125.2.nc"
 file_co2       = "CMIP5_scenarios_RCP_CO2_mixing_ratio.nc"
 file_nutrients = "VPnutrients_CO2.nc"
 file_bmask     = dir_out + "bounmask.nc"
-file_river     = "Perseus-4.6_38rivers_mesh24.xlsx"
+#file_river     = "Perseus-4.6_38rivers_mesh24.xlsx"
 
-simulation_start_time = 2018
-simulation_end_time   = 2020
+simulation_start_time = 1999
+simulation_end_time   = 2000
 
 # Atmosphere settings in Mmol/y
 # origin of data should be added here
@@ -31,17 +31,17 @@ variables=[[u'N1p', -8.0, -6.5],
 
 gib_season = (["0630-00:00:00"])
 
-RST_FILES ="/g100_work/OGS_prod100/OPA/V9C/RUNS_SETUP/PREPROC/IC/RST_2018/RST*nc"
+RST_FILES ="/leonardo_work/OGS23_PRACE_IT_0/ggalli00/OGSTM-BFM/REGRID/PROVA_OUT/RST/RST*nc"
 
 
-river_data_sheet = ['KM3perYR_NOBLS',
- 'DIP_KTperYR_NOBLS',
- 'DIN_KTperYR_NOBLS',
- 'DIS_KTperYR_NOBLS',
- 'DIC_KTperYR_NOBLS',
- 'ALK_GmolperYR_NOBLS',
- 'O2o_GmolperYR_NOBLS',
- 'DOC_KTperYR_NOBLS',
- 'CDOM_KTperYR_NOBLS']
+#river_data_sheet = ['KM3perYR_NOBLS',
+# 'DIP_KTperYR_NOBLS',
+# 'DIN_KTperYR_NOBLS',
+# 'DIS_KTperYR_NOBLS',
+# 'DIC_KTperYR_NOBLS',
+# 'ALK_GmolperYR_NOBLS',
+# 'O2o_GmolperYR_NOBLS',
+# 'DOC_KTperYR_NOBLS',
+# 'CDOM_KTperYR_NOBLS']
 
 
