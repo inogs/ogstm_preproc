@@ -16,8 +16,8 @@ export UCX_TLS=ib
 export SLURM_PMIX_DIRECT_CONN_UCX=false
 source ../profile.inc
 
-MASKFILE=/leonardo_work/OGS23_PRACE_IT_0/ggalli00/OGSTM-BFM/REGRID/PROVA_OUT/meshmask_025_125.2.nc
-INPUTBC=/leonardo_work/OGS23_PRACE_IT_0/ggalli00/OGSTM-BFM/BC/inputs
+MASKFILE=/leonardo_work/OGS23_PRACE_IT_0/ggalli00/OGSTM-BFM/qDEG_SETUP/MASKS/meshmask_025_z125.nc
+INPUTBC=/leonardo_work/OGS23_PRACE_IT_0/ggalli00/OGSTM-BFM/qDEG_SETUP/inputs
 
 python write_VPnutrients.py -i $INPUTBC -m $MASKFILE
 python main.py

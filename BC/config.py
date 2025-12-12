@@ -1,6 +1,6 @@
 # paths
-dir_out        = "/leonardo_work/OGS23_PRACE_IT_0/ggalli00/OGSTM-BFM/REGRID/FORCINGS/"
-file_mask      = "/leonardo_work/OGS23_PRACE_IT_0/ggalli00/OGSTM-BFM/REGRID/PROVA_OUT/meshmask_025_125.2.nc"
+dir_out        = "/leonardo_work/OGS23_PRACE_IT_0/ggalli00/OGSTM-BFM/qDEG_SETUP/BC/"
+file_mask      = "/leonardo_work/OGS23_PRACE_IT_0/ggalli00/OGSTM-BFM/qDEG_SETUP/MASKS/meshmask_025_z125.nc"
 file_co2       = "CMIP5_scenarios_RCP_CO2_mixing_ratio.nc"
 file_nutrients = "VPnutrients_CO2.nc"
 file_bmask     = dir_out + "bounmask.nc"
@@ -31,7 +31,7 @@ variables=[[u'N1p', -8.0, -6.5],
 
 gib_season = (["0630-00:00:00"])
 
-RST_FILES ="/leonardo_work/OGS23_PRACE_IT_0/ggalli00/OGSTM-BFM/REGRID/PROVA_OUT/RST/RST*nc"
+RST_FILES ="/leonardo_work/OGS23_PRACE_IT_0/ggalli00/OGSTM-BFM/qDEG_SETUP/RESTARTS/RST*nc"
 
 
 #river_data_sheet = ['KM3perYR_NOBLS',
