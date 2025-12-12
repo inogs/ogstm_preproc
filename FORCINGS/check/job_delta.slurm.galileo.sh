@@ -11,7 +11,7 @@
 cd $SLURM_SUBMIT_DIR
 . ../../profile.inc
 
-source /g100_work/OGS23_PRACE_IT/COPERNICUS/sequence3.sh
+source /g100_work/OGS23_PRACE_IT/COPERNICUS/sequence.sh
 
 unset I_MPI_PMI_LIBRARY
 

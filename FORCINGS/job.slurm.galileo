@@ -5,7 +5,7 @@
 #SBATCH --ntasks-per-node=24
 #SBATCH --time=1:00:00
 #SBATCH --mem=300gb
-#SBATCH --account=OGS_devC
+#SBATCH --account=OGS_test2528
 #SBATCH --partition=g100_meteo_prod
 #SBATCH --qos=qos_meteo
 
@@ -20,8 +20,7 @@ module load intelmpi/oneapi-2021--binary
 module load mkl/oneapi-2021--binary
 module load netcdf/4.7.4--oneapi--2021.2.0-ifort
 module load netcdff/4.5.3--oneapi--2021.2.0-ifort
-source /g100_work/OGS23_PRACE_IT/COPERNICUS/py_env_3.9.18/bin/activate
-export PYTHONPATH=$PYTHONPATH:/g100_work/OGS23_PRACE_IT/COPERNICUS/bit.sea
+source /g100_work/OGS23_PRACE_IT/COPERNICUS/py_env_3.9.18_new/bin/activate
 module load nco
 
 unset I_MPI_PMI_LIBRARY
