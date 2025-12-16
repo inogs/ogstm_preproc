@@ -9,7 +9,7 @@ from commons.mask import Mask
 def create_bfmmask_nc(meshmask_file="meshmask.nc", boundary_namelist="boundaries.nml", output_file="bfmmask.nc"):
     
     # create meshmask object
-    meshmask = Mask(meshmask_file)
+    meshmask = Mask.from_file(meshmask_file)
     
     # get dimensions
     (jpk, jpj, jpi) = meshmask.shape
