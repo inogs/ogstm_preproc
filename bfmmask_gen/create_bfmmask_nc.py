@@ -9,7 +9,7 @@ from commons.mask import Mask
 def create_bfmmask_nc(meshmask_file="meshmask.nc", boundary_namelist="boundaries.nml", output_file="bfmmask.nc"):
     
     # create meshmask object
-    meshmask = Mask(meshmask_file)
+    meshmask = Mask.from_file(meshmask_file)
     
     # get dimensions
     (jpk, jpj, jpi) = meshmask.shape
@@ -39,7 +39,7 @@ def create_bfmmask_nc(meshmask_file="meshmask.nc", boundary_namelist="boundaries
                             if (re.search("length", d_line)):
                                 length = float(d_line.split()[2].replace("d", "e"))
                                 sample_lat = meshmask.ylevels[0,0]
-                                (idx, _) = meshmask.convert_lon_lat_to_indices(length, sample_lat)
+                                (idx, _) = meshmask.convert_lon_lat_to_indices(lon=length, lat=sample_lat)
                                 bfmmask[..., 0:idx+3] = False # hard-coded 3 cells of safety bound after the sponge
                 
                 # remove open boundary points for every open boundary
