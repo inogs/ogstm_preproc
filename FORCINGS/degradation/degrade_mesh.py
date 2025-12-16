@@ -121,6 +121,15 @@ def xpnd_wrap(X, pad_op, ndeg=1):
     X = deadjust_dims(X, nd)
     return X
 
+def e3_2_gdep(M, tuvw):
+    '''
+    reconstructs gdept from e3t_0
+    cause no gdept in the original Nemo mesh
+    '''
+    e3 = M[f'e3{tuvw}_0']
+    gdep = e3.cumsum(dim="z") - (e3 / 2.0)
+    return gdep
+
 def load_mesh(maskfile, ndeg=1):
     '''
     load meshmask, expand fields
@@ -142,8 +151,8 @@ def load_mesh(maskfile, ndeg=1):
     M1["e3v_0"] = xpnd_wrap(M["e3v_0"], 'edge', ndeg)
     M1["e3w_0"] = xpnd_wrap(M["e3w_0"], 'edge', ndeg)
     M1["ff"] = xpnd_wrap(M["ff"], 'interp', ndeg)
-    M1["gdept"] = M["gdept"]
-    M1["gdepw"] = M["gdepw"]
+    M1["gdept"] = xpnd_wrap(e3_2_gdep(M, 't'), 'edge', ndeg) #M["gdept"]
+    M1["gdepw"] = xpnd_wrap(e3_2_gdep(M, 'w'), 'edge', ndeg) #M["gdepw"]
     M1["glamf"] = xpnd_wrap(M["glamf"], 'interp', ndeg)
     M1["glamt"] = xpnd_wrap(M["glamt"], 'interp', ndeg)
     M1["glamu"] = xpnd_wrap(M["glamu"], 'interp', ndeg)
@@ -392,8 +401,10 @@ def degrade_mesh(M1, thresh=1, ndeg=1):
     M2["e3v_0"] = degr_wrap(M1["e3v_0"], vawmean_jstep, ndeg, W=M1['Av'])
     M2["e3w_0"] = degr_wrap(M1["e3w_0"], vwmean, ndeg, W=M1['V'])
     M2["ff"] = degr_wrap(M1["ff"], jmean_istep, ndeg, W=None)
-    M2["gdept"] = noop(M1["gdept"])
-    M2["gdepw"] = noop(M1["gdepw"])
+    #M2["gdept"] = noop(M1["gdept"])
+    #M2["gdepw"] = noop(M1["gdepw"])
+    M2["gdept"] = degr_wrap(M1["gdept"], vwmean, ndeg, W=M1['V'])
+    M2["gdepw"] = degr_wrap(M1["gdepw"], vwmean, ndeg, W=M1['V'])
     M2["glamf"] = degr_wrap(M1["glamf"], jmean_istep, ndeg, W=None)
     M2["glamt"] = degr_wrap(M1["glamt"], imean_jstep, ndeg, W=None)
     M2["glamu"] = degr_wrap(M1["glamu"], jmean_istep, ndeg, W=None)
