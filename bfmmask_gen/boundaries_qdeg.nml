@@ -1,0 +1,5 @@
+4
+"atl, OPE, atl.nml, files_namelist_atl.dat, T, F"
+"gi1, SPO, gi1.nml, files_namelist_gib.dat, T, T"
+"gi2, SPO, gi2.nml, files_namelist_gib.dat, T, T"
+"gi3, SPO, gi3.nml, files_namelist_gib.dat, T, T"
