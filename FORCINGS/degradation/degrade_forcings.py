@@ -118,7 +118,7 @@ def load_tfile(infile, ndeg=1):
     #F1['solofldo'] = dm.xpnd_wrap(F['solofldo'], 'edge', ndeg)
     #F1['sosefldo'] = dm.xpnd_wrap(F['sosefldo'], 'edge', ndeg)
     #F1['solafldo'] = dm.xpnd_wrap(F['solafldo'], 'edge', ndeg)
-    #F1['somxl010'] = dm.xpnd_wrap(F['somxl010'], 'edge', ndeg)
+    F1['somxl010'] = dm.xpnd_wrap(F['somxl010'], 'edge', ndeg)
     # overwrite coordinates, else it complains
     for vv in F1.keys():
         F1[vv].coords['nav_lat'].values[:] = F1['nav_lat'].values[:]
@@ -401,6 +401,7 @@ def degrade_T(T, B, C, ndeg=1):
     Td['sossheig'] = degrade_wrap(T['sossheig'], dm.awmean, B['At'], ndeg) 
     Td['soshfldo'] = degrade_wrap(T['soshfldo'], dm.awmean, B['At'], ndeg) 
     Td['sorunoff'] = degrade_wrap(T['sorunoff'], dm.awmean, B['At'], ndeg)
+    Td['somxl010'] = degrade_wrap(T['somxl010'], dm.awmean, B['At'], ndeg)
     #
     Td = xr.Dataset(Td)
     return Td
