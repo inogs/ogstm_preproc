@@ -1,6 +1,7 @@
 import numpy as np
 import xarray as xr
 from glob import glob
+import os
 from mpi4py import MPI
 from argparse import ArgumentParser
 import yaml
@@ -406,6 +407,18 @@ def degrade_T(T, B, C, ndeg=1):
     Td = xr.Dataset(Td)
     return Td
 
+def make_outdir(outdir, outfile):
+    #/leonardo_work/OGS23_PRACE_IT_0/ggalli00/OGSTM-BFM/qDEG_SETUP/FORCINGS/
+    #T20020308-12:00:00.nc
+    yyyy = outfile[1:5]
+    mm = outfile[5:7]
+    outdir = f'{outdir}/{yyyy}/{mm}/'
+    if not os.path.exists(outdir):
+        os.makedirs(outdir) 
+    else:
+        pass
+    return outdir
+
 def degrade(F, tuv, B, C, outdir, outfile, ndeg=1):
     if tuv == 'T':
         Fd = degrade_T(F, B, C, ndeg)
@@ -415,6 +428,7 @@ def degrade(F, tuv, B, C, outdir, outfile, ndeg=1):
         Fd = degrade_V(F, B, C, ndeg)
     elif tuv == 'W':
         Fd = degrade_W(F, B, C, ndeg)
+    outdir = make_outdir(outdir, outfile)
     outfile = outdir+outfile
     dm.dump_mesh(Fd, outfile)
     return Fd
