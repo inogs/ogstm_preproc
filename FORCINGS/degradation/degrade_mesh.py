@@ -201,6 +201,8 @@ def reshape_blocks(X, ndeg=1):
     cs = ndeg * 5
     X = X.chunk({'y':cs, 'x':cs})
     X = X.coarsen(y=ndeg, x=ndeg).construct(y=('y', 'y_b'), x=('x', 'x_b'))
+
+    # X has the dimension y_b, x_b of size ndeg
     return X
 
 # REGRIDDING FUNCTIONS
@@ -279,6 +281,7 @@ def awmean(X, ndeg=1, W=1.0):
 
 def vwmean(X, ndeg=1, W=1.0):
     '''
+    W is a dataarray with cell volumes 3D
     mean, weighted by surface area (t-grid)
     '''
     V = reshape_blocks(W, ndeg)
@@ -331,8 +334,10 @@ def e2uwmean_istep(X, ndeg=1, W=1.0):
     X = (e2u * X).sum(dim='y_b', skipna=True) / e2u.sum(dim='y_b', skipna=True)
     return X
 
-def waterpt_thresh(X, thresh=1 ,ndeg=1):
+def waterpt_thresh(X24, thresh=1 ,ndeg=1):
     '''
+    Args:
+    X: tmask
     1 or 0 if enough water points (or volume?)
     the higher thresh, the least water points needed 
     to classify a cell as water
@@ -340,11 +345,11 @@ def waterpt_thresh(X, thresh=1 ,ndeg=1):
     thresh=1 (36) just one point needed
     tmask
     '''
-    X = reshape_blocks(X, ndeg)
+    X24 = reshape_blocks(X24, ndeg)
     thr = ndeg**2 - thresh + 1
-    X = X.sum(dim=('x_b', 'y_b'))
-    X = (X >= (ndeg**2 // thr)).astype(int)
-    return X
+    X_degr = X24.sum(dim=('x_b', 'y_b'))
+    X_degr= (X_degr >= (ndeg**2 // thr)).astype(int)
+    return X_degr
 
 def from_tmask(tmask):
     '''
@@ -374,12 +379,12 @@ def noop(X):
 
 # END REGRIDDING OPERATIONS
 
-def degr_wrap(X, degr_op, ndeg=1, W=1.0):
-    X, nd = adjust_dims(X)
-    X = reshape_blocks(X, ndeg)
-    X = degr_op(X, ndeg, W)
-    X = deadjust_dims(X, nd)
-    return X
+def degr_wrap(X24, degr_op, ndeg=1, W=1.0):
+    X24, nd = adjust_dims(X24) # make 4D
+    X24_dims = reshape_blocks(X24, ndeg)
+    X_degr = degr_op(X24_dims, ndeg, W)
+    X_degr = deadjust_dims(X_degr, nd) # back to original dims
+    return X_degr
 
 def degrade_mesh(M1, thresh=1, ndeg=1):
     '''
