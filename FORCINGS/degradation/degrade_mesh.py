@@ -1,59 +1,27 @@
 import numpy as np
 import xarray as xr
-from argparse import ArgumentParser
-import yaml
-
-'''
-generates a reduced horizontal resolution mesh from an original mesh (with Atlantic buffer)
-vertical resolution is unchanged.
-resolution is degraded by merging cells in (ndeg x ndeg) blocks.
-functining: 
-0. load original mesh, 
-1. expand lat, lon to make the new size a multiple of ndeg, extrapolate values properly
-2. compute cell surface areas and volume (for weighted means)
-3. degrade resolution of original variables
-4. dump new meshmask.nc
-usage: python degrade_mesh.py -y degrade_mesh.yaml
-
-yaml file example:
-maskfile: '/path/to/meshmask_in.nc'
-outfile: '/path/to/meshmask_out.nc'
-outfile_med: '/path/to/meshmask_out_med.nc'
-ndeg: 6    #nr of cells to join in i, j
-thresh: 1  #water point per block to assign to waterpoint in destination grid
-
-'''
-
-def argument():
-    parser = ArgumentParser()
-    parser.add_argument('--yamlfile','-y',
-                        type=str,
-                        required=True,
-                        help='file with all parameters')
-    return parser.parse_args()
-
-def load_parameters():
-    yamlfile=argument().yamlfile
-    # yamlfile = 'degrade_mesh.yaml'
-    with open(yamlfile) as f:
-        Params = yaml.load(f, Loader=yaml.Loader)
-    return(Params)
 
 
-# LOAD MESHMASK
-
-def adjust_dims(X, n=4):
+def adjust_dims(X: xr.DataArray, n: int = 4):
     '''
-    add singleton dimensions in order to have it 4D
-    (t, z, y, x)
+    add singleton dimensions in front of existing ones in order to have n dimensions
+    
+    Args:
+    X: xarray DataArray, with dims < = n
+    n: desired number of dimensions (default 4)
+
+    Returns:
+    X_adjusted: 4D xarray DataArray with dims (t, z, y, x)
+    orig_dim: int, original number of dimensions of X
+
     '''
     cdim = 0
-    nd = X.ndim
+    orig_dim = X.ndim
     while X.ndim < n:
         new_dim = f'j{cdim}'
         X = X.expand_dims({new_dim: 1})
         cdim = cdim + 1
-    return X, nd
+    return X, orig_dim
 #
 def deadjust_dims(X, nd):
     '''
@@ -95,31 +63,58 @@ def fill_rim_lin_2D(X):
     X[...,:,:] = filled
     return X
 
-def expand_array(X, pad_op, ndeg=1):
+def expand_array(X: xr.DataArray, pad_op:str="edge", ndeg:int=1):
     '''
+    Args:
+    X: xarray DataArray with dims (t, z, y, x)
+    pad_op: string, 'edge' or 'interp'.
+    ndeg: int, number of cells to join in i, j
+
+    Uses xarray.DataArray.pad
     pad array with linear extrapolation (pad_op='interp')
     or edge vaslues (pad_op='edge')
-    to make j, i multiples of ndeg.
+    to have the sizes y, x multiples of ndeg.
+
     also add a rim of size ndeg, so I'm sure to have
     land points at the N, S, E boundaries
     when degrading resolution
+    Returns:
+    X_padded: xarray DataArray with dims (t, z, y_padded, x_padded)
     '''
-    t, w, j, i = X.shape
-    dj = (ndeg - j % ndeg) % ndeg
-    di = (ndeg - i % ndeg) % ndeg
-    pw = {'y':(dj+ndeg, ndeg), 'x':(0, di+ndeg)}
-    if pad_op=='edge':
-        X = X.pad(pad_width=pw, mode='edge')
-    elif pad_op=='interp':
-        X = X.pad(pad_width=pw, mode='constant', constant_values=np.nan)
-        X = fill_rim_lin_2D(X)
-    return X
+    jpt, jpk, jpj, jpi = X.shape
+    # compute padding sizes, integers 0 <= d <= ndeg -1
+    dj = (ndeg - jpj % ndeg) % ndeg
+    di = (ndeg - jpi % ndeg) % ndeg
 
-def xpnd_wrap(X, pad_op, ndeg=1):
-    X, nd = adjust_dims(X)
-    X = expand_array(X, pad_op, ndeg)
-    X = deadjust_dims(X, nd)
-    return X
+    padding_south = dj + ndeg # applying delta + the future border of one cell
+    padding_north = ndeg      # just the border
+    padding_east = 0          # nothing on Atlantic buffer
+    padding_west = di + ndeg  # applying delta + the future border of one cell
+    
+    # generate pad_width dict
+    pw = {'y':(padding_south, padding_north), 'x':(padding_east, padding_west)}
+
+    if pad_op=='edge':
+        X_padded = X.pad(pad_width = pw, mode='edge')
+    elif pad_op=='interp':
+        X_padded = X.pad(pad_width = pw, mode='constant', constant_values=np.nan)
+        X_padded = fill_rim_lin_2D(X_padded)
+    return X_padded
+
+def xpnd_wrap(X: xr.DataArray, pad_op:str="edge", ndeg:int=1):
+    '''
+    Args:
+    X: xarray DataArray with dims (... y, x) or less
+    pad_op: string, 'edge' or 'interp'.
+    ndeg: int, number of cells to join in i, j
+
+    Returns:
+    X_expanded: xarray DataArray with dims (... y_padded, x_padded)
+    '''
+    X_4d, orig_dims = adjust_dims(X)
+    X_4d_expand = expand_array(X_4d, pad_op, ndeg)
+    X_expand = deadjust_dims(X_4d_expand, orig_dims)
+    return X_expand
 
 def e3_2_gdep(M, tuvw):
     '''
@@ -193,17 +188,27 @@ def load_mesh(maskfile, ndeg=1):
 def reshape_blocks(X, ndeg=1):
     '''
     reshape in blocks of shape ndeg along j, i
-    xarray's convoluted way of doing np.reshape,
+    xarray's convoluted way of doing np.reshape, esticatsi!
     assume I'm always reshaping dims called y, x
     chunking is necessary to avoid OOM
     (still cuz xarray's way of reshaping is not super smart)
+
+    Args:
+    X: xarray DataArray with dims (... y, x)
+    ndeg: int, number of cells to join in y, x directions
+          x and y sizes must be multiples of ndeg
+    Returns:
+    X_reshaped: xarray DataArray with dims 
+          (..., y,      y_b,  x,       x_b) with dims sizes
+          (..., y/ndeg, ndeg, x/ndeg, ndeg)
+    So, X_reshaped[... 0,:,0,:] is the first block of size ndeg x ndeg
+
     '''
     cs = ndeg * 5
     X = X.chunk({'y':cs, 'x':cs})
-    X = X.coarsen(y=ndeg, x=ndeg).construct(y=('y', 'y_b'), x=('x', 'x_b'))
+    X_reshaped = X.coarsen(y=ndeg, x=ndeg).construct(y=('y', 'y_b'), x=('x', 'x_b'))
 
-    # X has the dimension y_b, x_b of size ndeg
-    return X
+    return X_reshaped
 
 # REGRIDDING FUNCTIONS
 def isum_jmean(X, ndeg=1, W=1.0):
@@ -379,10 +384,37 @@ def noop(X):
 
 # END REGRIDDING OPERATIONS
 
-def degr_wrap(X24, degr_op, ndeg=1, W=1.0):
-    X24, nd = adjust_dims(X24) # make 4D
-    X24_dims = reshape_blocks(X24, ndeg)
-    X_degr = degr_op(X24_dims, ndeg, W)
+def degr_wrap(X24, degr_op:callable, ndeg=1, W=1.0):
+    '''
+        Wrapper to degrade resolution of 2D/3D/4D arrays.
+        
+        Parameters
+        ----------
+        X24 : xarray.DataArray
+            Input array with dimensions (..., y, x).
+        degr_op : Callable
+            Regridding function that performs the degradation operation.
+            Expected signature: degr_op(X24_dims, ndeg, W) -> xarray.DataArray
+        ndeg : int, optional
+            Number of cells to join in i, j directions. Default is 1.
+        W : xarray.DataArray, optional
+            Weights for weighted means computation. Default is 1.0.
+        
+        Returns
+        -------
+        xarray.DataArray
+            Degraded array with the same dimensions as the input X24.
+        
+        Notes
+        -----
+        The function internally transforms the input to 4D format, applies
+        the degradation operation on reshaped blocks, and then restores
+        the original dimensionality.    
+
+    '''
+    X24_4D, nd = adjust_dims(X24) # make 4D
+    X24_6D = reshape_blocks(X24_4D, ndeg)
+    X_degr = degr_op(X24_6D, ndeg, W)
     X_degr = deadjust_dims(X_degr, nd) # back to original dims
     return X_degr
 
@@ -458,26 +490,20 @@ def dump_mesh(M2, outfile):
     return
 
 if __name__=='__main__':
-    Params = load_parameters()
-    maskfile = Params['maskfile']
-    outfile = Params['outfile']
-    outfile_med = Params['outfile_med']
-    # by how much cells to degrade (nr of cells to join in i, j)
-    ndeg = Params['ndeg']
-    # threshold of points to assign waterpoint to degraded mesh
-    thresh = Params['thresh'] #THE ONLY OPTION THAT ENSURES NO RIVERS END UP ON LAND
-    # load meshmask and expand dimensions
-    print('---1---')
-    M1 = load_mesh(maskfile, ndeg)
-    #
-    print('---2---')
-    M2 = degrade_mesh(M1, thresh, ndeg)
-    #
-    print('---3---')
-    dump_mesh(M2, outfile)
-    #
-    print('---4---')
-    MMed = cut_med(M2)
-    dump_mesh(MMed, outfile_med)
+    data = np.array([[1, 2],
+                     [3, 4],
+                     [5, 6]])   # shape (3, 2)
+    arr= xr.DataArray(data, dims=('x','y'), coords={'x':[0,1,2], 'y':[10,20]})
+    arr.pad({'y':(2,2),'x':(2,2)},mode='edge')
+    X, nd = adjust_dims(arr)
+    print(X)
 
+    X_exp = xpnd_wrap(arr, pad_op='edge', ndeg=3) # su array piccoli fa una cosa strana
+    data = np.ones((20,20), dtype=np.float32)
+    arr= xr.DataArray(data, dims=('x','y'), coords={'x':np.arange(20), 'y':np.arange(20,40)})
+    print(xpnd_wrap(arr, pad_op='edge', ndeg=4).sizes)
 
+    X = xpnd_wrap(arr, pad_op='edge', ndeg=3)
+    X_4D, nd = adjust_dims(X)
+    X24_6D = reshape_blocks(X_4D, ndeg=3)
+    X_degr = jsum_istep(X24_6D, ndeg=3, W=None)
