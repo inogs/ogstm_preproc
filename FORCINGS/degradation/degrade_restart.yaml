@@ -1,0 +1,6 @@
+mesh_in: '/leonardo_work/OGS23_PRACE_IT_0/ggalli00/OGSTM-BFM/MASK24/meshmask.nc'
+mesh_out: '/leonardo_work/OGS23_PRACE_IT_0/ggalli00/OGSTM-BFM/qDEG_SETUP/MASKS/meshmask_025_z125.nc'
+indir: '/leonardo_work/OGS_devC_0/RESTARTS_NECCTON_1999/'
+outdir: '/leonardo_work/OGS23_PRACE_IT_0/ggalli00/OGSTM-BFM/qDEG_SETUP/RESTARTS/'
+infile: 'RST.*-00:00:00.__VNAME__.nc'
+ndeg: 6
