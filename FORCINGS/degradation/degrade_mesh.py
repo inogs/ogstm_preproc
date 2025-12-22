@@ -126,62 +126,6 @@ def e3_2_gdep(M, tuvw):
     gdep = e3.cumsum(dim="z") - (e3 / 2.0)
     return gdep
 
-def load_mesh(maskfile, ndeg=1):
-    '''
-    load meshmask, expand fields
-    '''
-    M = xr.open_dataset(maskfile)
-    M1 = {}
-    #
-    M1["coastp"] = xpnd_wrap(M["coastp"], 'edge', ndeg)
-    M1["e1f"] = xpnd_wrap(M["e1f"], 'interp', ndeg)
-    M1["e1t"] = xpnd_wrap(M["e1t"], 'interp', ndeg)
-    M1["e1u"] = xpnd_wrap(M["e1u"], 'interp', ndeg)
-    M1["e1v"] = xpnd_wrap(M["e1v"], 'interp', ndeg)
-    M1["e2f"] = xpnd_wrap(M["e2f"], 'edge', ndeg)
-    M1["e2t"] = xpnd_wrap(M["e2t"], 'edge', ndeg)
-    M1["e2u"] = xpnd_wrap(M["e2u"], 'edge', ndeg)
-    M1["e2v"] = xpnd_wrap(M["e2v"], 'edge', ndeg)
-    M1["e3t_0"] = xpnd_wrap(M["e3t_0"], 'edge', ndeg)
-    M1["e3u_0"] = xpnd_wrap(M["e3u_0"], 'edge', ndeg)
-    M1["e3v_0"] = xpnd_wrap(M["e3v_0"], 'edge', ndeg)
-    M1["e3w_0"] = xpnd_wrap(M["e3w_0"], 'edge', ndeg)
-    M1["ff"] = xpnd_wrap(M["ff"], 'interp', ndeg)
-    M1["gdept"] = xpnd_wrap(e3_2_gdep(M, 't'), 'edge', ndeg) #M["gdept"]
-    M1["gdepw"] = xpnd_wrap(e3_2_gdep(M, 'w'), 'edge', ndeg) #M["gdepw"]
-    M1["glamf"] = xpnd_wrap(M["glamf"], 'interp', ndeg)
-    M1["glamt"] = xpnd_wrap(M["glamt"], 'interp', ndeg)
-    M1["glamu"] = xpnd_wrap(M["glamu"], 'interp', ndeg)
-    M1["glamv"] = xpnd_wrap(M["glamv"], 'interp', ndeg)
-    M1["gphif"] = xpnd_wrap(M["gphif"], 'interp', ndeg)
-    M1["gphit"] = xpnd_wrap(M["gphit"], 'interp', ndeg)
-    M1["gphiu"] = xpnd_wrap(M["gphiu"], 'interp', ndeg)
-    M1["gphiv"] = xpnd_wrap(M["gphiv"], 'interp', ndeg)
-    M1["nav_lat"] = xpnd_wrap(M["nav_lat"], 'interp', ndeg)
-    M1["nav_lon"] = xpnd_wrap(M["nav_lon"], 'interp', ndeg)
-    M1["nav_lev"] = M["nav_lev"]
-    M1["tmask"] = xpnd_wrap(M["tmask"], 'edge', ndeg) #there is some error here!
-    M1["umask"] = xpnd_wrap(M["umask"], 'edge', ndeg) #there is some error here!
-    M1["vmask"] = xpnd_wrap(M["vmask"], 'edge', ndeg) #there is some error here!
-    # Compute cell surface areas and volume
-    M1['At'] = xr.DataArray(data = M1['e1t'].values[:] * M1['e2t'].values[:], 
-                            dims = ('time','z_a','y','x'),
-                            name = 'At')
-    M1['Au'] = xr.DataArray(data = M1['e2u'].values[:] * M1['e3u_0'].values[:],
-                            dims = ('time','z','y','x'),
-                            name = 'Au')
-    M1['Av'] = xr.DataArray(data = M1['e2v'].values[:] * M1['e3v_0'].values[:],
-                            dims = ('time','z','y','x'),
-                            name = 'Av')
-    M1['V'] = xr.DataArray(data = M1['e1v'].values[:] * M1['e2u'].values[:] * M1['e3t_0'].values[:],
-                            dims = ('time','z','y','x'),
-                            name = 'V')
-    # Bonus variable for degrading forcings
-    M1['h_column_t'] = (M1['tmask'] * M1['e3t_0']).sum(dim='z')
-    #
-    M.close()
-    M1 = xr.Dataset(M1)
-    return M1
 
 # DEGRADE RESOLUTION
 
@@ -325,6 +269,64 @@ def degr_wrap(X24:xr.DataArray, degr_op:callable, ndeg=1, W=1.0):
     X_degr = degr_op(X24_6D, ndeg, W)
     X_degr = deadjust_dims(X_degr, nd) # back to original dims
     return X_degr
+
+def load_mesh(maskfile, ndeg=1):
+    '''
+    load meshmask, expand fields
+    '''
+    M = xr.open_dataset(maskfile)
+    M1 = {}
+    #
+    M1["coastp"] = xpnd_wrap(M["coastp"], 'edge', ndeg)
+    M1["e1f"] = xpnd_wrap(M["e1f"], 'interp', ndeg)
+    M1["e1t"] = xpnd_wrap(M["e1t"], 'interp', ndeg)
+    M1["e1u"] = xpnd_wrap(M["e1u"], 'interp', ndeg)
+    M1["e1v"] = xpnd_wrap(M["e1v"], 'interp', ndeg)
+    M1["e2f"] = xpnd_wrap(M["e2f"], 'edge', ndeg)
+    M1["e2t"] = xpnd_wrap(M["e2t"], 'edge', ndeg)
+    M1["e2u"] = xpnd_wrap(M["e2u"], 'edge', ndeg)
+    M1["e2v"] = xpnd_wrap(M["e2v"], 'edge', ndeg)
+    M1["e3t_0"] = xpnd_wrap(M["e3t_0"], 'edge', ndeg)
+    M1["e3u_0"] = xpnd_wrap(M["e3u_0"], 'edge', ndeg)
+    M1["e3v_0"] = xpnd_wrap(M["e3v_0"], 'edge', ndeg)
+    M1["e3w_0"] = xpnd_wrap(M["e3w_0"], 'edge', ndeg)
+    M1["ff"] = xpnd_wrap(M["ff"], 'interp', ndeg)
+    M1["gdept"] = xpnd_wrap(e3_2_gdep(M, 't'), 'edge', ndeg) #M["gdept"]
+    M1["gdepw"] = xpnd_wrap(e3_2_gdep(M, 'w'), 'edge', ndeg) #M["gdepw"]
+    M1["glamf"] = xpnd_wrap(M["glamf"], 'interp', ndeg)
+    M1["glamt"] = xpnd_wrap(M["glamt"], 'interp', ndeg)
+    M1["glamu"] = xpnd_wrap(M["glamu"], 'interp', ndeg)
+    M1["glamv"] = xpnd_wrap(M["glamv"], 'interp', ndeg)
+    M1["gphif"] = xpnd_wrap(M["gphif"], 'interp', ndeg)
+    M1["gphit"] = xpnd_wrap(M["gphit"], 'interp', ndeg)
+    M1["gphiu"] = xpnd_wrap(M["gphiu"], 'interp', ndeg)
+    M1["gphiv"] = xpnd_wrap(M["gphiv"], 'interp', ndeg)
+    M1["nav_lat"] = xpnd_wrap(M["nav_lat"], 'interp', ndeg)
+    M1["nav_lon"] = xpnd_wrap(M["nav_lon"], 'interp', ndeg)
+    M1["nav_lev"] = M["nav_lev"]
+    M1["tmask"] = xpnd_wrap(M["tmask"], 'edge', ndeg) #there is some error here!
+    M1["umask"] = xpnd_wrap(M["umask"], 'edge', ndeg) #there is some error here!
+    M1["vmask"] = xpnd_wrap(M["vmask"], 'edge', ndeg) #there is some error here!
+    # Compute cell surface areas and volume
+    M1['At'] = xr.DataArray(data = M1['e1t'].values[:] * M1['e2t'].values[:],
+                            dims = ('time','z_a','y','x'),
+                            name = 'At')
+    M1['Au'] = xr.DataArray(data = M1['e2u'].values[:] * M1['e3u_0'].values[:],
+                            dims = ('time','z','y','x'),
+                            name = 'Au')
+    M1['Av'] = xr.DataArray(data = M1['e2v'].values[:] * M1['e3v_0'].values[:],
+                            dims = ('time','z','y','x'),
+                            name = 'Av')
+    M1['V'] = xr.DataArray(data = M1['e1v'].values[:] * M1['e2u'].values[:] * M1['e3t_0'].values[:],
+                            dims = ('time','z','y','x'),
+                            name = 'V')
+    # Bonus variable for degrading forcings
+    M1['h_column_t'] = (M1['tmask'] * M1['e3t_0']).sum(dim='z')
+    #
+    M.close()
+    M1 = xr.Dataset(M1)
+    return M1
+
 
 def degrade_mesh(M1:xr.DataArray, thresh:int=1, ndeg:int=1):
     '''
