@@ -1,5 +1,6 @@
 import numpy as np
 import xarray as xr
+import regridding as rg
 
 
 def adjust_dims(X: xr.DataArray, n: int = 4):
@@ -210,71 +211,7 @@ def reshape_blocks(X, ndeg=1):
 
     return X_reshaped
 
-# REGRIDDING FUNCTIONS
-def isum_jmean(X, ndeg=1, W=1.0):
-    '''
-    sum along longitude (i) & mean along latitude (j)
-    no need to weight by area! for e1t
-    '''
-    X = X.sum(dim='x_b', skipna=True)  #blocks sum along lon (i)
-    X = X.mean(dim='y_b', skipna=True) #block mean along lat (j)
-    return X
 
-def imean_jstep(X, ndeg=1, W=1.0):
-    '''
-    mean along i (lon)
-    & one element each ndeg along j (lat)
-    glamt
-    '''
-    X = X.isel({'y_b':-1})
-    X = X.mean(dim='x_b', skipna=True)
-    return X
-
-def jmean_istep(X, ndeg=1, W=1.0):
-    '''
-    mean along j (lat)
-    & one element each ndeg along i (lon)
-    gphit
-    '''
-    X = X.isel({'x_b':-1})
-    X = X.mean(dim='y_b', skipna=True)
-    return X
-
-def isum_jmean(X, ndeg=1, W=1.0):
-    '''
-    sum along longitude (i) & mean along latitude (j)
-    no need to weight by area!
-    e1t
-    '''
-    X = X.sum(dim='x_b', skipna=True)  #blocks sum along lon (i)
-    X = X.mean(dim='y_b', skipna=True) #block mean along lat (j)
-    return X
-
-def jsum_imean(X, ndeg=1, W=1.0):
-    '''
-    sum along latitude (j) & mean along longitude (i)
-    no need to weight by area!
-    e2t
-    '''
-    X = X.sum(dim='y_b', skipna=True)  #blocks sum along lat (j)
-    X = X.mean(dim='x_b', skipna=True) #block mean along lon (i)
-    return X
-
-def isum_jstep(X, ndeg=1, W=1.0):
-    '''
-    sum along longitude (i) & one point each ndeg along latitude (j)
-    '''
-    X = X.sum(dim='x_b', skipna=True)
-    X = X.isel({'y_b': -1})
-    return X
-
-def jsum_istep(X, ndeg=1, W=1.0):
-    '''
-    sum along latitude (j) & one point each ndeg along longitude (i)
-    '''
-    X = X.sum(dim='y_b', skipna=True)
-    X = X.isel({'x_b': -1})
-    return X
 
 def awmean(X, ndeg=1, W=1.0):
     '''
@@ -425,33 +362,33 @@ def degrade_mesh(M1, thresh=1, ndeg=1):
     M2 = {}
     #
     M2["coastp"] = degr_wrap(M1["coastp"], awmean, ndeg, W=M1['At'])
-    M2["e1f"] = degr_wrap(M1["e1f"], isum_jstep, ndeg, W=None)
-    M2["e1t"] = degr_wrap(M1["e1t"], isum_jmean, ndeg, W=None)
-    M2["e1u"] = degr_wrap(M1["e1u"], isum_jmean, ndeg, W=None)
-    M2["e1v"] = degr_wrap(M1["e1v"], isum_jstep, ndeg, W=None)
-    M2["e2f"] = degr_wrap(M1["e2f"], jsum_istep, ndeg, W=None)
-    M2["e2t"] = degr_wrap(M1["e2t"], jsum_istep, ndeg, W=None)
-    M2["e2u"] = degr_wrap(M1["e2u"], jsum_istep, ndeg, W=None)
-    M2["e2v"] = degr_wrap(M1["e2v"], jsum_istep, ndeg, W=None)
+    M2["e1f"] = degr_wrap(M1["e1f"], rg.isum_jstep, ndeg, W=None)
+    M2["e1t"] = degr_wrap(M1["e1t"], rg.isum_jmean, ndeg, W=None)
+    M2["e1u"] = degr_wrap(M1["e1u"], rg.isum_jmean, ndeg, W=None)
+    M2["e1v"] = degr_wrap(M1["e1v"], rg.isum_jstep, ndeg, W=None)
+    M2["e2f"] = degr_wrap(M1["e2f"], rg.jsum_istep, ndeg, W=None)
+    M2["e2t"] = degr_wrap(M1["e2t"], rg.jsum_istep, ndeg, W=None)
+    M2["e2u"] = degr_wrap(M1["e2u"], rg.jsum_istep, ndeg, W=None)
+    M2["e2v"] = degr_wrap(M1["e2v"], rg.jsum_istep, ndeg, W=None)
     M2["e3t_0"] = degr_wrap(M1["e3t_0"], vwmean, ndeg, W=M1['V'])
     M2["e3u_0"] = degr_wrap(M1["e3u_0"], uawmean_istep, ndeg, W=M1['Au'])
     M2["e3v_0"] = degr_wrap(M1["e3v_0"], vawmean_jstep, ndeg, W=M1['Av'])
     M2["e3w_0"] = degr_wrap(M1["e3w_0"], vwmean, ndeg, W=M1['V'])
-    M2["ff"] = degr_wrap(M1["ff"], jmean_istep, ndeg, W=None)
+    M2["ff"] = degr_wrap(M1["ff"], rg.jmean_istep, ndeg, W=None)
     #M2["gdept"] = noop(M1["gdept"])
     #M2["gdepw"] = noop(M1["gdepw"])
     M2["gdept"] = degr_wrap(M1["gdept"], vwmean, ndeg, W=M1['V'])
     M2["gdepw"] = degr_wrap(M1["gdepw"], vwmean, ndeg, W=M1['V'])
-    M2["glamf"] = degr_wrap(M1["glamf"], jmean_istep, ndeg, W=None)
-    M2["glamt"] = degr_wrap(M1["glamt"], imean_jstep, ndeg, W=None)
-    M2["glamu"] = degr_wrap(M1["glamu"], jmean_istep, ndeg, W=None)
-    M2["glamv"] = degr_wrap(M1["glamv"], imean_jstep, ndeg, W=None)
-    M2["gphif"] = degr_wrap(M1["gphif"], imean_jstep, ndeg, W=None)
-    M2["gphit"] = degr_wrap(M1["gphit"], jmean_istep, ndeg, W=None)
-    M2["gphiu"] = degr_wrap(M1["gphiu"], jmean_istep, ndeg, W=None)
-    M2["gphiv"] = degr_wrap(M1["gphiv"], imean_jstep, ndeg, W=None)
-    M2["nav_lat"] = degr_wrap(M1["nav_lat"], jmean_istep, ndeg, W=None)
-    M2["nav_lon"] = degr_wrap(M1["nav_lon"], imean_jstep, ndeg, W=None)
+    M2["glamf"] = degr_wrap(M1["glamf"], rg.jmean_istep, ndeg, W=None)
+    M2["glamt"] = degr_wrap(M1["glamt"], rg.imean_jstep, ndeg, W=None)
+    M2["glamu"] = degr_wrap(M1["glamu"], rg.jmean_istep, ndeg, W=None)
+    M2["glamv"] = degr_wrap(M1["glamv"], rg.imean_jstep, ndeg, W=None)
+    M2["gphif"] = degr_wrap(M1["gphif"], rg.imean_jstep, ndeg, W=None)
+    M2["gphit"] = degr_wrap(M1["gphit"], rg.jmean_istep, ndeg, W=None)
+    M2["gphiu"] = degr_wrap(M1["gphiu"], rg.jmean_istep, ndeg, W=None)
+    M2["gphiv"] = degr_wrap(M1["gphiv"], rg.imean_jstep, ndeg, W=None)
+    M2["nav_lat"] = degr_wrap(M1["nav_lat"], rg.jmean_istep, ndeg, W=None)
+    M2["nav_lon"] = degr_wrap(M1["nav_lon"], rg.imean_jstep, ndeg, W=None)
     M2["nav_lev"] = noop(M1["nav_lev"])
     M2["tmask"] = waterpt_thresh(M1["tmask"], thresh ,ndeg)
     umask, vmask, fmask = from_tmask(M2["tmask"])
@@ -506,4 +443,6 @@ if __name__=='__main__':
     X = xpnd_wrap(arr, pad_op='edge', ndeg=3)
     X_4D, nd = adjust_dims(X)
     X24_6D = reshape_blocks(X_4D, ndeg=3)
-    X_degr = jsum_istep(X24_6D, ndeg=3, W=None)
+    X_degr = rg.jsum_istep(X24_6D, ndeg=3, W=None)
+
+
