@@ -160,7 +160,6 @@ def load_mesh(maskfile, ndeg=1):
     M1["nav_lat"] = xpnd_wrap(M["nav_lat"], 'interp', ndeg)
     M1["nav_lon"] = xpnd_wrap(M["nav_lon"], 'interp', ndeg)
     M1["nav_lev"] = M["nav_lev"]
-    M1["fmask"] = xpnd_wrap(M["fmask"], 'edge', ndeg) #there is some error here!
     M1["tmask"] = xpnd_wrap(M["tmask"], 'edge', ndeg) #there is some error here!
     M1["umask"] = xpnd_wrap(M["umask"], 'edge', ndeg) #there is some error here!
     M1["vmask"] = xpnd_wrap(M["vmask"], 'edge', ndeg) #there is some error here!
@@ -293,35 +292,7 @@ def waterpt_thresh(X24, thresh=1 ,ndeg=1):
     X_degr= (X_degr >= (ndeg**2 // thr)).astype(int)
     return X_degr
 
-def from_tmask(tmask):
-    '''
-    computes umask, vmask, fmask from tmask
-    after Madec 2015 NEMO Manual, pp. 67
-    NB Madec's fmask definition is not correct!
-    tmask.shape: (1, 141, 380, 1307)
-    '''
-    # CHECK I'M PADDING AT THE RIGHT END OF THE ARRAY!!!
-    tmask_ipad = tmask.shift(x=1, fill_value=0.0)
-    tmask_jpad = tmask.shift(y=1, fill_value=0.0)
-    tmask_ijpad = tmask.shift(x=1, y=1, fill_value=0.0)
-    #
-    umask = tmask * tmask_ipad
-    vmask = tmask * tmask_jpad
-    # ERROR: THIS fmask DOES NOT CORRESPOND WITH WHAT'S IN meshmask.nc
-    fmask = tmask * tmask_ipad * tmask_jpad * tmask_ijpad
-    #
-    return umask, vmask, fmask
-
-def noop(X):
-    '''
-    no operation, for variables that need no regridding
-    e.g. nav_lev
-    '''
-    return X
-
-# END REGRIDDING OPERATIONS
-
-def degr_wrap(X24, degr_op:callable, ndeg=1, W=1.0):
+def degr_wrap(X24:xr.DataArray, degr_op:callable, ndeg=1, W=1.0):
     '''
         Wrapper to degrade resolution of 2D/3D/4D arrays.
         
@@ -355,13 +326,23 @@ def degr_wrap(X24, degr_op:callable, ndeg=1, W=1.0):
     X_degr = deadjust_dims(X_degr, nd) # back to original dims
     return X_degr
 
-def degrade_mesh(M1, thresh=1, ndeg=1):
+def degrade_mesh(M1:xr.DataArray, thresh:int=1, ndeg:int=1):
     '''
     generates new reduced mesh for each variable
+
+    Arguments:
+    M1 : xr.DataArray where for example e2t field is
+        M1["e2t"] = xpnd_wrap(M["e2t"], 'edge', ndeg)
+        so, it has dimensions (... y,x ) multipes of ndeg
+    thresh : integer, number of water points needed to classify a cell as water
+    ndeg : integer, number of cells to join in i, j directions
+
+    Returns:
+    M2: xr.DataArray
+        with dimensions y/ndeg, x/ndeg
     '''
     M2 = {}
     #
-    M2["coastp"] = degr_wrap(M1["coastp"], awmean, ndeg, W=M1['At'])
     M2["e1f"] = degr_wrap(M1["e1f"], rg.isum_jstep, ndeg, W=None)
     M2["e1t"] = degr_wrap(M1["e1t"], rg.isum_jmean, ndeg, W=None)
     M2["e1u"] = degr_wrap(M1["e1u"], rg.isum_jmean, ndeg, W=None)
@@ -374,9 +355,7 @@ def degrade_mesh(M1, thresh=1, ndeg=1):
     M2["e3u_0"] = degr_wrap(M1["e3u_0"], uawmean_istep, ndeg, W=M1['Au'])
     M2["e3v_0"] = degr_wrap(M1["e3v_0"], vawmean_jstep, ndeg, W=M1['Av'])
     M2["e3w_0"] = degr_wrap(M1["e3w_0"], vwmean, ndeg, W=M1['V'])
-    M2["ff"] = degr_wrap(M1["ff"], rg.jmean_istep, ndeg, W=None)
-    #M2["gdept"] = noop(M1["gdept"])
-    #M2["gdepw"] = noop(M1["gdepw"])
+
     M2["gdept"] = degr_wrap(M1["gdept"], vwmean, ndeg, W=M1['V'])
     M2["gdepw"] = degr_wrap(M1["gdepw"], vwmean, ndeg, W=M1['V'])
     M2["glamf"] = degr_wrap(M1["glamf"], rg.jmean_istep, ndeg, W=None)
@@ -389,13 +368,11 @@ def degrade_mesh(M1, thresh=1, ndeg=1):
     M2["gphiv"] = degr_wrap(M1["gphiv"], rg.imean_jstep, ndeg, W=None)
     M2["nav_lat"] = degr_wrap(M1["nav_lat"], rg.jmean_istep, ndeg, W=None)
     M2["nav_lon"] = degr_wrap(M1["nav_lon"], rg.imean_jstep, ndeg, W=None)
-    M2["nav_lev"] = noop(M1["nav_lev"])
+    M2["nav_lev"] = M1["nav_lev"]
     M2["tmask"] = waterpt_thresh(M1["tmask"], thresh ,ndeg)
-    umask, vmask, fmask = from_tmask(M2["tmask"])
-    M2["umask"] = umask
-    M2["vmask"] = vmask
-    M2["fmask"] = fmask
-    #
+    M2['umask'] = degr_wrap(M1['umask'], rg.jsum_istep, ndeg, W=None)
+    M2['vmask'] = degr_wrap(M1['vmask'], rg.isum_jstep, ndeg, W=None)
+
     M2 = xr.Dataset(M2)
     return M2
 
@@ -418,7 +395,6 @@ def cut_med(M2, lon_cut=-8.875, depth_cut=4153.0, biscay_land=True):
         MMed['tmask'] = MMed['tmask'] * ~land
         MMed['umask'] = MMed['umask'] * ~land
         MMed['vmask'] = MMed['vmask'] * ~land
-        MMed['fmask'] = MMed['fmask'] * ~land
     return MMed
 
 def dump_mesh(M2, outfile):
