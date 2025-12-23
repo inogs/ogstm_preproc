@@ -7,6 +7,7 @@ from glob import glob
 import degrade_mesh as dm
 from commons import degrade_wrap, load_coords_degraded, dump_netcdf
 import regridding as rg
+from pathlib import Path
 
 '''
 degrades the horizontal resolution of BFM restarts by an integer value
@@ -53,7 +54,8 @@ def get_Volume(M):
 
 def load_rst(infile, vname, ndeg=1):
     '''
-    loads the data array from a variable in the restart
+    loads  the data array from a variable in the restart and expands it in 'edge' mode
+    Arguments:
 
     Returns:
     D1 : xarray DataArray, with 3D variable already expanded
@@ -99,7 +101,7 @@ def degrade_bgc(DI, V0, C, vname, ndeg=1):
 
     '''
     R = init_rst(C)
-    R[vname] = degrade_wrap(DI[vname], rg.vwmean, V0, ndeg)
+    R[vname] = degrade_wrap(DI[vname], dm.vwmean, V0, ndeg)
     R['nav_lev'] = DI['nav_lev']
     R = xr.Dataset(R)
     R = R.assign_attrs(DI.attrs)
@@ -108,8 +110,8 @@ def degrade_bgc(DI, V0, C, vname, ndeg=1):
 def get_flist(Params):
     indir = Params['indir']
     infile = Params['infile']
-    flist = glob(indir+infile.replace('__VNAME__', '*'))
-    itrbl = [(ff.split('.')[-2], ff) for ff in flist]
+    flist = glob(indir + infile.replace('__VNAME__', '*'))
+    itrbl = [(ff.split('.')[-2], Path(ff)) for ff in flist]
     return itrbl
 
 if __name__=='__main__':
@@ -124,11 +126,9 @@ if __name__=='__main__':
         nranks = 1
     #
     Params = load_parameters()
-    mesh_in = Params['mesh_in']
-    mesh_out = Params['mesh_out']
-    indir = Params['indir']
-    infile = Params['infile']
-    outdir = Params['outdir']
+    mesh_in = Path(Params['mesh_in'])
+    mesh_out = Path(Params['mesh_out'])
+    outdir = Path(Params['outdir'])
     ndeg = Params['ndeg']
     #
     if rank==0:
@@ -146,10 +146,14 @@ if __name__=='__main__':
     # HERE LOOP ON FILES AND VARIABLES
     itrbl = get_flist(Params)
     for vname, fname in itrbl[rank::nranks]:
+        outfile = outdir / fname.name
         vname = 'TRN'+vname
         print(f'degrado: {vname}')
         # 
-        DI = load_rst(fname, vname, ndeg)
+        DI = load_rst(fname, vname, Mask_in,ndeg)
         Dd = degrade_bgc(DI, V0, C, vname, ndeg)
-        outfile = outdir+fname.split('/')[-1]
+        v = Dd[vname].values[0,:]
+        v[~Maskout.mask] = 1.0e20
+        waterpoints=v[Maskout.mask]
+        print(f' post-degradation min/max/nans/ {waterpoints.min()}, {waterpoints.max()}', np.sum(np.isnan(waterpoints)))
         dump_netcdf(Dd, outfile)
