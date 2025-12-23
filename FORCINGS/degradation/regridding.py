@@ -81,6 +81,28 @@ def jsum_istep(X, ndeg=1, W=1.0):
     X = X.isel({'x_b': -1})
     return X
 
+def jany_istep(X, ndeg=1, W=1.0):
+    '''
+    definition of umask
+    any along latitude (j) & one point each ndeg along longitude (i)
+
+    '''
+    X = X.any(dim='y_b')
+    X = X.isel({'x_b': -1})
+    return X
+
+def iany_jstep(X, ndeg=1, W=1.0):
+    '''
+    definition of vmask
+    any along longitude (i) & one point each ndeg along latitude (j)
+
+    '''
+    X = X.any(dim='x_b')
+    X = X.isel({'y_b': -1})
+    return X
+
+
+
 if __name__ == "__main__":
     import numpy as np
     

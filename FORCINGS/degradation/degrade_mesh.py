@@ -372,8 +372,8 @@ def degrade_mesh(M1:xr.DataArray, thresh:int=1, ndeg:int=1):
     M2["nav_lon"] = degr_wrap(M1["nav_lon"], rg.imean_jstep, ndeg, W=None)
     M2["nav_lev"] = M1["nav_lev"]
     M2["tmask"] = waterpt_thresh(M1["tmask"], thresh ,ndeg)
-    M2['umask'] = degr_wrap(M1['umask'], rg.jsum_istep, ndeg, W=None)
-    M2['vmask'] = degr_wrap(M1['vmask'], rg.isum_jstep, ndeg, W=None)
+    M2['umask'] = degr_wrap(M1['umask'], rg.jany_istep, ndeg, W=None)
+    M2['vmask'] = degr_wrap(M1['vmask'], rg.iany_jstep, ndeg, W=None)
 
     M2 = xr.Dataset(M2)
     return M2
@@ -428,5 +428,9 @@ if __name__=='__main__':
     X_4D, nd = adjust_dims(X)
     X24_6D = reshape_blocks(X_4D, ndeg=3)
     X_degr = rg.jsum_istep(X24_6D, ndeg=3, W=None)
+    if False:
+        M1=load_mesh('meshmask.nc', ndeg=6)
+        umask6d = reshape_blocks(M1["umask"], 6)
+
 
 
