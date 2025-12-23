@@ -399,7 +399,13 @@ def cut_med(M2, lon_cut=-8.875, depth_cut=4153.0, biscay_land=True):
         MMed['vmask'] = MMed['vmask'] * ~land
     return MMed
 
-def dump_mesh(M2, outfile):
+def dump_netcdf(M2: xr.Dataset, outfile: str):
+    '''
+    Generic function to save a xarray Dataset to a NetCDF file.
+    Args:
+    M2: xarray Dataset to be saved.
+    outfile: str, path to the output NetCDF file.
+    '''
     print(f'saving: {outfile}')
     M2.to_netcdf(outfile, mode='w', unlimited_dims='time', format='NETCDF4_CLASSIC')
     return

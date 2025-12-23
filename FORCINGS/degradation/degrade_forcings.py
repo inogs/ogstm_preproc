@@ -430,7 +430,7 @@ def degrade(F, tuv, B, C, outdir, outfile, ndeg=1):
         Fd = degrade_W(F, B, C, ndeg)
     outdir = make_outdir(outdir, outfile)
     outfile = outdir+outfile
-    dm.dump_mesh(Fd, outfile)
+    dm.dump_netcdf(Fd, outfile)
     return Fd
 
 def get_flist(tuvw, Params):

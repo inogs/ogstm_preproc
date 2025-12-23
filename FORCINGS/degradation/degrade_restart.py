@@ -53,6 +53,10 @@ def get_Volume(M):
 def load_rst(infile, vname, ndeg=1):
     '''
     loads the data array from a variable in the restart
+
+    Returns:
+    D1 : xarray DataArray, with 3D variable already expanded
+         in 'edge' mode
     '''
     D = xr.open_dataset(infile)
     D1 = {}
@@ -83,6 +87,12 @@ def init_rst(C):
 def degrade_bgc(DI, V0, C, vname, ndeg=1):
     '''
     degrades resolution of BFM restart file
+    Arguments:
+    D1 : xarray DataArray, with 3D variable already expanded
+         in 'edge' mode
+    V0: array DataArray of the Volume of fine mesh
+    C : coords of coarse mesh
+
     '''
     R = init_rst(C)
     R[vname] = df.degrade_wrap(DI[vname], dm.vwmean, V0, ndeg)
@@ -137,4 +147,4 @@ if __name__=='__main__':
         DI = load_rst(fname, vname, ndeg)
         Dd = degrade_bgc(DI, V0, C, vname, ndeg)
         outfile = outdir+fname.split('/')[-1]
-        dm.dump_mesh(Dd, outfile)
+        dm.dump_netcdf(Dd, outfile)

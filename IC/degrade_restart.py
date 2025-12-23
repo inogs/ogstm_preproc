@@ -137,4 +137,4 @@ if __name__=='__main__':
         DI = load_rst(fname, vname, ndeg)
         Dd = degrade_bgc(DI, V0, C, vname, ndeg)
         outfile = outdir+fname.split('/')[-1]
-        dm.dump_mesh(Dd, outfile)
+        dm.dump_netcdf(Dd, outfile)

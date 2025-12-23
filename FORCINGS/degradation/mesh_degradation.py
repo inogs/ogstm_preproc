@@ -2,7 +2,7 @@ import numpy as np
 import xarray as xr
 from argparse import ArgumentParser
 import yaml
-from degrade_mesh import load_mesh, degrade_mesh, dump_mesh, cut_med
+from degrade_mesh import load_mesh, degrade_mesh, dump_netcdf, cut_med
 
 '''
 generates a reduced horizontal resolution mesh from an original mesh (with Atlantic buffer)
@@ -49,15 +49,15 @@ ndeg = Params['ndeg']
 # threshold of points to assign waterpoint to degraded mesh
 thresh = Params['thresh'] #THE ONLY OPTION THAT ENSURES NO RIVERS END UP ON LAND
 # load meshmask and expand dimensions
-print('---1---')
+print('Loading and expanding mesh...')
 M1 = load_mesh(maskfile, ndeg)
 #
-print('---2---')
+print('Degrading mesh...')
 M2 = degrade_mesh(M1, thresh, ndeg)
 #
-print('---3---')
-dump_mesh(M2, outfile)
+print('Dumping degraded mesh...')
+dump_netcdf(M2, outfile)
 #
 print('---4---')
 MMed = cut_med(M2)
-dump_mesh(MMed, outfile_med)
+dump_netcdf(MMed, outfile_med)
