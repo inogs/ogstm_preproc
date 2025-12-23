@@ -1,7 +1,7 @@
 import numpy as np
 import xarray as xr
 import regridding as rg
-
+from commons import reshape_blocks
 
 def adjust_dims(X: xr.DataArray, n: int = 4):
     '''
@@ -129,30 +129,7 @@ def e3_2_gdep(M, tuvw):
 
 # DEGRADE RESOLUTION
 
-def reshape_blocks(X, ndeg=1):
-    '''
-    reshape in blocks of shape ndeg along j, i
-    xarray's convoluted way of doing np.reshape, esticatsi!
-    assume I'm always reshaping dims called y, x
-    chunking is necessary to avoid OOM
-    (still cuz xarray's way of reshaping is not super smart)
 
-    Args:
-    X: xarray DataArray with dims (... y, x)
-    ndeg: int, number of cells to join in y, x directions
-          x and y sizes must be multiples of ndeg
-    Returns:
-    X_reshaped: xarray DataArray with dims 
-          (..., y,      y_b,  x,       x_b) with dims sizes
-          (..., y/ndeg, ndeg, x/ndeg, ndeg)
-    So, X_reshaped[... 0,:,0,:] is the first block of size ndeg x ndeg
-
-    '''
-    cs = ndeg * 5
-    X = X.chunk({'y':cs, 'x':cs})
-    X_reshaped = X.coarsen(y=ndeg, x=ndeg).construct(y=('y', 'y_b'), x=('x', 'x_b'))
-
-    return X_reshaped
 
 
 

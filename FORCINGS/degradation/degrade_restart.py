@@ -5,7 +5,8 @@ import yaml
 from glob import glob
 #
 import degrade_mesh as dm
-import degrade_forcings as df
+from commons import degrade_wrap, load_coords_degraded, dump_netcdf
+import regridding as rg
 
 '''
 degrades the horizontal resolution of BFM restarts by an integer value
@@ -93,9 +94,12 @@ def degrade_bgc(DI, V0, C, vname, ndeg=1):
     V0: array DataArray of the Volume of fine mesh
     C : coords of coarse mesh
 
+    Returns:
+    R : xarray Dataset, degraded variable
+
     '''
     R = init_rst(C)
-    R[vname] = df.degrade_wrap(DI[vname], dm.vwmean, V0, ndeg)
+    R[vname] = degrade_wrap(DI[vname], rg.vwmean, V0, ndeg)
     R['nav_lev'] = DI['nav_lev']
     R = xr.Dataset(R)
     R = R.assign_attrs(DI.attrs)
@@ -110,6 +114,7 @@ def get_flist(Params):
 
 if __name__=='__main__':
     try:
+        from mpi4py import MPI
         comm = MPI.COMM_WORLD
         rank = comm.Get_rank()
         nranks = comm.size
@@ -127,8 +132,8 @@ if __name__=='__main__':
     ndeg = Params['ndeg']
     #
     if rank==0:
-        M = df.load_mesh_light(mesh_in, ndeg)
-        C = df.load_coords_degraded(mesh_out)
+        M = dm.load_mesh(mesh_in, ndeg)
+        C = load_coords_degraded(mesh_out)
         V0 = get_Volume(M)
     else:
         M = None
@@ -147,4 +152,4 @@ if __name__=='__main__':
         DI = load_rst(fname, vname, ndeg)
         Dd = degrade_bgc(DI, V0, C, vname, ndeg)
         outfile = outdir+fname.split('/')[-1]
-        dm.dump_netcdf(Dd, outfile)
+        dump_netcdf(Dd, outfile)

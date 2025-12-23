@@ -2,7 +2,8 @@ import numpy as np
 import xarray as xr
 from argparse import ArgumentParser
 import yaml
-from degrade_mesh import load_mesh, degrade_mesh, dump_netcdf, cut_med
+from degrade_mesh import load_mesh, degrade_mesh, cut_med
+from commons import dump_netcdf
 
 '''
 generates a reduced horizontal resolution mesh from an original mesh (with Atlantic buffer)
@@ -55,9 +56,9 @@ M1 = load_mesh(maskfile, ndeg)
 print('Degrading mesh...')
 M2 = degrade_mesh(M1, thresh, ndeg)
 #
-print('Dumping degraded mesh...')
+print('Dumping degraded 141 levels mesh ...')
 dump_netcdf(M2, outfile)
 #
-print('---4---')
+print('Dumping degraded 125 levels mesh for ogstm ...')
 MMed = cut_med(M2)
 dump_netcdf(MMed, outfile_med)
