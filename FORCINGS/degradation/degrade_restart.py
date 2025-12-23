@@ -8,6 +8,7 @@ import degrade_mesh as dm
 from commons import degrade_wrap, load_coords_degraded, dump_netcdf
 import regridding as rg
 from pathlib import Path
+from bitsea.commons.mask import Mask
 
 '''
 degrades the horizontal resolution of BFM restarts by an integer value
@@ -52,7 +53,7 @@ def get_Volume(M):
     V0 = V0 * nanmask #else you see border effects at the coast
     return V0
 
-def load_rst(infile, vname, ndeg=1):
+def load_rst(infile, vname, mask:Mask, ndeg=1):
     '''
     loads  the data array from a variable in the restart and expands it in 'edge' mode
     Arguments:
@@ -63,6 +64,7 @@ def load_rst(infile, vname, ndeg=1):
     '''
     D = xr.open_dataset(infile)
     D1 = {}
+    D[vname].values[0,:][~mask.mask] = np.nan
     #
     D1[vname] = dm.xpnd_wrap(D[vname], 'edge', ndeg)
     #
@@ -145,6 +147,11 @@ if __name__=='__main__':
         V0 = comm.bcast(V0, root=0)
     # HERE LOOP ON FILES AND VARIABLES
     itrbl = get_flist(Params)
+
+    Maskout = Mask.from_file(mesh_out)
+    Mask_in = Mask.from_file(mesh_in)
+    V0 = M['e1t'].values[:] * M['e2t'].values[:] * M['e3t_0']
+
     for vname, fname in itrbl[rank::nranks]:
         outfile = outdir / fname.name
         vname = 'TRN'+vname
