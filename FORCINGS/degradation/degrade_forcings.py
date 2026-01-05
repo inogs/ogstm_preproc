@@ -8,6 +8,7 @@ import yaml
 from itertools import chain
 # my stuff
 import degrade_mesh as dm
+from commons import dump_netcdf 
 
 '''
 degrades resolution of OGSTM physics forcings
@@ -430,7 +431,7 @@ def degrade(F, tuv, B, C, outdir, outfile, ndeg=1):
         Fd = degrade_W(F, B, C, ndeg)
     outdir = make_outdir(outdir, outfile)
     outfile = outdir+outfile
-    dm.dump_netcdf(Fd, outfile)
+    dump_netcdf(Fd, outfile)
     return Fd
 
 def get_flist(tuvw, Params):
