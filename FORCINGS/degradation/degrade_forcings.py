@@ -414,7 +414,7 @@ def make_outdir(outdir, outfile):
     mm = outfile[5:7]
     outdir = f'{outdir}/{yyyy}/{mm}/'
     if not os.path.exists(outdir):
-        os.makedirs(outdir) 
+        os.makedirs(outdir, exist_ok=True) 
     else:
         pass
     return outdir
