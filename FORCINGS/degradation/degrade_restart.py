@@ -150,7 +150,6 @@ if __name__=='__main__':
 
     Maskout = Mask.from_file(mesh_out)
     Mask_in = Mask.from_file(mesh_in)
-    V0 = M['e1t'].values[:] * M['e2t'].values[:] * M['e3t_0']
 
     for vname, fname in itrbl[rank::nranks]:
         outfile = outdir / fname.name
