@@ -2,13 +2,14 @@ import numpy as np
 import xarray as xr
 from glob import glob
 import os
-from mpi4py import MPI
+from pathlib import Path
 from argparse import ArgumentParser
-import yaml
+
 from itertools import chain
 # my stuff
 import degrade_mesh as dm
-from commons import dump_netcdf 
+from commons import dump_netcdf, load_parameters
+from bitsea.commons.mask import Mask
 
 '''
 degrades resolution of OGSTM physics forcings
@@ -40,12 +41,6 @@ def argument():
                         help='file with all parameters')
     return parser.parse_args()
 
-def load_parameters():
-    yamlfile=argument().yamlfile
-    # yamlfile = 'degrade_forcings.yaml'
-    with open(yamlfile) as f:
-        Params = yaml.load(f, Loader=yaml.Loader)
-    return(Params)
 
 def load_mesh_light(maskfile, ndeg=1):
     '''
@@ -80,19 +75,6 @@ def load_mesh_light(maskfile, ndeg=1):
     M1 = xr.Dataset(M1)
     return M1
 
-
-def load_coords_degraded(maskfile_d):
-    '''
-    loads lat, lon coordinates on T, U, V grids
-    from already degraded mask
-    to avoid having to degrade each time the same arrays
-    need to run degrade_mesh.py first!
-    '''
-    Md = xr.open_dataset(maskfile_d)
-    C = Md[["glamt", "glamu", "glamv", "gphit", "gphiu", "gphiv"]]
-    C['glamw'] = C['glamt']
-    C['gphiw'] = C['gphit']
-    return C
 
 def load_tfile(infile, ndeg=1):
     '''
@@ -309,23 +291,35 @@ def get_weights(M, T):
     B = xr.Dataset(B)
     return B
 
-def degrade_wrap(X, degr_op, B=1.0, ndeg=1):
-    print('---1---')
-    X = dm.reshape_blocks(X, ndeg)
-    print('---2---')
-    X = degr_op(X, ndeg, B)
-    print('...')
+
+
+def vwmean(X, W=1.0):
+    '''
+    W is a dataarray with cell volumes 3D
+    mean, weighted by surface area (t-grid)
+    '''
+    
+    X = (W * X).sum(dim=('y_b', 'x_b'), skipna=True) / W.sum(dim=('y_b', 'x_b'), skipna=True)
     return X
 
-def init_ds(D, C, tuv):
+def degrade_wrap(X, degr_op:callable, W=1.0, ndeg=1):
+    
+    X = dm.reshape_blocks(X, ndeg)
+    W = dm.reshape_blocks(W, ndeg)
+
+    X = degr_op(X, W )
+
+    return X
+
+def init_ds(D, Mask_obj:Mask, tuv):
     '''
     adds to degraded dataset the variables that are always the same:
     nav_lat, nav_lon, depth, 
     and those that do not need regridding, time
     '''
     Dd = {}
-    Dd[f'nav_lon'] = C[f'glam{tuv}']
-    Dd[f'nav_lat'] = C[f'gphi{tuv}']
+    Dd[f'nav_lon'] = Mask_obj.xlevels
+    Dd[f'nav_lat'] = Mask_obj.ylevels
     Dd[f'depth{tuv}'] = D[f'depth{tuv}']
     Dd[f'depth{tuv}_bounds'] = D[f'depth{tuv}_bounds']
     #Dd['time_instant'] = D['time_instant']
@@ -390,23 +384,25 @@ def degrade_W(W, B, C, ndeg=1):
     return Wd
 
 
-def degrade_T(T, B, C, ndeg=1):
+def degrade_T(T, Wa, Wv, Mask_out, outfile, ndeg=1):
     '''
-    degrades resolution of T-grid file
+    degrades resolution of T-grid file and dumps it to netcdf
     '''
     B = B.rename({'time':'time_counter', 'z':'deptht'})
-    Td = init_ds(T, C, 't')
-    #Td = {}
-    #
-    Td['votemper'] = degrade_wrap(T['votemper'], dm.vwmean, B['V'], ndeg) 
-    Td['vosaline'] = degrade_wrap(T['vosaline'], dm.vwmean, B['V'], ndeg) 
-    Td['sossheig'] = degrade_wrap(T['sossheig'], dm.awmean, B['At'], ndeg) 
-    Td['soshfldo'] = degrade_wrap(T['soshfldo'], dm.awmean, B['At'], ndeg) 
-    Td['sorunoff'] = degrade_wrap(T['sorunoff'], dm.awmean, B['At'], ndeg)
-    Td['somxl010'] = degrade_wrap(T['somxl010'], dm.awmean, B['At'], ndeg)
+    Td = init_ds(T, Mask_out, 't')
+
+
+    Td['votemper'] = degrade_wrap(T['votemper'], vwmean, Wv, ndeg) 
+    Td['vosaline'] = degrade_wrap(T['vosaline'], vwmean, Wv, ndeg) 
+    Td['sossheig'] = degrade_wrap(T['sossheig'], vwmean, Wa, ndeg) 
+    Td['soshfldo'] = degrade_wrap(T['soshfldo'], vwmean, Wa, ndeg) 
+    Td['sorunoff'] = degrade_wrap(T['sorunoff'], vwmean, Wa, ndeg)
+    Td['somxl010'] = degrade_wrap(T['somxl010'], vwmean, Wa, ndeg)
     #
     Td = xr.Dataset(Td)
-    return Td
+    print(outfile)
+    dump_netcdf(Td, outfile)
+    
 
 def make_outdir(outdir, outfile):
     #/leonardo_work/OGS23_PRACE_IT_0/ggalli00/OGSTM-BFM/qDEG_SETUP/FORCINGS/
@@ -420,21 +416,39 @@ def make_outdir(outdir, outfile):
         pass
     return outdir
 
-def degrade(F, tuv, B, C, outdir, outfile, ndeg=1):
-    if tuv == 'T':
-        Fd = degrade_T(F, B, C, ndeg)
-    elif tuv == 'U':
-        Fd = degrade_U(F, B, C, ndeg)
-    elif tuv == 'V':
-        Fd = degrade_V(F, B, C, ndeg)
-    elif tuv == 'W':
-        Fd = degrade_W(F, B, C, ndeg)
+def degrade(F:xr.DataArray, tuv:str, B:xr.DataArray, Maskout:Mask, outdir, outfile, ndeg=1):
+    '''
+    Generate degraded forcing file
+
+    Arguments:
+    F : xarray.Dataset
+    tuv : str, grid type ('T', 'U', 'V', or 'W')
+    B : xarray.Dataset, weights
+        B['At'], B['V'] must be present for T-grid
+    Maskout : Mask, degraded resolution mask
+    outdir : str, output directory
+    outfile : str, output filename
+    ndeg : int, degradation factor
+
+    '''
     outdir = make_outdir(outdir, outfile)
     outfile = outdir+outfile
-    dump_netcdf(Fd, outfile)
-    return Fd
+    if tuv == 'T':
+        degrade_T(F, B, Mask_out, outfile, ndeg)
+    elif tuv == 'U':
+        Fd = degrade_U(F, B, Mask_out, ndeg)
+    elif tuv == 'V':
+        Fd = degrade_V(F, B, Mask_out, ndeg)
+    elif tuv == 'W':
+        Fd = degrade_W(F, B, Mask_out, ndeg)
+    
+    
 
-def get_flist(tuvw, Params):
+
+def get_flist(tuvw:str, Params:dict):
+    '''
+    
+    '''
     ffdir = Params['ffdir']
     y0 = Params['y0']
     yE = Params['yE']
@@ -452,14 +466,13 @@ if __name__=='__main__':
         comm = None
         rank = 0
         nranks = 1
-    print (rank,nranks)
     #
-    Params = load_parameters()
+    Params = load_parameters(argument().yamlfile)
     #
-    maskfile = Params['maskfile']
-    maskfile_d = Params['maskfile_d']
-    ffdir = Params['ffdir']
-    outdir = Params['outdir']
+    maskfile = Path(Params['maskfile'])
+    maskfile_d = Path(Params['maskfile_d'])
+    ffdir =  Path(Params['ffdir'])
+    outdir = Path(Params['outdir'])
     y0 = Params['y0']
     yE = Params['yE']
     #
@@ -469,38 +482,41 @@ if __name__=='__main__':
     flistu = get_flist('U', Params)
     flistv = get_flist('V', Params)
     flistw = get_flist('W', Params)
+
+    import sys
+    #sys.exit()
     #
     # load mesh and expand lat, lon to make them multiples of ndeg
-    if rank==0:
-        print('loading mask')
-        M = load_mesh_light(maskfile, ndeg) #NB, here Au, Av, V, are calculated with e3tuv_0
-        C = load_coords_degraded(maskfile_d)
-    else:
-        M = None
-        C = None
-    #
-    if nranks > 1:
-        M = comm.bcast(M, root=0)
-        C = comm.bcast(C, root=0)
+    
+    print('loading mask')
+    M = load_mesh_light(maskfile, ndeg) #NB, here Au, Av, V, are calculated with e3tuv_0
+    #C = load_coords_degraded(maskfile_d)
+    Mask_out = Mask.from_file(maskfile_d)
+
+    
     #
     # LOOP ON FILES
     print('loading T, U, V files')
     ziter = list(zip(flistt, flistu, flistv, flistw))
     for tfile, ufile, vfile, wfile in ziter[rank::nranks]:
-        V = load_fffile(vfile, 'V', ndeg)
-        U = load_fffile(ufile, 'U', ndeg)
-        W = load_fffile(wfile, 'W', ndeg)
+        #V = load_fffile(vfile, 'V', ndeg)
+        #U = load_fffile(ufile, 'U', ndeg)
+        #W = load_fffile(wfile, 'W', ndeg)
         T = load_fffile(tfile, 'T', ndeg)
-        B = get_weights(M, T)
-        # degrade mesh
+        W = get_weights(M, T)
+        Warea = dm.reshape_blocks(W['At'], ndeg)
+        Wvolume = dm.reshape_blocks(W['V'], ndeg)
+
         print('degrado')
         outft = tfile.split('/')[-1]
         outfu = ufile.split('/')[-1]
         outfv = vfile.split('/')[-1]
         outfw = wfile.split('/')[-1]
-        degrade(T, 'T', B, C, outdir, outft, ndeg)
-        degrade(U, 'U', B, C, outdir, outfu, ndeg)
-        degrade(V, 'V', B, C, outdir, outfv, ndeg)
-        degrade(W, 'W', B, C, outdir, outfw, ndeg)
+        outdir = make_outdir(outdir, outft)
+        
+        degrade_T(T, Warea, Wvolume, Mask_out, outdir + outft, ndeg)
+        #degrade(U, 'U', B, C, outdir, outfu, ndeg)
+        #degrade(V, 'V', B, C, outdir, outfv, ndeg)
+        #degrade(W, 'W', B, C, outdir, outfw, ndeg)
 
 

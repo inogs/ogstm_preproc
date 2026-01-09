@@ -1,14 +1,14 @@
 import numpy as np
 import xarray as xr
 from argparse import ArgumentParser
-import yaml
 from glob import glob
 #
 import degrade_mesh as dm
-from commons import degrade_wrap, load_coords_degraded, dump_netcdf
+from commons import degrade_wrap, load_parameters
 import regridding as rg
 from pathlib import Path
 from bitsea.commons.mask import Mask
+from IC import RSTwriter
 
 '''
 degrades the horizontal resolution of BFM restarts by an integer value
@@ -36,12 +36,6 @@ def argument():
                         help='file with all parameters')
     return parser.parse_args()
 
-def load_parameters():
-    yamlfile=argument().yamlfile
-    # yamlfile = 'degrade_restart.yaml'
-    with open(yamlfile) as f:
-        Params = yaml.load(f, Loader=yaml.Loader)
-    return(Params)
 
 def get_Volume(M):
     '''
@@ -53,61 +47,44 @@ def get_Volume(M):
     V0 = V0 * nanmask #else you see border effects at the coast
     return V0
 
-def load_rst(infile, vname, mask:Mask, ndeg=1):
+
+def load_xpnd_rst(infile, vname, mask:Mask, ndeg=1):
     '''
     loads  the data array from a variable in the restart and expands it in 'edge' mode
     Arguments:
+        infile : path to restart file
+        vname : bfm variable name
+        mask : Mask object of the fine mesh
 
     Returns:
-    D1 : xarray DataArray, with 3D variable already expanded
-         in 'edge' mode
+    RST : xarray DataArray, with 3D variable already expanded
+         in 'edge' mode, nan 
     '''
-    D = xr.open_dataset(infile)
-    D1 = {}
-    D[vname].values[0,:][~mask.mask] = np.nan
-    #
-    D1[vname] = dm.xpnd_wrap(D[vname], 'edge', ndeg)
-    #
-    D1['nav_lat'] = dm.xpnd_wrap(D['nav_lat'], 'interp', ndeg)
-    D1['nav_lon'] = dm.xpnd_wrap(D['nav_lon'], 'interp', ndeg)
-    #D1[vname].coords['nav_lat'].values[:] = D1['nav_lat'].values[:]
-    #D1[vname].coords['nav_lon'].values[:] = D1['nav_lon'].values[:]
-    D1['time'] = D['time']
-    D1['nav_lev'] = D['nav_lev']
-    #
-    D1 = xr.Dataset(D1)
-    D1 = D1.assign_attrs(D.attrs)
-    D.close()
-    return D1
+    vname = "TRN"+vname
+    with xr.open_dataset(infile) as D:
+        A = D[vname]
+        A.values[0,:][~mask.mask] = np.nan
+        RST = dm.xpnd_wrap(A, 'edge', ndeg)
+    return RST
 
-def init_rst(C):
-    '''
-    lat, lon are the same for all files
-    '''
-    R = {}
-    R['nav_lon'] = C['glamt']
-    R['nav_lat'] = C['gphit']
-    return R
 
-def degrade_bgc(DI, V0, C, vname, ndeg=1):
+def degrade_bgc(DI, V0, Maskout:Mask, ndeg=1):
     '''
     degrades resolution of BFM restart file
     Arguments:
     D1 : xarray DataArray, with 3D variable already expanded
          in 'edge' mode
     V0: array DataArray of the Volume of fine mesh
-    C : coords of coarse mesh
+    Maskout : mask of coarse mesh
 
     Returns:
     R : xarray Dataset, degraded variable
 
     '''
-    R = init_rst(C)
-    R[vname] = degrade_wrap(DI[vname], dm.vwmean, V0, ndeg)
-    R['nav_lev'] = DI['nav_lev']
-    R = xr.Dataset(R)
-    R = R.assign_attrs(DI.attrs)
-    return R
+    
+    A = degrade_wrap(DI, dm.vwmean, V0, ndeg)
+
+    return A
 
 def get_flist(Params):
     indir = Params['indir']
@@ -127,25 +104,15 @@ if __name__=='__main__':
         rank = 0
         nranks = 1
     #
-    Params = load_parameters()
+    Params = load_parameters(argument().yamlfile)
     mesh_in = Path(Params['mesh_in'])
     mesh_out = Path(Params['mesh_out'])
     outdir = Path(Params['outdir'])
     ndeg = Params['ndeg']
-    #
-    if rank==0:
-        M = dm.load_mesh(mesh_in, ndeg)
-        C = load_coords_degraded(mesh_out)
-        V0 = get_Volume(M)
-    else:
-        M = None
-        C = None
-        V0 = None
-    if nranks > 1:
-        M = comm.bcast(M, root=0)
-        C = comm.bcast(C, root=0)
-        V0 = comm.bcast(V0, root=0)
-    # HERE LOOP ON FILES AND VARIABLES
+
+    M = dm.load_mesh(mesh_in, ndeg)
+    V0 = get_Volume(M)
+
     itrbl = get_flist(Params)
 
     Maskout = Mask.from_file(mesh_out)
@@ -153,13 +120,15 @@ if __name__=='__main__':
 
     for vname, fname in itrbl[rank::nranks]:
         outfile = outdir / fname.name
-        vname = 'TRN'+vname
         print(f'degrado: {vname}')
         # 
-        DI = load_rst(fname, vname, Mask_in,ndeg)
-        Dd = degrade_bgc(DI, V0, C, vname, ndeg)
-        v = Dd[vname].values[0,:]
-        v[~Maskout.mask] = 1.0e20
+        DI = load_xpnd_rst(fname, vname, Mask_in,ndeg)
+        Dd = degrade_bgc(DI, V0, Maskout, ndeg)
+
+        print("eccolo")
+        v = Dd.values[0,:]
+        #v[~Maskout.mask] = 1.0e20
         waterpoints=v[Maskout.mask]
         print(f' post-degradation min/max/nans/ {waterpoints.min()}, {waterpoints.max()}', np.sum(np.isnan(waterpoints)))
-        dump_netcdf(Dd, outfile)
+        RSTwriter(outfile, vname, Dd.values[0,:], Maskout)
+

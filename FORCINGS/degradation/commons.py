@@ -1,5 +1,10 @@
 import xarray as xr
+import yaml
 
+def load_parameters(yamlfile):
+    with open(yamlfile) as f:
+        Params = yaml.load(f, Loader=yaml.Loader)
+    return(Params)
 
 def load_coords_degraded(maskfile_d):
     '''
