@@ -1,5 +1,5 @@
 import netCDF4 as NC
-from commons.mask import Mask
+from bitsea.commons.mask import Mask
 #Maskfile_OGS="meshmask_6125.nc"
 #TheMask = Mask(Maskfile_OGS)
 

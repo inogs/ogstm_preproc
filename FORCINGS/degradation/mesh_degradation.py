@@ -3,7 +3,7 @@ import xarray as xr
 from argparse import ArgumentParser
 import yaml
 from degrade_mesh import load_mesh, degrade_mesh, cut_med
-from commons import dump_netcdf
+from commons import dump_netcdf, load_parameters
 
 '''
 generates a reduced horizontal resolution mesh from an original mesh (with Atlantic buffer)
@@ -34,14 +34,9 @@ def argument():
                         help='file with all parameters')
     return parser.parse_args()
 
-def load_parameters():
-    yamlfile=argument().yamlfile
-    # yamlfile = 'degrade_mesh.yaml'
-    with open(yamlfile) as f:
-        Params = yaml.load(f, Loader=yaml.Loader)
-    return(Params)
 
-Params = load_parameters()
+
+Params = load_parameters(argument().yamlfile)
 maskfile = Params['maskfile']
 outfile = Params['outfile']
 outfile_med = Params['outfile_med']
