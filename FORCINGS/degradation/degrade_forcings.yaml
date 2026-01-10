@@ -1,0 +1,7 @@
+maskfile: '/Users/gbolzon/eclipse-workspace/ogstm_preproc/FORCINGS/degradation/meshmask.141.nc'
+maskfile_d: '/Users/gbolzon/eclipse-workspace/ogstm_preproc/FORCINGS/degradation/meshmask_025_z141.nc'
+ffdir: '/Users/gbolzon/eclipse-workspace/ogstm_preproc/FORCINGS/degradation/FORCINGS/1_24/'
+outdir: '/Users/gbolzon/eclipse-workspace/ogstm_preproc/FORCINGS/degradation/FORCINGS/1_4/'
+ndeg: 6
+y0: 1999
+yE: 2001

@@ -1,0 +1,6 @@
+mesh_in: '/Users/gbolzon/eclipse-workspace/ogstm_preproc/FORCINGS/degradation/meshmask.nc'
+mesh_out: '/Users/gbolzon/eclipse-workspace/ogstm_preproc/FORCINGS/degradation/meshmask_025_z125.nc'
+indir: '/Users/gbolzon/eclipse-workspace/ogstm_preproc/FORCINGS/degradation/'
+outdir: '/Users/gbolzon/eclipse-workspace/ogstm_preproc/FORCINGS/degradation/RST/'
+infile: 'RST.*-00:00:00.__VNAME__.nc'
+ndeg: 6

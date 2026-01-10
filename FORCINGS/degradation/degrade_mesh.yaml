@@ -1,0 +1,8 @@
+maskfile: '/Users/gbolzon/eclipse-workspace/ogstm_preproc/FORCINGS/degradation/meshmask.141.nc'
+outfile: '/Users/gbolzon/eclipse-workspace/ogstm_preproc/FORCINGS/degradation/meshmask_025_z141.nc'
+outfile_med: '/Users/gbolzon/eclipse-workspace/ogstm_preproc/FORCINGS/degradation/meshmask_025_z125.nc'
+# by how much cells to degrade (nr of cells to join in i, j)
+ndeg: 6
+# threshold of points to assign waterpoint to degraded mesh
+thresh: 1 #THE ONLY OPTION THAT ENSURES NO RIVERS END UP ON LAND
+ 
