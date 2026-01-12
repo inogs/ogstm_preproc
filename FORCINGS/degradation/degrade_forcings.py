@@ -209,12 +209,48 @@ def load_wfile(infile, ndeg=1):
     return F1
 
 
-def get_mask_fields(M):
+# def get_mask_fields(M):
+#     '''
+#     gets the arrays needed to compute cell surface areas and volumes
+#     those from the mask that do not change
+#     so it doesn't have to retrieve them each time
+#     '''
+#     h_column_t = M['h_column_t'].values[:]
+#     tmask =           M['tmask'].values[:]
+#     umask =           M['umask'].values[:]
+#     vmask =           M['vmask'].values[:]
+#     e3t_0 =           M['e3t_0'].values[:]
+#     e3u_0 =           M['e3u_0'].values[:]
+#     e3v_0 =           M['e3v_0'].values[:]
+#     e1u =               M['e1u'].values[:]
+#     e2u =               M['e2u'].values[:]
+#     e1v =               M['e1v'].values[:]
+#     e2v =               M['e2v'].values[:]
+#     e1t =               M['e1t'].values[:]
+#     e2t =               M['e2t'].values[:]
+#     At = e1t * e2t #e1v * e2u
+#     Aw = np.repeat(At, repeats=tmask.shape[1], axis=1)
+#     return h_column_t, tmask, umask, vmask, e3t_0, e3u_0, e3v_0, e1u, e2u, e1v, e2v, e1t, e2t, At, Aw
+
+def get_nanmask(mask):
+    nanmask = np.ones(mask.shape)
+    nanmask[mask==0.0] = np.nan
+    return nanmask
+
+def get_weights(M, T):
     '''
-    gets the arrays needed to compute cell surface areas and volumes
-    those from the mask that do not change
-    so it doesn't have to retrieve them each time
+    given the meshmask and the current t-grid file (with free surface)
+    computes cell surface areas on U, V grids and cell volume on T grid
+    and surface area on T / W grid
+    algorithm from ogstm/src/IO/forcing_phys.f90
+    (NB, this one pure numpy because xarray is not good at broadcasting)
+
+    Arguments:
+    M : xarray dataset output of load_mesh_light()
+    T : xarray dataset output of load_tfile()
+
     '''
+    jpk = M.dims['z']
     h_column_t = M['h_column_t'].values[:]
     tmask =           M['tmask'].values[:]
     umask =           M['umask'].values[:]
@@ -230,45 +266,50 @@ def get_mask_fields(M):
     e2t =               M['e2t'].values[:]
     At = e1t * e2t #e1v * e2u
     Aw = np.repeat(At, repeats=tmask.shape[1], axis=1)
-    return h_column_t, tmask, umask, vmask, e3t_0, e3u_0, e3v_0, e1u, e2u, e1v, e2v, e1t, e2t, At, Aw
 
-def get_nanmask(mask):
-    nanmask = np.ones(mask.shape)
-    nanmask[mask==0.0] = np.nan
-    return nanmask
+    print("step1")
 
-def get_weights(M, T):
-    '''
-    given the meshmask and the current t-grid file (with free surface)
-    computes cell surface areas on U, V grids and cell volume on T grid
-    and surface area on T / W grid
-    algorithm from ogstm/src/IO/forcing_phys.f90
-    (NB, this one pure numpy because xarray is not good at broadcasting)
-    '''
-    # THIS GOES OUTSIDE THE FUNCTION, SO I DON'T DO IT EACH TIME I CALL IT
-    h_column_t, tmask, umask, vmask, e3t_0, e3u_0, e3v_0, e1u, e2u, e1v, e2v, e1t, e2t, At, Aw = get_mask_fields(M)
-    nan_tmask = get_nanmask(tmask) 
-    nan_umask = get_nanmask(umask)
-    nan_vmask = get_nanmask(vmask)
-    At = At * nan_tmask[0,0,:,:] #used for degrading T-grid, needs NaN (weight only valid values)
-    # THIS GOES OUTSIDE THE FUNCTION, SO I DON'T DO IT EACH TIME I CALL IT
-    ssh = tmask * T['sossheig'].values[:]
-    correction_e3t = 1.0 + (ssh / h_column_t)
-    e3t = tmask * e3t_0 * correction_e3t
-    #
-    e1u_x_e2u = (e1u * e2u)
-    e1v_x_e2v = (e1v * e2v)
-    e1t_x_e2t = (e1t * e2t)
+    tmask_0=tmask[0,0,:,:].astype(bool)
+
+    ssh = tmask[0,0,:,:] * T['sossheig'].values[:] # (1, y, x)
+    ssh[0,~tmask_0] = 0.0 # avoiding nans in land processors
+    correction_e3t = 1.0 + (ssh / h_column_t) # (1, y, x)
+    e3t = e3t_0 * correction_e3t # broadcasting, resulting in (1, z, y, x)
+    print("step2")
+    # corresponds to:
+    # for jk in range(jpk):
+    #     e3t[:,jk,:,:] = e3t_0[0,jk,:,:] * correction_e3t[0, : , :]
+
+
+    e1u_x_e2u = (e1u * e2u).repeat(jpk, axis=1) #(1,jpk,jpj,jpi)
+    e1v_x_e2v = (e1v * e2v).repeat(jpk, axis=1)
+    e1t_x_e2t = (e1t * e2t).repeat(jpk, axis=1)
     diff_e3t = e3t - e3t_0
+    
+    assert np.isnan(diff_e3t).any() == False, "NaN values found in diff_e3t!"
     #
-    s0 = e1t_x_e2t * diff_e3t
+    print("step3")
+    s0 = e1t_x_e2t * diff_e3t # ((1, jpk, jpj, jpi))
     s1 = np.zeros(s0.shape)
     s2 = np.zeros(s0.shape)
-    s1[:,:,:,1:] = e1t_x_e2t[:,:,:,1:] * diff_e3t[:,:,:,1:] #THIS INDEXING SHOULD BE CORRECT
-    s2[:,:,1:,:] = e1t_x_e2t[:,:,1:,:] * diff_e3t[:,:,1:,:] #THIS INDEXING SHOULD BE CORRECT
-    #
+    s1[:,:,:,0:-1] = e1t_x_e2t[:,:,:,1:] * diff_e3t[:,:,:,1:]
+    s2[:,:,0:-1,:] = e1t_x_e2t[:,:,1:,:] * diff_e3t[:,:,1:,:]
+
     e3u = e3u_0 + (0.5 * (umask / e1u_x_e2u) * (s0 + s1))
     e3v = e3v_0 + (0.5 * (vmask / e1v_x_e2v) * (s0 + s2))
+
+    print("step4")
+        #  DO ji = 1,jpim1
+        #  DO jj = 1,jpjm1
+        #  DO jk = 1,jpk
+        #      s0= e1t_x_e2t(jj,ji ) * diff_e3t(jk,jj,ji)
+        #      s1= e1t_x_e2t(jj,ji+1) * diff_e3t(jk,jj,ji+1)
+        #      s2= e1t_x_e2t(jj+1,ji) * diff_e3t(jk,jj+1,ji)
+        #      e3udta(jk,jj,ji,2) = 0.5*(umask(jk,jj,ji)/(e1u_x_e2u(jj,ji)) * (s0 + s1))
+        #      e3vdta(jk,jj,ji,2) = 0.5*(vmask(jk,jj,ji)/(e1v_x_e2v(jj,ji)) * (s0 + s2))
+        #  ENDDO
+        #  ENDDO
+        #  ENDDO
     #
     B = {}
     B['e1v'] = xr.DataArray(e1v, name='e1v' , dims=('time','z_a','y','x'))
@@ -277,20 +318,10 @@ def get_weights(M, T):
     B['Aw'] = xr.DataArray(Aw, name='Aw' , dims=('time','z','y','x'))
     B['Au'] = xr.DataArray((e2u * e3u), name='Au' , dims=('time','z','y','x'))
     B['Av'] = xr.DataArray((e1v * e3v), name='Av' , dims=('time','z','y','x'))
-    B['V'] = xr.DataArray((nan_tmask * e1v * e2u * e3t), name='V' , dims=('time','z','y','x')) #for degrading T-grid, don't weight land values
+    B['V'] = xr.DataArray((e1v * e2u * e3t), name='V' , dims=('time','z','y','x')) #for degrading T-grid, don't weight land values
     B = xr.Dataset(B)
     return B
 
-
-
-def vwmean_old(X, W=1.0):
-    '''
-    W is a dataarray with cell volumes 3D
-    mean, weighted by surface area (t-grid)
-    '''
-    
-    X = (W * X).sum(dim=('y_b', 'x_b'), skipna=True) / W.sum(dim=('y_b', 'x_b'), skipna=True)
-    return X
 
 
 def vwmean2d(X, tmask_in, W, Mask_out):
@@ -348,7 +379,7 @@ def uawmean_istep(X, umask_in, Au):
     & one element each ndeg along lon (i)
     '''
     X = X.where(umask_in) # set u-grid points to nan
-    # take the western column of each block (U side)
+    # take the eastern column of each block (U side)
     Au_y_b = Au.isel({'x_b':-1})
     X_y_b = X.isel({'x_b':-1})
     Flux = (Au_y_b * X_y_b).sum(dim='y_b', skipna=True)
@@ -356,44 +387,7 @@ def uawmean_istep(X, umask_in, Au):
     X = (Au * X).sum(dim='y_b', skipna=True) / Au.sum(dim='y_b', skipna=True)
     return X
 
-def degrade(X, degr_op:callable, W, Mask_out, ndeg=1):
-    '''
-    Arguments:
-    X : xarray DataArray, not yet reshaped in blocks
-    degr_op : function that degrades resolution
-    W : xarray DataArray, already reshaped in blocks
-    Mask_out : Mask object, degraded mask
-    ndeg : int, degradation factor
-    '''
 
-    X = dm.reshape_blocks(X, ndeg)
-
-    X = degr_op(X, W, Mask_out)
-
-    return X
-
-def init_ds(D, Mask_obj:Mask, tuv):
-    '''
-    adds to degraded dataset the variables that are always the same:
-    nav_lat, nav_lon, depth, 
-    and those that do not need regridding, time
-    '''
-    Dd = {}
-    Dd[f'nav_lon'] = xr.DataArray(Mask_obj.xlevels, dims=('y', 'x'), name='nav_lon')
-    Dd[f'nav_lat'] = xr.DataArray(Mask_obj.ylevels, dims=('y', 'x'), name='nav_lat')
-    Dd[f'depth{tuv}'] = D[f'depth{tuv}']
-    Dd[f'depth{tuv}_bounds'] = D[f'depth{tuv}_bounds']
-    #Dd['time_instant'] = D['time_instant']
-    Dd['time_counter'] = D['time_counter']
-    Dd['time_centered'] = D['time_centered']
-    #Dd['time_instant_bounds'] = D['time_instant_bounds']
-    Dd['time_counter_bounds'] = D['time_counter_bounds']
-    Dd['time_centered_bounds'] = D['time_centered_bounds']
-    if tuv != 'w':
-        # for some reason these are not in W-grid files
-        Dd['time_instant'] = D['time_instant']
-        Dd['time_instant_bounds'] = D['time_instant_bounds']
-    return Dd
 
 def degrade_V(V, B, C, ndeg=1):
     '''
@@ -423,7 +417,7 @@ def degrade_U(U, umask_in, Warea, Mask_out, outfile, ndeg=1):
     
     Ur = dm.reshape_blocks(U['vozocrtx'], ndeg)
     #
-    Ud['vozocrtx'] = uawmean_istep(Ur, umask_in, Warea, ndeg)
+    Ud['vozocrtx'] = uawmean_istep(Ur, umask_in, Warea)
     #Ud['vozocrtx'] = degrade_wrap(U['vozocrtx'], uawmean_istep, B['Au'], ndeg)
     #Ud['sozotaux'] = degrade_wrap(U['sozotaux'], dm.e2uwmean_istep, B['e2u'], ndeg)
     #
@@ -513,7 +507,6 @@ def get_flist(tuvw:str, Params:dict):
     return flist
 
 if __name__=='__main__':
-    #
     try:
         comm = MPI.COMM_WORLD
         rank = comm.Get_rank()
@@ -545,7 +538,6 @@ if __name__=='__main__':
     
     print('loading mask')
     M = load_mesh_light(maskfile, ndeg) #NB, here Au, Av, V, are calculated with e3tuv_0
-    #C = load_coords_degraded(maskfile_d)
     Mask_out = Mask.from_file(maskfile_d)
 
     tmask_in= dm.reshape_blocks(M['tmask'].astype(bool), ndeg)
@@ -561,7 +553,10 @@ if __name__=='__main__':
         W = load_wfile(wfile, ndeg)
         T = load_tfile(tfile, ndeg)
 
+        print("computing weights")
         Weight = get_weights(M, T)
+        print("end computing weights")
+        import sys; sys.exit()
         Warea = dm.reshape_blocks(Weight['At'], ndeg)
         Warea_w = dm.reshape_blocks(Weight['Aw'], ndeg)
         Wvolume = dm.reshape_blocks(Weight['V'], ndeg)
