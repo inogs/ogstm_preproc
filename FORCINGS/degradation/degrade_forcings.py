@@ -579,7 +579,9 @@ def degrade_T(T,tmask_in, Wa, Wv, Mask_out, outfile, ndeg=1):
                   Td['votemper'].values,
                   Td['vosaline'].values,
                   Td['sossheig'].values,
-                  Td['soshfldo'].values)
+                  Td['soshfldo'].values,
+                  Td['sorunoff'].values,
+                  Td['somxl010'].values)
     
 
 def make_outdir(outdir:Path, outfile:str):
