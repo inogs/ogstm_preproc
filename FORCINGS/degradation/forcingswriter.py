@@ -121,7 +121,7 @@ def writefileW(filename, mask, W, K):
 
     ncOUT.close()
 
-def writefileT(filename, mask, T, S, ETA, SW_Rad):
+def writefileT(filename, mask, T, S, ETA, SW_Rad, RUNOFF, MXL):
     
     jpk,jpj,jpi = mask.shape
     
@@ -133,14 +133,14 @@ def writefileT(filename, mask, T, S, ETA, SW_Rad):
     ncOUT.createDimension('time_counter',1)
     
     ncvar = ncOUT.createVariable('nav_lon','f',('y','x'))
-    ncvar[:]=mask.xlevels
+    ncvar[:] = mask.xlevels
     ncvar = ncOUT.createVariable('nav_lat','f',('y','x'))
-    ncvar[:]=mask.ylevels
+    ncvar[:] = mask.ylevels
     ncvar = ncOUT.createVariable('deptht','f',('deptht',))
-    ncvar[:]=mask.zlevels
+    ncvar[:] = mask.zlevels
     
-    ncvar=ncOUT.createVariable('vosaline', 'f' ,('time_counter', 'deptht', 'y', 'x'),fill_value=1.0e+20)
-    ncvar[:]=S
+    ncvar = ncOUT.createVariable('vosaline', 'f' ,('time_counter', 'deptht', 'y', 'x'),fill_value=1.0e+20)
+    ncvar[:] = S
     setattr(ncvar,'standard_name',"sea_water_z_velocity")
     setattr(ncvar,'long_name',"sea_water_z_velocity")
     setattr(ncvar,'units',"m/s" )
@@ -151,8 +151,8 @@ def writefileT(filename, mask, T, S, ETA, SW_Rad):
     setattr(ncvar,'coordinates', "time_instant depthu nav_lon nav_lat")
     
     
-    ncvar=ncOUT.createVariable('votemper', 'f' ,('time_counter', 'deptht', 'y', 'x'),fill_value=1.0e+20)
-    ncvar[:]=T
+    ncvar = ncOUT.createVariable('votemper', 'f' ,('time_counter', 'deptht', 'y', 'x'),fill_value=1.0e+20)
+    ncvar[:] = T
     
     setattr(ncvar,'standard_name',"sea_water_z_velocity")
     setattr(ncvar,'long_name',"sea_water_z_velocity")
@@ -164,17 +164,28 @@ def writefileT(filename, mask, T, S, ETA, SW_Rad):
     setattr(ncvar,'coordinates',"time_instant depthu nav_lon nav_lat")
     
     ncvar = ncOUT.createVariable('sossheig', 'f', ('time_counter', 'y', 'x'),fill_value=1.0e+20)
-    ncvar[:]=ETA
+    ncvar[:] = ETA
     setattr(ncvar,'standard_name',"sea_surface_height_above_geoid")
     setattr(ncvar,'long_name',"sea_surface_height_above_geoid")
     setattr(ncvar,'units',"m" )
 
     ncvar = ncOUT.createVariable('soshfldo', 'f', ('time_counter', 'y', 'x'),fill_value=1.0e+20)
-    ncvar[:]=SW_Rad
+    ncvar[:] = SW_Rad
     setattr(ncvar,'standard_name',"Shortwave Radiation")
     setattr(ncvar,'long_name',"Shortwave Radiation")
     setattr(ncvar,'units',"W/m2" )
 
+    ncvar = ncOUT.createVariable('sorunoff', 'f', ('time_counter', 'y', 'x'),fill_value=1.0e+20)
+    ncvar[:] = RUNOFF
+    setattr(ncvar,'standard_name',"water_flux_into_sea_water_from_rivers")
+    setattr(ncvar,'long_name',"water_flux_into_sea_water_from_rivers")
+    setattr(ncvar,'units',"kg/m2/s" )
+
+    ncvar = ncOUT.createVariable('somxl010', 'f', ('time_counter', 'y', 'x'),fill_value=1.0e+20)
+    ncvar[:] = MXL
+    setattr(ncvar,'standard_name',"mixed_layer_depth_0.01")
+    setattr(ncvar,'long_name',"mixed_layer_depth_0.01")
+    setattr(ncvar,'units',"m" )
+
     ncOUT.close()
    
- 
