@@ -286,7 +286,7 @@ def get_weights(M, T):
     B['Aw'] = xr.DataArray(Aw, name='Aw' , dims=('time','z','y','x'))
     B['Au'] = xr.DataArray((e2u * e3u), name='Au' , dims=('time','z','y','x'))
     B['Av'] = xr.DataArray((e1v * e3v), name='Av' , dims=('time','z','y','x'))
-    B['V'] = xr.DataArray((e1v * e2u * e3t), name='V' , dims=('time','z','y','x')) #for degrading T-grid, don't weight land values
+    B['V'] = xr.DataArray((e1t * e2t * e3t), name='V' , dims=('time','z','y','x')) #for degrading T-grid, don't weight land values
     B = xr.Dataset(B)
     return B
 
