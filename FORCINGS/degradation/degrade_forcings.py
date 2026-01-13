@@ -209,34 +209,6 @@ def load_wfile(infile, ndeg=1):
     return F1
 
 
-# def get_mask_fields(M):
-#     '''
-#     gets the arrays needed to compute cell surface areas and volumes
-#     those from the mask that do not change
-#     so it doesn't have to retrieve them each time
-#     '''
-#     h_column_t = M['h_column_t'].values[:]
-#     tmask =           M['tmask'].values[:]
-#     umask =           M['umask'].values[:]
-#     vmask =           M['vmask'].values[:]
-#     e3t_0 =           M['e3t_0'].values[:]
-#     e3u_0 =           M['e3u_0'].values[:]
-#     e3v_0 =           M['e3v_0'].values[:]
-#     e1u =               M['e1u'].values[:]
-#     e2u =               M['e2u'].values[:]
-#     e1v =               M['e1v'].values[:]
-#     e2v =               M['e2v'].values[:]
-#     e1t =               M['e1t'].values[:]
-#     e2t =               M['e2t'].values[:]
-#     At = e1t * e2t #e1v * e2u
-#     Aw = np.repeat(At, repeats=tmask.shape[1], axis=1)
-#     return h_column_t, tmask, umask, vmask, e3t_0, e3u_0, e3v_0, e1u, e2u, e1v, e2v, e1t, e2t, At, Aw
-
-def get_nanmask(mask):
-    nanmask = np.ones(mask.shape)
-    nanmask[mask==0.0] = np.nan
-    return nanmask
-
 def get_weights(M, T):
     '''
     given the meshmask and the current t-grid file (with free surface)
@@ -287,8 +259,7 @@ def get_weights(M, T):
     diff_e3t = e3t - e3t_0
     
     assert np.isnan(diff_e3t).any() == False, "NaN values found in diff_e3t!"
-    #
-    print("step3")
+    
     s0 = e1t_x_e2t * diff_e3t # ((1, jpk, jpj, jpi))
     s1 = np.zeros(s0.shape)
     s2 = np.zeros(s0.shape)
@@ -298,7 +269,6 @@ def get_weights(M, T):
     e3u = e3u_0 + (0.5 * (umask / e1u_x_e2u) * (s0 + s1))
     e3v = e3v_0 + (0.5 * (vmask / e1v_x_e2v) * (s0 + s2))
 
-    print("step4")
         #  DO ji = 1,jpim1
         #  DO jj = 1,jpjm1
         #  DO jk = 1,jpk
@@ -373,21 +343,69 @@ def vwmean(X, tmask_in, W, Mask_out):
 
     #return OUT
 
-def uawmean_istep(X, umask_in, Au):
+def coarsen_U(U, umask_in, Au, Mask_out:Mask):
     '''
-    mean, weighted by lateral u-grid area along lat (j)
-    & one element each ndeg along lon (i)
+    Coarsens U field by weighted averaging the eastern column of each block of 
+    fine U-gridded array.
+
+    Arguments:
+    U        : xr.DataArray of fine U, reshaped in blocks (time, z, y, x, y_b, x_b)
+    umask_in : xr.DataArray, reshaped in blocks umask of original mesh
+    Au       : xr.DataArray, reshaped in blocks,
+                with no nans,
+                side U area, (e2u * e3u) in get_weights()
+
+    Mask_out : Mask object, degraded mesh mask, having umask in 'mask' field
+
+    Returns:
+    U_coarse : xr.DataArray of coarse U, (time, z, y, x)
     '''
-    X = X.where(umask_in) # set u-grid points to nan
+
+    U = U.where(umask_in) # set u-grid points to nan
     # take the eastern column of each block (U side)
     Au_y_b = Au.isel({'x_b':-1})
-    X_y_b = X.isel({'x_b':-1})
-    Flux = (Au_y_b * X_y_b).sum(dim='y_b', skipna=True)
-    #Area = 
-    X = (Au * X).sum(dim='y_b', skipna=True) / Au.sum(dim='y_b', skipna=True)
-    return X
+    U_y_b = U.isel({'x_b':-1})
 
+    # Here skipna=True is important to exclude umask=0 points
+    Flux_fine = (Au_y_b * U_y_b).sum(dim='y_b', skipna=True)
 
+    # Here we take in account also the area of the umask=0 points
+    Area_coarse_cells = Au_y_b.sum(dim='y_b')
+    
+    U_coarse = Flux_fine / Area_coarse_cells
+
+    U_coarse = U_coarse.where(Mask_out.mask, other=1.e+20)
+    assert np.isnan(U_coarse).any().values == False, "NaN values found in U coarse!"
+    return U_coarse
+
+def coarsen_taux(tau, umask_in, e2u, Mask_out):
+    '''
+    Coarsens taux field by weighted averaging the eastern column of each block of 
+    fine U-gridded array.
+
+    Arguments:
+    tau.     : xr.DataArray, reshaped in blocks (1, z, y, x, y_b, x_b)
+    umask_in : xr.DataArray, reshaped in blocks umask of original mesh
+    e2u      : xr.DataArray, reshaped in blocks
+    Mask_out : Mask object, degraded mesh mask, having umask in 'mask' field
+    Returns:
+    tau_coarse : xr.DataArray of coarse tau, (1, 1, y, x)
+    '''
+    tau = tau.where(umask_in.isel(z=0)) # set u-grid points to nan
+    # take the eastern column of each block (U side)
+    e2u_y_b = e2u.isel({'x_b':-1})
+    tau_y_b = tau.isel({'x_b':-1})
+
+    # Here skipna=True is important to exclude umask=0 points
+    Force_fine = (e2u_y_b * tau_y_b).sum(dim='y_b', skipna=True)
+
+    # Here we take in account also the area of the umask=0 points
+    Area_coarse_cells = e2u_y_b.sum(dim='y_b')
+    tau_coarse = Force_fine / Area_coarse_cells
+
+    tau_coarse = tau_coarse.where(Mask_out.mask[0,:], other=1.e+20)
+    assert np.isnan(tau_coarse).any().values == False, "NaN values found in tau coarse!"
+    return tau_coarse
 
 def degrade_V(V, B, C, ndeg=1):
     '''
@@ -405,22 +423,36 @@ def degrade_V(V, B, C, ndeg=1):
     Vd = xr.Dataset(Vd)
     return Vd
 
-def degrade_U(U, umask_in, Warea, Mask_out, outfile, ndeg=1):
+def degrade_U(U, umask_in, Warea, e2u, Mask_out, outfile, ndeg=1):
     '''
-    degrades resolution of U-grid file
-    vozocrtx
-    sozotaux
+    degrades resolution of U-grid file and dumps it to netcdf
+    Arguments:
+    U        : xr.Dataset, u-grid forcing file, expanded but not yet reshaped in blocks
+    umask_in : xr.DataArray, reshaped in blocks umask of original mesh
+    Warea    : xr.DataArray, reshaped in blocks cell surface area on u-grid
+               (e2u * e3u) in get_weights(), with no nans
+    e2u      : xr.DataArray, reshaped in blocks side U area, with no nans
+    Mask_out : Mask object, degraded mesh mask
+    outfile  : str, path to output file
+    ndeg     : int, degradation factor
     '''
-    #B = B.rename({'time':'time_counter', 'z':'depthu'})
     U = U.rename({'time_counter':'time', 'depthu':'z'})
     Ud = {}
     
     Ur = dm.reshape_blocks(U['vozocrtx'], ndeg)
-    #
-    Ud['vozocrtx'] = uawmean_istep(Ur, umask_in, Warea)
-    #Ud['vozocrtx'] = degrade_wrap(U['vozocrtx'], uawmean_istep, B['Au'], ndeg)
-    #Ud['sozotaux'] = degrade_wrap(U['sozotaux'], dm.e2uwmean_istep, B['e2u'], ndeg)
-    #
+    taur = dm.reshape_blocks(U['sozotaux'], ndeg)
+
+    Ud['vozocrtx'] = coarsen_U(Ur, umask_in, Warea, Mask_out)
+    Ud['sozotaux'] = coarsen_taux(taur, umask_in, e2u, Mask_out)
+
+    print(Ud['vozocrtx'].sizes)
+    print(Ud['sozotaux'].sizes)
+    FW.writefileU( outfile,
+                  Mask_out,
+                  Ud['vozocrtx'].values[:],
+                  Ud['sozotaux'].values[:]
+                  )
+    
     
 def degrade_W(W, tmask_in, Wa, Mask_out, outfile, ndeg=1):
     '''
@@ -539,6 +571,8 @@ if __name__=='__main__':
     print('loading mask')
     M = load_mesh_light(maskfile, ndeg) #NB, here Au, Av, V, are calculated with e3tuv_0
     Mask_out = Mask.from_file(maskfile_d)
+    Mask_out_u = Mask.from_file(maskfile_d, mask_var_name='umask')
+    Mask_out_v = Mask.from_file(maskfile_d, mask_var_name='vmask')
 
     tmask_in= dm.reshape_blocks(M['tmask'].astype(bool), ndeg)
     umask_in= dm.reshape_blocks(M['umask'].astype(bool), ndeg)
@@ -548,19 +582,20 @@ if __name__=='__main__':
     print('loading T, U, V files')
     ziter = list(zip(flistt, flistu, flistv, flistw))
     for tfile, ufile, vfile, wfile in ziter[rank::nranks]:
-        V = load_vfile(vfile, ndeg)
+        #V = load_vfile(vfile, ndeg)
         U = load_ufile(ufile, ndeg)
-        W = load_wfile(wfile, ndeg)
+        #W = load_wfile(wfile, ndeg)
         T = load_tfile(tfile, ndeg)
 
         print("computing weights")
         Weight = get_weights(M, T)
         print("end computing weights")
-        import sys; sys.exit()
+        
         Warea = dm.reshape_blocks(Weight['At'], ndeg)
         Warea_w = dm.reshape_blocks(Weight['Aw'], ndeg)
         Wvolume = dm.reshape_blocks(Weight['V'], ndeg)
         Warea_u = dm.reshape_blocks(Weight['Au'], ndeg)
+        e2u = dm.reshape_blocks(Weight['e2u'], ndeg)
 
         print('degrado')
         outft = tfile.split('/')[-1]
@@ -569,10 +604,10 @@ if __name__=='__main__':
         outfw = wfile.split('/')[-1]
         outdir = make_outdir(outdir, outft)
         
-        degrade_T(T, tmask_in, Warea, Wvolume, Mask_out, outdir + outft, ndeg)
-        degrade_U(U, umask_in, Warea_u, Mask_out, outdir + outfu, ndeg)
+        #degrade_T(T, tmask_in, Warea, Wvolume, Mask_out, outdir + outft, ndeg)
+        degrade_U(U, umask_in, Warea_u, e2u, Mask_out_u, outdir + outfu, ndeg)
 
         #degrade(V, 'V', B, C, outdir, outfv, ndeg)
-        degrade_W(W, tmask_in, Warea_w, Mask_out, outdir + outfw, ndeg)
+        #degrade_W(W, tmask_in, Warea_w, Mask_out, outdir + outfw, ndeg)
 
 
