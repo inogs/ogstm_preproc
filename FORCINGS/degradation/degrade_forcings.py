@@ -239,15 +239,13 @@ def get_weights(M, T):
     At = e1t * e2t #e1v * e2u
     Aw = np.repeat(At, repeats=tmask.shape[1], axis=1)
 
-    print("step1")
-
     tmask_0=tmask[0,0,:,:].astype(bool)
 
     ssh = tmask[0,0,:,:] * T['sossheig'].values[:] # (1, y, x)
     ssh[0,~tmask_0] = 0.0 # avoiding nans in land processors
     correction_e3t = 1.0 + (ssh / h_column_t) # (1, y, x)
     e3t = e3t_0 * correction_e3t # broadcasting, resulting in (1, z, y, x)
-    print("step2")
+
     # corresponds to:
     # for jk in range(jpk):
     #     e3t[:,jk,:,:] = e3t_0[0,jk,:,:] * correction_e3t[0, : , :]
@@ -345,7 +343,7 @@ def vwmean(X, tmask_in, W, Mask_out):
 
 def coarsen_U(U, umask_in, Au, Mask_out:Mask):
     '''
-    Coarsens U field by weighted averaging the eastern column of each block of 
+    Coarsens U field by weighted averaging the eastern column of each block of
     fine U-gridded array.
 
     Arguments:
@@ -371,16 +369,51 @@ def coarsen_U(U, umask_in, Au, Mask_out:Mask):
 
     # Here we take in account also the area of the umask=0 points
     Area_coarse_cells = Au_y_b.sum(dim='y_b')
-    
+
     U_coarse = Flux_fine / Area_coarse_cells
 
     U_coarse = U_coarse.where(Mask_out.mask, other=1.e+20)
     assert np.isnan(U_coarse).any().values == False, "NaN values found in U coarse!"
     return U_coarse
 
+def coarsen_V(V, vmask_in, Av, Mask_out:Mask):
+    '''
+    Coarsens V field by weighted averaging the northern column of each block of
+    fine V-gridded array.
+
+    Arguments:
+    U        : xr.DataArray of fine U, reshaped in blocks (time, z, y, x, y_b, x_b)
+    umask_in : xr.DataArray, reshaped in blocks umask of original mesh
+    Au       : xr.DataArray, reshaped in blocks,
+                with no nans,
+                side U area, (e2u * e3u) in get_weights()
+
+    Mask_out : Mask object, degraded mesh mask, having umask in 'mask' field
+
+    Returns:
+    U_coarse : xr.DataArray of coarse U, (time, z, y, x)
+    '''
+
+    V = V.where(vmask_in) # set v-grid points to nan
+    # take the northern column of each block (V side)
+    Av_y_b = Av.isel({'y_b':-1})
+    V_y_b = V.isel({'y_b':-1})
+
+    # Here skipna=True is important to exclude vmask=0 points
+    Flux_fine = (Av_y_b * V_y_b).sum(dim='x_b', skipna=True)
+
+    # Here we take in account also the area of the vmask=0 points
+    Area_coarse_cells = Av_y_b.sum(dim='x_b')
+
+    V_coarse = Flux_fine / Area_coarse_cells
+
+    V_coarse = V_coarse.where(Mask_out.mask, other=1.e+20)
+    assert np.isnan(V_coarse).any().values == False, "NaN values found in V coarse!"
+    return V_coarse
+
 def coarsen_taux(tau, umask_in, e2u, Mask_out):
     '''
-    Coarsens taux field by weighted averaging the eastern column of each block of 
+    Coarsens taux field by weighted averaging the eastern column of each block of
     fine U-gridded array.
 
     Arguments:
@@ -407,21 +440,62 @@ def coarsen_taux(tau, umask_in, e2u, Mask_out):
     assert np.isnan(tau_coarse).any().values == False, "NaN values found in tau coarse!"
     return tau_coarse
 
-def degrade_V(V, B, C, ndeg=1):
+def coarsen_tauy(tau, vmask_in, e1v, Mask_out):
     '''
-    degrades resolution of V-grid file
-    vomecrty
-    sometauy
+    Coarsens tauy field by weighted averaging the eastern column of each block of 
+    fine V-gridded array.
+
+    Arguments:
+    tau.      : xr.DataArray, reshaped in blocks (1, z, y, x, y_b, x_b)
+    vmask_in : xr.DataArray, reshaped in blocks vmask of original mesh
+    e1v      : xr.DataArray, reshaped in blocks
+    Mask_out : Mask object, degraded mesh mask, having umask in 'mask' field
+    Returns:
+    tau_coarse : xr.DataArray of coarse tau, (1, 1, y, x)
     '''
-    B = B.rename({'time':'time_counter', 'z':'depthv'})
-    #Vd = {}
-    Vd = init_ds(V, C, 'v')
-    #
-    Vd['vomecrty'] = degrade_wrap(V['vomecrty'], dm.vawmean_jstep, B['Av'], ndeg)
-    Vd['sometauy'] = degrade_wrap(V['sometauy'], dm.e1vwmean_jstep, B['e1v'], ndeg)
-    #
-    Vd = xr.Dataset(Vd)
-    return Vd
+    tau = tau.where(vmask_in.isel(z=0)) # set v-grid points to nan
+    # take the eastern column of each block (V side)
+    e1v_y_b = e1v.isel({'y_b':-1})
+    tau_y_b = tau.isel({'y_b':-1})
+
+    # Here skipna=True is important to exclude umask=0 points
+    Force_fine = (e1v_y_b * tau_y_b).sum(dim='x_b', skipna=True)
+    # Here we take in account also the area of the umask=0 points
+    Area_coarse_cells = e1v_y_b.sum(dim='x_b')
+    tau_coarse = Force_fine / Area_coarse_cells
+
+    tau_coarse = tau_coarse.where(Mask_out.mask[0,:], other=1.e+20)
+    assert np.isnan(tau_coarse).any().values == False, "NaN values found in tau coarse!"
+    return tau_coarse
+
+
+def degrade_V(V, vmask_in, Av, e1v, Mask_out, outfile, ndeg=1):
+    '''
+    degrades resolution of V-grid file and dumps it to netcdf
+    Arguments:
+    V        : xr.Dataset, v-grid forcing file, expanded but not yet reshaped in blocks
+    vmask_in : xr.DataArray, reshaped in blocks vmask of original mesh
+    Av       : xr.DataArray, reshaped in blocks cell surface area on v-grid
+               (e1v * e3v) in get_weights(), with no nans
+    e1v      : xr.DataArray, reshaped in blocks side V area, with no nans
+    Mask_out : Mask object, degraded mesh mask
+    outfile  : str, path to output file
+    ndeg     : int, degradation factor
+
+    '''
+    V = V.rename({'time_counter':'time', 'depthv':'z'})
+    Vd = {}
+    Vr = dm.reshape_blocks(V['vomecrty'], ndeg)
+    taur = dm.reshape_blocks(V['sometauy'], ndeg)
+
+    Vd['vomecrty'] = coarsen_V(Vr, vmask_in, Av, Mask_out)
+    Vd['sometauy'] = coarsen_tauy(taur, vmask_in, e1v, Mask_out)
+
+    FW.writefileV(outfile,
+                  Mask_out,
+                  Vd['vomecrty'].values[:],
+                  Vd['sometauy'].values[:]
+                  )
 
 def degrade_U(U, umask_in, Warea, e2u, Mask_out, outfile, ndeg=1):
     '''
@@ -445,8 +519,6 @@ def degrade_U(U, umask_in, Warea, e2u, Mask_out, outfile, ndeg=1):
     Ud['vozocrtx'] = coarsen_U(Ur, umask_in, Warea, Mask_out)
     Ud['sozotaux'] = coarsen_taux(taur, umask_in, e2u, Mask_out)
 
-    print(Ud['vozocrtx'].sizes)
-    print(Ud['sozotaux'].sizes)
     FW.writefileU( outfile,
                   Mask_out,
                   Ud['vozocrtx'].values[:],
@@ -582,20 +654,22 @@ if __name__=='__main__':
     print('loading T, U, V files')
     ziter = list(zip(flistt, flistu, flistv, flistw))
     for tfile, ufile, vfile, wfile in ziter[rank::nranks]:
-        #V = load_vfile(vfile, ndeg)
+        V = load_vfile(vfile, ndeg)
         U = load_ufile(ufile, ndeg)
-        #W = load_wfile(wfile, ndeg)
+        W = load_wfile(wfile, ndeg)
         T = load_tfile(tfile, ndeg)
 
-        print("computing weights")
+
         Weight = get_weights(M, T)
-        print("end computing weights")
+
         
         Warea = dm.reshape_blocks(Weight['At'], ndeg)
         Warea_w = dm.reshape_blocks(Weight['Aw'], ndeg)
         Wvolume = dm.reshape_blocks(Weight['V'], ndeg)
         Warea_u = dm.reshape_blocks(Weight['Au'], ndeg)
+        Warea_v = dm.reshape_blocks(Weight['Av'], ndeg)
         e2u = dm.reshape_blocks(Weight['e2u'], ndeg)
+        e1v = dm.reshape_blocks(Weight['e1v'], ndeg)
 
         print('degrado')
         outft = tfile.split('/')[-1]
@@ -604,10 +678,9 @@ if __name__=='__main__':
         outfw = wfile.split('/')[-1]
         outdir = make_outdir(outdir, outft)
         
-        #degrade_T(T, tmask_in, Warea, Wvolume, Mask_out, outdir + outft, ndeg)
+        degrade_T(T, tmask_in, Warea, Wvolume, Mask_out, outdir + outft, ndeg)
         degrade_U(U, umask_in, Warea_u, e2u, Mask_out_u, outdir + outfu, ndeg)
-
-        #degrade(V, 'V', B, C, outdir, outfv, ndeg)
-        #degrade_W(W, tmask_in, Warea_w, Mask_out, outdir + outfw, ndeg)
+        degrade_V(V, vmask_in, Warea_v, e1v, Mask_out_v, outdir + outfv, ndeg)
+        degrade_W(W, tmask_in, Warea_w, Mask_out, outdir + outfw, ndeg)
 
 
