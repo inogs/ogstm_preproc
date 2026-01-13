@@ -1,16 +1,15 @@
 import numpy as np
 import xarray as xr
 from glob import glob
-import os
 from pathlib import Path
 from argparse import ArgumentParser
 
 from itertools import chain
 # my stuff
 import degrade_mesh as dm
-from commons import dump_netcdf, load_parameters
+from commons import load_parameters
 from bitsea.commons.mask import Mask
-from previous import forcingswriter as FW
+import forcingswriter as FW
 
 '''
 degrades resolution of OGSTM physics forcings
@@ -583,16 +582,17 @@ def degrade_T(T,tmask_in, Wa, Wv, Mask_out, outfile, ndeg=1):
                   Td['soshfldo'].values)
     
 
-def make_outdir(outdir, outfile):
+def make_outdir(outdir:Path, outfile:str):
+    '''
+    Generates /yyyy/mm/ subdirectory in outdir based on outfile name
+    and creates it if it does not exist
+    '''    
     #/leonardo_work/OGS23_PRACE_IT_0/ggalli00/OGSTM-BFM/qDEG_SETUP/FORCINGS/
     #T20020308-12:00:00.nc
     yyyy = outfile[1:5]
     mm = outfile[5:7]
-    outdir = f'{outdir}/{yyyy}/{mm}/'
-    if not os.path.exists(outdir):
-        os.makedirs(outdir, exist_ok=True) 
-    else:
-        pass
+    outdir = outdir / f'{yyyy}/{mm}/'
+    outdir.mkdir(exist_ok=True, parents=True)
     return outdir
 
     
@@ -601,14 +601,18 @@ def make_outdir(outdir, outfile):
 
 def get_flist(tuvw:str, Params:dict):
     '''
-    
+    List files in Params['ffdir'] for variable tuvw ('T', 'U', 'V', 'W')
+    between years Params['y0'] and Params['yE']
+    Assumses files are in subdirectories /yyyy/mm/ like in ogstm NECCTON version.
+    Returns:
+        Path list of forcing files
     '''
     ffdir = Params['ffdir']
     y0 = Params['y0']
     yE = Params['yE']
     flist = [glob(f'{ffdir}/{YYYY}/??/{tuvw}*.nc') for YYYY in range(y0, yE+1)]
     flist = sorted(list(chain.from_iterable(flist)))
-    return flist
+    return [Path(f) for f in flist]
 
 if __name__=='__main__':
     try:
@@ -635,7 +639,6 @@ if __name__=='__main__':
     flistu = get_flist('U', Params)
     flistv = get_flist('V', Params)
     flistw = get_flist('W', Params)
-
 
     #
     # load mesh and expand lat, lon to make them multiples of ndeg
@@ -672,15 +675,11 @@ if __name__=='__main__':
         e1v = dm.reshape_blocks(Weight['e1v'], ndeg)
 
         print('degrado')
-        outft = tfile.split('/')[-1]
-        outfu = ufile.split('/')[-1]
-        outfv = vfile.split('/')[-1]
-        outfw = wfile.split('/')[-1]
-        outdir = make_outdir(outdir, outft)
+        yyyymm_dir = make_outdir(outdir, tfile.name)
         
-        degrade_T(T, tmask_in, Warea, Wvolume, Mask_out, outdir + outft, ndeg)
-        degrade_U(U, umask_in, Warea_u, e2u, Mask_out_u, outdir + outfu, ndeg)
-        degrade_V(V, vmask_in, Warea_v, e1v, Mask_out_v, outdir + outfv, ndeg)
-        degrade_W(W, tmask_in, Warea_w, Mask_out, outdir + outfw, ndeg)
+        degrade_T(T, tmask_in, Warea, Wvolume, Mask_out, yyyymm_dir / tfile.name, ndeg)
+        degrade_U(U, umask_in, Warea_u, e2u, Mask_out_u, yyyymm_dir / ufile.name, ndeg)
+        degrade_V(V, vmask_in, Warea_v, e1v, Mask_out_v, yyyymm_dir / vfile.name, ndeg)
+        degrade_W(W, tmask_in, Warea_w, Mask_out, yyyymm_dir / wfile.name, ndeg)
 
 
