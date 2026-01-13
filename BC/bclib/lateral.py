@@ -85,12 +85,14 @@ class lateral_bc:
                     self.dic[ jt,jk,:,:] = vp_dic[ jt,jk]
                     self.alk[ jt,jk,:,:] = vp_alk[ jt,jk]
 
+            print('HERE')
+            for jt in range(jpt): 
+                print(f'tmask4d.shape: {tmask4d.shape}') 
+                tmask4d[jt,:,:,:]=mask.mask.as_array()
 
-            for jt in range(jpt): tmask4d[jt,:,:,:]=mask.mask
-
-            self.phos[~tmask4d]=1.e+20
-            self.ntra[~tmask4d]=1.e+20
-            self.dox[ ~tmask4d]=1.e+20
-            self.sica[~tmask4d]=1.e+20
-            self.dic[ ~tmask4d]=1.e+20
-            self.alk[ ~tmask4d]=1.e+20
+                self.phos[~tmask4d]=1.e+20
+                self.ntra[~tmask4d]=1.e+20
+                self.dox[ ~tmask4d]=1.e+20
+                self.sica[~tmask4d]=1.e+20
+                self.dic[ ~tmask4d]=1.e+20
+                self.alk[ ~tmask4d]=1.e+20
