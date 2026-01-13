@@ -618,6 +618,7 @@ def get_flist(tuvw:str, Params:dict):
 
 if __name__=='__main__':
     try:
+        from mpi4py import MPI
         comm = MPI.COMM_WORLD
         rank = comm.Get_rank()
         nranks = comm.size
