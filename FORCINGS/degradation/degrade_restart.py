@@ -1,5 +1,6 @@
 import numpy as np
 import xarray as xr
+import netCDF4
 from argparse import ArgumentParser
 from glob import glob
 #
@@ -8,7 +9,8 @@ from commons import degrade_wrap, load_parameters
 import regridding as rg
 from pathlib import Path
 from bitsea.commons.mask import Mask
-from IC import RSTwriter
+#from IC import RSTwriter
+#from previous.restart_interpolator import RSTwriter
 
 '''
 degrades the horizontal resolution of BFM restarts by an integer value
@@ -92,6 +94,29 @@ def get_flist(Params):
     flist = glob(indir + infile.replace('__VNAME__', '*'))
     itrbl = [(ff.split('.')[-2], Path(ff)) for ff in flist]
     return itrbl
+
+def RSTwriter(outfile, var, rst, TheMask):
+    rst[~TheMask.mask] = 1.e+20
+    jpk, jpj, jpi = TheMask.shape
+    ncOUT=netCDF4.Dataset(outfile,"w", format="NETCDF4")
+    ncOUT.createDimension('x',jpi);
+    ncOUT.createDimension('y',jpj);
+    ncOUT.createDimension('z',jpk);
+    ncOUT.createDimension('time',1)
+
+    TRN   = 'TRN' + var;
+    ncvar = ncOUT.createVariable('nav_lon' ,'d',('y','x')           ); ncvar[:] = TheMask.xlevels
+    ncvar = ncOUT.createVariable('nav_lat' ,'d',('y','x')           ); ncvar[:] = TheMask.ylevels
+    ncvar = ncOUT.createVariable('nav_lev' ,'d',('z')               ); ncvar[:] = TheMask.zlevels
+    ncvar = ncOUT.createVariable('time'    ,'d',('time',)           ); ncvar    = 1.;
+    ncvar = ncOUT.createVariable(TRN       ,'d',('time','z','y','x') ); ncvar[:] = rst;
+
+    setattr(ncOUT.variables[TRN]   ,'missing_value',1.e+20                             );
+    setattr(ncOUT.variables['time'],'Units'        ,'seconds since 1582-10-15 00:00:00');
+    setattr(ncOUT                  ,'TimeString'   ,'20010101-00:00:00');
+    ncOUT.close()
+    return
+
 
 if __name__=='__main__':
     try:

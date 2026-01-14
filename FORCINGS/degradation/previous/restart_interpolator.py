@@ -1,11 +1,12 @@
 import numpy as np
-from commons.mask import Mask
-from commons.dataextractor import DataExtractor
+from bitsea.commons.mask import Mask
+from bitsea.commons.dataextractor import DataExtractor
 import netCDF4
 import glob,os
 
 def weighted_mean(values,weights):
     return (values*weights).sum()/weights.sum()
+
 def interp3d(M3dfine, Maskfine,MaskCoarse,I,J):
     '''
     Degradates a 3d field defined on cell center, using area weighted mean.
@@ -92,11 +93,11 @@ for filename in RST_LIST:
     basename=os.path.basename(filename)
     outfile = OUTPUTDIR + basename
     var = basename.rsplit(".")[2]
-    print outfile
+    print(outfile)
     
     RST = DataExtractor(Mask16, filename, "TRN" + var).values
     values=RST[orig_tmask]
-    print "ORIG:         " , values.min(), values.max()    
+    print("ORIG:         " , values.min(), values.max())
 #  correction of spain point, setting values where tmask was 0 #######
     nearest_values= RST[:5,149,140]
     for i in range(ncorr): 
@@ -107,7 +108,7 @@ for filename in RST_LIST:
     values = rst[MaskCoarse.mask]
     if np.isnan(values).any():
         raise ValueError
-    print "INTERPOLATED: " ,  values.min(), values.max()
+    print("INTERPOLATED: " ,  values.min(), values.max())
     
     
     RSTwriter(outfile, var, rst, MaskCoarse)
