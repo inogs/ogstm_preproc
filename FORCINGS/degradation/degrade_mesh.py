@@ -374,6 +374,9 @@ def cut_med(M2, lon_cut=-8.875, depth_cut=4153.0, biscay_land=True):
         MMed['tmask'] = MMed['tmask'] * ~land
         MMed['umask'] = MMed['umask'] * ~land
         MMed['vmask'] = MMed['vmask'] * ~land
+    # zero at x=0 (western rim)
+    MMed['tmask'].loc[dict(x=0)] = 0
+    print('end ZW')
     return MMed
 
 
