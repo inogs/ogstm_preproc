@@ -257,6 +257,10 @@ if __name__=='__main__':
     atm_y0 = Params['atm_y0']
     atm_yE = Params['atm_yE']
 
+    do_atm = Params['do_atm']
+    do_climatm = Params['do_climatm']
+    do_aero = Params['do_aero']
+
     A0 = dm.reshape_blocks(get_Area(mesh_in), ndeg)
     Maskout = Mask.from_file(mesh_out)
     A03d = (A0.isel(z_a=0).expand_dims(z_a=Maskout.shape[0])).transpose(*A0.dims)
@@ -264,32 +268,42 @@ if __name__=='__main__':
     itrbl_aero = get_flist('aero', Params)
     itrbl_climatm = get_flist('climatm', Params)
 
-    print('--- DEGRADING aero FILES ---')
-    for dt_str, fname in itrbl_aero[rank::nranks]:
-        print(fname.name)
-        outfile = outdir / fname.name
-        make_outdir(outfile)
-        DI = load_xpnd_opt(fname, ndeg)
-        Od = degrade_opt(DI, A03d, ndeg)
-        aero_writer(outfile, Od, Maskout)
-
-    print('--- DEGRADING climatm FILES ---')
-    for dt_str, fname in itrbl_climatm[rank::nranks]:
-        print(fname.name)
-        outfile = outdir / fname.name
-        make_outdir(outfile)
-        DI = load_xpnd_opt(fname, ndeg)
-        Od = degrade_opt(DI, A0, ndeg)
-        climatm_writer(outfile, Od, Maskout)
-
-    print('--- DEGRADING atm FILES ---')
-    for yyyy in range(atm_y0, atm_yE+1):
-        itrbl_atm = get_flist('atm', Params, yyyy)
-        for dt_str, fname in itrbl_atm[rank::nranks]:
+    if do_aero:
+        print('--- DEGRADING aero FILES ---')
+        for dt_str, fname in itrbl_aero[rank::nranks]:
             print(fname.name)
-            outfile = outdir / fname.parts[-3] / fname.parts[-2] / fname.name
+            outfile = outdir / fname.name
+            make_outdir(outfile)
+            DI = load_xpnd_opt(fname, ndeg)
+            Od = degrade_opt(DI, A03d, ndeg)
+            aero_writer(outfile, Od, Maskout)
+
+        # Wait until all ranks reach this point (just to have the output clean)
+        if nranks>1: 
+            comm.Barrier()
+
+    if do_climatm:
+        print('--- DEGRADING climatm FILES ---')
+        for dt_str, fname in itrbl_climatm[rank::nranks]:
+            print(fname.name)
+            outfile = outdir / fname.name
             make_outdir(outfile)
             DI = load_xpnd_opt(fname, ndeg)
             Od = degrade_opt(DI, A0, ndeg)
-            atm_writer(outfile, Od, Maskout)
+            climatm_writer(outfile, Od, Maskout)
+
+        if nranks>1: 
+            comm.Barrier()
+
+    if do_atm:
+        print('--- DEGRADING atm FILES ---')
+        for yyyy in range(atm_y0, atm_yE+1):
+            itrbl_atm = get_flist('atm', Params, yyyy)
+            for dt_str, fname in itrbl_atm[rank::nranks]:
+                print(fname.name)
+                outfile = outdir / fname.parts[-3] / fname.parts[-2] / fname.name
+                make_outdir(outfile)
+                DI = load_xpnd_opt(fname, ndeg)
+                Od = degrade_opt(DI, A0, ndeg)
+                atm_writer(outfile, Od, Maskout)
 

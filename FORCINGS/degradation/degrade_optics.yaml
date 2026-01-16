@@ -9,6 +9,10 @@ infile_atm: 'atm.*.nc'
 infile_aero: 'aero.*.nc'
 infile_climatm: 'climatm.*.nc'
 ndeg: 6
-# start - end year for atm files
-atm_y0: 1999
-atm_yE: 2002
+# you don't want to do all the files all the times
+do_atm: True
+do_climatm: False
+do_aero: False
+# start - end year for atm files (end year included)
+atm_y0: 2000
+atm_yE: 2000
