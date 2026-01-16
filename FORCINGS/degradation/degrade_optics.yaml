@@ -1,0 +1,14 @@
+mesh_in: '/leonardo_work/OGS23_PRACE_IT_0/ggalli00/OGSTM-BFM/MASK24/meshmask.nc'
+mesh_out: '/leonardo_work/OGS23_PRACE_IT_0/ggalli00/OGSTM-BFM/qDEG_SETUP/MASKS/meshmask_025_z125.nc'
+outdir: '/leonardo_work/OGS23_PRACE_IT_0/ggalli00/OGSTM-BFM/qDEG_SETUP/OPTICS/'
+#
+indir_atm: '/leonardo_work/OGS_devC_0/OPTICS/YYYY/MM/'
+indir_aero: '/leonardo_work/OGS_devC_0/OPTICS/'
+indir_climatm: '/leonardo_work/OGS_devC_0/OPTICS/'
+infile_atm: 'atm.*.nc'
+infile_aero: 'aero.*.nc'
+infile_climatm: 'climatm.*.nc'
+ndeg: 6
+# start - end year for atm files
+atm_y0: 1999
+atm_yE: 2002
