@@ -291,13 +291,16 @@ def get_weights(M, T):
 
 
 
-def vwmean2d(X, tmask_in, W, Mask_out):
+def vwmean2d(X, tmask_in, W, Mask_out, mask_weight=False):
     '''
     W (time: 1, z: 141, y: 66, y_b: 6, x: 219, x_b: 6)>
     mean, weighted by surface area or volume(t-grid)
     '''
-
-    X = X.where(tmask_in.isel(z=0)) # set land points to nan
+    tmask_in_0 = tmask_in.isel(z=0)
+    #X = X.where(tmask_in.isel(z=0)) # set land points to nan
+    X = X.where(tmask_in_0) # set land points to nan
+    if mask_weight: #to avoid coast effects
+        W = W.where(tmask_in_0)
     weighted_sum = (W * X).sum(dim=('y_b', 'x_b'), skipna=True)
     weight_sum = W.sum(dim=('y_b', 'x_b'), skipna=True)
     weight_sum = weight_sum.where(Mask_out.mask[0,:], other=1.0)
@@ -308,12 +311,14 @@ def vwmean2d(X, tmask_in, W, Mask_out):
 
     return wmean
 
-def vwmean(X, tmask_in, W, Mask_out):
+def vwmean(X, tmask_in, W, Mask_out, mask_weight=False):
     '''
     W (time: 1, z: 141, y: 66, y_b: 6, x: 219, x_b: 6)>
     mean, weighted by surface area or volume(t-grid)
     '''
     X = X.where(tmask_in) # set land points to nan
+    if mask_weight: #to avoid coast effects
+        W = W.where(tmask_in)
     weighted_sum = (W * X).sum(dim=('y_b', 'x_b'), skipna=True)
     weight_sum = W.sum(dim=('y_b', 'x_b'), skipna=True)
     weight_sum = weight_sum.where(Mask_out.mask, other=1.0) # to avoid division by zero
@@ -568,11 +573,11 @@ def degrade_T(T,tmask_in, Wa, Wv, Mask_out, outfile, ndeg=1):
 
     for var3d in ["votemper", "vosaline"]:
         X = dm.reshape_blocks(T[var3d], ndeg)
-        Td[var3d] = vwmean(X, tmask_in, Wv, Mask_out)
+        Td[var3d] = vwmean(X, tmask_in, Wv, Mask_out, mask_weight=True)
     
     for var2d in ["sossheig", "soshfldo", "sorunoff", "somxl010"]:
         X = dm.reshape_blocks(T[var2d], ndeg)
-        Td[var2d] = vwmean2d(X, tmask_in, Wa, Mask_out)
+        Td[var2d] = vwmean2d(X, tmask_in, Wa, Mask_out, mask_weight=True)
 
     FW.writefileT(outfile, 
                   Mask_out,
@@ -645,7 +650,7 @@ if __name__=='__main__':
 
     #
     # load mesh and expand lat, lon to make them multiples of ndeg
-    
+
     print('loading mask')
     M = load_mesh_light(maskfile, ndeg) #NB, here Au, Av, V, are calculated with e3tuv_0
     Mask_out = Mask.from_file(maskfile_d)
