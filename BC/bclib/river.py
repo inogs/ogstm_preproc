@@ -360,7 +360,7 @@ class river():
 
         start_year=conf.simulation_start_time
         end___year=conf.simulation_end_time
-        for year in range(start_year,end___year):
+        for year in range(start_year,end___year+1):
             for month in range(1,13):
                 filename = conf.dir_out + "TIN_%d%02d15-00:00:00.nc" %(year, month)
                 N,P,S,A,D,O,DOC,CDOM = self.get_monthly_data(str(year), month)
@@ -431,6 +431,7 @@ class river():
           Writes the single TIN file
           Variables are dumped as they are, all but positions (incremented by one)
         '''
+        print(filename)
         _,jpj, jpi = mask.shape
         ncfile = netCDF4.Dataset(filename, 'w')
         ncfile.createDimension('lon',jpi)
