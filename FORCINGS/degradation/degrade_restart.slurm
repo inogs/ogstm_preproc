@@ -22,5 +22,6 @@ cd $gitdir
 git checkout 15-forcing-degradation
 
 mpirun -n 8 python degrade_restart.py -y degrade_restart.yaml
+#mpirun -n 8 python degrade_restart.py -y degrade_3Dvar.yaml
 
 echo END: `date`
