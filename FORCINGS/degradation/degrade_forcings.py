@@ -75,6 +75,14 @@ def load_mesh_light(maskfile, ndeg=1):
     M1 = xr.Dataset(M1)
     return M1
 
+def load_mesh_straight(maskfile):
+    '''
+    just loads the mesh, does not xpnd_wrap
+    for loading degraded mesh
+    '''
+    M = xr.open_dataset(maskfile)
+    M['h_column_t'] = M['e3t_0'].sum(dim='z')
+    return M
 
 def load_tfile(infile, ndeg=1):
     '''
@@ -240,7 +248,10 @@ def get_weights(M, T):
 
     tmask_0=tmask[0,0,:,:].astype(bool)
 
-    ssh = tmask[0,0,:,:] * T['sossheig'].values[:] # (1, y, x)
+    if T['sossheig'].ndim==4:
+        ssh = tmask[0,0,:,:] * T['sossheig'].values[0,:] # (1, y, x)
+    else: #==3
+        ssh = tmask[0,0,:,:] * T['sossheig'].values[:] # (1, y, x)
     ssh[0,~tmask_0] = 0.0 # avoiding nans in land processors
     correction_e3t = 1.0 + (ssh / h_column_t) # (1, y, x)
     e3t = e3t_0 * correction_e3t # broadcasting, resulting in (1, z, y, x)
@@ -345,7 +356,7 @@ def vwmean(X, tmask_in, W, Mask_out, mask_weight=False):
 
     #return OUT
 
-def coarsen_U(U, umask_in, Au, Mask_out:Mask):
+def coarsen_U(U, umask_in, Au, Au_d, Mask_out:Mask):
     '''
     Coarsens U field by weighted averaging the eastern column of each block of
     fine U-gridded array.
@@ -372,15 +383,15 @@ def coarsen_U(U, umask_in, Au, Mask_out:Mask):
     Flux_fine = (Au_y_b * U_y_b).sum(dim='y_b', skipna=True)
 
     # Here we take in account also the area of the umask=0 points
-    Area_coarse_cells = Au_y_b.sum(dim='y_b')
-
-    U_coarse = Flux_fine / Area_coarse_cells
+    #Area_coarse_cells = Au_y_b.sum(dim='y_b') 
+    #U_coarse = Flux_fine / Area_coarse_cells #must weight by area of destination grid instead!
+    U_coarse = Flux_fine / Au_d
 
     U_coarse = U_coarse.where(Mask_out.mask, other=1.e+20)
     assert np.isnan(U_coarse).any().values == False, "NaN values found in U coarse!"
     return U_coarse
 
-def coarsen_V(V, vmask_in, Av, Mask_out:Mask):
+def coarsen_V(V, vmask_in, Av, Av_d, Mask_out:Mask):
     '''
     Coarsens V field by weighted averaging the northern column of each block of
     fine V-gridded array.
@@ -407,9 +418,10 @@ def coarsen_V(V, vmask_in, Av, Mask_out:Mask):
     Flux_fine = (Av_y_b * V_y_b).sum(dim='x_b', skipna=True)
 
     # Here we take in account also the area of the vmask=0 points
-    Area_coarse_cells = Av_y_b.sum(dim='x_b')
+    #Area_coarse_cells = Av_y_b.sum(dim='x_b')
+    #V_coarse = Flux_fine / Area_coarse_cells  #must weight by area of destination grid instead!
 
-    V_coarse = Flux_fine / Area_coarse_cells
+    V_coarse = Flux_fine / Av_d
 
     V_coarse = V_coarse.where(Mask_out.mask, other=1.e+20)
     assert np.isnan(V_coarse).any().values == False, "NaN values found in V coarse!"
@@ -473,7 +485,7 @@ def coarsen_tauy(tau, vmask_in, e1v, Mask_out):
     return tau_coarse
 
 
-def degrade_V(V, vmask_in, Av, e1v, Mask_out, outfile, ndeg=1):
+def degrade_V(V, vmask_in, Av, Av_d, e1v, Mask_out, outfile, ndeg=1):
     '''
     degrades resolution of V-grid file and dumps it to netcdf
     Arguments:
@@ -492,7 +504,7 @@ def degrade_V(V, vmask_in, Av, e1v, Mask_out, outfile, ndeg=1):
     Vr = dm.reshape_blocks(V['vomecrty'], ndeg)
     taur = dm.reshape_blocks(V['sometauy'], ndeg)
 
-    Vd['vomecrty'] = coarsen_V(Vr, vmask_in, Av, Mask_out)
+    Vd['vomecrty'] = coarsen_V(Vr, vmask_in, Av, Av_d, Mask_out)
     Vd['sometauy'] = coarsen_tauy(taur, vmask_in, e1v, Mask_out)
 
     FW.writefileV(outfile,
@@ -501,7 +513,7 @@ def degrade_V(V, vmask_in, Av, e1v, Mask_out, outfile, ndeg=1):
                   Vd['sometauy'].values[:]
                   )
 
-def degrade_U(U, umask_in, Warea, e2u, Mask_out, outfile, ndeg=1):
+def degrade_U(U, umask_in, Warea, Warea_d, e2u, Mask_out, outfile, ndeg=1):
     '''
     degrades resolution of U-grid file and dumps it to netcdf
     Arguments:
@@ -520,7 +532,7 @@ def degrade_U(U, umask_in, Warea, e2u, Mask_out, outfile, ndeg=1):
     Ur = dm.reshape_blocks(U['vozocrtx'], ndeg)
     taur = dm.reshape_blocks(U['sozotaux'], ndeg)
 
-    Ud['vozocrtx'] = coarsen_U(Ur, umask_in, Warea, Mask_out)
+    Ud['vozocrtx'] = coarsen_U(Ur, umask_in, Warea, Warea_d, Mask_out)
     Ud['sozotaux'] = coarsen_taux(taur, umask_in, e2u, Mask_out)
 
     FW.writefileU( outfile,
@@ -587,6 +599,8 @@ def degrade_T(T,tmask_in, Wa, Wv, Mask_out, outfile, ndeg=1):
                   Td['soshfldo'].values,
                   Td['sorunoff'].values,
                   Td['somxl010'].values)
+    Td = xr.Dataset(Td)
+    return Td
     
 
 def make_outdir(outdir:Path, outfile:str):
@@ -632,6 +646,7 @@ if __name__=='__main__':
         rank = 0
         nranks = 1
     #
+    #yamlfile = 'degrade_forcings.yaml'; Params = load_parameters(yamlfile)
     Params = load_parameters(argument().yamlfile)
     #
     maskfile = Path(Params['maskfile'])
@@ -653,6 +668,7 @@ if __name__=='__main__':
 
     print('loading mask')
     M = load_mesh_light(maskfile, ndeg) #NB, here Au, Av, V, are calculated with e3tuv_0
+    Md = load_mesh_straight(maskfile_d)
     Mask_out = Mask.from_file(maskfile_d)
     Mask_out_u = Mask.from_file(maskfile_d, mask_var_name='umask')
     Mask_out_v = Mask.from_file(maskfile_d, mask_var_name='vmask')
@@ -685,9 +701,16 @@ if __name__=='__main__':
         print('degrado')
         yyyymm_dir = make_outdir(outdir, tfile.name)
         
-        degrade_T(T, tmask_in, Warea, Wvolume, Mask_out, yyyymm_dir / tfile.name, ndeg)
-        degrade_U(U, umask_in, Warea_u, e2u, Mask_out_u, yyyymm_dir / ufile.name, ndeg)
-        degrade_V(V, vmask_in, Warea_v, e1v, Mask_out_v, yyyymm_dir / vfile.name, ndeg)
+        Td = degrade_T(T, tmask_in, Warea, Wvolume, Mask_out, yyyymm_dir / tfile.name, ndeg)
+
+        Weight_d = get_weights(Md, Td)
+        Warea_u_d = Weight_d['Au']
+        Warea_v_d = Weight_d['Av']
+
+        degrade_U(U, umask_in, Warea_u, Warea_u_d, e2u, Mask_out_u, yyyymm_dir / ufile.name, ndeg)
+        #degrade_U(U, umask_in, Warea_u, e2u, Mask_out_u, yyyymm_dir / ufile.name, ndeg)
+        degrade_V(V, vmask_in, Warea_v, Warea_v_d, e1v, Mask_out_v, yyyymm_dir / vfile.name, ndeg)
+        #degrade_V(V, vmask_in, Warea_v, e1v, Mask_out_v, yyyymm_dir / vfile.name, ndeg)
         degrade_W(W, tmask_in, Warea_w, Mask_out, yyyymm_dir / wfile.name, ndeg)
 
 
