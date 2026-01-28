@@ -17,9 +17,8 @@ class OrigMask():
         NCin=NC.Dataset(inputfile,"r")
         self.Lon = (NCin.variables['glamt'][0,0,:]).copy()
         self.Lat = (NCin.variables['gphit'][0,:,0]).copy()
-        self.nav_lev = (NCin.variables['nav_lev'][:]).copy().astype(np.float);
+        self.nav_lev = (NCin.variables['nav_lev'][:]).copy().astype(float);
         self.nc_handler = NCin
-
 
 
     def get_wp(self):
@@ -41,12 +40,12 @@ class OrigMask():
         Gibraltar_lon = -5.75
         imed = self.Lon>Gibraltar_lon
         med_waterpoints = waterpoints_longitude[imed].sum()
-        print "mediterranean waterpoints:", med_waterpoints
-        print "atlantic waterpoints:"
+        print("mediterranean waterpoints:", med_waterpoints)
+        print("atlantic waterpoints:")
         for lon in np.arange(-9,-8,1./16):
             iatl = (self.Lon < Gibraltar_lon) & (self.Lon> lon)
             atl_waterpoints = waterpoints_longitude[iatl].sum()
-            print lon, atl_waterpoints
+            print(lon, atl_waterpoints)
 
     def getCutLocation(self,lon):
         ind =np.argmin(np.abs(self.Lon-lon))
@@ -68,7 +67,7 @@ def create_meshmask_nc(OrigMaskobj,outfile,lon_cut,depth_cut,biscay_land = True,
 
     jpi=NCin.dimensions['x'].size-lon_cut
     jpj=NCin.dimensions['y'].size
-    jpk=NCin.dimensions['z'].size-depth_cut #116
+    jpk=NCin.dimensions['nav_lev'].size-depth_cut #116
 
 #    double coastp(y, x) ;
     coastp = np.zeros((jpj,jpi),np.double)
@@ -124,19 +123,19 @@ def create_meshmask_nc(OrigMaskobj,outfile,lon_cut,depth_cut,biscay_land = True,
     
 #    double ff(time, z_a, y, x) ;
     ff = np.ones((time,z_a,jpj,jpi),np.double);
-    ff[0,0,:,:]=(NCin.variables['ff'][0,:,lon_cut:]).copy().astype(np.double);
+    ff[0,0,:,:]=(NCin.variables['ff_f'][0,:,lon_cut:]).copy().astype(np.double);
 
 #    float nav_lat(y, x) ;
-    nav_lat = np.ones((jpj,jpi),np.float);
-    nav_lat[:,:] = (NCin.variables['nav_lat'][:,lon_cut:]).copy().astype(np.float);
+    nav_lat = np.ones((jpj,jpi),float);
+    nav_lat[:,:] = (NCin.variables['nav_lat'][:,lon_cut:]).copy().astype(float);
     
 #    float nav_lev(z) ;
-    nav_lev = np.ones((jpk,),np.float);
-    nav_lev[:] = (NCin.variables['nav_lev'][:jpk]).copy().astype(np.float);
+    nav_lev = np.ones((jpk,),float);
+    nav_lev[:] = (NCin.variables['nav_lev'][:jpk]).copy().astype(float);
 
 #    float nav_lon(y, x) ;
-    nav_lon = np.ones((jpj,jpi),np.float);
-    nav_lon[:,:] = (NCin.variables['nav_lon'][:,lon_cut:]).copy().astype(np.float);
+    nav_lon = np.ones((jpj,jpi),float);
+    nav_lon[:,:] = (NCin.variables['nav_lon'][:,lon_cut:]).copy().astype(float);
     
     
 #    double e1f(time, z_a, y, x) ;
@@ -175,12 +174,8 @@ def create_meshmask_nc(OrigMaskobj,outfile,lon_cut,depth_cut,biscay_land = True,
     
     if free_surface:
 #    double e3t_0(time, z, y_a, x_a) ;
-        e3t_0              = np.ones((time,jpk,y_a,x_a),np.double);
-        e3t_0[0,:,0,0] = (NCin.variables['e3t_1d'][0,:jpk]).copy().astype(np.double);
     
 #    double e3w_0(time, z, y_a, x_a) ;
-        e3w_0              = np.zeros((time,jpk,y_a,x_a),np.double);
-        e3w_0[0,:,0,0] = (NCin.variables['e3w_1d'][0,:jpk]).copy().astype(np.double);
 
 #    double e3t(time, z, y, x) ;
         e3t = np.ones((time,jpk,jpj,jpi),np.double)
@@ -200,11 +195,11 @@ def create_meshmask_nc(OrigMaskobj,outfile,lon_cut,depth_cut,biscay_land = True,
     else:
 #    double e3t(time, z, y_a, x_a) ;
         e3t                = np.ones((time,jpk,y_a,x_a),np.double);
-        e3t[0,:,0,0]   = (NCin.variables['e3t_0'][0,:jpk]).copy().astype(np.float);
+        e3t[0,:,0,0]   = (NCin.variables['e3t_0'][0,:jpk]).copy().astype(float);
     
 #    double e3w(time, z, y_a, x_a) ;
         e3w                = np.zeros((time,jpk,y_a,x_a),np.double);
-        e3w[0,:,0,0]   = (NCin.variables['e3w_0'][0,:jpk]).copy().astype(np.float);
+        e3w[0,:,0,0]   = (NCin.variables['e3w_0'][0,:jpk]).copy().astype(float);
 
 #    double tmask(time, z, y, x) ;
     tmask = np.ones((time,jpk,jpj,jpi),np.double);
@@ -282,16 +277,13 @@ def create_meshmask_nc(OrigMaskobj,outfile,lon_cut,depth_cut,biscay_land = True,
     ncvar    = ncOUT.createVariable('e2t'   ,'d',('time','z_a', 'y', 'x')  ) ; ncvar[:] = e2t   ;
     ncvar    = ncOUT.createVariable('e2u'   ,'d',('time','z_a', 'y', 'x'))   ; ncvar[:] = e2u   ;
     ncvar    = ncOUT.createVariable('e2v'   ,'d',('time','z_a', 'y', 'x'))   ; ncvar[:] = e2v   ;     
-    if free_surface:
-        ncvar    = ncOUT.createVariable('e3t_0' ,'d',('time','z', 'y_a', 'x_a')) ; ncvar[:] = e3t_0 ;
-        ncvar    = ncOUT.createVariable('e3w_0' ,'d',('time','z', 'y_a', 'x_a')) ; ncvar[:] = e3w_0 ;     
-        ncvar    = ncOUT.createVariable('e3t'   ,'d',('time','z', 'y', 'x'))     ; ncvar[:] = e3t   ;
-        ncvar    = ncOUT.createVariable('e3u'   ,'d',('time','z', 'y', 'x'))     ; ncvar[:] = e3u   ;
-        ncvar    = ncOUT.createVariable('e3v'   ,'d',('time','z', 'y', 'x'))     ; ncvar[:] = e3v   ;
-        ncvar    = ncOUT.createVariable('e3w'   ,'d',('time','z', 'y', 'x'))     ; ncvar[:] = e3w   ;   
-    else:
-        ncvar    = ncOUT.createVariable('e3t'   ,'d',('time','z', 'y_a', 'x_a')) ; ncvar[:] = e3t   ;
-        ncvar    = ncOUT.createVariable('e3w'   ,'d',('time','z', 'y_a', 'x_a')) ; ncvar[:] = e3w   ;          
+
+ 
+    ncvar    = ncOUT.createVariable('e3t_0'   ,'d',('time','z', 'y', 'x'))     ; ncvar[:] = e3t   ;
+    ncvar    = ncOUT.createVariable('e3u_0'   ,'d',('time','z', 'y', 'x'))     ; ncvar[:] = e3u   ;
+    ncvar    = ncOUT.createVariable('e3v_0'   ,'d',('time','z', 'y', 'x'))     ; ncvar[:] = e3v   ;
+    ncvar    = ncOUT.createVariable('e3w_0'   ,'d',('time','z', 'y', 'x'))     ; ncvar[:] = e3w   ;   
+
     ncvar    = ncOUT.createVariable('ff'    ,'d',('time','z_a', 'y', 'x'))   ; ncvar[:] = ff    ;      
     ncvar    = ncOUT.createVariable('fmask' ,'d',('time','z', 'y', 'x'))     ; ncvar[:] = fmask ;    
     ncvar    = ncOUT.createVariable('gdept' ,'d',('time','z', 'y_a', 'x_a')) ; ncvar[:] = gdept ;
