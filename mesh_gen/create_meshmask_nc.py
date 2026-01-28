@@ -61,7 +61,7 @@ x_a  = 1;
 
 
 
-def create_meshmask_nc(OrigMaskobj,outfile,lon_cut,depth_cut,biscay_land = True,free_surface=False):
+def create_meshmask_nc(OrigMaskobj,outfile,lon_cut,depth_cut,biscay_land = True):
     
     NCin=OrigMaskobj.nc_handler
 
@@ -172,34 +172,23 @@ def create_meshmask_nc(OrigMaskobj,outfile,lon_cut,depth_cut,biscay_land = True,
     e2v = np.ones((time,z_a,jpj,jpi),np.double);
     e2v[0,0,:,:] =  (NCin.variables['e2v'][0,:,lon_cut:]).copy().astype(np.double)
     
-    if free_surface:
-#    double e3t_0(time, z, y_a, x_a) ;
-    
-#    double e3w_0(time, z, y_a, x_a) ;
 
 #    double e3t(time, z, y, x) ;
-        e3t = np.ones((time,jpk,jpj,jpi),np.double)
-        e3t[0,:,:,:] =  (NCin.variables['e3t_0'][0,:jpk,:,lon_cut:]).copy().astype(np.double)
+    e3t = np.ones((time,jpk,jpj,jpi),np.double)
+    e3t[0,:,:,:] =  (NCin.variables['e3t_0'][0,:jpk,:,lon_cut:]).copy().astype(np.double)
 
 #    double e3u(time, z, y, x) ;
-        e3u = np.ones((time,jpk,jpj,jpi),np.double);
-        e3u[0,:,:,:] =  (NCin.variables['e3u_0'][0,:jpk,:,lon_cut:]).copy().astype(np.double)
+    e3u = np.ones((time,jpk,jpj,jpi),np.double);
+    e3u[0,:,:,:] =  (NCin.variables['e3u_0'][0,:jpk,:,lon_cut:]).copy().astype(np.double)
 
 #    double e3v(time, z, y, x) ;
-        e3v = np.ones((time,jpk,jpj,jpi),np.double);
-        e3v[0,:,:,:] =  (NCin.variables['e3v_0'][0,:jpk,:,lon_cut:]).copy().astype(np.double)
+    e3v = np.ones((time,jpk,jpj,jpi),np.double);
+    e3v[0,:,:,:] =  (NCin.variables['e3v_0'][0,:jpk,:,lon_cut:]).copy().astype(np.double)
 
 #    double e3w(time, z, y, x) ;
-        e3w = np.ones((time,jpk,jpj,jpi),np.double);
-        e3w[0,:,:,:] =  (NCin.variables['e3w_0'][0,:jpk,:,lon_cut:]).copy().astype(np.double)
-    else:
-#    double e3t(time, z, y_a, x_a) ;
-        e3t                = np.ones((time,jpk,y_a,x_a),np.double);
-        e3t[0,:,0,0]   = (NCin.variables['e3t_0'][0,:jpk]).copy().astype(float);
-    
-#    double e3w(time, z, y_a, x_a) ;
-        e3w                = np.zeros((time,jpk,y_a,x_a),np.double);
-        e3w[0,:,0,0]   = (NCin.variables['e3w_0'][0,:jpk]).copy().astype(float);
+    e3w = np.ones((time,jpk,jpj,jpi),np.double);
+    e3w[0,:,:,:] =  (NCin.variables['e3w_0'][0,:jpk,:,lon_cut:]).copy().astype(np.double)
+
 
 #    double tmask(time, z, y, x) ;
     tmask = np.ones((time,jpk,jpj,jpi),np.double);
