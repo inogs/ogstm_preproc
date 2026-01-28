@@ -1,12 +1,4 @@
-# this script requires netcdf 4
-# to load them it is needed the following virtual environment:
-# source /gpfs/work/IscrC_MYMEDBIO/COPERNICUS/sequence.sh
-# LOAD PACKAGES
-
-
 import numpy as np
-
-#import scipy.io.netcdf as NC
 import netCDF4 as NC
 
 # Script to create meshmask file
@@ -211,10 +203,9 @@ def create_meshmask_nc(OrigMaskobj,outfile,lon_cut,depth_cut,biscay_land = True)
     umask = np.ones((time,jpk,jpj,jpi),np.double);
     umask[0,:,:,:]  = (NCin.variables['umask'][0,:jpk,:,lon_cut:]).copy().astype(np.double)
     umask[0,:,0, :] =0.;
-    umask[0,:,:, 0] =0.;
     umask[0,:,jpj-1,:] =0.;
     umask[0,:,:,jpi-1] =0.;
-#   umask[0,:,:,-2] =0.; To be checked !!
+
     umask[0,jpk-1,:,:] =0.;
 
     if biscay_land:
@@ -228,11 +219,9 @@ def create_meshmask_nc(OrigMaskobj,outfile,lon_cut,depth_cut,biscay_land = True)
 
     vmask = np.ones((time,jpk,jpj,jpi),np.double);
     vmask[0,:,:,:]  = (NCin.variables['vmask'][0,:jpk,:,lon_cut:]).copy().astype(np.double)
-    vmask[0,:,:, 0] =0.;
     vmask[0,:,0, :] =0.;
     vmask[0,:,jpj-1,:] =0.;
     vmask[0,:,:,jpi-1] =0.;
-#    vmask[0,:,-2,:] =0.; To be checked !!
     vmask[0,jpk-1,:,:] =0.;
 
     if biscay_land:
