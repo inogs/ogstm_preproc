@@ -80,9 +80,9 @@ def create_meshmask_nc(OrigMaskobj,outfile,lon_cut,depth_cut,biscay_land = True)
 #    fmask[0,:,-1,0]    = 0.;
 #    fmask[0,:,0,-1]    = 0.;
 
-#    double gdept(time, z, y_a, x_a) ;
-    gdept              = np.zeros((time,jpk,y_a,x_a),np.double);
-    gdept[0,0:jpk,0,0] = (NCin.variables['gdept_1d'][0,:jpk]).copy().astype(np.double);
+#    double gdept(time, z, y, x) ;
+    gdept              = np.zeros((time,jpk,jpj,jpi),np.double);
+    gdept[0,0:jpk,:,:] = (NCin.variables['gdept_0'][0,:jpk,:,lon_cut:]).copy().astype(np.double);
 
 #    double gdepw(time, z, y_a, x_a) ;
     gdepw              = np.zeros((time,jpk,y_a,x_a),np.double);
@@ -275,7 +275,7 @@ def create_meshmask_nc(OrigMaskobj,outfile,lon_cut,depth_cut,biscay_land = True)
 
     ncvar    = ncOUT.createVariable('ff'    ,'d',('time','z_a', 'y', 'x'))   ; ncvar[:] = ff    ;      
     ncvar    = ncOUT.createVariable('fmask' ,'d',('time','z', 'y', 'x'))     ; ncvar[:] = fmask ;    
-    ncvar    = ncOUT.createVariable('gdept' ,'d',('time','z', 'y_a', 'x_a')) ; ncvar[:] = gdept ;
+    ncvar    = ncOUT.createVariable('gdept' ,'d',('time','z', 'y', 'x')) ; ncvar[:] = gdept ;
     ncvar    = ncOUT.createVariable('gdepw' ,'d',('time','z', 'y_a', 'x_a')) ; ncvar[:] = gdepw ;
     ncvar    = ncOUT.createVariable('glamf'   ,'d',('time','z_a', 'y', 'x')) ; ncvar[:] = glamf ;     
     ncvar    = ncOUT.createVariable('glamt'   ,'d',('time','z_a', 'y', 'x')) ; ncvar[:] = glamt ;
