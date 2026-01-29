@@ -202,10 +202,6 @@ def create_meshmask_nc(OrigMaskobj,outfile,lon_cut,depth_cut,biscay_land = True)
 #    double umask(time, z, y, x) ;
     umask = np.ones((time,jpk,jpj,jpi),np.double);
     umask[0,:,:,:]  = (NCin.variables['umask'][0,:jpk,:,lon_cut:]).copy().astype(np.double)
-    umask[0,:,0, :] =0.;
-    umask[0,:,jpj-1,:] =0.;
-    umask[0,:,:,jpi-1] =0.;
-
     umask[0,jpk-1,:,:] =0.;
 
     if biscay_land:
@@ -215,13 +211,10 @@ def create_meshmask_nc(OrigMaskobj,outfile,lon_cut,depth_cut,biscay_land = True)
             for i in range(jpi):
                 if(Lon[i]<0.0 and Lat[j]>42   ): umask[0,:,j,i]=0.
                 if(Lon[i]<-6. and Lat[j]>37.25): umask[0,:,j,i]=0.
-#    double vmask(time, z, y, x) ;
 
+#    double vmask(time, z, y, x) ;
     vmask = np.ones((time,jpk,jpj,jpi),np.double);
     vmask[0,:,:,:]  = (NCin.variables['vmask'][0,:jpk,:,lon_cut:]).copy().astype(np.double)
-    vmask[0,:,0, :] =0.;
-    vmask[0,:,jpj-1,:] =0.;
-    vmask[0,:,:,jpi-1] =0.;
     vmask[0,jpk-1,:,:] =0.;
 
     if biscay_land:
@@ -277,8 +270,7 @@ def create_meshmask_nc(OrigMaskobj,outfile,lon_cut,depth_cut,biscay_land = True)
     ncvar    = ncOUT.createVariable('nav_lat','f',('y','x'))                 ; ncvar[:] = nav_lat;
     ncvar    = ncOUT.createVariable('nav_lev' ,'f',('z',))                   ; ncvar[:] = nav_lev;
     ncvar    = ncOUT.createVariable('nav_lon','f',('y','x'))                 ; ncvar[:] = nav_lon;
-#	float time(time) ;
-#	short time_steps(time) ;
+
     ncvar    = ncOUT.createVariable('tmask' ,'d',('time','z', 'y', 'x') )    ; ncvar[:] = tmask 
     ncvar    = ncOUT.createVariable('umask' ,'d',('time','z', 'y', 'x') )    ; ncvar[:] = umask 
     ncvar    = ncOUT.createVariable('vmask' ,'d',('time','z', 'y', 'x') )    ; ncvar[:] = vmask 
