@@ -3,13 +3,19 @@ import argparse
 def argument():
     parser = argparse.ArgumentParser(description = '''
     Generates daily files for OASIM by reading ECMWF file provided by CMCC
+    and climatologies for tclw and tco3
     ''',
     formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
     parser.add_argument(   '--inputdir', '-i',
                                 type = str,
                                 required = True,
-                                help = ''' Input CMCC file'''
+                                help = ''' Input ECMWF dir provided by CMCC'''
+                                )
+    parser.add_argument(   '--climdir', '-c',
+                                type = str,
+                                required = True,
+                                help = ''' Input climatology dir'''
                                 )
     parser.add_argument(   '--maskfile', '-m',
                                 type = str,
@@ -51,6 +57,7 @@ TheMask=Mask.from_file(args.maskfile)
 jpk,jpj,jpi = TheMask.shape
 
 INPUTDIR=addsep(args.inputdir)
+CLIMDIR=addsep(args.climdir)
 OUTDIR = addsep(args.outdir)
 
 TL = TimeList.fromfilenames(None, INPUTDIR, "*_an-fv1?.00.nc", prefix="", dateformat="%Y%m%d")
@@ -103,7 +110,7 @@ def getframe(filename,var, timeframe):
     M2d_orig = readframe(filename, var, timeframe)
     return  interp(M2d_orig)
 
-def dumpfile(filename, maskObj, sp,msl, t2m,d2m, tcc,w10):
+def dumpfile(filename, maskObj, sp,msl, t2m,d2m, tcc,u10,v10,tclw,tco3):
     ncOUT   = netCDF4.Dataset(filename,"w");
 
     ncOUT.createDimension('lon',jpi);
@@ -150,11 +157,28 @@ def dumpfile(filename, maskObj, sp,msl, t2m,d2m, tcc,w10):
     setattr(ncvar, 'code', 164)
     ncvar[:] = tcc
 
-    ncvar = ncOUT.createVariable('w10','f',('lat','lon'))
+    ncvar = ncOUT.createVariable('u10','f',('lat','lon'))
     setattr(ncvar,'units','m/s')
-    setattr(ncvar,'long_name','10 metre wind speed module')
-    setattr(ncvar,'code', '165 and 166')
-    ncvar[:] = w10
+    setattr(ncvar,'long_name','zonal 10 metre wind speed')
+    setattr(ncvar,'code', 165)
+    ncvar[:] = u10
+    ncvar = ncOUT.createVariable('v10','f',('lat','lon'))
+    setattr(ncvar,'units','m/s')
+    setattr(ncvar,'long_name','meridional 10 metre wind speed module')
+    setattr(ncvar,'code', 166)
+    ncvar[:] = v10
+
+    ncvar = ncOUT.createVariable('tclw','f',('lat','lon'))
+    ncvar[:]=tclw
+    setattr(ncvar, 'long_name',  'Total column cloud liquid water' )
+    setattr(ncvar, 'units','kg m**-2' )
+    setattr(ncvar, 'orig', 'climatology')
+
+    ncvar = ncOUT.createVariable('tco3','f',('lat','lon'))
+    ncvar[:]=tco3
+    setattr(ncvar, 'long_name',  'Total column ozone' )
+    setattr(ncvar, 'units','kg m**-2' )
+    setattr(ncvar, 'orig', 'climatology')
 
     setattr(ncOUT, 'input_file', str(inputfile))
     ncOUT.close()
@@ -175,7 +199,9 @@ for inputfile in TL.filelist[rank::nranks]:
         t2m = getframe(inputfile,'T2M' , iframe)
         d2m = getframe(inputfile,'D2M' , iframe)
         tcc = getframe(inputfile,'TCC' , iframe)
+        input_climfile=CLIMDIR + d.strftime("climatm.yyyy%m15-00:00:00.nc")
+        tclw = netcdf4.readfile(input_climfile,"tclw")
+        tco3 = netcdf4.readfile(input_climfile,"tco3")
     
-        w10 = np.sqrt(u10**2 + v10**2)
-        dumpfile(outfile, TheMask, sp,msl, t2m,d2m, tcc,w10)
+        dumpfile(outfile, TheMask, sp,msl, t2m,d2m, tcc,u10,v10,tclw,tco3)
     
