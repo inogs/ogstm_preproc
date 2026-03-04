@@ -44,8 +44,9 @@ coordinates_without_fillvalue = ["nav_lat", "nav_lon",
                 "time_centered", "time_centered_bounds"]
 for filename in filelist[rank::nranks]:
     with xr.open_dataset(filename) as ds_file:
-        print("rank %d executes cut of %s" % (rank, filename), flush=True)
-        for it in range(4):
+        nparts = len(ds_file.time_counter)
+        print("rank %d executes cut of %s in %d parts" % (rank, filename, nparts), flush=True)
+        for it in range(nparts):
             slice_name = str(ds_file.isel(time_counter=it).time_counter.values)
             slice_name = slice_name.split('.')[0]
             slice_time = slice_name.split('T')[1]
