@@ -1,8 +1,8 @@
 #! /bin/bash
 
-#SBATCH --job-name=TAGLIA
+#SBATCH --job-name=TAGLIA_XARR
 #SBATCH -N5
-#SBATCH --ntasks-per-node=24
+#SBATCH --ntasks-per-node=48
 #SBATCH --time=1:00:00
 #SBATCH --mem=300gb
 #SBATCH --account=OGS_test2528
@@ -27,13 +27,13 @@ unset I_MPI_PMI_LIBRARY
 export UCX_TLS=ib
 export SLURM_PMIX_DIRECT_CONN_UCX=false
 
-INPUTDIR=/g100_scratch/userexternal/gbolzon0/BI-HOURLY/PHYS/ORIG
-OUTPUTDIR=/g100_scratch/userexternal/gbolzon0/BI-HOURLY/2H/FORCINGS
-my_prex_or_die "mpirun python tagliafile.py -i $INPUTDIR -o $OUTPUTDIR"
+INPUTDIR=/g100_scratch/userexternal/vsciorti/CMCC_PHYS/CMCC_PHYS_LINKS/
+OUTPUTDIR=/g100_scratch/userexternal/vsciorti/CMCC_PHYS/6h_xarrF
+my_prex_or_die "mpirun -np 48 python tagliafile_xarray.py -i $INPUTDIR -o $OUTPUTDIR"
 
 
-INPUTDIR=/g100_scratch/userexternal/gbolzon0/BI-HOURLY/2H/FORCINGS
-OUTPUTDIR=/g100_scratch/userexternal/gbolzon0/BI-HOURLY/6H/FORCINGS
-my_prex_or_die "mpirun python averager.py -i $INPUTDIR -o $OUTPUTDIR -f 6 "
+#INPUTDIR=/g100_scratch/userexternal/gbolzon0/BI-HOURLY/2H/FORCINGS
+#OUTPUTDIR=/g100_scratch/userexternal/gbolzon0/BI-HOURLY/6H/FORCINGS
+#my_prex_or_die "mpirun python averager.py -i $INPUTDIR -o $OUTPUTDIR -f 6 "
 
 

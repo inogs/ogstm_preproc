@@ -34,7 +34,15 @@ except:
 INPUTDIR =addsep(args.inputdir) 
 OUTPUTDIR=addsep(args.outputdir)
 
-filelist=glob.glob(INPUTDIR + "*nc")
+# Crea la directory output se non esiste (solo rank 0)
+if rank == 0 and not os.path.exists(OUTPUTDIR.rstrip('/')):
+    os.makedirs(OUTPUTDIR.rstrip('/'), exist_ok=True)
+    print(f"Created output directory: {OUTPUTDIR}", flush=True)
+
+if isParallel:
+    comm.Barrier()  # Sincronizza prima di iniziare
+
+filelist=glob.glob(INPUTDIR + "*-12:00:00.nc")
 filelist.sort()
 
 coordinates_without_fillvalue = ["nav_lat", "nav_lon",
@@ -42,16 +50,19 @@ coordinates_without_fillvalue = ["nav_lat", "nav_lon",
                 "time_instant", "time_instant_bounds",
                 "time_counter", "time_counter_bounds", 
                 "time_centered", "time_centered_bounds"]
+
 for filename in filelist[rank::nranks]:
     with xr.open_dataset(filename) as ds_file:
         nparts = len(ds_file.time_counter)
+        input_var = os.path.basename(filename)[0]  # Estrae la prima lettera (T, U, V, W)
         print("rank %d executes cut of %s in %d parts" % (rank, filename, nparts), flush=True)
         for it in range(nparts):
             slice_name = str(ds_file.isel(time_counter=it).time_counter.values)
             slice_name = slice_name.split('.')[0]
             slice_time = slice_name.split('T')[1]
             slice_date = slice_name.split('T')[0].replace('-', '')
-            outputfile = OUTPUTDIR + 'T' + slice_date + "-" + slice_time + ".nc"
+            outputfile = OUTPUTDIR + input_var + slice_date + "-" + slice_time + ".nc"
+            print("rank %d generates %s" % (rank, outputfile), flush=True)
             ds_slice = ds_file.isel(time_counter=slice(it, it+1))
             for var in ds_slice.variables:
                 if var in coordinates_without_fillvalue:
@@ -61,8 +72,3 @@ for filename in filelist[rank::nranks]:
             ds_slice.to_netcdf(outputfile, mode="w", format="NETCDF4")
             ds_slice.close()
             print("rank %d generates %s" % (rank, outputfile), flush=True)
-
-
-    
-    
-
