@@ -13,6 +13,10 @@ def argument():
                                 type = existing_dir_path,
                                 required = True,
                                 help = 'The directory where you want to dump compressed files')
+    parser.add_argument(   '--averagedir', '-a',
+                                type = existing_dir_path,
+                                required = True,
+                                help = 'The directory where you want to dump averaged files')    
     return parser.parse_args()
 
 args = argument()
@@ -53,11 +57,9 @@ for filename in filelist[rank::nranks]:
     with xr.open_dataset(filename) as ds_file:
         nparts = len(ds_file.time_counter)
         input_var = os.path.basename(filename)[0]  # Estrae la prima lettera (T, U, V, W)
-        print("rank %d executes cut of %s in %d parts" % (rank, filename, nparts), flush=True)
         for it in range(nparts):
             slice_name = str(ds_file.isel(time_counter=it).time_counter.values)
             dt = datetime.strptime(slice_name,dateformat_in)
-
             outputfile = OUTPUTDIR / f"{input_var}{dt.strftime(dateformat_out)}.nc"
             print("rank %d generates %s" % (rank, outputfile), flush=True)
 
@@ -69,3 +71,4 @@ for filename in filelist[rank::nranks]:
             #     print(f"Variable: {var}, Encoding: {ds_slice[var].encoding['_FillValue'] if '_FillValue' in ds_slice[var].encoding else 'None'  }")
             ds_slice.to_netcdf(outputfile, mode="w", format="NETCDF4")
             ds_slice.close()
+        ds_file.mean(dim="time_counter").to_netcdf(OUTPUTDIR / f"{input_var}mean.nc", mode="w", format="NETCDF4")
