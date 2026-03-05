@@ -39,7 +39,7 @@ except:
 
 INPUTDIR = args.inputdir
 OUTPUTDIR = args.outputdir
-
+AVERAGEDIR = args.averagedir
 
 filelist=[f for f in INPUTDIR.glob("*-12:00:00.nc") ]
 filelist.sort()
@@ -58,17 +58,20 @@ for filename in filelist[rank::nranks]:
         nparts = len(ds_file.time_counter)
         input_var = os.path.basename(filename)[0]  # Estrae la prima lettera (T, U, V, W)
         for it in range(nparts):
+            # genera il nome del file di output che indica l'ora centrale della finestra temporale
             slice_name = str(ds_file.isel(time_counter=it).time_counter.values)
             dt = datetime.strptime(slice_name,dateformat_in)
             outputfile = OUTPUTDIR / f"{input_var}{dt.strftime(dateformat_out)}.nc"
             print("rank %d generates %s" % (rank, outputfile), flush=True)
-
+            # estrae la fetta temporale corrispondente
             ds_slice = ds_file.isel(time_counter=slice(it, it+1))
             for var in ds_slice.variables:
                 if var in coordinates_without_fillvalue:
                     ds_slice[var].encoding['_FillValue'] = None
-            # for var in ds_slice.variables:
-            #     print(f"Variable: {var}, Encoding: {ds_slice[var].encoding['_FillValue'] if '_FillValue' in ds_slice[var].encoding else 'None'  }")
+            # salva il file
             ds_slice.to_netcdf(outputfile, mode="w", format="NETCDF4")
             ds_slice.close()
-        ds_file.mean(dim="time_counter").to_netcdf(OUTPUTDIR / f"{input_var}mean.nc", mode="w", format="NETCDF4")
+        # Calcola la media temporale su un arco temporale di 24h e salva il file
+        ds_mean = ds_file.mean(dim="time_counter")
+        # salva il file
+        ds_mean.to_netcdf(AVERAGEDIR / f"{filename}", mode="w", format="NETCDF4")
