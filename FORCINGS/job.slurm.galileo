@@ -1,6 +1,6 @@
 #! /bin/bash
 
-#SBATCH --job-name=TAGLIA_XARR
+#SBATCH --job-name=TAGLIA
 #SBATCH -N5
 #SBATCH --ntasks-per-node=48
 #SBATCH --time=1:00:00
@@ -28,7 +28,7 @@ export UCX_TLS=ib
 export SLURM_PMIX_DIRECT_CONN_UCX=false
 
 INPUTDIR=/g100_scratch/userexternal/vsciorti/CMCC_PHYS/CMCC_PHYS_LINKS/
-OUTPUTDIR=/g100_scratch/userexternal/vsciorti/CMCC_PHYS/6h_xarrF
+OUTPUTDIR=/g100_scratch/userexternal/vsciorti/CMCC_PHYS/split_results_xarr/
 my_prex_or_die "mpirun -np 48 python tagliafile_xarray.py -i $INPUTDIR -o $OUTPUTDIR"
 
 
