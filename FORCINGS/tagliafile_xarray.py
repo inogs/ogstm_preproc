@@ -74,4 +74,4 @@ for filename in filelist[rank::nranks]:
         # Calcola la media temporale su un arco temporale di 24h e salva il file
         ds_mean = ds_file.mean(dim="time_counter")
         # salva il file
-        ds_mean.to_netcdf(AVERAGEDIR / f"{filename}", mode="w", format="NETCDF4")
+        ds_mean.to_netcdf(AVERAGEDIR / os.path.basename(filename), mode="w", format="NETCDF4")
