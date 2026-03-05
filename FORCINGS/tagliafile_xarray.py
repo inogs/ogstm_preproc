@@ -1,4 +1,5 @@
 import argparse
+from datetime import datetime
 
 def argument():
     parser = argparse.ArgumentParser(description = 'Executes gzip in parallel')
@@ -51,6 +52,9 @@ coordinates_without_fillvalue = ["nav_lat", "nav_lon",
                 "time_counter", "time_counter_bounds", 
                 "time_centered", "time_centered_bounds"]
 
+dt_format_in="%Y-%m-%dT%H:%M:%S.000000000"
+dt_format_out="%Y%m%d-%H%M%S"
+
 for filename in filelist[rank::nranks]:
     with xr.open_dataset(filename) as ds_file:
         nparts = len(ds_file.time_counter)
@@ -58,11 +62,13 @@ for filename in filelist[rank::nranks]:
         print("rank %d executes cut of %s in %d parts" % (rank, filename, nparts), flush=True)
         for it in range(nparts):
             slice_name = str(ds_file.isel(time_counter=it).time_counter.values)
-            slice_name = slice_name.split('.')[0]
-            slice_time = slice_name.split('T')[1]
-            slice_date = slice_name.split('T')[0].replace('-', '')
-            outputfile = OUTPUTDIR + input_var + slice_date + "-" + slice_time + ".nc"
+            dt = datetime.strptime(slice_name,dt_format_in) # format check
+            print(f"rank {rank} processing slice: {slice_name}", flush=True)
+
+            dt_name = dt.strftime(dt_format_out)
+            outputfile = OUTPUTDIR + input_var + dt_name + ".nc"
             print("rank %d generates %s" % (rank, outputfile), flush=True)
+            
             ds_slice = ds_file.isel(time_counter=slice(it, it+1))
             for var in ds_slice.variables:
                 if var in coordinates_without_fillvalue:
