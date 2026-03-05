@@ -53,7 +53,7 @@ coordinates_without_fillvalue = ["nav_lat", "nav_lon",
                 "time_centered", "time_centered_bounds"]
 
 dt_format_in="%Y-%m-%dT%H:%M:%S.000000000"
-dt_format_out="%Y%m%d-%H%M%S"
+dt_format_out="%Y%m%d-%H:%M:%S"
 
 for filename in filelist[rank::nranks]:
     with xr.open_dataset(filename) as ds_file:
@@ -68,7 +68,7 @@ for filename in filelist[rank::nranks]:
             dt_name = dt.strftime(dt_format_out)
             outputfile = OUTPUTDIR + input_var + dt_name + ".nc"
             print("rank %d generates %s" % (rank, outputfile), flush=True)
-            
+
             ds_slice = ds_file.isel(time_counter=slice(it, it+1))
             for var in ds_slice.variables:
                 if var in coordinates_without_fillvalue:
