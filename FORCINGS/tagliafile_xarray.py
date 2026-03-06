@@ -7,16 +7,18 @@ def argument():
     parser.add_argument(   '--inputdir', '-i',
                                 type = existing_dir_path,
                                 required = True,
-                                help = 'The directory containing uncompressed files')
+                                help = 'Directory with original CMCC files with 4 time frames per day')
 
     parser.add_argument(   '--outputdir', '-o',
                                 type = existing_dir_path,
                                 required = True,
-                                help = 'The directory where you want to dump compressed files')
+                                help = 'Directory with cut files with 1 time frame per file, every 6 hours')
     parser.add_argument(   '--averagedir', '-a',
                                 type = existing_dir_path,
                                 required = False,
-                                help = 'The directory where you want to dump averaged files')    
+                            help = """Directory with 24h averaged files. 
+                                      If not specified, averaged files will not be generated
+                                      """)    
     return parser.parse_args()
 
 args = argument()
@@ -78,13 +80,17 @@ for filename in filelist[rank::nranks]:
             ds_slice.to_netcdf(outputfile, mode="w", format="NETCDF4")
             ds_slice.close()
         if AVERAGEDIR is not None:
+            outputfile = AVERAGEDIR / os.path.basename(filename)
+            print("rank %d generates %s" % (rank, outputfile), flush=True)
             # Calcola la media temporale su un arco temporale di 24h e salva il file
             ds_mean = ds_file.mean(dim="time_counter", keep_attrs=True).expand_dims("time_counter")
+
+            # ---- settings to get correctly masked values in ncdump -h
             for var in ds_mean.variables:
-                if var[0:2] in ['vo', 'so']:
+                if var.startswith(('vo', 'so')):
                     ds_mean[var].encoding['_FillValue'] = 1.e20
                     ds_mean[var].encoding['missing_value'] = 1.e20
-                if var[0:5] == 'depth':
+                if var.startswith('depth'):
                     ds_mean[var].encoding['_FillValue'] = None
             # Preserve each variable's original encoding, then enable compression and raise complevel to 4 for data variables
             encoding = {}
@@ -95,6 +101,6 @@ for filename in filelist[rank::nranks]:
                     enc['complevel'] = 5
                     enc['shuffle'] = True
                 encoding[var] = enc
-            # salva il file
-            ds_mean.to_netcdf(AVERAGEDIR / os.path.basename(filename), mode="w", format="NETCDF4", encoding=encoding)
+            # -------------------------------------------------
+            ds_mean.to_netcdf(outputfile, mode="w", format="NETCDF4", encoding=encoding)
             ds_mean.close()
