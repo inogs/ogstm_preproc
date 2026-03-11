@@ -1,0 +1,7 @@
+maskfile: '/leonardo_work/OGS23_PRACE_IT_0/ggalli00/OGSTM-BFM/MASK24/meshmask_141.nc'
+maskfile_d: '/leonardo_work/OGS23_PRACE_IT_0/ggalli00/OGSTM-BFM/qDEG_SETUP/MASKS/meshmask_025_z141.nc'
+ffdir: '/leonardo_work/OGS_devC_0/Neccton_hindcast1999_2022_v22/wrkdir/MODEL/FORCINGS'
+outdir: '/leonardo_work/OGS23_PRACE_IT_0/ggalli00/OGSTM-BFM/qDEG_SETUP/FORCINGS/'
+ndeg: 6
+y0: 1999
+yE: 2001

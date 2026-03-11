@@ -1,0 +1,9 @@
+mesh_in: '/leonardo_work/OGS23_PRACE_IT_0/ggalli00/OGSTM-BFM/MASK24/meshmask.nc'
+mesh_out: '/leonardo_work/OGS23_PRACE_IT_0/ggalli00/OGSTM-BFM/qDEG_SETUP/MASKS/meshmask_025_z125.nc'
+indir: '/leonardo_work/OGS_devC_0/Neccton_hindcast1999_2022_v22/wrkdir/MODEL/bc/'
+outdir: '/leonardo_work/OGS23_PRACE_IT_0/ggalli00/OGSTM-BFM/qDEG_SETUP/bc/'
+#infile: 'RST.*-00:00:00.__VNAME__.nc'
+infile: 'R3l_*-00:00:00.nc'
+ndeg: 6
+isrst: False
+vname: 'R3l' #use only if working on non-restart files
