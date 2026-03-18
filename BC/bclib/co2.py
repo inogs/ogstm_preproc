@@ -76,10 +76,16 @@ class co2atm():
         logging.info("CO2 files written")
 if __name__ == "__main__":
     from bitsea.commons.mask import Mask
-    import config as conf
-    conf.file_mask="../masks/meshmask_872.nc"
-    conf.dir_out = "../out"
-    TheMask = Mask.from_file(conf.file_mask)
-    conf.file_co2="../CMIP5_scenarios_RCP_CO2_mixing_ratio.nc"
-    CO2 =co2atm(conf)
-    CO2.generate(TheMask)
+    import xarray as xr
+    TheMask=Mask.from_file("../FORCINGS/degradation/meshmask.nc")
+    
+    with xr.open_dataset("co2_monthly_MED_surfatm.nc") as ds:
+        co2_MMR = ds.co2.mean(dim="valid_time")
+    co2_ppm = 28.9644 / 44.0095 * 1.e+6 * co2_MMR
+    new_lon=xr.DataArray(TheMask.xlevels, dims=("lat","lon"), name="lon")
+    new_lat=xr.DataArray(TheMask.ylevels, dims=("lat","lon"), name="lat")
+    co2_24 = co2_ppm.interp(latitude=new_lat,  longitude=new_lon, method="nearest")
+    lat0, lon0 = 35.55, 12.65
+    p = co2_24.sel(lat=lat0, lon=lon0, method="nearest")
+    print(p.values)
+
