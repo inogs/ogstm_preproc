@@ -2,7 +2,7 @@
 
 #SBATCH --job-name=TAGLIA
 #SBATCH -N5
-#SBATCH --ntasks-per-node=24
+#SBATCH --ntasks-per-node=48
 #SBATCH --time=1:00:00
 #SBATCH --mem=300gb
 #SBATCH --account=OGS_test2528
@@ -21,19 +21,19 @@ module load mkl/oneapi-2021--binary
 module load netcdf/4.7.4--oneapi--2021.2.0-ifort
 module load netcdff/4.5.3--oneapi--2021.2.0-ifort
 source /g100_work/OGS23_PRACE_IT/COPERNICUS/py_env_3.9.18_new/bin/activate
-module load nco
 
 unset I_MPI_PMI_LIBRARY
 export UCX_TLS=ib
 export SLURM_PMIX_DIRECT_CONN_UCX=false
 
-INPUTDIR=/g100_scratch/userexternal/gbolzon0/BI-HOURLY/PHYS/ORIG
-OUTPUTDIR=/g100_scratch/userexternal/gbolzon0/BI-HOURLY/2H/FORCINGS
-my_prex_or_die "mpirun python tagliafile.py -i $INPUTDIR -o $OUTPUTDIR"
+INPUTDIR=/g100_scratch/userexternal/vsciorti/CMCC_PHYS/CMCC_PHYS_LINKS/
+OUTPUTDIR=/g100_scratch/userexternal/vsciorti/CMCC_PHYS/6h_xarrF/
+AVERAGEDIR=/g100_scratch/userexternal/vsciorti/CMCC_PHYS/24h_xarrF/
+my_prex_or_die "mpirun -np 48 python slice_files.py -i $INPUTDIR -o $OUTPUTDIR -a $AVERAGEDIR"
 
 
-INPUTDIR=/g100_scratch/userexternal/gbolzon0/BI-HOURLY/2H/FORCINGS
-OUTPUTDIR=/g100_scratch/userexternal/gbolzon0/BI-HOURLY/6H/FORCINGS
-my_prex_or_die "mpirun python averager.py -i $INPUTDIR -o $OUTPUTDIR -f 6 "
+#INPUTDIR=/g100_scratch/userexternal/gbolzon0/BI-HOURLY/2H/FORCINGS
+#OUTPUTDIR=/g100_scratch/userexternal/gbolzon0/BI-HOURLY/6H/FORCINGS
+#my_prex_or_die "mpirun python averager.py -i $INPUTDIR -o $OUTPUTDIR -f 6 "
 
 
