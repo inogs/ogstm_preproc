@@ -18,7 +18,7 @@ class co2atm():
     def __init__(self, conf):
         """
         Initialize the co2atm class by
-        - reading the CO2 data from the specified file
+        - reading the CO2 data from the specified CAMS reanalysis file
         - averaging and converting it from mass mixing ratio to ppm
         - generating a map of CO2 anomalies with respect to Lampedusa, and
         - preparing it for interpolation.
@@ -50,7 +50,11 @@ class co2atm():
         self.Xpoints = Xpoints
 
     def generate(self, TheMask: Mask, plot=False):
-        """ Generate CO2 files for the whole period of simulation, with monthly variability. """
+        """ Generate CO2 files for ogstm for the whole period of simulation, with monthly variability.
+        Generates also co2_timeseries.txt and co2_timeseries.png (if plot=True).
+        The CO2 files are written in the output directory specified in the configuration,
+        with names like CO2_yyyymm15-00:00:00.nc.
+        """
         outdir= Path(self.config.dir_out)
         Monthly_variability = np.array([
         3.1121, 3.6775, 4.2504, 3.7641,
