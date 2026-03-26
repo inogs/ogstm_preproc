@@ -16,9 +16,16 @@ class co2atm():
     """
 
     def __init__(self, conf):
+        """
+        Initialize the co2atm class by
+        - reading the CO2 data from the specified file
+        - averaging and converting it from mass mixing ratio to ppm
+        - generating a map of CO2 anomalies with respect to Lampedusa, and
+        - preparing it for interpolation.
+          """
         logging.info("CO2 enabled")
         self.config = conf
-        self.path = "co2_monthly_MED_surfatm.nc"
+        self.path = conf.file_co2
         self.BASE = 366.92  # ppm (mean value for Y=2000)
 
         with xr.open_dataset(self.path) as ds:
@@ -43,6 +50,7 @@ class co2atm():
         self.Xpoints = Xpoints
 
     def generate(self, TheMask: Mask, plot=False):
+        """ Generate CO2 files for the whole period of simulation, with monthly variability. """
         outdir= Path(self.config.dir_out)
         Monthly_variability = np.array([
         3.1121, 3.6775, 4.2504, 3.7641,
@@ -52,17 +60,19 @@ class co2atm():
 
         landmask = ~ TheMask.mask_at_level(0)
 
-        starttime=f"{self.config.simulation_start_time-1}0101-00:00:00"
+        starttime=f"{self.config.simulation_start_time-1}1201-00:00:00"
         endtime=f"{self.config.simulation_end_time+1}0101-00:00:00"
         Monthly = DL.getTimeList(starttime, endtime, months=1)
         Timeseries = np.zeros(len(Monthly), dtype=float)
         for im, m in enumerate(Monthly):
             fileOUT = outdir / f"CO2_{m.strftime('%Y%m')}15-00:00:00.nc"
             print(fileOUT)
-            S_m = Monthly_variability[m.month-1]
-            Total_variability = self.BASE + 2.378 * (m.year - 2000) + S_m
-            Timeseries[im] = Total_variability
-            M2d = self.MapCO2_ZEROL + Total_variability
+            S_m = Monthly_variability[ m.month - 1 ]
+            time_co2_value = self.BASE + 2.378 * (m.year - 2000) + S_m
+            Timeseries[im] = time_co2_value
+
+            # now, adding space variability
+            M2d = self.MapCO2_ZEROL + time_co2_value
             co2=M2d.values[0,-1::-1,:]
             f = interpolate.LinearNDInterpolator(self.Xpoints, co2.ravel())
             co2_24  = f(TheMask.xlevels, TheMask.ylevels)
