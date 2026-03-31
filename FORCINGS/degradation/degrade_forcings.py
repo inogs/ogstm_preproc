@@ -632,6 +632,9 @@ def get_flist(tuvw:str, Params:dict):
     y0 = Params['y0']
     yE = Params['yE']
     flist = [glob(f'{ffdir}/{YYYY}/??/{tuvw}*.nc') for YYYY in range(y0, yE+1)]
+    if not any(flist):
+        # case where there's no YYYY/MM subdirectories
+        flist = [glob(f'{ffdir}/{tuvw}{YYYY}????-*.nc') for YYYY in range(y0, yE+1)]
     flist = sorted(list(chain.from_iterable(flist)))
     return [Path(f) for f in flist]
 
