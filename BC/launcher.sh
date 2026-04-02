@@ -9,15 +9,20 @@
 #SBATCH --partition=g100_meteo_prod
 #SBATCH --qos=qos_meteo
 
-#source /g100_work/OGS23_PRACE_IT/COPERNICUS/sequence.sh
-source /leonardo_work/OGS23_PRACE_IT_0/COPERNICUS/sequence.sh
+source /g100_work/OGS23_PRACE_IT/COPERNICUS/sequence.sh
+#source /leonardo_work/OGS23_PRACE_IT_0/COPERNICUS/sequence.sh
 unset I_MPI_PMI_LIBRARY
 export UCX_TLS=ib
 export SLURM_PMIX_DIRECT_CONN_UCX=false
 source ../profile.inc
 
-MASKFILE=/leonardo_work/OGS23_PRACE_IT_0/ggalli00/OGSTM-BFM/qDEG_SETUP/MASKS/meshmask_025_z125.nc
-INPUTBC=/leonardo_work/OGS23_PRACE_IT_0/ggalli00/OGSTM-BFM/qDEG_SETUP/inputs
+#MASKFILE=/leonardo_work/OGS23_PRACE_IT_0/ggalli00/OGSTM-BFM/qDEG_SETUP/MASKS/meshmask_025_z125.nc
+#INPUTBC=/leonardo_work/OGS23_PRACE_IT_0/ggalli00/OGSTM-BFM/qDEG_SETUP/inputs
+MASKFILE=$1
+INPUTBC=$2
+
+echo "Maskfile: $1"
+echo "input BC: $2"
 
 python write_VPnutrients.py -i $INPUTBC -m $MASKFILE
 python main.py

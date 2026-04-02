@@ -1,6 +1,8 @@
 # paths
-dir_out        = "/leonardo_work/OGS23_PRACE_IT_0/ggalli00/OGSTM-BFM/qDEG_SETUP/BC/"
-file_mask      = "/leonardo_work/OGS23_PRACE_IT_0/ggalli00/OGSTM-BFM/qDEG_SETUP/MASKS/meshmask_025_z125.nc"
+dir_out        = "/g100_work/OGS_test2528/ggalli00/REGRID/BC/"
+file_mask      = "/g100_work/OGS_test2528/ggalli00/REGRID/MASKS/meshmask_025_z125.nc"
+#dir_out        = "/leonardo_work/OGS23_PRACE_IT_0/ggalli00/OGSTM-BFM/qDEG_SETUP/BC/"
+#file_mask      = "/leonardo_work/OGS23_PRACE_IT_0/ggalli00/OGSTM-BFM/qDEG_SETUP/MASKS/meshmask_025_z125.nc"
 file_co2       = "CMIP5_scenarios_RCP_CO2_mixing_ratio.nc"
 file_nutrients = "VPnutrients_CO2.nc"
 file_bmask     = dir_out + "bounmask.nc"
