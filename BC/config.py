@@ -8,8 +8,8 @@ file_nutrients = "VPnutrients_CO2.nc"
 file_bmask     = dir_out + "bounmask.nc"
 #file_river     = "Perseus-4.6_38rivers_mesh24.xlsx"
 
-simulation_start_time = 1999
-simulation_end_time   = 2000
+simulation_start_time = 2022
+simulation_end_time   = 2024
 
 # Atmosphere settings in Mmol/y
 # origin of data should be added here
