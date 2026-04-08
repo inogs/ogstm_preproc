@@ -6,8 +6,7 @@ from bitsea.commons.mask import Mask
 def writefileU(filename, mask, U, taux):
     
     jpk,jpj,jpi = mask.shape
-    
-    
+     
     ncOUT = NC.Dataset(filename,"w",format="NETCDF4")
     ncOUT.createDimension('x',jpi)
     ncOUT.createDimension('y',jpj)
@@ -31,18 +30,17 @@ def writefileU(filename, mask, U, taux):
     setattr(ncvar,'interval_write',"1 d")
     setattr(ncvar,'cell_methods',"time: point")
     setattr(ncvar,'coordinates',"time_instant depthu nav_lon nav_lat")
-    
-    ncvar = ncOUT.createVariable('sozotaux', 'f', ('time_counter', 'y', 'x'),fill_value=1.0e+20)
-    ncvar[:]=taux
-    setattr(ncvar,'standard_name',"surface_downward_x_stress")
-    setattr(ncvar,'long_name',"surface_downward_x_stress")
-    setattr(ncvar,'units',"N/m2" )
+    if taux.size != 0: #'sozotaux' may be on the T grid instead 
+        ncvar = ncOUT.createVariable('sozotaux', 'f', ('time_counter', 'y', 'x'),fill_value=1.0e+20)
+        ncvar[:] = taux
+        setattr(ncvar,'standard_name',"surface_downward_x_stress")
+        setattr(ncvar,'long_name',"surface_downward_x_stress")
+        setattr(ncvar,'units',"N/m2" )
     ncOUT.close()
     
 def writefileV(filename, mask, V, tauy):
     
     jpk,jpj,jpi = mask.shape
-    
     
     ncOUT = NC.Dataset(filename,"w",format="NETCDF4")
     ncOUT.createDimension('x',jpi)
@@ -67,18 +65,17 @@ def writefileV(filename, mask, V, tauy):
     setattr(ncvar,'interval_write',"1 d")
     setattr(ncvar,'cell_methods',"time: point")
     setattr(ncvar,'coordinates',"time_instant depthv nav_lon nav_lat")
-    
-    ncvar = ncOUT.createVariable('sometauy', 'f', ('time_counter', 'y', 'x'),fill_value=1.0e+20)
-    ncvar[:]=tauy
-    setattr(ncvar,'standard_name',"surface_downward_y_stress")
-    setattr(ncvar,'long_name',"surface_downward_y_stress")
-    setattr(ncvar,'units',"N/m2" )
+    if tauy.size != 0: #'sometauy' may be on the T grid instead
+        ncvar = ncOUT.createVariable('sometauy', 'f', ('time_counter', 'y', 'x'),fill_value=1.0e+20)
+        ncvar[:] = tauy
+        setattr(ncvar,'standard_name',"surface_downward_y_stress")
+        setattr(ncvar,'long_name',"surface_downward_y_stress")
+        setattr(ncvar,'units',"N/m2" )
     ncOUT.close()
 
 def writefileW(filename, mask, W, K):
     
     jpk,jpj,jpi = mask.shape
-    
     
     ncOUT = NC.Dataset(filename,"w",format="NETCDF4")
     ncOUT.createDimension('x',jpi)
@@ -104,7 +101,6 @@ def writefileW(filename, mask, W, K):
         setattr(ncvar,'cell_methods',"time: point")
         setattr(ncvar,'coordinates', "time_instant depthu nav_lon nav_lat")
     
-    
     ncvar=ncOUT.createVariable('votkeavt', 'f' ,('time_counter', 'depthw', 'y', 'x'),fill_value=1.0e+20)
     ncvar[:]=K
     
@@ -118,13 +114,11 @@ def writefileW(filename, mask, W, K):
 
     setattr(ncvar,'coordinates',"time_instant depthu nav_lon nav_lat")
     
-
     ncOUT.close()
 
-def writefileT(filename, mask, T, S, ETA, SW_Rad, RUNOFF, MXL):
+def writefileT(filename, mask, T, S, ETA, SW_Rad, RUNOFF, MXL, taux, tauy):
     
     jpk,jpj,jpi = mask.shape
-    
     
     ncOUT = NC.Dataset(filename,"w",format="NETCDF4")
     ncOUT.createDimension('x',jpi)
@@ -149,8 +143,7 @@ def writefileT(filename, mask, T, S, ETA, SW_Rad, RUNOFF, MXL):
     setattr(ncvar,'interval_write',"1 d")
     setattr(ncvar,'cell_methods',"time: point")
     setattr(ncvar,'coordinates', "time_instant depthu nav_lon nav_lat")
-    
-    
+     
     ncvar = ncOUT.createVariable('votemper', 'f' ,('time_counter', 'deptht', 'y', 'x'),fill_value=1.0e+20)
     ncvar[:] = T
     
@@ -186,6 +179,20 @@ def writefileT(filename, mask, T, S, ETA, SW_Rad, RUNOFF, MXL):
     setattr(ncvar,'standard_name',"mixed_layer_depth_0.01")
     setattr(ncvar,'long_name',"mixed_layer_depth_0.01")
     setattr(ncvar,'units',"m" )
+
+    if tauy.size != 0: #'sometauy' may be on the T grid instead
+        ncvar = ncOUT.createVariable('sometauy', 'f', ('time_counter', 'y', 'x'),fill_value=1.0e+20)
+        ncvar[:] = tauy
+        setattr(ncvar,'standard_name',"surface_downward_y_stress")
+        setattr(ncvar,'long_name',"surface_downward_y_stress")
+        setattr(ncvar,'units',"N/m2" )
+
+    if taux.size != 0: #'sozotaux' may be on the T grid instead 
+        ncvar = ncOUT.createVariable('sozotaux', 'f', ('time_counter', 'y', 'x'),fill_value=1.0e+20)
+        ncvar[:] = taux
+        setattr(ncvar,'standard_name',"surface_downward_x_stress")
+        setattr(ncvar,'long_name',"surface_downward_x_stress")
+        setattr(ncvar,'units',"N/m2" )
 
     ncOUT.close()
    

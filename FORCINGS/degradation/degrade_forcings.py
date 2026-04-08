@@ -111,6 +111,11 @@ def load_tfile(infile, ndeg=1):
     #F1['sosefldo'] = dm.xpnd_wrap(F['sosefldo'], 'edge', ndeg)
     #F1['solafldo'] = dm.xpnd_wrap(F['solafldo'], 'edge', ndeg)
     F1['somxl010'] = dm.xpnd_wrap(F['somxl010'], 'edge', ndeg)
+    # "sometauy", "sozotaux" may be on V, U files instead
+    if 'sometauy' in F:
+        F1['sometauy'] = dm.xpnd_wrap(F['sometauy'], 'edge', ndeg)
+    if 'sozotaux' in F:
+        F1['sozotaux'] = dm.xpnd_wrap(F['sozotaux'], 'edge', ndeg)
     # overwrite coordinates, else it complains
     for vv in F1.keys():
         F1[vv].coords['nav_lat'].values[:] = F1['nav_lat'].values[:]
@@ -139,7 +144,9 @@ def load_ufile(infile, ndeg=1):
     F1['nav_lat'] = dm.xpnd_wrap(F['nav_lat'], 'interp', ndeg)
     F1['nav_lon'] = dm.xpnd_wrap(F['nav_lon'], 'interp', ndeg)
     F1['vozocrtx'] = dm.xpnd_wrap(F['vozocrtx'], 'edge', ndeg)
-    F1['sozotaux'] = dm.xpnd_wrap(F['sozotaux'], 'edge', ndeg)
+    # 'sozotaux' may be in the T file instead
+    if 'sozotaux' in F:
+        F1['sozotaux'] = dm.xpnd_wrap(F['sozotaux'], 'edge', ndeg)
     vlist = list(F1.keys())
     # overwrite coordinates, else it complains
     for vv in vlist:
@@ -150,9 +157,10 @@ def load_ufile(infile, ndeg=1):
     F1['time_instant'] = F['time_instant'] 
     F1['time_instant_bounds'] = F['time_instant_bounds'] 
     F1['time_counter'] = F['time_counter'] 
-    F1['time_counter_bounds'] = F['time_counter_bounds'] 
-    F1['time_centered'] = F['time_centered'] 
-    F1['time_centered_bounds'] = F['time_centered_bounds'] 
+    F1['time_counter_bounds'] = F['time_counter_bounds']
+    if 'time_centered' in F:
+        F1['time_centered'] = F['time_centered'] 
+        F1['time_centered_bounds'] = F['time_centered_bounds'] 
     #
     F1 = xr.Dataset(F1)
     F.close()
@@ -168,7 +176,9 @@ def load_vfile(infile, ndeg=1):
     F1['nav_lat'] = dm.xpnd_wrap(F['nav_lat'], 'interp', ndeg)
     F1['nav_lon'] = dm.xpnd_wrap(F['nav_lon'], 'interp', ndeg)
     F1['vomecrty'] = dm.xpnd_wrap(F['vomecrty'], 'edge', ndeg)
-    F1['sometauy'] = dm.xpnd_wrap(F['sometauy'], 'edge', ndeg)
+    # 'sometauy' may be in the T file instead
+    if 'sometauy' in F:
+        F1['sometauy'] = dm.xpnd_wrap(F['sometauy'], 'edge', ndeg)
     vlist = list(F1.keys())
     # overwrite coordinates, else it complains
     for vv in vlist:
@@ -180,8 +190,9 @@ def load_vfile(infile, ndeg=1):
     F1['time_instant_bounds'] = F['time_instant_bounds']
     F1['time_counter'] = F['time_counter']
     F1['time_counter_bounds'] = F['time_counter_bounds']
-    F1['time_centered'] = F['time_centered']
-    F1['time_centered_bounds'] = F['time_centered_bounds']
+    if 'time_centered' in F:
+        F1['time_centered'] = F['time_centered']
+        F1['time_centered_bounds'] = F['time_centered_bounds']
     #
     F1 = xr.Dataset(F1)
     F.close()
@@ -223,13 +234,12 @@ def get_weights(M, T):
     and surface area on T / W grid
     algorithm from ogstm/src/IO/forcing_phys.f90
     (NB, this one pure numpy because xarray is not good at broadcasting)
-
     Arguments:
     M : xarray dataset output of load_mesh_light()
     T : xarray dataset output of load_tfile()
 
     '''
-    jpk = M.dims['z']
+    jpk = M.sizes['z']
     h_column_t = M['h_column_t'].values[:]
     tmask =           M['tmask'].values[:]
     umask =           M['umask'].values[:]
@@ -259,7 +269,6 @@ def get_weights(M, T):
     # corresponds to:
     # for jk in range(jpk):
     #     e3t[:,jk,:,:] = e3t_0[0,jk,:,:] * correction_e3t[0, : , :]
-
 
     e1u_x_e2u = (e1u * e2u).repeat(jpk, axis=1) #(1,jpk,jpj,jpi)
     e1v_x_e2v = (e1v * e2v).repeat(jpk, axis=1)
@@ -292,6 +301,8 @@ def get_weights(M, T):
     B = {}
     B['e1v'] = xr.DataArray(e1v, name='e1v' , dims=('time','z_a','y','x'))
     B['e2u'] = xr.DataArray(e2u, name='e2u' , dims=('time','z_a','y','x'))
+    B['e1t'] = xr.DataArray(e1t, name='e1t' , dims=('time','z_a','y','x'))
+    B['e2t'] = xr.DataArray(e2t, name='e2t' , dims=('time','z_a','y','x'))
     B['At'] = xr.DataArray(At, name='At' , dims=('time','z_a','y','x'))
     B['Aw'] = xr.DataArray(Aw, name='Aw' , dims=('time','z','y','x'))
     B['Au'] = xr.DataArray((e2u * e3u), name='Au' , dims=('time','z','y','x'))
@@ -502,10 +513,13 @@ def degrade_V(V, vmask_in, Av, Av_d, e1v, Mask_out, outfile, ndeg=1):
     V = V.rename({'time_counter':'time', 'depthv':'z'})
     Vd = {}
     Vr = dm.reshape_blocks(V['vomecrty'], ndeg)
-    taur = dm.reshape_blocks(V['sometauy'], ndeg)
 
     Vd['vomecrty'] = coarsen_V(Vr, vmask_in, Av, Av_d, Mask_out)
-    Vd['sometauy'] = coarsen_tauy(taur, vmask_in, e1v, Mask_out)
+    if 'sometauy' in V:
+        taur = dm.reshape_blocks(V['sometauy'], ndeg)
+        Vd['sometauy'] = coarsen_tauy(taur, vmask_in, e1v, Mask_out)
+    else:
+        Vd['sometauy'] = xr.DataArray(np.array([]))
 
     FW.writefileV(outfile,
                   Mask_out,
@@ -530,10 +544,13 @@ def degrade_U(U, umask_in, Warea, Warea_d, e2u, Mask_out, outfile, ndeg=1):
     Ud = {}
     
     Ur = dm.reshape_blocks(U['vozocrtx'], ndeg)
-    taur = dm.reshape_blocks(U['sozotaux'], ndeg)
 
     Ud['vozocrtx'] = coarsen_U(Ur, umask_in, Warea, Warea_d, Mask_out)
-    Ud['sozotaux'] = coarsen_taux(taur, umask_in, e2u, Mask_out)
+    if 'sozotaux' in U: # 'sozotaux' may be on the T grid instead
+        taur = dm.reshape_blocks(U['sozotaux'], ndeg)
+        Ud['sozotaux'] = coarsen_taux(taur, umask_in, e2u, Mask_out)
+    else:
+        Ud['sozotaux'] = xr.DataArray(np.array([]))
 
     FW.writefileU( outfile,
                   Mask_out,
@@ -568,7 +585,7 @@ def degrade_W(W, tmask_in, Wa, Mask_out, outfile, ndeg=1):
     
 
 
-def degrade_T(T,tmask_in, Wa, Wv, Mask_out, outfile, ndeg=1):
+def degrade_T(T, tmask_in, Wa, Wv, e1t, e2t, Mask_out, outfile, ndeg=1):
     '''
     degrades resolution of T-grid file and dumps it to netcdf
     Arguments:
@@ -590,6 +607,17 @@ def degrade_T(T,tmask_in, Wa, Wv, Mask_out, outfile, ndeg=1):
     for var2d in ["sossheig", "soshfldo", "sorunoff", "somxl010"]:
         X = dm.reshape_blocks(T[var2d], ndeg)
         Td[var2d] = vwmean2d(X, tmask_in, Wa, Mask_out, mask_weight=True)
+    # 'sometauy', 'sozotaux' may be on the V, U grids instead
+    if 'sometauy' in T:
+        taur = dm.reshape_blocks(T['sometauy'], ndeg)
+        Td['sometauy'] = coarsen_tauy(taur, tmask_in, e1t, Mask_out)
+    else:
+        Td['sometauy'] = xr.DataArray(np.array([])) 
+    if 'sozotaux' in T:
+        taur = dm.reshape_blocks(T['sozotaux'], ndeg)
+        Td['sozotaux'] = coarsen_taux(taur, tmask_in, e2t, Mask_out)
+    else: 
+        Td['sozotaux'] = xr.DataArray(np.array([]))
 
     FW.writefileT(outfile, 
                   Mask_out,
@@ -598,7 +626,9 @@ def degrade_T(T,tmask_in, Wa, Wv, Mask_out, outfile, ndeg=1):
                   Td['sossheig'].values,
                   Td['soshfldo'].values,
                   Td['sorunoff'].values,
-                  Td['somxl010'].values)
+                  Td['somxl010'].values,
+                  Td['sometauy'].values,
+                  Td['sozotaux'].values)
     Td = xr.Dataset(Td)
     return Td
     
@@ -610,14 +640,11 @@ def make_outdir(outdir:Path, outfile:str):
     '''    
     #/leonardo_work/OGS23_PRACE_IT_0/ggalli00/OGSTM-BFM/qDEG_SETUP/FORCINGS/
     #T20020308-12:00:00.nc
-    yyyy = outfile[1:5]
-    mm = outfile[5:7]
-    outdir = outdir / f'{yyyy}/{mm}/'
+#    yyyy = outfile[1:5]
+#    mm = outfile[5:7]
+#    outdir = outdir / f'{yyyy}/{mm}/'
     outdir.mkdir(exist_ok=True, parents=True)
     return outdir
-
-    
-    
 
 
 def get_flist(tuvw:str, Params:dict):
@@ -690,9 +717,7 @@ if __name__=='__main__':
         W = load_wfile(wfile, ndeg)
         T = load_tfile(tfile, ndeg)
 
-
         Weight = get_weights(M, T)
-
         
         Warea = dm.reshape_blocks(Weight['At'], ndeg)
         Warea_w = dm.reshape_blocks(Weight['Aw'], ndeg)
@@ -701,11 +726,14 @@ if __name__=='__main__':
         Warea_v = dm.reshape_blocks(Weight['Av'], ndeg)
         e2u = dm.reshape_blocks(Weight['e2u'], ndeg)
         e1v = dm.reshape_blocks(Weight['e1v'], ndeg)
+        e2t = dm.reshape_blocks(Weight['e2t'], ndeg)
+        e1t = dm.reshape_blocks(Weight['e1t'], ndeg)
 
         print('degrado')
         yyyymm_dir = make_outdir(outdir, tfile.name)
+        print(f'outdir: {yyyymm_dir}')
         
-        Td = degrade_T(T, tmask_in, Warea, Wvolume, Mask_out, yyyymm_dir / tfile.name, ndeg)
+        Td = degrade_T(T, tmask_in, Warea, Wvolume, e1t, e2t, Mask_out, yyyymm_dir / tfile.name, ndeg)
 
         Weight_d = get_weights(Md, Td)
         Warea_u_d = Weight_d['Au']
