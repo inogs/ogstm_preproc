@@ -90,11 +90,11 @@ class co2atm():
             plt.ylabel('CO2 (ppm)')
             plt.grid(True)
             plt.tight_layout()
-            plt.savefig('co2_timeseries.png', dpi=150)
+            plt.savefig(outdir / 'co2_timeseries.png', dpi=150)
 
 
         # Save Monthly and Timeseries to text file
-        with open('co2_timeseries.txt', 'w') as f:
+        with open(outdir / 'co2_timeseries.txt', 'w') as f:
             f.write("# Date CO2_ppm\n")
             for m, t in zip(Monthly, Timeseries):
                 f.write(f"{m.strftime('%Y%m%d')} {t:.3f}\n")
