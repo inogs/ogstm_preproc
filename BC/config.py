@@ -1,7 +1,7 @@
 # paths
-dir_out        = "/g100_work/OGS_prod100/OPA/V9C/RUNS_SETUP/PREPROC/BC/out/"
-file_mask      = "/g100_work/OGS_prod100/OPA/V9C/RUNS_SETUP/PREPROC/MASK/meshmask.nc"
-file_co2       = "CMIP5_scenarios_RCP_CO2_mixing_ratio.nc"
+dir_out        = "/g100_scratch/userexternal/gbolzon0/V13C/ogstm_preproc/BC/out/"
+file_mask      = "/g100_work/OGS_test2528/Benchmark/SETUP/PREPROC/MASK/meshmask.nc"
+file_co2       = "co2_monthly_MED_surfatm.nc"
 file_nutrients = "VPnutrients_CO2.nc"
 file_bmask     = dir_out + "bounmask.nc"
 file_river     = "Perseus-4.6_38rivers_mesh24.xlsx"
