@@ -41,7 +41,7 @@ ARGS = read_command_line_args()
 from collections import namedtuple
 import numpy as np
 import netCDF4
-import seawater as sw
+import gsw
 
 from bitsea.commons.Timelist import TimeList
 from bitsea.commons.mask import Mask
@@ -120,17 +120,9 @@ def main():
             dimvar=2
         ).values[lat_positions, lon_positions + mask_cut]
 
-        surface_temperature = sw.temp(
-            s=RIVERS['SAL'],
-            pt=surface_potential_temperature,
-            p=pressure
-        )
-
-        density = sw.dens(
-            s=RIVERS['SAL'],
-            t=surface_temperature,
-            p=pressure
-        )
+        SA = gsw.SA_from_SP(RIVERS['SAL'], pressure, 0, 0)
+        CT = gsw.CT_from_pt(SA, surface_potential_temperature)
+        density = gsw.rho(SA, CT, pressure)
 
         cell_areas = cmcc_mask.area[lat_positions, lon_positions + mask_cut]
 
