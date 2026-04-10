@@ -64,10 +64,16 @@ class co2atm():
 
         landmask = ~ TheMask.mask_at_level(0)
 
+        # Find the model grid index nearest to Lampedusa (lat=35.55, lon=12.65)
+        lat0, lon0 = 35.55, 12.65
+        dist2 = (TheMask.xlevels - lon0)**2 + (TheMask.ylevels - lat0)**2
+        lamp_idx = np.unravel_index(np.argmin(dist2), dist2.shape)
+
         starttime=f"{self.config.simulation_start_time-1}1201-00:00:00"
         endtime=f"{self.config.simulation_end_time+1}0101-00:00:00"
         Monthly = DL.getTimeList(starttime, endtime, months=1)
         Timeseries = np.zeros(len(Monthly), dtype=float)
+        Timeseries_Lampedusa = np.zeros(len(Monthly), dtype=float)
         for im, m in enumerate(Monthly):
             fileOUT = outdir / f"CO2_{m.strftime('%Y%m')}15-00:00:00.nc"
             print(fileOUT)
@@ -80,6 +86,7 @@ class co2atm():
             co2=M2d.values[0,-1::-1,:]
             f = interpolate.LinearNDInterpolator(self.Xpoints, co2.ravel())
             co2_24  = f(TheMask.xlevels, TheMask.ylevels)
+            Timeseries_Lampedusa[im] = co2_24[lamp_idx]
             co2_24[landmask] = 1.e+20
             netcdf4.write_2d_file(co2_24,'CO2',fileOUT,TheMask)
         if plot:
@@ -93,11 +100,11 @@ class co2atm():
             plt.savefig(outdir / 'co2_timeseries.png', dpi=150)
 
 
-        # Save Monthly and Timeseries to text file
+        # Save Monthly and Timeseries to CSV file with interpolated value at Lampedusa
         with open(outdir / 'co2_timeseries.txt', 'w') as f:
-            f.write("# Date CO2_ppm\n")
-            for m, t in zip(Monthly, Timeseries):
-                f.write(f"{m.strftime('%Y%m%d')} {t:.3f}\n")
+            f.write("Date,CO2_scalar_ppm,CO2_Lampedusa_ppm\n")
+            for m, t, tl in zip(Monthly, Timeseries, Timeseries_Lampedusa):
+                f.write(f"{m.strftime('%Y%m%d')},{t:.3f},{tl:.3f}\n")
 
 
 
