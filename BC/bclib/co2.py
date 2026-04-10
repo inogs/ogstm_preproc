@@ -33,7 +33,7 @@ class co2atm():
             longitude = ds.longitude.values
             #grid = RegularGrid(lat=latitude, lon=longitude)
             # we are not interested in the time variability, so we take the mean over time
-            co2_MMR = ds.co2.mean(dim="valid_time")
+            co2_MMR = ds.co2.mean(dim="valid_time").load()
         # we convert from mass mixing ratio to ppm
         self.co2_ppm = 28.9644 / 44.0095 * 1.e+6 * co2_MMR
         lat0, lon0 = 35.55, 12.65 # Lampedusa
