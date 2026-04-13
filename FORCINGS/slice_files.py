@@ -64,9 +64,10 @@ if AVERAGEDIR is not None:
 
 if FORCETIMES:
     dateformat_in="%Y-%m-%d"
+    dateformat_out="%Y%m%d"
 else:
-    dateformat_in="%Y-%m-%dT%H:%M:%S.000000000"
-    dateformat_out="%Y%m%d-%H:%M:%S"
+    datetimeformat_in="%Y-%m-%dT%H:%M:%S.000000000"
+    datetimeformat_out="%Y%m%d-%H:%M:%S"
 
 for filename in filelist[rank::nranks]:
     with xr.open_dataset(filename) as ds_file:
@@ -74,7 +75,7 @@ for filename in filelist[rank::nranks]:
         if FORCETIMES:
             first_slice_name = str(ds_file.isel(time_counter=0).time_counter.values)
             dt0 = datetime.strptime(first_slice_name[:10], dateformat_in)
-            date_str = dt0.strftime("%Y%m%d")
+            date_str = dt0.strftime(dateformat_out)
             minutes_per_frame = 24 * 60 // nparts
             datetimestrings = []
             for i in range(nparts):
@@ -90,8 +91,8 @@ for filename in filelist[rank::nranks]:
                 outputfile = OUTPUTDIR / f"{input_var}{datetimestrings[it]}.nc"
             else:
                 slice_name = str(ds_file.isel(time_counter=it).time_counter.values)
-                dt = datetime.strptime(slice_name,dateformat_in)
-                outputfile = OUTPUTDIR / f"{input_var}{dt.strftime(dateformat_out)}.nc"
+                dt = datetime.strptime(slice_name,datetimeformat_in)
+                outputfile = OUTPUTDIR / f"{input_var}{dt.strftime(datetimeformat_out)}.nc"
 
             print("rank %d generates %s" % (rank, outputfile), flush=True)
             # estrae la fetta temporale corrispondente
