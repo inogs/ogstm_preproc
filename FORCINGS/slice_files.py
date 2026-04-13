@@ -48,6 +48,10 @@ AVERAGEDIR = args.averagedir
 FORCETIMES = args.forcetimes
 
 filelist=[f for f in INPUTDIR.glob("*-12:00:00.nc") ]
+if len(filelist) == 0:
+    print("No files found in %s" % INPUTDIR, flush=True)
+    raise FileNotFoundError("No files found in %s" % INPUTDIR)
+
 filelist.sort()
 
 coordinates_without_fillvalue = ("nav_lat", "nav_lon",
@@ -62,28 +66,23 @@ if AVERAGEDIR is not None:
                         'compression', 'quantize_mode', 'szip_coding',
                         'szip_pixels_per_block', 'blosc_shuffle', 'missing_value')
 
-if FORCETIMES:
-    dateformat_in="%Y-%m-%d"
-    dateformat_out="%Y%m%d"
-else:
-    datetimeformat_in="%Y-%m-%dT%H:%M:%S.000000000"
-    datetimeformat_out="%Y%m%d-%H:%M:%S"
+
 
 for filename in filelist[rank::nranks]:
     with xr.open_dataset(filename) as ds_file:
         nparts = len(ds_file.time_counter)
         if FORCETIMES:
             first_slice_name = str(ds_file.isel(time_counter=0).time_counter.values)
-            dt0 = datetime.strptime(first_slice_name[:10], dateformat_in)
-            date_str = dt0.strftime(dateformat_out)
+            day = datetime.strptime(first_slice_name[:10], "%Y-%m-%d")
+            yyyymmdd = day.strftime("%Y%m%d")
             minutes_per_frame = 24 * 60 // nparts
             datetimestrings = []
             for i in range(nparts):
                 center_minutes = int((i + 0.5) * minutes_per_frame)
                 h = center_minutes // 60
                 m = center_minutes % 60
-                datetimestrings.append(f"{date_str}-{h:02d}:{m:02d}:00")
-            print("rank %d generates %d strings: %s" % (rank, nparts, datetimestrings), flush=True)
+                datetimestrings.append(f"{yyyymmdd}-{h:02d}:{m:02d}:00")
+            # print("rank %d generates %d strings: %s" % (rank, nparts, datetimestrings), flush=True)
         input_var = os.path.basename(filename)[0]  # Estrae la prima lettera (T, U, V, W)
         for it in range(nparts):
             # genera il nome del file di output che indica l'ora centrale della finestra temporale
@@ -91,8 +90,8 @@ for filename in filelist[rank::nranks]:
                 outputfile = OUTPUTDIR / f"{input_var}{datetimestrings[it]}.nc"
             else:
                 slice_name = str(ds_file.isel(time_counter=it).time_counter.values)
-                dt = datetime.strptime(slice_name,datetimeformat_in)
-                outputfile = OUTPUTDIR / f"{input_var}{dt.strftime(datetimeformat_out)}.nc"
+                dt = datetime.strptime(slice_name,"%Y-%m-%dT%H:%M:%S.000000000")
+                outputfile = OUTPUTDIR / f"{input_var}{dt.strftime("%Y%m%d-%H:%M:%S")}.nc"
 
             print("rank %d generates %s" % (rank, outputfile), flush=True)
             # estrae la fetta temporale corrispondente
