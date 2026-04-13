@@ -82,6 +82,7 @@ for filename in filelist[rank::nranks]:
                 h = center_minutes // 60
                 m = center_minutes % 60
                 datetimestrings.append(f"{date_str}-{h:02d}:{m:02d}:00")
+            print("rank %d generates %d strings: %s" % (rank, nparts, datetimestrings), flush=True)
         input_var = os.path.basename(filename)[0]  # Estrae la prima lettera (T, U, V, W)
         for it in range(nparts):
             # genera il nome del file di output che indica l'ora centrale della finestra temporale
