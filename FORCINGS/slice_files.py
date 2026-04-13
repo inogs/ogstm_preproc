@@ -63,10 +63,8 @@ if AVERAGEDIR is not None:
                         'szip_pixels_per_block', 'blosc_shuffle', 'missing_value')
 
 if FORCETIMES:
-    dateformat_in="%Y-%m-%dT%H:%M:%S.000000000"
-    dateformat_out="%Y%m%d"
+    dateformat_in="%Y-%m-%d"
 else:
-    
     dateformat_in="%Y-%m-%dT%H:%M:%S.000000000"
     dateformat_out="%Y%m%d-%H:%M:%S"
 
@@ -74,20 +72,21 @@ for filename in filelist[rank::nranks]:
     with xr.open_dataset(filename) as ds_file:
         nparts = len(ds_file.time_counter)
         if FORCETIMES:
+            first_slice_name = str(ds_file.isel(time_counter=0).time_counter.values)
+            dt0 = datetime.strptime(first_slice_name[:10], dateformat_in)
+            date_str = dt0.strftime("%Y%m%d")
             minutes_per_frame = 24 * 60 // nparts
-            timestrings = []
+            datetimestrings = []
             for i in range(nparts):
                 center_minutes = int((i + 0.5) * minutes_per_frame)
                 h = center_minutes // 60
                 m = center_minutes % 60
-                timestrings.append(f"-{h:02d}:{m:02d}:00")
+                datetimestrings.append(f"{date_str}-{h:02d}:{m:02d}:00")
         input_var = os.path.basename(filename)[0]  # Estrae la prima lettera (T, U, V, W)
         for it in range(nparts):
             # genera il nome del file di output che indica l'ora centrale della finestra temporale
             if FORCETIMES:
-                slice_name = str(ds_file.isel(time_counter=it).time_counter.values)
-                dt = datetime.strptime(slice_name,dateformat_in)
-                outputfile = OUTPUTDIR / f"{input_var}{dt.strftime(dateformat_out)}{timestrings[it]}.nc"
+                outputfile = OUTPUTDIR / f"{input_var}{datetimestrings[it]}.nc"
             else:
                 slice_name = str(ds_file.isel(time_counter=it).time_counter.values)
                 dt = datetime.strptime(slice_name,dateformat_in)
