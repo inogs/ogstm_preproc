@@ -1,4 +1,6 @@
 import argparse
+from bitsea.utilities.argparse_types import existing_file_path, existing_dir_path
+
 
 def argument():
     parser = argparse.ArgumentParser(description = '''
@@ -11,19 +13,24 @@ def argument():
                                 required = True,
                                 help = 'original restarts')
 
-    parser.add_argument(   '--outdir', '-o',
+    parser.add_argument(   '--date', '-d',
                                 type = str,
+                                required = True,
+                                help = 'Date of the restarts'
+                                )
+    parser.add_argument(   '--outdir', '-o',
+                                type = existing_dir_path,
                                 required = True,
                                 help = 'Output directory of generated restarts'
                                 )
     parser.add_argument(   '--origmask',
-                                type = str,
+                                type = existing_file_path,
                                 required = False,
                                 default = "/gss/gss_work/DRES_OGS_BiGe/gbolzon/masks/V4/meshmask.nc",
                                 help = 'Path of the mask file'
                                 )
     parser.add_argument(   '--newmask',
-                                type = str,
+                                type = existing_file_path,
                                 required = False,
                                 default = "/gss/gss_work/DRES_OGS_BiGe/gbolzon/masks/V4.1/meshmask.nc",
                                 help = 'Path of the mask file'
@@ -37,23 +44,23 @@ args = argument()
 import numpy as np
 from bitsea.commons.mask import Mask
 from bitsea.commons.dataextractor import DataExtractor
-import os,glob
+import glob
 import scipy.interpolate
-import netCDF4
+from pathlib import Path
 from IC import RSTwriter
-from bitsea.commons.utils import addsep
 
 TheMask_new=Mask.from_file(args.newmask)
 TheMask_orig =Mask.from_file(args.origmask)
-ORIGDIR= addsep(args.inputdir) #"/gpfs/scratch/userexternal/ateruzzi/DA_FloatNut/RUN_REFnew/wrkdir/MODEL/RESTARTS/"
-OUTDIR = addsep(args.outdir) #"/gpfs/scratch/userexternal/ateruzzi/DA_FloatNut/RUN_REFnew/INIT/"
+ORIGDIR= args.inputdir
+OUTDIR = args.outdir
 
 jpk, jpj,jpi = TheMask_new.shape
-filelist=glob.glob(ORIGDIR + "RST.20150101*nc")
+filelist=glob.glob(f"{str(ORIGDIR)}/RST.{args.date}*nc")
+filelist = [Path(f) for f in filelist]
 
 for filename in filelist:
-    basename=os.path.basename(filename)
-    outfile = OUTDIR + basename
+    basename=filename.name
+    outfile = OUTDIR / basename
     _,_,var,_=basename.rsplit(".")
     RST_old = DataExtractor(TheMask_orig,filename, "TRN"+var).values
     RST_old[~TheMask_orig.mask]=np.nan
@@ -80,6 +87,6 @@ for filename in filelist:
         rst[tofill] = V
     RST[~TheMask_new.mask] = 1.e+20
     check = np.isnan(RST[TheMask_new.mask])
-    print var + " : number of nans: ", check.sum()
+    print(var + " : number of nans: ", check.sum())
     RSTwriter(outfile, var, RST, TheMask_new)
         
