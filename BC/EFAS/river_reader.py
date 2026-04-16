@@ -58,6 +58,36 @@ def read_xml_vars(xml_dataset):
         bgc_vars.append(current_var)
 
     return tuple(bgc_vars)
+def read_default_concentrations(xml_dataset, allowed_varnames):
+    nodes = xml_dataset.getElementsByTagName('default_concentrations')
+    if len(nodes) == 0:
+        raise InvalidRiverXMLFile('No tag "default_concentrations" found')
+    if len(nodes) > 1:
+        raise InvalidRiverXMLFile('Multiple tag "default_concentrations" found')
+
+    defaults = {}
+    for node in nodes[0].childNodes:
+        if node.nodeType == node.TEXT_NODE:
+            continue
+        if node.tagName != 'var':
+            raise InvalidRiverXMLFile(
+                'Tag "{}" found inside default_concentrations, only "var" allowed'.format(node.tagName)
+            )
+
+        name = node.getAttribute('name')
+        value = node.getAttribute('value')
+        if name not in allowed_varnames:
+            raise InvalidRiverXMLFile('Unknown default variable "{}"'.format(name))
+        defaults[name] = float(value)
+
+    # opzionale: verifica che tutte le variabili siano coperte
+    missing = [v for v in allowed_varnames if v not in defaults]
+    if missing:
+        raise InvalidRiverXMLFile(
+            'Missing defaults for variables: {}'.format(', '.join(missing))
+        )
+
+    return defaults
 
 
 CURRENT_DIR = Path(__file__).absolute().parent
@@ -65,6 +95,10 @@ xmldoc = minidom.parse(
     str(CURRENT_DIR / "rivers.xml")
 )
 BGC_VARS = read_xml_vars(xmldoc)
+DEFAULT_CONC = read_default_concentrations(
+    xmldoc,
+    allowed_varnames={v.name for v in BGC_VARS}
+)
 
 
 class Rivers:
@@ -89,7 +123,7 @@ class Rivers:
         # each mouth. Therefore, we associate to each variable a boolean array
         # with one entry for each mouth
         self.__var_defined = {
-            bgc_var: np.zeros((n_points,), dtype=bool) for bgc_var in BGC_VARS
+            bgc_var: np.ones((n_points,), dtype=bool) for bgc_var in BGC_VARS
         }
 
         # We use this vector to check if we have already visited an id.
@@ -138,6 +172,10 @@ class Rivers:
                 rivers[ind]['SAL'] = salinity
                 rivers[ind]['name'] = name
                 rivers[ind]['mouth'] = mn.getAttribute('name')
+                for varname, default_value in DEFAULT_CONC.items():
+                    rivers[ind][varname] = default_value
+                    # self.__var_defined[self.__bgc_var_dict[varname]][ind] = False
+
                 for vn in concentrations_node.getElementsByTagName('var'):
                     varname = vn.getAttribute('name')
                     if varname not in self.__bgc_var_dict:
@@ -146,7 +184,7 @@ class Rivers:
 
                     rivers[ind][varname] = vn.getAttribute('value')
 
-                    assert not self.__var_defined[bgc_var][ind]
+                    #assert not self.__var_defined[bgc_var][ind]
                     self.__var_defined[bgc_var][ind] = True
 
                 visited_ids[ind] = True
