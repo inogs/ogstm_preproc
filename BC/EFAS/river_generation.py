@@ -101,11 +101,15 @@ def main():
     pressure = np.ones_like(lon_positions, dtype=np.float32)
     pressure *= surface_level_height
 
-    TL = TimeList.fromfilenames(None, input_dir, "T*.nc", prefix="T")
+    TL = TimeList.fromfilenames(None, input_dir, "????/??/T*.nc", prefix="T")
     filelist=TL.filelist[rank::nranks]
     timelist=TL.Timelist[rank::nranks]
 
     for timestep, filename in enumerate(filelist):
+        date_str = timelist[timestep].strftime("%Y%m%d-%H:%M:%S")
+        outfile = output_dir / "TIN_{}.nc".format(date_str)
+        print(outfile,flush=True)
+
         runoff = DataExtractor(
             cmcc_mask,
             filename,
@@ -176,11 +180,7 @@ def main():
 
         # Now we write the content of the output_data dictionary on a netcdf
         # file
-        date_str = timelist[timestep].strftime("%Y%m%d-%H:%M:%S")
 
-        outfile = output_dir / "TIN_{}.nc".format(date_str)
-
-        print(outfile,flush=True)
         with netCDF4.Dataset(outfile, 'w') as nc_file:
             nc_file.createDimension('lon', jpi)
             nc_file.createDimension('lat', jpj)
