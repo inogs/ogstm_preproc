@@ -143,27 +143,21 @@ def main():
                 ((variable.name, 1.),)
             )
 
-            var_mask = RIVERS.get_variable_mask(variable)
-            raw_var_concentration = RIVERS[variable.name][var_mask]
-
-            # Keep only the values related to the current variable
-            var_discharge = discharge[var_mask]
-            var_cell_areas = cell_areas[var_mask]
 
             for var_name, conversion_factor_raw in var_conversions:
                 if isinstance(conversion_factor_raw, str):
-                    rho=density[var_mask]
+                    rho=density
                     conversion_factor = np.asarray(eval(conversion_factor_raw))
                 else:
                     conversion_factor = conversion_factor_raw
 
-                var_concentration = raw_var_concentration * conversion_factor
-                var_data = var_discharge * var_concentration / var_cell_areas
+                var_concentration = RIVERS[variable.name] * conversion_factor
+                var_data = discharge * var_concentration / cell_areas
 
                 current_var = OutputVariable(
                     name=var_name,
-                    lon_positions=lon_positions[var_mask],
-                    lat_positions=lat_positions[var_mask],
+                    lon_positions=lon_positions,
+                    lat_positions=lat_positions,
                     values=var_data
                 )
                 output_data.append(current_var)
@@ -172,9 +166,9 @@ def main():
            # add discharge data
            current_dis = OutputVariable(
                    name='discharge',
-                   lon_positions=lon_positions[var_mask],
-                   lat_positions=lat_positions[var_mask],
-                   values=var_discharge
+                   lon_positions=lon_positions,
+                   lat_positions=lat_positions,
+                   values=discharge
                )
            output_discharge.append(current_dis)
 

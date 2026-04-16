@@ -119,12 +119,6 @@ class Rivers:
         # object
         self.__bgc_var_dict = {bgc_var.name: bgc_var for bgc_var in BGC_VARS}
 
-        # We want to remember (for each variable) if we have data or not for
-        # each mouth. Therefore, we associate to each variable a boolean array
-        # with one entry for each mouth
-        self.__var_defined = {
-            bgc_var: np.ones((n_points,), dtype=bool) for bgc_var in BGC_VARS
-        }
 
         # We use this vector to check if we have already visited an id.
         # Now it is false everywhere
@@ -174,7 +168,6 @@ class Rivers:
                 rivers[ind]['mouth'] = mn.getAttribute('name')
                 for varname, default_value in DEFAULT_CONC.items():
                     rivers[ind][varname] = default_value
-                    # self.__var_defined[self.__bgc_var_dict[varname]][ind] = False
 
                 for vn in concentrations_node.getElementsByTagName('var'):
                     varname = vn.getAttribute('name')
@@ -183,9 +176,6 @@ class Rivers:
                     bgc_var = self.__bgc_var_dict[varname]
 
                     rivers[ind][varname] = vn.getAttribute('value')
-
-                    #assert not self.__var_defined[bgc_var][ind]
-                    self.__var_defined[bgc_var][ind] = True
 
                 visited_ids[ind] = True
 
@@ -196,15 +186,6 @@ class Rivers:
             )
         self.__data = rivers
         self.__data.setflags(write=False)
-        for var_mask in self.__var_defined.values():
-            var_mask.setflags(write=False)
-
-    def get_variable_mask(self, bgc_var):
-        if isinstance(bgc_var, str):
-            if bgc_var not in self.__bgc_var_dict:
-                raise ValueError('Unknown variable "{}"'.format(bgc_var))
-            bgc_var = self.__bgc_var_dict[bgc_var]
-        return self.__var_defined[bgc_var]
 
     def __getattr__(self, attr_name):
         return getattr(self.__data, attr_name)
