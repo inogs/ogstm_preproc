@@ -823,7 +823,7 @@
 <var name="DIC" value="36.07935762"/>
 <var name="POC" value="1.516579034"/>
 <var name="DOC" value="2.290015211"/>
-<var name="ALK" value="3.004012311"/>>
+<var name="ALK" value="3.004012311"/>
 </concentrations>
 <Mouths><mouth I="510" J="361" id="61" name="Brenta"/></Mouths>
 </river>
