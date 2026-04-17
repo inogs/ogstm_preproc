@@ -640,9 +640,9 @@ def make_outdir(outdir:Path, outfile:str):
     '''    
     #/leonardo_work/OGS23_PRACE_IT_0/ggalli00/OGSTM-BFM/qDEG_SETUP/FORCINGS/
     #T20020308-12:00:00.nc
-#    yyyy = outfile[1:5]
-#    mm = outfile[5:7]
-#    outdir = outdir / f'{yyyy}/{mm}/'
+    yyyy = outfile[1:5]
+    mm = outfile[5:7]
+    outdir = outdir / f'{yyyy}/{mm}/'
     outdir.mkdir(exist_ok=True, parents=True)
     return outdir
 
