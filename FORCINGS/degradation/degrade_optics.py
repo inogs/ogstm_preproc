@@ -72,10 +72,14 @@ def load_xpnd_opt(infile, ndeg=1):
     DI = {}
     D = xr.open_dataset(infile)
     vlist = list(D.variables.keys())
-    vlist.remove('lat')
-    vlist.remove('lon')
-    #D = D.rename({'lon':'x', 'lat':'y', 'depth':'z_a'})
-    D = D.rename({'lon':'x', 'lat':'y'})
+    if 'lat' in D.dims:
+        vlist.remove('lat')
+        vlist.remove('lon')
+        D = D.rename({'lon':'x', 'lat':'y'})
+    if 'latitude' in D.dims:
+        vlist.remove('latitude')
+        vlist.remove('longitude')
+        D = D.rename({'longitude':'x', 'latitude':'y'})
     if 'depth' in D.dims:
         D = D.rename({'depth':'z_a'})
     #DI['lat'] = dm.xpnd_wrap(D['lat'], 'interp', ndeg)
