@@ -40,7 +40,7 @@ INPUTDIR=addsep(args.inputdir)
 OUTDIR = addsep(args.outdir)
 
 
-TheMask=Mask(args.maskfile)
+TheMask=Mask.from_file(args.maskfile)
 jpk, jpj, jpi = TheMask.shape
 TheMask.cut_at_level(0)
 
@@ -55,7 +55,7 @@ SUBPoints = np.zeros((nSub,), dtype=int)
 
 for isub, sub in enumerate(OGS.P):
     if sub.name=="med":continue
-    m = SubMask(sub,maskobject=TheMask)
+    m = SubMask(sub, TheMask)
     SUB[sub.name] = m.mask[0,:,:]
     SUB['med'] = SUB['med'] | SUB[sub.name]
     SUBPoints[isub] = SUB[sub.name].sum()
@@ -106,7 +106,8 @@ def get_percentiles(LIST_of_arrays):
 
 for iseas in range(4):
         
-    req = timerequestors.Season_req(2019,iseas,SeasonObj)
+#    req = timerequestors.Season_req(2019,iseas,SeasonObj)
+    req = timerequestors.Clim_season(iseas,SeasonObj)
     print(req)
     indexes, w = TL.select(req)
     for var in ["Ved_150", "Ved_500", "KE_total", "KE_ratio", "stratification_index","mld"] :

@@ -46,7 +46,7 @@ from bitsea.commons.mask import Mask
 from bitsea.commons.submask import SubMask
 from IC import RSTwriter, smoother
 from bitsea.commons.utils import addsep
-TheMask=Mask(args.maskfile)
+TheMask=Mask.from_file(args.maskfile)
 
 INPUTDIR=addsep(args.inputdir) #"/gpfs/scratch/userexternal/gbolzon0/OPEN_BOUNDARY/TEST_03/wrkdir/MODEL/RESTARTS/"
 OUTDIR  =addsep(args.outdir) #"/gpfs/scratch/userexternal/gbolzon0/OPEN_BOUNDARY/TEST_03/wrkdir/MODEL/"
@@ -141,9 +141,9 @@ TheMask_0= TheMask.cut_at_level(0)
 N1p_to_modify=ComposedBasin('N1p',[V2.lev1,V2.lev2,V2.lev3,V2.lev4,V2.ion1, V2.ion2, V2.ion3],'reduction of N1p')
 O3h_to_modify=ComposedBasin('O3h',[V2.swm1,V2.swm2, V2.nwm, V2.tyr1 ],'reduction of O3h, O3h in 0-50')
 
-S_O3h_1=SubMask(O3h_to_modify,maskobject=TheMask_0)
-S_O3h_2=SubMask(V2.ion1,maskobject=TheMask_0)
-S_O3h_3=SubMask(V2.ion2,maskobject=TheMask_0)
+S_O3h_1=SubMask(O3h_to_modify, TheMask_0)
+S_O3h_2=SubMask(V2.ion1, TheMask_0)
+S_O3h_3=SubMask(V2.ion2, TheMask_0)
 
 datestr="20161001-00:00:00"
 
@@ -168,8 +168,8 @@ for var in ["O3c","O3h"]:
     RSTwriter(outfile, var, RST_s, TheMask)
 
 var="N1p"
-S_N1p_1=SubMask(N1p_to_modify,maskobject=TheMask_0)
-S_N1p_2=SubMask(V2.nwm,maskobject=TheMask_0)
+S_N1p_1=SubMask(N1p_to_modify, TheMask_0)
+S_N1p_2=SubMask(V2.nwm, TheMask_0)
 
 inputfile="%sRST.%s.%s.nc" %(INPUTDIR,datestr,var)
 outfile  ="%sRST.%s.%s.nc" %(OUTDIR  ,datestr,var)
@@ -186,7 +186,7 @@ RST_s = smoother(TheMask, R)
 RSTwriter(outfile, var, RST_s, TheMask)
 
 var="N3n"
-S_N3n=SubMask(V2.nwm,maskobject=TheMask_0)
+S_N3n=SubMask(V2.nwm, TheMask_0)
 
 inputfile="%sRST.%s.%s.nc" %(INPUTDIR,datestr,var)
 outfile  ="%sRST.%s.%s.nc" %(OUTDIR  ,datestr,var)

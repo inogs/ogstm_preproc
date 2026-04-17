@@ -15,7 +15,7 @@ for filename in rstlist:
     varlist.append(var)
 varlist.remove('R7c')
 
-TheMask = Mask("/gpfs/scratch/userexternal/gbolzon0/REA_24/TEST_13/wrkdir/MODEL/meshmask.nc")
+TheMask = Mask.from_file("/gpfs/scratch/userexternal/gbolzon0/REA_24/TEST_13/wrkdir/MODEL/meshmask.nc")
 
 for var in varlist:
     print var

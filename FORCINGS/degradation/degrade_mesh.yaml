@@ -1,0 +1,8 @@
+maskfile: '/leonardo_work/OGS23_PRACE_IT_0/ggalli00/OGSTM-BFM/MASK24/meshmask_141.nc'
+outfile: '/leonardo_work/OGS23_PRACE_IT_0/ggalli00/OGSTM-BFM/qDEG_SETUP/MASKS/meshmask_025_z141.nc'
+outfile_med: '/leonardo_work/OGS23_PRACE_IT_0/ggalli00/OGSTM-BFM/qDEG_SETUP/MASKS/meshmask_025_z125.nc'
+# by how much cells to degrade (nr of cells to join in i, j)
+ndeg: 6
+# threshold of points to assign waterpoint to degraded mesh
+thresh: 1 #THE ONLY OPTION THAT ENSURES NO RIVERS END UP ON LAND
+ 

@@ -1,14 +1,13 @@
 from bitsea.commons.mask import Mask
 from bitsea.commons.submask import SubMask
-from bitsea.commons.dataextractor import DataExtractor
 from bitsea.commons import density
 from bitsea.basins import V2
 import numpy as np
 from bitsea.commons import netcdf4
 import netCDF4
 
-MaskCMCC = Mask("/g100_work/OGS_devC/V9C/RUNS_SETUP/PREPROC/MASK/meshmask_CMCC.nc")
-TheMask = Mask("/g100_work/OGS_devC/V9C/RUNS_SETUP/PREPROC/MASK/meshmask.nc")
+MaskCMCC = Mask.from_file("/g100_work/OGS_devC/V9C/RUNS_SETUP/PREPROC/MASK/meshmask_CMCC.nc")
+TheMask = Mask.from_file("/g100_work/OGS_devC/V9C/RUNS_SETUP/PREPROC/MASK/meshmask.nc")
 filename='/g100_work/OGS_devC/V11C/ICs/RUN_QUID/IC/T.transition.nc'
 INPUTDIR="/g100_work/OGS_devC/V11C/ICs/RUN_QUID/IC/inputs/"
 OUTDIR=INPUTDIR
@@ -30,7 +29,7 @@ RHO = np.zeros((17,jpk))
 
 for isub, sub in enumerate(V2.Pred):
     print(isub)
-    S = SubMask(sub,maskobject=TheMask)    
+    S = SubMask(sub, TheMask)
     for k in range(jpk):
         submask = S.mask[k,:,:]
         V=rho[k,:,:]

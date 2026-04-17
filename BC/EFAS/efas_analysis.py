@@ -3,9 +3,9 @@ from bitsea.commons.Timelist import TimeList
 from bitsea.commons.mask import Mask
 import river_reader as rr
 from bitsea.commons.dataextractor import DataExtractor
-import seawater as sw
+import gsw
 
-CMCC_Mask=Mask('/g100_work/OGS_devC/V9C/RUNS_SETUP/PREPROC/MASK/meshmask_CMCC.nc')
+CMCC_Mask=Mask.from_file('/g100_work/OGS_devC/V9C/RUNS_SETUP/PREPROC/MASK/meshmask_CMCC.nc')
 RIVER_TABLE = rr.RIVERS
 nPoints = RIVER_TABLE.size
 PRES = np.ones((nPoints,),np.float32)*CMCC_Mask.zlevels[0]
@@ -40,8 +40,9 @@ for iFrame, filename in enumerate(TL.filelist):
         RUNOFF[iFrame,ir] = Runoff[j,i]
         TEMP[  iFrame,ir] =   Temp[j,i]
         
-    T      = sw.temp(SALI,TEMP[iFrame,:],PRES)
-    RHO    = sw.dens(SALI,T,PRES)
+    SA     = gsw.SA_from_SP(SALI, PRES, 0, 0)
+    CT     = gsw.CT_from_pt(SA, TEMP[iFrame,:])
+    RHO    = gsw.rho(SA, CT, PRES)
     
     Discharge = RUNOFF[iFrame,:]*AREA/RHO  # m^3/s
     DISCHARGE[iFrame,:] =  Discharge

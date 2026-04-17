@@ -1,14 +1,18 @@
+import datetime
+from pathlib import Path
+
 from bitsea.commons import netcdf4
 from bitsea.commons.Timelist import TimeList
 import netCDF4
 import numpy as np
-from bitsea.commons.mask import Mask
-import datetime
+from bitsea.commons.mesh import Mesh
 
 var="KE_ratio"
 outfile="pippo.nc"
-INPUTDIR="/g100_scratch/userexternal/gbolzon0/BI-HOURLY/2H/metrics_2d/"
-TheMask = Mask('/g100_work/OGS_devC/Benchmark/SETUP/PREPROC/MASK/meshmask_CMCC.nc', loadtmask=False)
+INPUTDIR = Path("/g100_scratch/userexternal/gbolzon0/BI-HOURLY/2H/metrics_2d")
+TheMask = Mesh.from_file(
+    Path('/g100_work/OGS_devC/Benchmark/SETUP/PREPROC/MASK/meshmask_CMCC.nc'),
+)
 jpk,jpj, jpi  = TheMask.shape
 
 TL=TimeList.fromfilenames(None, INPUTDIR, "metrics.2019030*", prefix="metrics.")
@@ -36,8 +40,6 @@ setattr(ncvar,'standard_name','time')
 setattr(ncvar,'axis'         ,'T')
 setattr(ncvar,'calendar'     ,'standard')
 ncvar[:] = TIME
-
-ncvar[:]
 
 ncvar=ncOUT.createVariable(var,'f',('time','latitude','longitude'), zlib=False, fill_value=1.0e+20)
 ncvar[:] = A

@@ -42,7 +42,7 @@ import pylab as pl
 SeasonObj = season.season()
 
 
-TheMask=Mask(args.maskfile)
+TheMask=Mask.from_file(args.maskfile)
 jpk, jpj, jpi = TheMask.shape
 TheMask.cut_at_level(0)
 
@@ -50,7 +50,7 @@ dtype = [(sub.name, bool) for sub in OGS.P]
 SUB = np.zeros((jpj,jpi),dtype=dtype)
 
 for isub, sub in enumerate(OGS.Pred):
-    m = SubMask(sub,maskobject=TheMask)
+    m = SubMask(sub, TheMask)
     SUB[sub.name] = m.mask[0,:,:]
     SUB['med'] = SUB['med'] | SUB[sub.name]
 
@@ -67,7 +67,8 @@ THRESHOLD = 2
 
 for iseas in range(4):
     M2d_sum = np.zeros((jpj,jpi),int)
-    req = timerequestors.Season_req(2019,iseas,SeasonObj)
+#    req = timerequestors.Season_req(2019,iseas,SeasonObj)
+    req = timerequestors.Clim_season(iseas,SeasonObj)
     print(req)
     indexes, w = TL.select(req)
     nFrames_season = len(indexes)

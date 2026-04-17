@@ -6,7 +6,7 @@ import numpy as np
 
 BOUN = bounmask(conf)
 index_inv = BOUN.load('index_inv')
-TheMask = Mask(conf.file_mask)
+TheMask = Mask.from_file(conf.file_mask)
 
 
 filename=conf.dir_out + "TIN_20040515-00:00:00.nc"

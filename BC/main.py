@@ -9,10 +9,10 @@ import config as conf
 import numpy as np
 from dardanelles import dardanelles_generator
 
-TheMask = Mask(conf.file_mask)
+TheMask = Mask.from_file(conf.file_mask)
 
 CO2 =co2atm(conf)
-CO2.generate(TheMask, experiment="RCP85")
+CO2.generate(TheMask, plot=True)
 ATM=atmosphere.atmosphere(TheMask,conf)
 ATM.write_netcdf(TheMask, conf.dir_out, "Area")
 

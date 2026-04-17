@@ -44,7 +44,7 @@ from bitsea.basins import V2 as OGS
 
 INPUTDIR=addsep(args.inputdir)
 OUTPUTDIR=addsep(args.outdir)
-TheMask=Mask(args.maskfile)
+TheMask=Mask.from_file(args.maskfile)
 
 
 jpk, jpj, jpi = TheMask.shape
@@ -68,7 +68,7 @@ for sub in SUBlist:
     index= SUBlist.index(sub)
     if index==index_med: continue
     basin = OGS.P.basin_list[index]
-    s=SubMask(basin,maskobject = TheMask)
+    s=SubMask(basin, TheMask)
     SUBM[sub] = s.mask[iz_top:iz_bot,:,:]
     SUBPoints[index] = SUBM[sub].sum()
 #  SUBM med is calculated as OR of all the others

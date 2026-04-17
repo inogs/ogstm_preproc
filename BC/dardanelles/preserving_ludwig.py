@@ -11,7 +11,7 @@ I=841
 area=np.zeros((14,3),np.float32)
 
 
-TheMask = Mask(maskfile, dzvarname="e3t_0")
+TheMask = Mask.from_file(maskfile, e3t_var_name="e3t_0")
 e1t = netcdf4.readfile(maskfile, "e1t")[0,0,:,:]
 for k in range(14):
     for jlocal, j in enumerate(range(235,238)):

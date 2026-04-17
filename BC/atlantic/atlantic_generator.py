@@ -45,7 +45,7 @@ MASKFILE=args.maskfile
 
 os.system("mkdir -p " + OUTPUTDIR)
 
-OpenMask=Mask(MASKFILE)
+OpenMask=Mask.from_file(MASKFILE)
 nav_lon=OpenMask.xlevels
 B=OpenMask.bathymetry_in_cells()
 nav_lev=OpenMask.zlevels

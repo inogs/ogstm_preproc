@@ -41,7 +41,7 @@ ARGS = read_command_line_args()
 from collections import namedtuple
 import numpy as np
 import netCDF4
-import seawater as sw
+import gsw
 
 from bitsea.commons.Timelist import TimeList
 from bitsea.commons.mask import Mask
@@ -67,7 +67,7 @@ VARS_CONVERSIONS = {
     'POC': (('R6c', '1000.0'),),
     'DOC': (('R3c', '1000.0'),),
     'N1p': (('N1p', '1000.0/30.973761'),),
-    'N3n': (('N5s', 28.0855*1000.0 / (14.0067*14.0067)), ('N3n', 1000.0/14.0067))
+    'N3n': (('N5s', '1000.0/28.0855'), ('N3n', 1000.0/14.0067))
 }
 
 
@@ -79,13 +79,14 @@ OutputVariable = namedtuple(
     ('name', 'lon_positions', 'lat_positions', 'values')
 )
 
+SAVE_DISCHARGE_asNC=False
 
 def main():
     input_dir = ARGS.inputdir
     output_dir = ARGS.outdir
 
-    cmcc_mask = Mask(ARGS.cmccmaskfile)
-    ogs_mask = Mask(ARGS.maskfile)
+    cmcc_mask = Mask.from_file(ARGS.cmccmaskfile)
+    ogs_mask = Mask.from_file(ARGS.maskfile)
     _,jpj,jpi=ogs_mask.shape
     _,_,JPI =cmcc_mask.shape
 
@@ -119,23 +120,16 @@ def main():
             dimvar=2
         ).values[lat_positions, lon_positions + mask_cut]
 
-        surface_temperature = sw.temp(
-            s=RIVERS['SAL'],
-            pt=surface_potential_temperature,
-            p=pressure
-        )
-
-        density = sw.dens(
-            s=RIVERS['SAL'],
-            t=surface_temperature,
-            p=pressure
-        )
+        SA = gsw.SA_from_SP(RIVERS['SAL'], pressure, 0, 0)
+        CT = gsw.CT_from_pt(SA, surface_potential_temperature)
+        density = gsw.rho(SA, CT, pressure)
 
         cell_areas = cmcc_mask.area[lat_positions, lon_positions + mask_cut]
 
         discharge = runoff * cell_areas / density  # m^3/s
 
         output_data = []
+        output_discharge = []
         for variable in BGC_VARS:
             # If there is not the name of the variable on the VARS_CONVERSIONS
             # dict, create a dummy conversion with the same name and coefficient
@@ -170,6 +164,16 @@ def main():
                 )
                 output_data.append(current_var)
 
+        if SAVE_DISCHARGE_asNC:
+           # add discharge data
+           current_dis = OutputVariable(
+                   name='discharge',
+                   lon_positions=lon_positions[var_mask],
+                   lat_positions=lat_positions[var_mask],
+                   values=var_discharge
+               )
+           output_discharge.append(current_dis)
+
         # Now we write the content of the output_data dictionary on a netcdf
         # file
         date_str = timelist[timestep].strftime("%Y%m%d-%H:%M:%S")
@@ -201,6 +205,36 @@ def main():
                 )
 
                 nc_var[:] = nc_var_data
+
+        if SAVE_DISCHARGE_asNC:
+            # add discharge file
+            outfile_dis = output_dir / "dis_{}.nc".format(date_str)
+
+            print(outfile_dis,flush=True)
+            with netCDF4.Dataset(outfile_dis, 'w') as nc_file:
+                nc_file.createDimension('lon', jpi)
+                nc_file.createDimension('lat', jpj)
+
+                for output_var in output_discharge:
+                    nc_var_data=np.ones((jpj,jpi),np.float32)*FILL_VALUE
+
+                    # Fill water points with -1 to help visualization
+                    nc_var_data[ogs_mask.mask_at_level(0)] = -1
+                    lon_pos = output_var.lon_positions
+                    lat_pos = output_var.lat_positions
+                    nc_var_data[(lat_pos, lon_pos)] = output_var.values
+
+                    nc_var = nc_file.createVariable(
+                        'riv_{}'.format(output_var.name),
+                        datatype='f4',
+                        dimensions=('lat', 'lon'),
+                        fill_value=FILL_VALUE,
+                        zlib=True,
+                        complevel=2
+                    )
+
+                    nc_var[:] = nc_var_data
+
 
 
 if __name__ == '__main__':

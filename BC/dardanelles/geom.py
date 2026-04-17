@@ -3,7 +3,7 @@ import numpy as np
 from bitsea.commons import netcdf4
 
 maskfile="/gpfs/work/OGS18_PRACE_P_0/OPEN_BOUNDARY/meshmask.nc"
-TheMask=Mask(maskfile)
+TheMask=Mask.from_file(maskfile)
 
 
 I=841

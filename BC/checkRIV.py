@@ -7,7 +7,7 @@ import numpy as np
 from bitsea.commons import timerequestors
 from bclib.river import conversion
 
-TheMask=Mask("/gpfs/scratch/userexternal/gbolzon0/OPEN_BOUNDARY/TEST_02/wrkdir/MODEL/meshmask.nc")
+TheMask=Mask.from_file("/gpfs/scratch/userexternal/gbolzon0/OPEN_BOUNDARY/TEST_02/wrkdir/MODEL/meshmask.nc")
 Mask_0 = TheMask.cut_at_level(0)
 area = TheMask.area
 jpk, jpj, jpi= TheMask.shape
@@ -22,7 +22,7 @@ sub__dtype=[(sub.name,np.float32) for sub in OGS.P]
 
 SUBM = np.zeros((jpj, jpi), dtype=bool_dtype)
 for isub, sub in enumerate(OGS.Pred):
-    S=SubMask(sub, maskobject=Mask_0)
+    S=SubMask(sub, Mask_0)
     SUBM[sub.name]=S.mask
     SUBM['med']=(SUBM['med'] | SUBM[sub.name])
 
