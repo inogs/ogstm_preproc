@@ -69,11 +69,19 @@ if AVERAGEDIR is not None:
 
 
 for filename in filelist[rank::nranks]:
+
     with xr.open_dataset(filename) as ds_file:
+        print("rank %d processes %s" % (rank, filename), flush=True)
+        first_slice_name = str(ds_file.isel(time_counter=0).time_counter.values)
+        day = datetime.strptime(first_slice_name[:10], "%Y-%m-%d")
+        yyyy = day.strftime("%Y")
+        mm = day.strftime("%m")
+        outputdir = OUTPUTDIR / yyyy
+        outputdir.mkdir(exist_ok=True)
+        outputdir = outputdir / mm
+        outputdir.mkdir(exist_ok=True)
         nparts = len(ds_file.time_counter)
         if FORCETIMES:
-            first_slice_name = str(ds_file.isel(time_counter=0).time_counter.values)
-            day = datetime.strptime(first_slice_name[:10], "%Y-%m-%d")
             yyyymmdd = day.strftime("%Y%m%d")
             minutes_per_frame = 24 * 60 // nparts
             datetimestrings = []
@@ -82,16 +90,17 @@ for filename in filelist[rank::nranks]:
                 h = center_minutes // 60
                 m = center_minutes % 60
                 datetimestrings.append(f"{yyyymmdd}-{h:02d}:{m:02d}:00")
+
             # print("rank %d generates %d strings: %s" % (rank, nparts, datetimestrings), flush=True)
-        input_var = os.path.basename(filename)[0]  # Estrae la prima lettera (T, U, V, W)
+        UVWT = os.path.basename(filename)[0]  # Estrae la prima lettera (T, U, V, W)
         for it in range(nparts):
             # genera il nome del file di output che indica l'ora centrale della finestra temporale
             if FORCETIMES:
-                outputfile = OUTPUTDIR / f"{input_var}{datetimestrings[it]}.nc"
+                outputfile = outputdir / f"{UVWT}{datetimestrings[it]}.nc"
             else:
                 slice_name = str(ds_file.isel(time_counter=it).time_counter.values)
                 dt = datetime.strptime(slice_name,"%Y-%m-%dT%H:%M:%S.000000000")
-                outputfile = OUTPUTDIR / f"{input_var}{dt.strftime("%Y%m%d-%H:%M:%S")}.nc"
+                outputfile = outputdir / f"{UVWT}{dt.strftime("%Y%m%d-%H:%M:%S")}.nc"
 
             print("rank %d generates %s" % (rank, outputfile), flush=True)
             # estrae la fetta temporale corrispondente
