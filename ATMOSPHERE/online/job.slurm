@@ -15,9 +15,9 @@ unset I_MPI_PMI_LIBRARY
 export UCX_TLS=ib
 export SLURM_PMIX_DIRECT_CONN_UCX=false
 
-MASKFILE=/g100_work/OGS_devC/V9C/RUNS_SETUP/PREPROC/MASK/meshmask.nc
-INPUTDIR=/g100_work/OGS_test2528/V12C/EIS/TRANSITION/PREPROC/OPTICS/ORIG_ATM_CMCC/
-OUTDIR=/g100_work/OGS_test2528/V12C/EIS/TRANSITION/PREPROC/OPTICS/READY_FOR_MODEL
+MASKFILE=/g100_work/OGS_test2528/V13C/QUID/SETUP/PREPROC/MASK/OGS/meshmask.nc
+INPUTDIR=/g100_work/OGS_test2528/V13C/QUID/SETUP/PREPROC/OPTICS/ORIG/
+OUTDIR=/g100_work/OGS_test2528/V13C/QUID/SETUP/PREPROC/OPTICS/READY_FOR_MODEL/
 my_prex_or_die "mpirun -np 10 python analysis_input_gen.py -i $INPUTDIR -o $OUTDIR -m $MASKFILE"
 
 exit 0
@@ -28,7 +28,6 @@ MASKFILE=/g100_work/OGS_devC/V9C/RUNS_SETUP/PREPROC/MASK/meshmask.nc
 
 mkdir -p $OUTDIR
 ECMWF_DIR=/g100_work/OGS_prodC/OPA/V11C-prod/inpdir/analysis/20250408/ECMWF
-CLIM_DIR=/g100_work/OGS_prodC/OPA/V11C-prod/etc/static-data/MODEL/ATM
 opa_prex_or_die "mpirun -np 7 python analysis_input_gen.py -i $ECMWF_DIR -c $CLIM_DIR -o $OUTDIR -m $MASKFILE"
 
 
