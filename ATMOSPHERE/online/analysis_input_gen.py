@@ -1,25 +1,25 @@
 import argparse
+from bitsea.utilities.argparse_types import existing_dir_path, existing_file_path
 
 def argument():
     parser = argparse.ArgumentParser(description = '''
-    Generates daily files for OASIM by reading ECMWF file provided by CMCC
-    and climatologies for tclw and tco3
+    Generates daily files for OASIM by reading ECMWF file provided by CMCC.
     ''',
     formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
     parser.add_argument(   '--inputdir', '-i',
-                                type = str,
+                                type = existing_dir_path,
                                 required = True,
                                 help = ''' Input ECMWF dir provided by CMCC'''
                                 )
     parser.add_argument(   '--maskfile', '-m',
-                                type = str,
+                                type = existing_file_path,
                                 required = True,
                                 help = ''' mask filename'''
                                 )
 
     parser.add_argument(   '--outdir', '-o',
-                                type = str,
+                                type = existing_dir_path,
                                 required = True,
                                 help = ''' path of the output optical dir '''
                                 )
@@ -37,7 +37,6 @@ from scipy import interpolate
 from bitsea.commons.mask import Mask
 from bitsea.commons.Timelist import TimeList
 import netCDF4
-from bitsea.commons.utils import addsep
 try:
     from mpi4py import MPI
     comm  = MPI.COMM_WORLD
@@ -51,9 +50,8 @@ except:
 TheMask=Mask.from_file(args.maskfile)
 jpk,jpj,jpi = TheMask.shape
 
-INPUTDIR=addsep(args.inputdir)
-CLIMDIR=addsep(args.climdir)
-OUTDIR = addsep(args.outdir)
+INPUTDIR=args.inputdir
+OUTDIR = args.outdir
 
 TL = TimeList.fromfilenames(None, INPUTDIR, "*_an-fv1?.00.nc", prefix="", dateformat="%Y%m%d")
 
@@ -157,23 +155,36 @@ def dumpfile(filename, maskObj, sp,msl, t2m,d2m, tcc,wsp10,tclw,tco3):
     ncvar[:]=wsp10
     setattr(ncvar, 'long_name',  '10 metre wind speed' )
     setattr(ncvar, 'units','m s**-1' )
-    setattr(ncvar, 'orig', 'climatology')
+    setattr(ncvar, 'description', 'Calculated as sqrt(u10**2 + v10**2)')
 
     ncvar = ncOUT.createVariable('tco3','f',('lat','lon'))
     ncvar[:]=tco3
     setattr(ncvar, 'long_name',  'Total column ozone' )
     setattr(ncvar, 'units','kg m**-2' )
-    setattr(ncvar, 'orig', 'climatology')
+    setattr(ncvar, 'code', 206)
+
+
+    ncvar = ncOUT.createVariable('tclw','f',('lat','lon'))
+    ncvar[:]=tclw
+    setattr(ncvar, 'long_name',  'Total column liquid water' )
+    setattr(ncvar, 'units','kg m**-2' )
+    setattr(ncvar, 'code', 78)
 
     setattr(ncOUT, 'input_file', str(inputfile))
+
     ncOUT.close()
 
 
 for inputfile in TL.filelist[rank::nranks]:
-    yyyymmdd=os.path.basename(inputfile)[:8]
+    yyyymmdd=inputfile.name[:8]
     for iframe in range(nframes_in_day):
         d=datetime.strptime(yyyymmdd,'%Y%m%d') + timedelta(hours = (deltaH*iframe + deltaH/2))
-        outfile = OUTDIR + d.strftime("atm.%Y%m%d-%H:%M:%S.nc")
+        yyyy=d.strftime('%Y')
+        mm  =d.strftime('%m')
+        outdir = OUTDIR / yyyy / mm
+        (OUTDIR / yyyy).mkdir(parents=True, exist_ok=True)
+        outdir.mkdir(parents=True, exist_ok=True)
+        outfile = outdir / d.strftime("atm.%Y%m%d-%H:%M:%S.nc")
         print(outfile,flush=True)
 
 
