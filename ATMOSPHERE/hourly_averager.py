@@ -76,6 +76,8 @@ for hourly_req in Hourly_reqs[rank::nranks]:
             M2d=(U**2+V**2)**0.5
         else:
             M2d=TimeAverager2D(filelist,w,var, TheMask)
+        if var == "tcc":
+            M2d = M2d*100
         netcdf4.write_2d_file(M2d,var,outfile,TheMask)
 
 
