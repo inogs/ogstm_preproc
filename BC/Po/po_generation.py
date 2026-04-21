@@ -3,7 +3,7 @@ from bitsea.commons import netcdf4
 from bitsea.commons.Timelist import TimeList, TimeInterval
 from bitsea.commons.mask import Mask
 from bitsea.commons.dataextractor import DataExtractor
-import seawater as sw
+import gsw
 import netCDF4
 from bclib.river import conversion
 
@@ -87,8 +87,9 @@ for iFrame, filename in enumerate(TL.filelist):
     Runoff   = DataExtractor(CMCC_Mask, filename, 'sorunoff', dimvar=2).values
     TEMP     = DataExtractor(CMCC_Mask, filename, 'votemper').values[0,:]
 
-    T      = sw.temp(SALI,TEMP[ii],PRES)
-    RHO    = sw.dens(SALI,T,PRES)
+    SA     = gsw.SA_from_SP(SALI, PRES, 0, 0)
+    CT     = gsw.CT_from_pt(SA, TEMP[ii])
+    RHO    = gsw.rho(SA, CT, PRES)
     
     Discharge = Runoff[ii]*CMCC_Mask.area[ii]/RHO  # m^3/s
     daily_volume = Discharge.sum()*86400

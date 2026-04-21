@@ -41,7 +41,7 @@ ARGS = read_command_line_args()
 from collections import namedtuple
 import numpy as np
 import netCDF4
-import seawater as sw
+import gsw
 
 from bitsea.commons.Timelist import TimeList
 from bitsea.commons.mask import Mask
@@ -101,11 +101,15 @@ def main():
     pressure = np.ones_like(lon_positions, dtype=np.float32)
     pressure *= surface_level_height
 
-    TL = TimeList.fromfilenames(None, input_dir, "T*.nc", prefix="T")
+    TL = TimeList.fromfilenames(None, input_dir, "????/??/T*.nc", prefix="T")
     filelist=TL.filelist[rank::nranks]
     timelist=TL.Timelist[rank::nranks]
 
     for timestep, filename in enumerate(filelist):
+        date_str = timelist[timestep].strftime("%Y%m%d-%H:%M:%S")
+        outfile = output_dir / "TIN_{}.nc".format(date_str)
+        print(outfile,flush=True)
+
         runoff = DataExtractor(
             cmcc_mask,
             filename,
@@ -120,17 +124,9 @@ def main():
             dimvar=2
         ).values[lat_positions, lon_positions + mask_cut]
 
-        surface_temperature = sw.temp(
-            s=RIVERS['SAL'],
-            pt=surface_potential_temperature,
-            p=pressure
-        )
-
-        density = sw.dens(
-            s=RIVERS['SAL'],
-            t=surface_temperature,
-            p=pressure
-        )
+        SA = gsw.SA_from_SP(RIVERS['SAL'], pressure, 0, 0)
+        CT = gsw.CT_from_pt(SA, surface_potential_temperature)
+        density = gsw.rho(SA, CT, pressure)
 
         cell_areas = cmcc_mask.area[lat_positions, lon_positions + mask_cut]
 
@@ -147,27 +143,21 @@ def main():
                 ((variable.name, 1.),)
             )
 
-            var_mask = RIVERS.get_variable_mask(variable)
-            raw_var_concentration = RIVERS[variable.name][var_mask]
-
-            # Keep only the values related to the current variable
-            var_discharge = discharge[var_mask]
-            var_cell_areas = cell_areas[var_mask]
 
             for var_name, conversion_factor_raw in var_conversions:
                 if isinstance(conversion_factor_raw, str):
-                    rho=density[var_mask]
+                    rho=density
                     conversion_factor = np.asarray(eval(conversion_factor_raw))
                 else:
                     conversion_factor = conversion_factor_raw
 
-                var_concentration = raw_var_concentration * conversion_factor
-                var_data = var_discharge * var_concentration / var_cell_areas
+                var_concentration = RIVERS[variable.name] * conversion_factor
+                var_data = discharge * var_concentration / cell_areas
 
                 current_var = OutputVariable(
                     name=var_name,
-                    lon_positions=lon_positions[var_mask],
-                    lat_positions=lat_positions[var_mask],
+                    lon_positions=lon_positions,
+                    lat_positions=lat_positions,
                     values=var_data
                 )
                 output_data.append(current_var)
@@ -176,19 +166,15 @@ def main():
            # add discharge data
            current_dis = OutputVariable(
                    name='discharge',
-                   lon_positions=lon_positions[var_mask],
-                   lat_positions=lat_positions[var_mask],
-                   values=var_discharge
+                   lon_positions=lon_positions,
+                   lat_positions=lat_positions,
+                   values=discharge
                )
            output_discharge.append(current_dis)
 
         # Now we write the content of the output_data dictionary on a netcdf
         # file
-        date_str = timelist[timestep].strftime("%Y%m%d-%H:%M:%S")
 
-        outfile = output_dir / "TIN_{}.nc".format(date_str)
-
-        print(outfile,flush=True)
         with netCDF4.Dataset(outfile, 'w') as nc_file:
             nc_file.createDimension('lon', jpi)
             nc_file.createDimension('lat', jpj)
