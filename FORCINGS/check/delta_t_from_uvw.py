@@ -62,7 +62,7 @@ def impose_deltat(deltaT):
 
 
 
-TL=TimeList.fromfilenames(None, INPUTDIR, "U*nc", prefix="U")
+TL=TimeList.fromfilenames(None, INPUTDIR, "????/??/U*nc", prefix="U")
 eps=1.e-08
 Cmax=1.0
 
@@ -77,10 +77,11 @@ FRAMES=range(nFrames)
 for iframe in FRAMES[rank::nranks]:
     DELTAT=np.zeros((1,),dtype=mydtype)
     timestr = TL.Timelist[iframe].strftime("%Y%m%d-%H:%M:%S")
-    print(timestr)
-    filenameU=INPUTDIR + "U" + timestr + ".nc"
-    filenameV=INPUTDIR + "V" + timestr + ".nc"
-    filenameW=INPUTDIR + "W" + timestr + ".nc"
+    print(timestr, flush=True)
+    yyyymm = TL.Timelist[iframe].strftime("%Y/%m")
+    filenameU=INPUTDIR + yyyymm + "/U" + timestr + ".nc"
+    filenameV=INPUTDIR + yyyymm + "/V" + timestr + ".nc"
+    filenameW=INPUTDIR + yyyymm + "/W" + timestr + ".nc"
 
     U=np.abs(DataExtractor(TheMask,filenameU,"vozocrtx").values)
     V=np.abs(DataExtractor(TheMask,filenameV,"vomecrty").values)

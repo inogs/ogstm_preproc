@@ -18,7 +18,10 @@ def argument():
                                 required = False,
                             help = """Directory with 24h averaged files. 
                                       If not specified, averaged files will not be generated
-                                      """)    
+                                      """)
+    parser.add_argument(   '--forcetimes', '-f',
+                                action = 'store_true',
+                                help = 'Force name of the output files to be at the centered time of the 6h windows.')
     return parser.parse_args()
 
 args = argument()
@@ -42,8 +45,13 @@ except:
 INPUTDIR = args.inputdir
 OUTPUTDIR = args.outputdir
 AVERAGEDIR = args.averagedir
+FORCETIMES = args.forcetimes
 
 filelist=[f for f in INPUTDIR.glob("*-12:00:00.nc") ]
+if len(filelist) == 0:
+    print("No files found in %s" % INPUTDIR, flush=True)
+    raise FileNotFoundError("No files found in %s" % INPUTDIR)
+
 filelist.sort()
 
 coordinates_without_fillvalue = ("nav_lat", "nav_lon",
@@ -58,18 +66,42 @@ if AVERAGEDIR is not None:
                         'compression', 'quantize_mode', 'szip_coding',
                         'szip_pixels_per_block', 'blosc_shuffle', 'missing_value')
 
-dateformat_in="%Y-%m-%dT%H:%M:%S.000000000"
-dateformat_out="%Y%m%d-%H:%M:%S"
+
 
 for filename in filelist[rank::nranks]:
+
     with xr.open_dataset(filename) as ds_file:
+        print("rank %d processes %s" % (rank, filename), flush=True)
+        first_slice_name = str(ds_file.isel(time_counter=0).time_counter.values)
+        day = datetime.strptime(first_slice_name[:10], "%Y-%m-%d")
+        yyyy = day.strftime("%Y")
+        mm = day.strftime("%m")
+        outputdir = OUTPUTDIR / yyyy
+        outputdir.mkdir(exist_ok=True)
+        outputdir = outputdir / mm
+        outputdir.mkdir(exist_ok=True)
         nparts = len(ds_file.time_counter)
-        input_var = os.path.basename(filename)[0]  # Estrae la prima lettera (T, U, V, W)
+        if FORCETIMES:
+            yyyymmdd = day.strftime("%Y%m%d")
+            minutes_per_frame = 24 * 60 // nparts
+            datetimestrings = []
+            for i in range(nparts):
+                center_minutes = int((i + 0.5) * minutes_per_frame)
+                h = center_minutes // 60
+                m = center_minutes % 60
+                datetimestrings.append(f"{yyyymmdd}-{h:02d}:{m:02d}:00")
+
+            # print("rank %d generates %d strings: %s" % (rank, nparts, datetimestrings), flush=True)
+        UVWT = os.path.basename(filename)[0]  # Estrae la prima lettera (T, U, V, W)
         for it in range(nparts):
             # genera il nome del file di output che indica l'ora centrale della finestra temporale
-            slice_name = str(ds_file.isel(time_counter=it).time_counter.values)
-            dt = datetime.strptime(slice_name,dateformat_in)
-            outputfile = OUTPUTDIR / f"{input_var}{dt.strftime(dateformat_out)}.nc"
+            if FORCETIMES:
+                outputfile = outputdir / f"{UVWT}{datetimestrings[it]}.nc"
+            else:
+                slice_name = str(ds_file.isel(time_counter=it).time_counter.values)
+                dt = datetime.strptime(slice_name,"%Y-%m-%dT%H:%M:%S.000000000")
+                outputfile = outputdir / f"{UVWT}{dt.strftime("%Y%m%d-%H:%M:%S")}.nc"
+
             print("rank %d generates %s" % (rank, outputfile), flush=True)
             # estrae la fetta temporale corrispondente
             ds_slice = ds_file.isel(time_counter=slice(it, it+1))
