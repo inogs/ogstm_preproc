@@ -1,13 +1,15 @@
 # paths
-dir_out        = "/g100_scratch/userexternal/gbolzon0/V13C/ogstm_preproc/BC/out/"
-file_mask      = "/g100_work/OGS_test2528/Benchmark/SETUP/PREPROC/MASK/meshmask.nc"
+#dir_out        = "/g100_scratch/userexternal/gbolzon0/V13C/ogstm_preproc/BC/out/"
+#file_mask      = "/g100_work/OGS_test2528/Benchmark/SETUP/PREPROC/MASK/meshmask.nc"
+dir_out        = "/g100_work/OGS_test2528/ggalli00/EIS_2026_11/qDEG_setup/BC/"
+file_mask      = "/g100_work/OGS_test2528/ggalli00/EIS_2026_11/qDEG_setup/MASK/meshmask_025_z125.nc"
 file_co2       = "co2_monthly_MED_surfatm.nc"
 file_nutrients = "VPnutrients_CO2.nc"
 file_bmask     = dir_out + "bounmask.nc"
-file_river     = "Perseus-4.6_38rivers_mesh24.xlsx"
+#file_river     = "Perseus-4.6_38rivers_mesh24.xlsx" #these I do with degrade_rivers.py
 
-simulation_start_time = 2018
-simulation_end_time   = 2020
+simulation_start_time = 2022
+simulation_end_time   = 2024
 
 # Atmosphere settings in Mmol/y
 # origin of data should be added here
@@ -31,7 +33,8 @@ variables=[[u'N1p', -8.0, -6.5],
 
 gib_season = (["0630-00:00:00"])
 
-RST_FILES ="/g100_work/OGS_prod100/OPA/V9C/RUNS_SETUP/PREPROC/IC/RST_2018/RST*nc"
+#RST_FILES ="/g100_work/OGS_prod100/OPA/V9C/RUNS_SETUP/PREPROC/IC/RST_2018/RST*nc"
+RST_FILES ="/g100_work/OGS_test2528/ggalli00/EIS_2026_11/qDEG_setup/RESTARTS/RST*nc"
 
 
 river_data_sheet = ['KM3perYR_NOBLS',
