@@ -11,12 +11,16 @@ file_bmask     = dir_out + "bounmask.nc"
 simulation_start_time = 2022
 simulation_end_time   = 2024
 
-# Atmosphere settings in Mmol/y
-# origin of data should be added here
-po4_wes = (  357. +   697)/2
-po4_eas = (  379. +   957)/2
-n3n_wes = (10042. + 72825)/2
-n3n_eas = ( 6064. + 73621)/2
+atm_from_file = True
+if atm_from_file:
+    file_atm       = "atmDep_16sub_openAndCoast_winAndSum.txt"
+else:
+    # Atmosphere settings in Mmol/y
+    # origin of data should be added here
+    po4_wes = (  357. +   697)/2
+    po4_eas = (  379. +   957)/2
+    n3n_wes = (10042. + 72825)/2
+    n3n_eas = ( 6064. + 73621)/2
 
 
 # bounmask resto settings
