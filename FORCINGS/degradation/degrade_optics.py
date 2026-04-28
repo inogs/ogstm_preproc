@@ -72,10 +72,14 @@ def load_xpnd_opt(infile, ndeg=1):
     DI = {}
     D = xr.open_dataset(infile)
     vlist = list(D.variables.keys())
-    vlist.remove('lat')
-    vlist.remove('lon')
-    #D = D.rename({'lon':'x', 'lat':'y', 'depth':'z_a'})
-    D = D.rename({'lon':'x', 'lat':'y'})
+    if 'lat' in D.dims:
+        vlist.remove('lat')
+        vlist.remove('lon')
+        D = D.rename({'lon':'x', 'lat':'y'})
+    if 'latitude' in D.dims:
+        vlist.remove('latitude')
+        vlist.remove('longitude')
+        D = D.rename({'longitude':'x', 'latitude':'y'})
     if 'depth' in D.dims:
         D = D.rename({'depth':'z_a'})
     #DI['lat'] = dm.xpnd_wrap(D['lat'], 'interp', ndeg)
@@ -184,12 +188,18 @@ def atm_writer(outfile, Od, TheMask):
     setattr(ncOUT['msl'], 'long_name', 'mean sea level pressure')
     setattr(ncOUT['msl'], 'units', 'Pa')
     setattr(ncOUT['msl'], 'orig', 'ERA5')
-    setattr(ncOUT['u10'], 'long_name', 'zonal wind velocity')
-    setattr(ncOUT['u10'], 'units', 'm s*-1')
-    setattr(ncOUT['u10'], 'orig', 'ERA5')
-    setattr(ncOUT['v10'], 'long_name', 'meridional wind velocity')
-    setattr(ncOUT['v10'], 'units', 'm s*-1')
-    setattr(ncOUT['v10'], 'orig', 'ERA5')
+    if 'u10' in vlist:
+        setattr(ncOUT['u10'], 'long_name', 'zonal wind velocity')
+        setattr(ncOUT['u10'], 'units', 'm s*-1')
+        setattr(ncOUT['u10'], 'orig', 'ERA5')
+    if 'v10' in vlist:
+         setattr(ncOUT['v10'], 'long_name', 'meridional wind velocity')
+         setattr(ncOUT['v10'], 'units', 'm s*-1')
+         setattr(ncOUT['v10'], 'orig', 'ERA5')
+    if 'wsp10' in vlist:
+         setattr(ncOUT['wsp10'], 'long_name', 'wind velocity')
+         setattr(ncOUT['wsp10'], 'units', 'm s*-1')
+         setattr(ncOUT['wsp10'], 'orig', 'ERA5')
     setattr(ncOUT['tclw'], 'long_name', 'Total column cloud liquid water')
     setattr(ncOUT['tclw'], 'units', 'kg m**-2')
     setattr(ncOUT['tclw'], 'orig', 'ERA5')

@@ -35,7 +35,7 @@ from bitsea.commons.dataextractor import DataExtractor
 import numpy as np
 from bitsea.commons.Timelist import TimeList
 from bitsea.commons.utils import addsep
-import seawater as sw
+import gsw
 from bitsea.surf import surfaces
 from bitsea.commons.layer import Layer
 from bitsea.layer_integral.mapbuilder import MapBuilder
@@ -90,7 +90,7 @@ jk_50 = TheMask.getDepthIndex(50)
 jk_100 = TheMask.getDepthIndex(100)
 jk_150 = TheMask.getDepthIndex(150)
 
-TL=TimeList.fromfilenames(None, INPUTDIR, "U*nc", prefix="U")
+TL=TimeList.fromfilenames(None, INPUTDIR, "????/??/U*nc", prefix="U")
 eps=1.e-08
 
 nFrames=TL.nTimes
@@ -101,10 +101,11 @@ FRAMES=range(nFrames)
 for iframe in FRAMES[rank::nranks]:
     timestr = TL.Timelist[iframe].strftime("%Y%m%d-%H:%M:%S")
     print(timestr,flush=True)
-    filenameU=INPUTDIR + "U" + timestr + ".nc"
-    filenameV=INPUTDIR + "V" + timestr + ".nc"
-    filenameW=INPUTDIR + "W" + timestr + ".nc"
-    filenameT=INPUTDIR + "T" + timestr + ".nc"
+    yyyymm = TL.Timelist[iframe].strftime("%Y/%m")
+    filenameU=INPUTDIR + yyyymm + "/U" + timestr + ".nc"
+    filenameV=INPUTDIR + yyyymm + "/V" + timestr + ".nc"
+    filenameW=INPUTDIR + yyyymm + "/W" + timestr + ".nc"
+    filenameT=INPUTDIR + yyyymm + "/T" + timestr + ".nc"
 
     U=DataExtractor(TheMask,filenameU,"vozocrtx").values
     V=DataExtractor(TheMask,filenameV,"vomecrty").values
@@ -165,7 +166,9 @@ for iframe in FRAMES[rank::nranks]:
     KE_vert = 0.5*(W**2*Aw)
     KE_vert_2d = KE_vert[:iz200,:,:].sum(axis=0)
 
-    BVF[:izlev-1,:], _, p_ave = sw.bfrq(S[:izlev,:],T[:izlev,:],P)
+    SA = gsw.SA_from_SP(S[:izlev, :], P, 0, 0)
+    CT = gsw.CT_from_t(SA, T[:izlev, :], P)
+    BVF[:izlev-1, :], p_ave = gsw.Nsquared(SA, CT, P, lat=0, axis=0)
     BVF[BVF<0]=0 # because sw.bfrw returns a negative value when S=0, T=0 is encountered as first land point
     De = DataExtractor(TheMask,rawdata=BVF*M)
     Stratification_index = MapBuilder.get_layer_integral(De, layer200)
