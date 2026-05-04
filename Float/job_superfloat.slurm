@@ -2,9 +2,9 @@
 
 #SBATCH --job-name=Floats
 #SBATCH -N1
-#SBATCH --ntasks-per-node=1
-#SBATCH --time=4:00:00
-#SBATCH --mem=50gb
+#SBATCH --ntasks-per-node=10
+#SBATCH --time=2:00:00
+#SBATCH --mem=300gb
 #SBATCH --account=OGS_test2528
 #SBATCH --partition=g100_meteo_prod
 #SBATCH --qos=qos_meteo
@@ -33,11 +33,13 @@ my_prex_or_die "python superfloat_nitrate.py $COMMONS"
 my_prex_or_die "cp -r $SUPERFLOAT_DIR /g100_scratch/userexternal/gbolzon0/V13C/SUPERFLOAT_NITRATE/"
 
 mkdir -p $ONLINE_REPO/SUPERFLOAT/Oxydiag
-my_prex_or_die "python superfloat_oxygen.py $COMMONS -O $ONLINE_REPO/SUPERFLOAT/Oxydiag/"
+my_prex_or_die "mpirun -np 10 python superfloat_oxygen.py $COMMONS -O $ONLINE_REPO/SUPERFLOAT/Oxydiag/"
 
 my_prex_or_die "cp -r $SUPERFLOAT_DIR /g100_scratch/userexternal/gbolzon0/V13C/SUPERFLOAT_DOXY/"
 my_prex_or_die "python superfloat_bbp700.py $COMMONS -f "
 my_prex_or_die "python superfloat_kd490.py $COMMONS"
 my_prex_or_die "python superfloat_par.py $COMMONS"
 my_prex_or_die "python superfloat_ph.py $COMMONS"
+
+my_prex_or_die "mpirun -np 10 python dump_index.py -i $SUPERFLOAT_DIR -o $SUPERFLOAT_DIR/Float_Index.txt -t superfloat"
 
