@@ -1,10 +1,14 @@
 #! /bin/bash
 
 #SBATCH --job-name=ppcon
-#SBATCH --ntasks=1
-#SBATCH --time=02:05:00
-#SBATCH --account=OGS23_PRACE_IT
-#SBATCH --partition=g100_all_serial
+
+#SBATCH -N1
+#SBATCH --ntasks-per-node=10
+#SBATCH --time=1:00:00
+#SBATCH --mem=50gb
+#SBATCH --account=OGS_test2528
+#SBATCH --partition=g100_meteo_prod
+#SBATCH --qos=qos_meteo
 
 
 . ../profile.inc
@@ -48,5 +52,5 @@ done
 
 cd ..
 
-my_prex_or_die "python dump_index.py -i ${ONLINE_REPO}/PPCON -o ${ONLINE_REPO}/PPCON/Float_Index.txt -t ppcon_float"
+my_prex_or_die "mpirun python dump_index.py -i ${ONLINE_REPO}/PPCON -o ${ONLINE_REPO}/PPCON/Float_Index.txt -t ppcon_float"
 
