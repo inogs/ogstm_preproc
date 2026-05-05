@@ -9,27 +9,22 @@
 
 . ../profile.inc
 
-module load autoload
-module load intel/oneapi-2021--binary
-module load intelmpi/oneapi-2021--binary
-module load mkl/oneapi-2021--binary
-module load netcdf/4.7.4--oneapi--2021.2.0-ifort
-module load netcdff/4.5.3--oneapi--2021.2.0-ifort
-source /g100_work/OGS23_PRACE_IT/COPERNICUS/py_env_3.9.18_new/bin/activate
+source /g100_work/OGS23_PRACE_IT/COPERNICUS/sequence.sh
 
-BITSEA=/g100_scratch/userexternal/gbolzon0/V11C/bit.sea
+BITSEA=/g100_work/OGS_test2528/V13C/QUID/SETUP/PREPROC/FLOATS/bit.sea
+export PYTHONPATH=$BITSEA/src
 cd $BITSEA/src/bitsea/Float/ppcon/
 
-TRAIN_DIR=/gss/gss_work/DRES_OGS_BiGe/Observations/TIME_RAW_DATA/STATIC/PPCON_TRAIN
+TRAIN_DIR=/g100_work/OGS_prod2528/OPA/V12C-prod/etc/static-data/FLOAT/PPCON_TRAIN
 
-export ONLINE_REPO=/gss/gss_work/DRES_OGS_BiGe/Observations/TIME_RAW_DATA/ONLINE_V11C/
-export ONLINE_REPO=/g100_scratch/userexternal/gbolzon0/V11C
+export ONLINE_REPO=/g100_work/OGS_test2528/V13C/QUID/SETUP/PREPROC/FLOATS/ONLINE
+
 ONLINE_REPO_CLUSTERING=${ONLINE_REPO}/PPCON/clustering/
 
 mkdir -p $ONLINE_REPO_CLUSTERING
 
 
-for YEAR in $( seq 2012 2024 ) ; do
+for YEAR in $( seq 2012 2026 ) ; do
 
     FILE_INPUT=${ONLINE_REPO}/PPCON/Float_Index_${YEAR}.txt
     grep ${YEAR} ${ONLINE_REPO}/SUPERFLOAT/Float_Index.txt > $FILE_INPUT
@@ -51,6 +46,7 @@ for YEAR in $( seq 2012 2024 ) ; do
 
 done
 
+cd ..
 
 my_prex_or_die "python dump_index.py -i ${ONLINE_REPO}/PPCON -o ${ONLINE_REPO}/PPCON/Float_Index.txt -t ppcon_float"
 
