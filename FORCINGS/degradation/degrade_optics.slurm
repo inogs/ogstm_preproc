@@ -21,7 +21,7 @@ echo degrading phys forcings
 
 gitdir=/leonardo_work/OGS23_PRACE_IT_0/ggalli00/OGSTM-BFM/REGRID/git/ogstm_preproc/FORCINGS/degradation
 cd $gitdir
-git checkout 15-forcing-degradation
+git checkout main
 
 # must have ran this beforehand
 #python degrade_mesh.py

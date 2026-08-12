@@ -18,7 +18,7 @@ echo START: `date`
 
 gitdir=/leonardo_work/OGS23_PRACE_IT_0/ggalli00/OGSTM-BFM/REGRID/git/ogstm_preproc/FORCINGS/degradation
 cd $gitdir
-git checkout 15-forcing-degradation
+git checkout main
 
 python mesh_degradation.py -y degrade_mesh.yaml
 

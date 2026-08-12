@@ -19,7 +19,7 @@ echo degrading restarts
 
 gitdir=/leonardo_work/OGS23_PRACE_IT_0/ggalli00/OGSTM-BFM/REGRID/git/ogstm_preproc/FORCINGS/degradation
 cd $gitdir
-git checkout 15-forcing-degradation
+git checkout main
 
 mpirun -n 8 python degrade_restart.py -y degrade_restart.yaml
 #mpirun -n 8 python degrade_restart.py -y degrade_3Dvar.yaml
