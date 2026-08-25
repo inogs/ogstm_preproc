@@ -11,8 +11,8 @@ maskfile_CMCC=Path("/g100_work/OGS_test2528/V13C/QUID/SETUP/PREPROC/MASK/OGS/mes
 CMCCMask = Mask.from_file(maskfile_CMCC, e3t_var_name="e3t_0")
 jpk,_,_ = TheMask.shape
 # T, S over the box Rectangle(-8.0,  -6.0,   35.0,   36.5)
-fileS = Path("/g100_scratch/userexternal/gbolzon0/V13C/GIB_profiles/wrkdir/POSTPROC/output/AVE_FREQ_1/STAT_PROFILES/vosaline.pkl")
-fileT = Path("/g100_scratch/userexternal/gbolzon0/V13C/GIB_profiles/wrkdir/POSTPROC/output/AVE_FREQ_1/STAT_PROFILES/votemper.pkl")
+fileS = Path("/g100_work/OGS_test2528/V13C/GIB_profiles/STAT_PROFILES/vosaline.pkl")
+fileT = Path("/g100_work/OGS_test2528/V13C/GIB_profiles/STAT_PROFILES/votemper.pkl")
 TIMESERIES_T, TL = read_pickle_file(fileT)
 TIMESERIES_S, _ = read_pickle_file(fileS)
 rho = get_density_from_4D_profiles(TIMESERIES_T[:,:,:,:,0], TIMESERIES_S[:,:,:,:,0], CMCCMask)
