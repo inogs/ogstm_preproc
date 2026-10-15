@@ -11,7 +11,7 @@ class bounmask():
         self.resto   = None
         self.idx     = None
         self.idx_inv = None
-        self.file = Path(conf.out_dir) / "bounmask.nc"
+        self.file = Path(conf.dir_out) / "bounmask.nc"
         logging.info("bounmask object builded")
         
 
@@ -83,7 +83,7 @@ class bounmask():
         numpy array
         '''
 
-        bncfile = nc.Dataset(self.file
+        bncfile = nc.Dataset(self.file,'r')
         logging.info("LOADING from bounmask.nc")
         if (varname =="index_inv"):
             M = np.array(bncfile[varname])

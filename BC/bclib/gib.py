@@ -3,6 +3,7 @@ from bclib.lateral import lateral_bc
 import netCDF4 as nc
 import numpy as np
 import glob, os
+from pathlib import Path
 
 class gib():
     def __init__(self,conf,mask):
@@ -52,7 +53,7 @@ class gib():
         for time in range(jpt):
             
             # netCDF file preparation
-            filename = self.config.dir_out + "GIB_yyyy" + self.gibilterra.season[time] + ".nc"
+            filename = Path(self.config.dir_out) / "GIB_yyyy" + self.gibilterra.season[time] + ".nc"
             ncfile = nc.Dataset(filename, 'w')
             ncfile.createDimension("lon", jpi)
             ncfile.createDimension("lat", jpj)
