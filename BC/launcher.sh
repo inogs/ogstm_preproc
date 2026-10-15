@@ -19,15 +19,15 @@ MASKFILE=/g100_work/OGS_test2528/V13C/QUID/SETUP/PREPROC/MASK/OGS/meshmask.nc
 MASKFILE_CMCC=/g100_work/OGS_test2528/V13C/QUID/SETUP/PREPROC/MASK/OGS/meshmask_CMCC.nc
 INPUTBC=/g100_work/OGS_test2528/Benchmark/SETUP/PREPROC/BC/inputs/
 
-INPUTDIR=INPUT_BC_PROFILES
+INPUTDIR=$PWD/INPUT_BC_PROFILES
 mkdir -p $INPUTDIR
 for var in N1p N3n N5s O2o; do
     cp $INPUTBC/${var}.nc $INPUTDIR
 done
 my_prex_or_die "python O3c_O3h_profiles.py -m $MASKFILE -M $MASKFILE_CMCC -o $INPUTDIR"
 
-python write_VPnutrients.py -i $INPUTDIR -m $MASKFILE
-python main.py
+my_prex_or_die "python write_VPnutrients.py -i $INPUTDIR -m $MASKFILE"
+my_prex_or_die "python main.py"
 
 RESTARTSDIR=/g100_work/OGS_test2528/V13C/QUID/SETUP/PREPROC/IC/RST/
 OUTDIR=/g100_work/OGS_test2528/V13C/QUID/SETUP/PREPROC/BC/out

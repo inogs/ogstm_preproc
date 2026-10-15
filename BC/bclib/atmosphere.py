@@ -5,6 +5,7 @@ from bitsea.commons.submask import SubMask
 from bitsea.basins import V2
 from bitsea.basins import V2 as OGS
 from bitsea.basins.basin import ComposedBasin
+from pathlib import Path
 
 
 class atmosphere:
@@ -193,11 +194,11 @@ class atmosphere_seas:
     
 
 
-    def write_netcdf(self, mask, outdir):
+    def write_netcdf(self, mask, outdir:Path):
         '''
         Arguments
         * mask                     * is the Mask object
-        * outdir                   * (string) where ATM_yyyy0630-00:00:00.nc will be written.
+        * outdir                   * (Path) where ATM_yyyy0630-00:00:00.nc will be written.
         *  concentration_dimension * string can be "Volume" or "Area"
         '''
 
@@ -221,13 +222,13 @@ class atmosphere_seas:
 
             
         _, jpj, jpi = mask.shape        
-        fileOUT = outdir + "ATM_yyyy0331-00:00:00.nc"
+        fileOUT = outdir / "ATM_yyyy0331-00:00:00.nc"
         dump_netcdf(fileOUT, self.N3n_win, self.N1p_win, 0,0,0,0, "winter values")
-        fileOUT = outdir + "ATM_yyyy0401-00:00:00.nc"
+        fileOUT = outdir / "ATM_yyyy0401-00:00:00.nc"
         dump_netcdf(fileOUT, self.N3n_sum, self.N1p_sum, 0,0,0,0, "summer values")
-        fileOUT = outdir + "ATM_yyyy0930-00:00:00.nc"
+        fileOUT = outdir / "ATM_yyyy0930-00:00:00.nc"
         dump_netcdf(fileOUT, self.N3n_sum, self.N1p_sum, 0,0,0,0, "summer values")
-        fileOUT = outdir + "ATM_yyyy1001-00:00:00.nc"
+        fileOUT = outdir / "ATM_yyyy1001-00:00:00.nc"
         dump_netcdf(fileOUT, self.N3n_win, self.N1p_win, 0,0,0,0, "winter values")
  
 

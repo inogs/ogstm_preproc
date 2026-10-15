@@ -2,6 +2,7 @@ import numpy as np
 import netCDF4 as nc
 import logging
 import glob,os
+from pathlib import Path
 
 class bounmask():
 
@@ -10,6 +11,7 @@ class bounmask():
         self.resto   = None
         self.idx     = None
         self.idx_inv = None
+        self.file = Path(conf.out_dir) / "bounmask.nc"
         logging.info("bounmask object builded")
         
 
@@ -81,7 +83,7 @@ class bounmask():
         numpy array
         '''
 
-        bncfile = nc.Dataset(self.config.file_bmask, 'r')
+        bncfile = nc.Dataset(self.file
         logging.info("LOADING from bounmask.nc")
         if (varname =="index_inv"):
             M = np.array(bncfile[varname])
@@ -105,7 +107,7 @@ class bounmask():
                 if var not in nudg_classic_variables:
                     OTHER_VARIABLES.append(var)
 
-        ncfile = nc.Dataset(self.config.file_bmask, 'w')
+        ncfile = nc.Dataset(self.file, 'w')
         jpk,jpj,jpi = mask.shape
         ncfile.createDimension('x',jpi)
         ncfile.createDimension('y',jpj)
@@ -146,15 +148,13 @@ if __name__ == '__main__':
     from bitsea.commons.mask import Mask
     import config as conf
     conf.file_mask="../meshmask_872.nc"
-    conf.file_bmask="bounmask.nc"
     TheMask = Mask.from_file(conf.file_mask)
     B=bounmask(conf)
     B.generate(TheMask)
     B.write_netcdf(TheMask)
     
     B_old = bounmask(conf)
-    B_old.config.file_bmask = "/Users/gbolzon/Documents/workspace/ogs_bounday_conditions/bounmask8.nc"
+    B_old.file = Path("/Users/gbolzon/Documents/workspace/ogs_bounday_conditions/bounmask8.nc")
     index= B_old.load('index')
     restoN1p=B_old.load('reN1p')
     d=B.resto[0,:,:,:]-restoN1p
-
