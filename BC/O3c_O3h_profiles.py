@@ -1,3 +1,29 @@
+import argparse
+from bitsea.utilities.argparse_types import existing_dir_path, existing_file_path
+
+def argument():
+    parser = argparse.ArgumentParser(description = '''
+    Generates O3c and O3h profiles.
+    ''')
+    parser.add_argument(   '--maskfile','-m',
+                                type = existing_file_path,
+                                required = True,
+                                help = 'Ogstm mask file'
+                                )
+    parser.add_argument(   '--maskfile_CMCC','-M',
+                                type = existing_file_path,
+                                required = True,
+                                help = 'CMCC mask file'
+                                )
+    parser.add_argument(   '--outdir','-o',
+                                type = existing_dir_path,
+                                required = True,
+                                help = 'Output directory'
+                                )    
+    return parser.parse_args()
+
+args = argument()
+
 from pathlib import Path
 from bitsea.timeseries.plot import read_pickle_file
 from bitsea.commons.mask import Mask
@@ -5,10 +31,9 @@ from bitsea.commons.density import get_density_from_4D_profiles
 import numpy as np
 import xarray as xr
 
-maskfile=Path("/g100_work/OGS_test2528/V13C/QUID/SETUP/PREPROC/MASK/OGS/meshmask.nc")
-TheMask = Mask.from_file(maskfile, e3t_var_name="e3t_0")
-maskfile_CMCC=Path("/g100_work/OGS_test2528/V13C/QUID/SETUP/PREPROC/MASK/OGS/meshmask_CMCC.nc")
-CMCCMask = Mask.from_file(maskfile_CMCC, e3t_var_name="e3t_0")
+
+TheMask = Mask.from_file(args.maskfile, e3t_var_name="e3t_0")
+CMCCMask = Mask.from_file(args.maskfile_CMCC, e3t_var_name="e3t_0")
 jpk,_,_ = TheMask.shape
 # T, S over the box Rectangle(-8.0,  -6.0,   35.0,   36.5)
 fileS = Path("/g100_work/OGS_test2528/V13C/GIB_profiles/STAT_PROFILES/vosaline.pkl")
@@ -48,11 +73,11 @@ dataset = xr.Dataset(
     },
     coords=coords,
 )
-dataset.to_netcdf(Path("O3h.nc"))
+dataset.to_netcdf(args.outdir / "O3h.nc")
 dataset = xr.Dataset(
     data_vars={
         "O3c": (tuple(dims), O3c.astype(np.float32), {"units": " [mmol m^-3]"}),
     },
     coords=coords,
 )
-dataset.to_netcdf(Path("O3c.nc"))
+dataset.to_netcdf(args.outdir / "O3c.nc")
