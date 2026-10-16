@@ -8,6 +8,7 @@ from bclib.river import river
 import config as conf
 import numpy as np
 from dardanelles import dardanelles_generator
+from pathlib import Path
 
 TheMask = Mask.from_file(conf.file_mask)
 
@@ -15,7 +16,7 @@ CO2 =co2atm(conf)
 CO2.generate(TheMask, plot=True)
 if conf.atm_from_file:
     ATM=atmosphere.atmosphere_seas(TheMask,conf)
-    ATM.write_netcdf(TheMask, conf.dir_out)
+    ATM.write_netcdf(TheMask, Path(conf.dir_out))
 else:
     ATM=atmosphere.atmosphere(TheMask,conf)
     ATM.write_netcdf(TheMask, conf.dir_out, "Area")
@@ -28,7 +29,7 @@ BOUN.write_netcdf(TheMask, all_variables=False)
 G = gib(conf,TheMask)
 G.generate(TheMask, BOUN, all_variables=False)
 
-dardanelles_generator.dump_files(TheMask, conf.dir_out)
+dardanelles_generator.dump_files(TheMask, Path(conf.dir_out))
 
 if conf.Perseus_river:
     R = river(conf) # here excel is read

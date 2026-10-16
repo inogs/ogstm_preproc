@@ -5,9 +5,9 @@
 #SBATCH --ntasks-per-node=48
 #SBATCH --time=00:30:00
 #SBATCH --mem=300gb
-#SBATCH --account=OGS_devC
-#SBATCH --partition=g100_meteo_prod
-#SBATCH --qos=qos_meteo
+#SBATCH --account=OGS_prod2528
+#SBATCH --partition=g100_usr_prod
+
 
 source /g100_work/OGS23_PRACE_IT/COPERNICUS/sequence.sh
 unset I_MPI_PMI_LIBRARY
@@ -16,10 +16,18 @@ export SLURM_PMIX_DIRECT_CONN_UCX=false
 source ../profile.inc
 
 MASKFILE=/g100_work/OGS_test2528/V13C/QUID/SETUP/PREPROC/MASK/OGS/meshmask.nc
+MASKFILE_CMCC=/g100_work/OGS_test2528/V13C/QUID/SETUP/PREPROC/MASK/OGS/meshmask_CMCC.nc
 INPUTBC=/g100_work/OGS_test2528/Benchmark/SETUP/PREPROC/BC/inputs/
 
-python write_VPnutrients.py -i $INPUTBC -m $MASKFILE
-python main.py
+INPUTDIR=$PWD/INPUT_BC_PROFILES
+mkdir -p $INPUTDIR
+for var in N1p N3n N5s O2o; do
+    cp $INPUTBC/${var}.nc $INPUTDIR
+done
+my_prex_or_die "python O3c_O3h_profiles.py -m $MASKFILE -M $MASKFILE_CMCC -o $INPUTDIR"
+
+my_prex_or_die "python write_VPnutrients.py -i $INPUTDIR -m $MASKFILE"
+my_prex_or_die "python main.py"
 
 RESTARTSDIR=/g100_work/OGS_test2528/V13C/QUID/SETUP/PREPROC/IC/RST/
 OUTDIR=/g100_work/OGS_test2528/V13C/QUID/SETUP/PREPROC/BC/out
