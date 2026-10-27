@@ -1,22 +1,28 @@
 import create_meshmask_nc as c_mask 
 
-infile  = '/g100_work/OGS_test2528/camadio/RUN_RIVER_INLETS/MASK/ORIG_CMCC/mesh_mask.nc'
+#mesh_mask has all the masks, domain_cfg has no masked land domains on glamt, gphit, etc.
+mesh_file  = '/leonardo_work/RIVRD_proc/CMCC/NEMO_RUN_TEST_1979_1988/med24v1_mesh_mask.nc'
+domain_file  = '/leonardo_work/RIVRD_proc/CMCC/NEMO_RUN_TEST_1979_1988/med24v1_domain_cfg.nc'
 
-outfile = 'meshmask_CMCC.nc'
+outfile = '/leonardo_work/RIVRD_OGS/med24v1_domain_cfg.nc'
 
-M       = c_mask.OrigMask(infile)
-lon_cut = 0
-depth_cut=0
+#M       = c_mask.OrigMask(infile)
+#lon_cut = 0
+#depth_cut=0
+#
+#Biscay_land = False
+#c_mask.create_meshmask_nc(M,outfile,lon_cut,depth_cut,Biscay_land)
+#
+#outfile = 'meshmask.nc'
 
-Biscay_land = False
-c_mask.create_meshmask_nc(M,outfile,lon_cut,depth_cut,Biscay_land)
+M       = c_mask.OrigMask(mesh_file, domain_file)
 
-outfile = 'meshmask.nc'
-
-lon_cut = M.getCutLocation(-8.875)
+#lat_cut, lon_cut = M.getCutLocation(-8.875, 36.909)
+#lat_cut, lon_cut = M.getCutLocation(-8.83, 36.909)
+lat_cut, lon_cut = M.getCutLocation(-8.7, 36.909)
 depth_cut=16
 Biscay_land = True
-c_mask.create_meshmask_nc(M,outfile,lon_cut,depth_cut,Biscay_land)
+c_mask.create_meshmask_nc(M, outfile, lon_cut, depth_cut, Biscay_land)
 
-M.nc_handler.close()
+#M.nc_handler.close()
 print('DONE!')
