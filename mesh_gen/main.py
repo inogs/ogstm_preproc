@@ -1,8 +1,7 @@
 import create_meshmask_nc as c_mask 
 
-#mesh_mask has all the masks, domain_cfg has no masked land domains on glamt, gphit, etc.
-mesh_file  = '/leonardo_work/RIVRD_proc/CMCC/NEMO_RUN_TEST_1979_1988/med24v1_mesh_mask.nc'
-domain_file  = '/leonardo_work/RIVRD_proc/CMCC/NEMO_RUN_TEST_1979_1988/med24v1_domain_cfg.nc'
+# mesh_mask maust have all the masks and no masked land domains on glamt, gphit, etc.
+mesh_file  = '/leonardo_work/RIVRD_proc/CMCC/NEMO_RUN_TEST_1979_1988/med24v1_mesh_mask_BGC.nc'
 
 outfile = '/leonardo_work/RIVRD_OGS/med24v1_domain_cfg.nc'
 
@@ -15,7 +14,7 @@ outfile = '/leonardo_work/RIVRD_OGS/med24v1_domain_cfg.nc'
 #
 #outfile = 'meshmask.nc'
 
-M       = c_mask.OrigMask(mesh_file, domain_file)
+M = c_mask.OrigMask(mesh_file)
 
 #lat_cut, lon_cut = M.getCutLocation(-8.875, 36.909)
 #lat_cut, lon_cut = M.getCutLocation(-8.83, 36.909)

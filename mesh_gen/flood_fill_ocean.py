@@ -22,10 +22,10 @@ def flood_fill_ocean(mask, i0, j0, blocked_edges=None):
 
     Returns
     -------
-    marmara_2d : numpy.ndarray of bool, shape (y, x)
+    region_2d : numpy.ndarray of bool, shape (y, x)
         True for horizontal grid cells belonging to the region.
 
-    marmara_4d : numpy.ndarray of bool, shape (1, z, y, x)
+    region_4d : numpy.ndarray of bool, shape (1, z, y, x)
         True for wet 3D cells belonging to the region.
         Land cells and cells outside the region are False.
     """
@@ -67,9 +67,9 @@ def flood_fill_ocean(mask, i0, j0, blocked_edges=None):
     # --------------------------------------------------
     # 4. Flood fill using four-neighbour connectivity
     # --------------------------------------------------
-    region = np.zeros((ny, nx), dtype=bool)
+    region_2D = np.zeros((ny, nx), dtype=bool)
     queue = deque([(j0, i0)])
-    region[j0, i0] = True
+    region_2D[j0, i0] = True
 
     # Four-neighbour connectivity: east, west, north, south
     neighbours = [(1, 0), (-1, 0), (0, 1), (0, -1)]
@@ -91,11 +91,13 @@ def flood_fill_ocean(mask, i0, j0, blocked_edges=None):
                 continue
 
             # Only visit wet cells that have not been visited
-            if wet_2d[nj, ni] and not region[nj, ni]:
-                region[nj, ni] = True
+            if wet_2d[nj, ni] and not region_2D[nj, ni]:
+                region_2D[nj, ni] = True
                 queue.append((nj, ni))
-    # TO DO: return 3D mask
-    return region
+    # return 4D mask
+    region_4D = mask[0, :, :, :] * region_2D[None, :, :]
+    region_4D = region_4D[np.newaxis, :, :, :]
+    return region_2D, region_4D
 
 
 if __name__=="__main__":
@@ -110,4 +112,4 @@ if __name__=="__main__":
     # fill in all of marmara and black sea, leave 1pt at dardanelles for boundary
     blocked_edges = [((299, 943), (299, 944))]
     M.close()
-    marmask = flood_fill_ocean(mask, i0, j0, blocked_edges=blocked_edges)
+    region_2D, region_4D = flood_fill_ocean(mask, i0, j0, blocked_edges=blocked_edges)
