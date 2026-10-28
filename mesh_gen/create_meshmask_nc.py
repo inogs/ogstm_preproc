@@ -48,14 +48,39 @@ class OrigMask():
         j, i = np.unravel_index(np.nanargmin(dist), dist.shape)
         return j, i
 
-
+def get__mask(mask_id, NCin, glam_, gphi_, jpk, jpj, jpi, lon_cut, i0, j0, blocked_edges):
+    '''
+    reads original tuvf-mask from NCin,
+    masks black sea with flood fill,
+    trims depth and lon,
+    puts a 1-masked-cell frame all around the edges
+    returns:
+        tuvf-mask: np.array
+    '''
+    orig__mask = (NCin.variables[mask_id][:]).copy().astype(np.double)
+    # flood-fill black sea
+    region_2D, region_4D = flood_fill_ocean(orig__mask, i0, j0, blocked_edges=blocked_edges)
+    _mask = orig__mask * (1 - region_4D)
+    # trim mask
+    _mask = _mask[:,:jpk,:,lon_cut:]
+    # frame mask
+    _mask[0,:,0, :] =0.;
+    _mask[0,:,:, 0] =0.;
+    _mask[0,:,jpj-1,:] =0.;
+    _mask[0,:,:,jpi-1] =0.;
+    _mask[0,jpk-1,:,:] =0.;
+    # mask biscay and north sea (is not optional!)
+    Lon=glam_[0,0,:,:];
+    Lat=gphi_[0,0,:,:];
+    region = ((Lon < 0.0) & (Lat > 42)) | ((Lon < -6.0) & (Lat > 37.25)) | (Lat > 47.28)
+    _mask[0, :, :, :] = np.where(region[None, :, :], 0.0, _mask[0, :, :, :])
+    # output
+    return _mask
 
 time = 1;
 z_a  = 1;
 y_a  = 1;
 x_a  = 1;
-
-
 
 
 def create_meshmask_nc(OrigMaskobj, outfile, lon_cut, depth_cut, biscay_land=True):
@@ -187,81 +212,16 @@ def create_meshmask_nc(OrigMaskobj, outfile, lon_cut, depth_cut, biscay_land=Tru
     e3w[0,:,:,:] =  (NCin.variables['e3w_0'][0,:jpk,:,lon_cut:]).copy().astype(np.double)
 
 
-    # double tmask(time, z, y, x) ;
-    #tmask = np.ones((time,jpk,jpj,jpi),np.double);
-
-    # fill in all of marmara and black sea, leave 1pt at dardanelles for boundary
+    # parameters to fill in all of marmara and black sea, 
+    # and leave 1pt at dardanelles for boundary
     i0 = 980
     j0 = 320
     blocked_edges = [((299, 943), (299, 944))]
-    orig_tmask = (NCin.variables['tmask'][:]).copy().astype(np.double)
-    region_2D, region_4D = flood_fill_ocean(orig_tmask, i0, j0, blocked_edges=blocked_edges)
-    #region_4D = region_4D[:,0:jpk,:,0:jpi]
-    print(f"region_4D.shape: {region_4D.shape}")
-    print(f"orig_tmask.shape: {orig_tmask.shape}")
-    #tmask[region_4D] = 0.
-    tmask = orig_tmask * (1 - region_4D)
-    # trim mask
-    #tmask[0,:,:,:] = tmask[0,:jpk,:,lon_cut:]
-    tmask = tmask[:,:jpk,:,lon_cut:]
-    # frame mask
-    tmask[0,:,0, :] =0.;
-    tmask[0,:,:, 0] =0.;
-    tmask[0,:,jpj-1,:] =0.;
-    tmask[0,:,:,jpi-1] =0.;
-    tmask[0,jpk-1,:,:] =0.;
 
-    if biscay_land:
-        Lon=glamt[0,0,:,:];
-        Lat=gphit[0,0,:,:];
-        for j in range(jpj):
-            for i in range(jpi):
-                if(Lon[j,i]<0.0 and Lat[j,i]>42   ): tmask[0,:,j,i]=0.
-                if(Lon[j,i]<-6. and Lat[j,i]>37.25): tmask[0,:,j,i]=0.
-
-#    double umask(time, z, y, x) ;
-    umask = np.ones((time,jpk,jpj,jpi),np.double);
-    umask[0,:,:,:]  = (NCin.variables['umask'][0,:jpk,:,lon_cut:]).copy().astype(np.double)
-    umask[0,jpk-1,:,:] =0.;
-
-    if biscay_land:
-        Lon=glamu[0,0,:,:];
-        Lat=gphiu[0,0,:,:];
-        for j in range(jpj):
-            for i in range(jpi):
-                if(Lon[j,i]<0.0 and Lat[j,i]>42   ): umask[0,:,j,i]=0.
-                if(Lon[j,i]<-6. and Lat[j,i]>37.25): umask[0,:,j,i]=0.
-
-#    double vmask(time, z, y, x) ;
-    vmask = np.ones((time,jpk,jpj,jpi),np.double);
-    vmask[0,:,:,:]  = (NCin.variables['vmask'][0,:jpk,:,lon_cut:]).copy().astype(np.double)
-    vmask[0,jpk-1,:,:] =0.;
-
-    if biscay_land:
-        Lon=glamv[0,0,:,:];
-        Lat=gphiv[0,0,:,:];
-        for j in range(jpj):
-            for i in range(jpi):
-                if(Lon[j,i]<0.0 and Lat[j,i]>42   ): vmask[0,:,j,i]=0.
-                if(Lon[j,i]<-6. and Lat[j,i]>37.25): vmask[0,:,j,i]=0.
-
-    # mask the north sea
-    maxlat = 47.28 # some latitude in the middle of France
-    Lat = gphit[0,0,:,:];
-    for j in range(jpj):
-        for i in range(jpi):
-            if (Lat[j,i]>maxlat): tmask[0,:,j,i]=0.
-
-    Lat = gphiv[0,0,:,:];
-    for j in range(jpj):
-        for i in range(jpi):
-            if (Lat[j,i]>maxlat): vmask[0,:,j,i]=0.
-
-    Lat = gphiu[0,0,:,:];
-    for j in range(jpj):
-        for i in range(jpi):
-            if (Lat[j,i]>maxlat): umask[0,:,j,i]=0.
-
+    # get masks
+    tmask = get__mask('tmask', NCin, glamt, gphit, jpk, jpj, jpi, lon_cut, i0, j0, blocked_edges)
+    umask = get__mask('umask', NCin, glamu, gphiu, jpk, jpj, jpi, lon_cut, i0, j0, blocked_edges)
+    vmask = get__mask('vmask', NCin, glamv, gphiv, jpk, jpj, jpi, lon_cut, i0, j0, blocked_edges)
 
     ##############################################################
     # write meshmask netcdf file !

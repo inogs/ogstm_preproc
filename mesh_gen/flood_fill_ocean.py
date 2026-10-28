@@ -72,7 +72,10 @@ def flood_fill_ocean(mask, i0, j0, blocked_edges=None):
     region_2D[j0, i0] = True
 
     # Four-neighbour connectivity: east, west, north, south
-    neighbours = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+    #neighbours = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+    # Eight-neighbour connectivity:
+    neighbours = [(1, 0), (-1, 0), (0, 1), (0, -1),
+                  (1, 1), (-1, 1), (1, -1), (-1, -1)]
 
     while queue:
         j, i = queue.popleft()
