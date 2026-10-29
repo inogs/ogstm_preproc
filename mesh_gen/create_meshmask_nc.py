@@ -49,9 +49,6 @@ class OrigMask():
             print(lon, atl_waterpoints)
 
     def getCutLocation(self, lon, lat):
-        #ind =np.argmin(np.abs(self.Lon-lon))
-        #print(f"cut_location: {ind}")
-        #return ind
         dist = (self.Lon - lon)**2 + (self.Lat - lat)**2
         j, i = np.unravel_index(np.nanargmin(dist), dist.shape)
         return j, i
@@ -79,7 +76,7 @@ def get_masks(NCin, Coords, jpk, jpj, jpi, lon_cut, i0, j0, blocked_edges):
     #umask = umask[:,:jpk,:,lon_cut:]
     #vmask = vmask[:,:jpk,:,lon_cut:]
     #fmask = fmask[:,:jpk,:,lon_cut:]
-    masks = (_mask[:,:jpk,:,lon_cut:] for _mask in masks)
+    masks = [_mask[:,:jpk,:,lon_cut:] for _mask in masks]
     # frame masks
     for _mask in masks:
         _mask[0,:,0, :] =0.;
@@ -94,7 +91,7 @@ def get_masks(NCin, Coords, jpk, jpj, jpi, lon_cut, i0, j0, blocked_edges):
         region = ((Lon < 0.0) & (Lat > 42)) | ((Lon < -6.0) & (Lat > 37.25)) | (Lat > 47.28)
         _mask[0, :, :, :] = np.where(region[None, :, :], 0.0, _mask[0, :, :, :])
     # output
-    return *masks
+    return masks
 
 time = 1;
 z_a  = 1;
@@ -244,7 +241,7 @@ def create_meshmask_nc(OrigMaskobj, outfile, lon_cut, depth_cut, biscay_land=Tru
     Coords = ((glamt, gphit), 
               (glamu, gphiu),
               (glamv, gphiv),
-              (glamw, gphiw))
+              (glamf, gphif))
     tmask, umask, vmask, fmask = get_masks(NCin, Coords, jpk, jpj, jpi, lon_cut, i0, j0, blocked_edges)
 
     ##############################################################
