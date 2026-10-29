@@ -53,7 +53,7 @@ class OrigMask():
         if lon is not None:
             dist = dist + (self.Lon - lon)**2
         if lat is not None:
-        dist = dist + (self.Lat - lat)**2
+            dist = dist + (self.Lat - lat)**2
         j, i = np.unravel_index(np.nanargmin(dist), dist.shape)
         return j, i
 
@@ -89,8 +89,8 @@ def get_masks(NCin, Coords, jpk, jpj, jpi, Cut_Loc, i0, j0, blocked_edges):
         _mask[0,-1,:,:] = 0.
     # mask biscay and north sea (is not optional!)
     for (glam_, gphi_), _mask in zip(Coords, masks):
-        Lon=glam_[0,0,:,:];
-        Lat=gphi_[0,0,:,:];
+        Lon = glam_[0,0,:,:];
+        Lat = gphi_[0,0,:,:];
         region = ((Lon < 0.0) & (Lat > 42)) | ((Lon < -6.0) & (Lat > 37.25))# | (Lat > 47.28)
         _mask[0, :, :, :] = np.where(region[None, :, :], 0.0, _mask[0, :, :, :])
     # output
@@ -101,6 +101,30 @@ z_a  = 1;
 y_a  = 1;
 x_a  = 1;
 
+def trim_var(vname, NCin, Cut_Loc, out_ndim):
+    ilon_min, ilon_max, jlat_min, jlat_max, kdepth_max = Cut_Loc.values()
+    X0 = (NCin.variables[vname][:]).copy().astype(np.double)
+    print(f"{vname}.shape: {X0.shape}")
+    if X0.ndim == 4: 
+        # Dimensions: (time, depth, lat, lon)
+        if X0.shape[1] == 1:
+            # depth singleton
+            kdepth_max = 1
+        X = X0[0, :kdepth_max, jlat_min:jlat_max, ilon_min:ilon_max]
+    elif X0.ndim == 3:
+        # Dimensions: (time, lat, lon)
+        X = X0[0, jlat_min:jlat_max, ilon_min:ilon_max]
+    elif X0.ndim == 2:
+        # Dimensions: (lat, lon)
+        X = X0[jlat_min:jlat_max, ilon_min:ilon_max]
+    elif X0.ndim == 1:
+        # Dimensions: (depth)
+        X = X0[:kdepth_max]
+    else:
+        raise ValueError(f"Unsupported dimensions for variable '{vname}': {X0.shape}")
+    # add heading singleton dimensions
+    X = X.reshape((1,) * (out_ndim - X.ndim) + X.shape)
+    return X
 
 def create_meshmask_nc(OrigMaskobj, outfile, Cut_Loc, depth_cut, biscay_land=True):
     
@@ -109,7 +133,7 @@ def create_meshmask_nc(OrigMaskobj, outfile, Cut_Loc, depth_cut, biscay_land=Tru
     ilon_min, ilon_max, jlat_min, jlat_max, kdepth_max = Cut_Loc.values()
 
     jpi = ilon_max - ilon_min
-    jpj = jlon_max - jlon_min
+    jpj = jlat_max - jlat_min
     jpk = kdepth_max
 
 #    jpi=NCin.dimensions['x'].size-lon_cut
@@ -128,113 +152,138 @@ def create_meshmask_nc(OrigMaskobj, outfile, Cut_Loc, depth_cut, biscay_land=Tru
 ##    fmask[0,:,0,-1]    = 0.;
 
 #    double gdept(time, z, y, x) ;
-    gdept              = np.zeros((time,jpk,jpj,jpi),np.double);
-    gdept[0,0:jpk,:,:] = (NCin.variables['gdept_0'][0,:jpk,:,lon_cut:]).copy().astype(np.double);
+    #gdept              = np.zeros((time,jpk,jpj,jpi),np.double);
+    #gdept[0,0:jpk,:,:] = (NCin.variables['gdept_0'][0,:jpk,:,lon_cut:]).copy().astype(np.double);
+    #gdept[0,:,:,:] = (NCin.variables['gdept_0'][0,:kdepth_max,jlat_min:jlat_max,ilon_min:ilon_max]).copy().astype(np.double);
+    #gdept = (NCin.variables['gdept_0'][0,:kdepth_max,jlat_min:jlat_max,ilon_min:ilon_max]).copy().astype(np.double);
+    gdept = trim_var('gdept_0', NCin, Cut_Loc, 4)
 
 #    double gdepw(time, z, y_a, x_a) ;
     gdepw              = np.zeros((time,jpk,y_a,x_a),np.double);
-    gdepw[0,0:jpk,0,0] = (NCin.variables['gdepw_1d'][0,:jpk]).copy().astype(np.double);
-    
+    gdepw[0,0:jpk,0,0] = (NCin.variables['gdepw_1d'][0,:jpk]).copy().astype(np.double); 
 
 #    double glamt(time, z_a, y, x) ;
-    glamt = np.ones((time,z_a,jpj,jpi),np.double);
-    glamt[0,0,:,:]=(NCin.variables['glamt'][0,:,lon_cut:]).copy().astype(np.double);
+    #glamt = np.ones((time,z_a,jpj,jpi),np.double);
+    #glamt[0,0,:,:]=(NCin.variables['glamt'][0,:,lon_cut:]).copy().astype(np.double);
+    glamt = trim_var('glamt', NCin, Cut_Loc, 4)
         
 #    double glamu(time, z_a, y, x) ;
-    glamu = np.ones((time,z_a,jpj,jpi),np.double);
-    glamu[0,0,:,:]=(NCin.variables['glamu'][0,:,lon_cut:]).copy().astype(np.double);
+    #glamu = np.ones((time,z_a,jpj,jpi),np.double);
+    #glamu[0,0,:,:]=(NCin.variables['glamu'][0,:,lon_cut:]).copy().astype(np.double);
+    glamu = trim_var('glamu', NCin, Cut_Loc, 4)
         
 #    double glamv(time, z_a, y, x) ;
-    glamv = np.ones((time,z_a,jpj,jpi),np.double);
-    glamv[0,0,:,:]=(NCin.variables['glamv'][0,:,lon_cut:]).copy().astype(np.double);
+    #glamv = np.ones((time,z_a,jpj,jpi),np.double);
+    #glamv[0,0,:,:]=(NCin.variables['glamv'][0,:,lon_cut:]).copy().astype(np.double);
+    glamv = trim_var('glamv', NCin, Cut_Loc, 4)
 
 #    double glamf(time, z_a, y, x) ;
-    glamf = np.ones((time,z_a,jpj,jpi),np.double);
-    glamf[0,0,:,:]=(NCin.variables['glamf'][0,:,lon_cut:]).copy().astype(np.double);
+    #glamf = np.ones((time,z_a,jpj,jpi),np.double);
+    #glamf[0,0,:,:]=(NCin.variables['glamf'][0,:,lon_cut:]).copy().astype(np.double);
+    glamf = trim_var('glamf', NCin, Cut_Loc, 4)
         
 #    double gphit(time, z_a, y, x) ;
-    gphit = np.ones((time,z_a,jpj,jpi),np.double);
-    gphit[0,0,:,:]=(NCin.variables['gphit'][0,:,lon_cut:]).copy().astype(np.double);
+    #gphit = np.ones((time,z_a,jpj,jpi),np.double);
+    #gphit[0,0,:,:]=(NCin.variables['gphit'][0,:,lon_cut:]).copy().astype(np.double);
+    gphit = trim_var('gphit', NCin, Cut_Loc, 4)
         
 #    double gphiu(time, z_a, y, x) ;
-    gphiu = np.ones((time,z_a,jpj,jpi),np.double);
-    gphiu[0,0,:,:]=(NCin.variables['gphiu'][0,:,lon_cut:]).copy().astype(np.double);
+    #gphiu = np.ones((time,z_a,jpj,jpi),np.double);
+    #gphiu[0,0,:,:]=(NCin.variables['gphiu'][0,:,lon_cut:]).copy().astype(np.double);
+    gphiu = trim_var('gphiu', NCin, Cut_Loc, 4)
     
 #    double gphiv(time, z_a, y, x) ;
-    gphiv = np.ones((time,z_a,jpj,jpi),np.double);
-    gphiv[0,0,:,:]=(NCin.variables['gphiv'][0,:,lon_cut:]).copy().astype(np.double);
+    #gphiv = np.ones((time,z_a,jpj,jpi),np.double);
+    #gphiv[0,0,:,:]=(NCin.variables['gphiv'][0,:,lon_cut:]).copy().astype(np.double);
+    gphiv = trim_var('gphiv', NCin, Cut_Loc, 4)
         
 #    double gphif(time, z_a, y, x) ;
-    gphif = np.ones((time,z_a,jpj,jpi),np.double);
-    gphif[0,0,:,:]=(NCin.variables['gphif'][0,:,lon_cut:]).copy().astype(np.double);
+    #gphif = np.ones((time,z_a,jpj,jpi),np.double);
+    #gphif[0,0,:,:]=(NCin.variables['gphif'][0,:,lon_cut:]).copy().astype(np.double);
+    gphif = trim_var('gphif', NCin, Cut_Loc, 4)
     
 #    double ff(time, z_a, y, x) ;
-    ff = np.ones((time,z_a,jpj,jpi),np.double);
-    ff[0,0,:,:]=(NCin.variables['ff_f'][0,:,lon_cut:]).copy().astype(np.double);
+    #ff = np.ones((time,z_a,jpj,jpi),np.double);
+    #ff[0,0,:,:]=(NCin.variables['ff_f'][0,:,lon_cut:]).copy().astype(np.double);
+    ff = trim_var('ff_f', NCin, Cut_Loc, 4)
 
 #    float nav_lat(y, x) ;
-    nav_lat = np.ones((jpj,jpi),float);
-    nav_lat[:,:] = (NCin.variables['nav_lat'][:,lon_cut:]).copy().astype(float);
+    #nav_lat = np.ones((jpj,jpi),float);
+    #nav_lat[:,:] = (NCin.variables['nav_lat'][:,lon_cut:]).copy().astype(float);
+    nav_lat = trim_var('nav_lat', NCin, Cut_Loc, 2)
     
 #    float nav_lev(z) ;
-    nav_lev = np.ones((jpk,),float);
-    nav_lev[:] = (NCin.variables['nav_lev'][:jpk]).copy().astype(float);
+    #nav_lev = np.ones((jpk,),float);
+    #nav_lev[:] = (NCin.variables['nav_lev'][:jpk]).copy().astype(float);
+    nav_lev = trim_var('nav_lev', NCin, Cut_Loc, 1)
 
 #    float nav_lon(y, x) ;
-    nav_lon = np.ones((jpj,jpi),float);
-    nav_lon[:,:] = (NCin.variables['nav_lon'][:,lon_cut:]).copy().astype(float);
-    
+    #nav_lon = np.ones((jpj,jpi),float);
+    #nav_lon[:,:] = (NCin.variables['nav_lon'][:,lon_cut:]).copy().astype(float);
+    nav_lon = trim_var('nav_lon', NCin, Cut_Loc, 2)
     
 #    double e1f(time, z_a, y, x) ;
-    e1f = np.ones((time,z_a,jpj,jpi),np.double);
-    e1f[0,0,:,:] =  (NCin.variables['e1f'][0,:,lon_cut:]).copy().astype(np.double)
+    #e1f = np.ones((time,z_a,jpj,jpi),np.double);
+    #e1f[0,0,:,:] =  (NCin.variables['e1f'][0,:,lon_cut:]).copy().astype(np.double)
+    e1f = trim_var('e1f', NCin, Cut_Loc, 4)
 
 #    double e1t(time, z_a, y, x) ;
-    e1t = np.ones((time,z_a,jpj,jpi),np.double);
-    e1t[0,0,:,:] =  (NCin.variables['e1t'][0,:,lon_cut:]).copy().astype(np.double)
+    #e1t = np.ones((time,z_a,jpj,jpi),np.double);
+    #e1t[0,0,:,:] =  (NCin.variables['e1t'][0,:,lon_cut:]).copy().astype(np.double)
+    e1t = trim_var('e1t', NCin, Cut_Loc, 4)
     
 #    double e1u(time, z_a, y, x) ;
-    e1u = np.ones((time,z_a,jpj,jpi),np.double);
-    e1u[0,0,:,:] =  (NCin.variables['e1u'][0,:,lon_cut:]).copy().astype(np.double)
+    #e1u = np.ones((time,z_a,jpj,jpi),np.double);
+    #e1u[0,0,:,:] =  (NCin.variables['e1u'][0,:,lon_cut:]).copy().astype(np.double)
+    e1u = trim_var('e1u', NCin, Cut_Loc, 4)
 
 #    double e1v(time, z_a, y, x) ;
-    e1v = np.ones((time,z_a,jpj,jpi),np.double);
-    e1v[0,0,:,:] =  (NCin.variables['e1v'][0,:,lon_cut:]).copy().astype(np.double)
+    #e1v = np.ones((time,z_a,jpj,jpi),np.double);
+    #e1v[0,0,:,:] =  (NCin.variables['e1v'][0,:,lon_cut:]).copy().astype(np.double)
+    e1v = trim_var('e1v', NCin, Cut_Loc, 4)
     
     
 #    double e2f(time, z_a, y, x) ;
-    e2f = np.ones((time,z_a,jpj,jpi),np.double);
-    e2f[0,0,:,:] =  (NCin.variables['e2f'][0,:,lon_cut:]).copy().astype(np.double)
+    #e2f = np.ones((time,z_a,jpj,jpi),np.double);
+    #e2f[0,0,:,:] =  (NCin.variables['e2f'][0,:,lon_cut:]).copy().astype(np.double)
+    e2f = trim_var('e2f', NCin, Cut_Loc, 4)
     
     
 #    double e2t(time, z_a, y, x) ;
-    e2t = np.ones((time,z_a,jpj,jpi),np.double)
-    e2t[0,0,:,:] =  (NCin.variables['e2t'][0,:,lon_cut:]).copy().astype(np.double)
+    #e2t = np.ones((time,z_a,jpj,jpi),np.double)
+    #e2t[0,0,:,:] =  (NCin.variables['e2t'][0,:,lon_cut:]).copy().astype(np.double)
+    e2t = trim_var('e2t', NCin, Cut_Loc, 4)
     
 #    double e2u(time, z_a, y, x) ;
-    e2u = np.ones((time,z_a,jpj,jpi),np.double);
-    e2u[0,0,:,:] =  (NCin.variables['e2u'][0,:,lon_cut:]).copy().astype(np.double)
+    #e2u = np.ones((time,z_a,jpj,jpi),np.double);
+    #e2u[0,0,:,:] =  (NCin.variables['e2u'][0,:,lon_cut:]).copy().astype(np.double)
+    e2u = trim_var('e2u', NCin, Cut_Loc, 4)
     
 #    double e2v(time, z_a, y, x) ;
-    e2v = np.ones((time,z_a,jpj,jpi),np.double);
-    e2v[0,0,:,:] =  (NCin.variables['e2v'][0,:,lon_cut:]).copy().astype(np.double)
+    #e2v = np.ones((time,z_a,jpj,jpi),np.double);
+    #e2v[0,0,:,:] =  (NCin.variables['e2v'][0,:,lon_cut:]).copy().astype(np.double)
+    e2v = trim_var('e2v', NCin, Cut_Loc, 4)
     
 
 #    double e3t(time, z, y, x) ;
-    e3t = np.ones((time,jpk,jpj,jpi),np.double)
-    e3t[0,:,:,:] =  (NCin.variables['e3t_0'][0,:jpk,:,lon_cut:]).copy().astype(np.double)
+    #e3t = np.ones((time,jpk,jpj,jpi),np.double)
+    #e3t[0,:,:,:] =  (NCin.variables['e3t_0'][0,:jpk,:,lon_cut:]).copy().astype(np.double)
+    e3t = trim_var('e3t_0', NCin, Cut_Loc, 4)
 
 #    double e3u(time, z, y, x) ;
-    e3u = np.ones((time,jpk,jpj,jpi),np.double);
-    e3u[0,:,:,:] =  (NCin.variables['e3u_0'][0,:jpk,:,lon_cut:]).copy().astype(np.double)
+    #e3u = np.ones((time,jpk,jpj,jpi),np.double);
+    #e3u[0,:,:,:] =  (NCin.variables['e3u_0'][0,:jpk,:,lon_cut:]).copy().astype(np.double)
+    e3u = trim_var('e3u_0', NCin, Cut_Loc, 4)
 
 #    double e3v(time, z, y, x) ;
-    e3v = np.ones((time,jpk,jpj,jpi),np.double);
-    e3v[0,:,:,:] =  (NCin.variables['e3v_0'][0,:jpk,:,lon_cut:]).copy().astype(np.double)
+    #e3v = np.ones((time,jpk,jpj,jpi),np.double);
+    #e3v[0,:,:,:] =  (NCin.variables['e3v_0'][0,:jpk,:,lon_cut:]).copy().astype(np.double)
+    e3v= trim_var('e3v_0', NCin, Cut_Loc, 4)
 
 #    double e3w(time, z, y, x) ;
-    e3w = np.ones((time,jpk,jpj,jpi),np.double);
-    e3w[0,:,:,:] =  (NCin.variables['e3w_0'][0,:jpk,:,lon_cut:]).copy().astype(np.double)
+    #e3w = np.ones((time,jpk,jpj,jpi),np.double);
+    #e3w[0,:,:,:] =  (NCin.variables['e3w_0'][0,:jpk,:,lon_cut:]).copy().astype(np.double)
+    e3w = trim_var('e3w_0', NCin, Cut_Loc, 4)
 
 
     # parameters to fill in all of marmara and black sea, 
@@ -307,15 +356,21 @@ def create_meshmask_nc(OrigMaskobj, outfile, Cut_Loc, depth_cut, biscay_land=Tru
     
 
 if __name__=="__main__":
-    mesh_in = '/leonardo_work/RIVRD_proc/CMCC/NEMO_RUN_TEST_1979_1988/med24v1_mesh_mask_BGC.nc'
-    mesh_out = '/leonardo_work/RIVRD_OGS/med24v1_domain_cfg.nc'
+    mesh_in = '/home/ggalli/Documents/RIVIERADE/PREPROC/med24v1_mesh_mask_BGC.nc'
+    mesh_out = '/home/ggalli/Documents/RIVIERADE/PREPROC/med24v1_domain_cfg.nc'
+    #mesh_in = '/leonardo_work/RIVRD_proc/CMCC/NEMO_RUN_TEST_1979_1988/med24v1_mesh_mask_BGC.nc'
+    #mesh_out = '/leonardo_work/RIVRD_OGS/med24v1_domain_cfg.nc'
 
     M = OrigMask(mesh_in)
+    jpi_orig = M.Lon.shape[1] 
+    jpj_orig = M.Lat.shape[0]
+    jpk_orig = M.nav_lev.shape[0]
+    print(f"orig jpk, jpj, jpi: {jpk_orig} {jpj_orig} {jpi_orig}")
 
     # initialise mesh cut locations
-    Cut_Loc = {'ilon_min': 0, 'ilon_max': -1,
-               'jlat_min': 0, 'jlat_max': -1,
-               'kdepth_max': -1}
+    Cut_Loc = {'ilon_min': 0, 'ilon_max': jpi_orig,
+               'jlat_min': 0, 'jlat_max': jpj_orig,
+               'kdepth_max': jpk_orig}
 
     # cut out gibraltar
     lat_cut, lon_cut = M.getCutLocation(-8.7, 36.909)
@@ -333,7 +388,7 @@ if __name__=="__main__":
     Biscay_land = True
 
     #create_meshmask_nc(M, outfile, lon_cut, depth_cut, Biscay_land)
-    create_meshmask_nc(M, outfile, Cut_Loc, Biscay_land)
+    create_meshmask_nc(M, mesh_out, Cut_Loc, Biscay_land)
 
 
     
