@@ -1,8 +1,16 @@
 import numpy as np
 import netCDF4 as NC
-from flood_fill_ocean import flood_fill_ocean
+from flood_fill_ocean import flood_fill_nemo
 
-# Script to create meshmask file
+# Script to create OGSTM meshmask file,
+# from the original NEMO one.
+# Specifically tailored (i.e. with hard-coded parameters)
+# for med24v1 NEMO [curvilinear] regional grid, with
+# a large portion of the North East Atlantic and 
+# the Black Sea.
+# Requirement: 
+# NEMO meshmask must have full coordinate variables (glamt, gphit, etc.)
+# i.e. no zeros or mask on land only mpi domains.
 
 class OrigMask():
 
@@ -48,34 +56,45 @@ class OrigMask():
         j, i = np.unravel_index(np.nanargmin(dist), dist.shape)
         return j, i
 
-def get__mask(mask_id, NCin, glam_, gphi_, jpk, jpj, jpi, lon_cut, i0, j0, blocked_edges):
+def get_masks(NCin, Coords, jpk, jpj, jpi, lon_cut, i0, j0, blocked_edges):
     '''
     reads original tuvf-mask from NCin,
-    masks black sea with flood fill,
+    Cooords are pairs of ((glam_, gphi_), ...), in order tuvw
+    masks black sea with flood fill (args: i0, j0, blocked_edges),
     trims depth and lon,
     puts a 1-masked-cell frame all around the edges
     returns:
         tuvf-mask: np.array
     '''
-    orig__mask = (NCin.variables[mask_id][:]).copy().astype(np.double)
+    #orig_tmask = (NCin.variables['tmask'][:]).copy().astype(np.double)
+    #orig_umask = (NCin.variables['umask'][:]).copy().astype(np.double)
+    #orig_vmask = (NCin.variables['vmask'][:]).copy().astype(np.double)
+    #orig_fmask = (NCin.variables['fmask'][:]).copy().astype(np.double)
+    orig_masks = [(NCin.variables[_mask][:]).copy().astype(np.double) for _mask in ('tmask', 'umask', 'vmask', 'fmask')]
     # flood-fill black sea
-    region_2D, region_4D = flood_fill_ocean(orig__mask, i0, j0, blocked_edges=blocked_edges)
-    _mask = orig__mask * (1 - region_4D)
-    # trim mask
-    _mask = _mask[:,:jpk,:,lon_cut:]
-    # frame mask
-    _mask[0,:,0, :] =0.;
-    _mask[0,:,:, 0] =0.;
-    _mask[0,:,jpj-1,:] =0.;
-    _mask[0,:,:,jpi-1] =0.;
-    _mask[0,jpk-1,:,:] =0.;
+    masks = flood_fill_nemo(*orig_masks, i0, j0, blocked_edges=blocked_edges)
+    #_mask = orig__mask * (1 - region_4D)
+    # trim masks
+    #tmask = tmask[:,:jpk,:,lon_cut:]
+    #umask = umask[:,:jpk,:,lon_cut:]
+    #vmask = vmask[:,:jpk,:,lon_cut:]
+    #fmask = fmask[:,:jpk,:,lon_cut:]
+    masks = (_mask[:,:jpk,:,lon_cut:] for _mask in masks)
+    # frame masks
+    for _mask in masks:
+        _mask[0,:,0, :] =0.;
+        _mask[0,:,:, 0] =0.;
+        _mask[0,:,jpj-1,:] =0.;
+        _mask[0,:,:,jpi-1] =0.;
+        _mask[0,jpk-1,:,:] =0.;
     # mask biscay and north sea (is not optional!)
-    Lon=glam_[0,0,:,:];
-    Lat=gphi_[0,0,:,:];
-    region = ((Lon < 0.0) & (Lat > 42)) | ((Lon < -6.0) & (Lat > 37.25)) | (Lat > 47.28)
-    _mask[0, :, :, :] = np.where(region[None, :, :], 0.0, _mask[0, :, :, :])
+    for (glam_, gphi_), _mask in zip(Coords, masks):
+        Lon=glam_[0,0,:,:];
+        Lat=gphi_[0,0,:,:];
+        region = ((Lon < 0.0) & (Lat > 42)) | ((Lon < -6.0) & (Lat > 37.25)) | (Lat > 47.28)
+        _mask[0, :, :, :] = np.where(region[None, :, :], 0.0, _mask[0, :, :, :])
     # output
-    return _mask
+    return *masks
 
 time = 1;
 z_a  = 1;
@@ -93,14 +112,14 @@ def create_meshmask_nc(OrigMaskobj, outfile, lon_cut, depth_cut, biscay_land=Tru
 
 #    double coastp(y, x) ;
     coastp = np.zeros((jpj,jpi),np.double)
-#    double fmask(time, z, y, x) ;
-    fmask = np.ones((time,jpk,jpj,jpi),np.double);
-    fmask[0,:,:,:]=(NCin.variables['fmask'][0,:jpk,:,lon_cut:]).copy().astype(np.double)
-
-#    fmask[0,:,1, 0]    = 0.;
-#    fmask[0,:,0, 1]    = 0.;
-#    fmask[0,:,-1,0]    = 0.;
-#    fmask[0,:,0,-1]    = 0.;
+##    double fmask(time, z, y, x) ;
+#    fmask = np.ones((time,jpk,jpj,jpi),np.double);
+#    fmask[0,:,:,:]=(NCin.variables['fmask'][0,:jpk,:,lon_cut:]).copy().astype(np.double)
+#
+##    fmask[0,:,1, 0]    = 0.;
+##    fmask[0,:,0, 1]    = 0.;
+##    fmask[0,:,-1,0]    = 0.;
+##    fmask[0,:,0,-1]    = 0.;
 
 #    double gdept(time, z, y, x) ;
     gdept              = np.zeros((time,jpk,jpj,jpi),np.double);
@@ -219,9 +238,14 @@ def create_meshmask_nc(OrigMaskobj, outfile, lon_cut, depth_cut, biscay_land=Tru
     blocked_edges = [((299, 943), (299, 944))]
 
     # get masks
-    tmask = get__mask('tmask', NCin, glamt, gphit, jpk, jpj, jpi, lon_cut, i0, j0, blocked_edges)
-    umask = get__mask('umask', NCin, glamu, gphiu, jpk, jpj, jpi, lon_cut, i0, j0, blocked_edges)
-    vmask = get__mask('vmask', NCin, glamv, gphiv, jpk, jpj, jpi, lon_cut, i0, j0, blocked_edges)
+    #tmask = get__mask('tmask', NCin, glamt, gphit, jpk, jpj, jpi, lon_cut, i0, j0, blocked_edges)
+    #umask = get__mask('umask', NCin, glamu, gphiu, jpk, jpj, jpi, lon_cut, i0, j0, blocked_edges)
+    #vmask = get__mask('vmask', NCin, glamv, gphiv, jpk, jpj, jpi, lon_cut, i0, j0, blocked_edges)
+    Coords = ((glamt, gphit), 
+              (glamu, gphiu),
+              (glamv, gphiv),
+              (glamw, gphiw))
+    tmask, umask, vmask, fmask = get_masks(NCin, Coords, jpk, jpj, jpi, lon_cut, i0, j0, blocked_edges)
 
     ##############################################################
     # write meshmask netcdf file !
