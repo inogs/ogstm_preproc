@@ -48,12 +48,16 @@ class OrigMask():
             atl_waterpoints = waterpoints_longitude[iatl].sum()
             print(lon, atl_waterpoints)
 
-    def getCutLocation(self, lon, lat):
-        dist = (self.Lon - lon)**2 + (self.Lat - lat)**2
+    def getCutLocation(self, lon=None, lat=None):
+        dist = 0
+        if lon is not None:
+            dist = dist + (self.Lon - lon)**2
+        if lat is not None:
+        dist = dist + (self.Lat - lat)**2
         j, i = np.unravel_index(np.nanargmin(dist), dist.shape)
         return j, i
 
-def get_masks(NCin, Coords, jpk, jpj, jpi, lon_cut, i0, j0, blocked_edges):
+def get_masks(NCin, Coords, jpk, jpj, jpi, Cut_Loc, i0, j0, blocked_edges):
     '''
     reads original tuvf-mask from NCin,
     Cooords are pairs of ((glam_, gphi_), ...), in order tuvw
@@ -63,32 +67,31 @@ def get_masks(NCin, Coords, jpk, jpj, jpi, lon_cut, i0, j0, blocked_edges):
     returns:
         tuvf-mask: np.array
     '''
-    #orig_tmask = (NCin.variables['tmask'][:]).copy().astype(np.double)
-    #orig_umask = (NCin.variables['umask'][:]).copy().astype(np.double)
-    #orig_vmask = (NCin.variables['vmask'][:]).copy().astype(np.double)
-    #orig_fmask = (NCin.variables['fmask'][:]).copy().astype(np.double)
+    # read original masks
     orig_masks = [(NCin.variables[_mask][:]).copy().astype(np.double) for _mask in ('tmask', 'umask', 'vmask', 'fmask')]
     # flood-fill black sea
     masks = flood_fill_nemo(*orig_masks, i0, j0, blocked_edges=blocked_edges)
-    #_mask = orig__mask * (1 - region_4D)
     # trim masks
-    #tmask = tmask[:,:jpk,:,lon_cut:]
-    #umask = umask[:,:jpk,:,lon_cut:]
-    #vmask = vmask[:,:jpk,:,lon_cut:]
-    #fmask = fmask[:,:jpk,:,lon_cut:]
-    masks = [_mask[:,:jpk,:,lon_cut:] for _mask in masks]
+    ilon_min, ilon_max, jlat_min, jlat_max, kdepth_max = Cut_Loc.values()
+    masks = [_mask[:, :kdepth_max, jlat_min:jlat_max, ilon_min:ilon_max] for _mask in masks]
+    #masks = [_mask[:,:jpk,:,lon_cut:] for _mask in masks]
     # frame masks
     for _mask in masks:
-        _mask[0,:,0, :] =0.;
-        _mask[0,:,:, 0] =0.;
-        _mask[0,:,jpj-1,:] =0.;
-        _mask[0,:,:,jpi-1] =0.;
-        _mask[0,jpk-1,:,:] =0.;
+#        _mask[0,:,0, :] =0.;
+#        _mask[0,:,:, 0] =0.;
+#        _mask[0,:,jpj-1,:] =0.;
+#        _mask[0,:,:,jpi-1] =0.;
+#        _mask[0,jpk-1,:,:] =0.;
+        _mask[0,:,0, :] = 0.
+        _mask[0,:,:, 0] = 0.
+        _mask[0,:,-1,:] = 0.
+        _mask[0,:,:,-1] = 0.
+        _mask[0,-1,:,:] = 0.
     # mask biscay and north sea (is not optional!)
     for (glam_, gphi_), _mask in zip(Coords, masks):
         Lon=glam_[0,0,:,:];
         Lat=gphi_[0,0,:,:];
-        region = ((Lon < 0.0) & (Lat > 42)) | ((Lon < -6.0) & (Lat > 37.25)) | (Lat > 47.28)
+        region = ((Lon < 0.0) & (Lat > 42)) | ((Lon < -6.0) & (Lat > 37.25))# | (Lat > 47.28)
         _mask[0, :, :, :] = np.where(region[None, :, :], 0.0, _mask[0, :, :, :])
     # output
     return masks
@@ -99,16 +102,22 @@ y_a  = 1;
 x_a  = 1;
 
 
-def create_meshmask_nc(OrigMaskobj, outfile, lon_cut, depth_cut, biscay_land=True):
+def create_meshmask_nc(OrigMaskobj, outfile, Cut_Loc, depth_cut, biscay_land=True):
     
     NCin=OrigMaskobj.nc_handler
 
-    jpi=NCin.dimensions['x'].size-lon_cut
-    jpj=NCin.dimensions['y'].size
-    jpk=NCin.dimensions['nav_lev'].size-depth_cut #116
+    ilon_min, ilon_max, jlat_min, jlat_max, kdepth_max = Cut_Loc.values()
 
-#    double coastp(y, x) ;
+    jpi = ilon_max - ilon_min
+    jpj = jlon_max - jlon_min
+    jpk = kdepth_max
+
+#    jpi=NCin.dimensions['x'].size-lon_cut
+#    jpj=NCin.dimensions['y'].size
+#    jpk=NCin.dimensions['nav_lev'].size-depth_cut #116
+
     coastp = np.zeros((jpj,jpi),np.double)
+
 ##    double fmask(time, z, y, x) ;
 #    fmask = np.ones((time,jpk,jpj,jpi),np.double);
 #    fmask[0,:,:,:]=(NCin.variables['fmask'][0,:jpk,:,lon_cut:]).copy().astype(np.double)
@@ -242,7 +251,7 @@ def create_meshmask_nc(OrigMaskobj, outfile, lon_cut, depth_cut, biscay_land=Tru
               (glamu, gphiu),
               (glamv, gphiv),
               (glamf, gphif))
-    tmask, umask, vmask, fmask = get_masks(NCin, Coords, jpk, jpj, jpi, lon_cut, i0, j0, blocked_edges)
+    tmask, umask, vmask, fmask = get_masks(NCin, Coords, jpk, jpj, jpi, Cut_Loc, i0, j0, blocked_edges)
 
     ##############################################################
     # write meshmask netcdf file !
@@ -297,6 +306,35 @@ def create_meshmask_nc(OrigMaskobj, outfile, lon_cut, depth_cut, biscay_land=Tru
     ncOUT.close()
     
 
-    
+if __name__=="__main__":
+    mesh_in = '/leonardo_work/RIVRD_proc/CMCC/NEMO_RUN_TEST_1979_1988/med24v1_mesh_mask_BGC.nc'
+    mesh_out = '/leonardo_work/RIVRD_OGS/med24v1_domain_cfg.nc'
+
+    M = OrigMask(mesh_in)
+
+    # initialise mesh cut locations
+    Cut_Loc = {'ilon_min': 0, 'ilon_max': -1,
+               'jlat_min': 0, 'jlat_max': -1,
+               'kdepth_max': -1}
+
+    # cut out gibraltar
+    lat_cut, lon_cut = M.getCutLocation(-8.7, 36.909)
+    Cut_Loc['ilon_min'] = lon_cut
+    # cut east of levantine
+    lat_cut, lon_cut = M.getCutLocation(33.82, None)
+    Cut_Loc['ilon_max'] = lon_cut
+    # cut north of Med
+    lat_cut, lon_cut = M.getCutLocation(None, 47.14)
+    Cut_Loc['jlat_max'] = lat_cut
+    # depth_cut #this has a different logic (-16)
+    kdepth_cut = 16 
+    Cut_Loc['kdepth_max'] = kdepth_cut
+
+    Biscay_land = True
+
+    #create_meshmask_nc(M, outfile, lon_cut, depth_cut, Biscay_land)
+    create_meshmask_nc(M, outfile, Cut_Loc, Biscay_land)
+
+
     
     
