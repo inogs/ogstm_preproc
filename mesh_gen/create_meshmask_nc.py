@@ -98,7 +98,6 @@ x_a  = 1;
 def trim_var(vname, NCin, Cut_Loc, out_ndim):
     ilon_min, ilon_max, jlat_min, jlat_max, kdepth_max = Cut_Loc.values()
     X0 = (NCin.variables[vname][:]).copy().astype(np.double)
-    print(f"{vname}.shape: {X0.shape}")
     if X0.ndim == 4: 
         # Dimensions: (time, depth, lat, lon)
         if X0.shape[1] == 1:
@@ -118,6 +117,7 @@ def trim_var(vname, NCin, Cut_Loc, out_ndim):
         raise ValueError(f"Unsupported dimensions for variable '{vname}': {X0.shape}")
     # add heading singleton dimensions
     X = X.reshape((1,) * (out_ndim - X.ndim) + X.shape)
+    print(f"{vname}.shape: {X0.shape} -> {X.shape}")
     return X
 
 def create_meshmask_nc(OrigMaskobj, outfile, Cut_Loc, depth_cut, biscay_land=True):
@@ -254,10 +254,27 @@ def create_meshmask_nc(OrigMaskobj, outfile, Cut_Loc, depth_cut, biscay_land=Tru
     
 
 if __name__=="__main__":
+    from argparse import ArgumentParser
+    def argument():
+        parser = ArgumentParser()
+        parser.add_argument('--mesh_in','-i',
+                            type=str,
+                            required=True,
+                            help='path to input meshmask')
+        parser.add_argument('--mesh_out','-o',
+                            type=str,
+                            required=True,
+                            help='path to output meshmask')
+        return parser.parse_args()
+
+    args = argument() 
+    mesh_in = args.mesh_in
+    mesh_out = args.mesh_out
+
     #mesh_in = '/home/ggalli/Documents/RIVIERADE/PREPROC/med24v1_mesh_mask_BGC.nc'
     #mesh_out = '/home/ggalli/Documents/RIVIERADE/PREPROC/med24v1_domain_cfg.nc'
-    mesh_in = '/leonardo_work/RIVRD_proc/CMCC/NEMO_RUN_TEST_1979_1988/med24v1_mesh_mask_BGC.nc'
-    mesh_out = '/leonardo_work/RIVRD_OGS/med24v1_domain_cfg.nc'
+    #mesh_in = '/leonardo_work/RIVRD_proc/CMCC/NEMO_RUN_TEST_1979_1988/med24v1_mesh_mask_BGC.nc'
+    #mesh_out = '/leonardo_work/RIVRD_OGS/med24v1_domain_cfg.nc'
 
     M = OrigMask(mesh_in)
     jpi_orig = M.Lon.shape[1] 
