@@ -1,0 +1,19 @@
+Output_dir: "/leonardo_scratch/fast/RIVRD_OGS/RST/"
+
+Input_files:
+  path: "/leonardo_scratch/fast/RIVRD_OGS/V13C_QUID/IC/"
+  pattern: "RST.*.nc"
+  lon_var: "nav_lon"
+  lat_var: "nav_lat"
+  depth_var: "nav_lev"
+
+Destination_mesh:
+  file: "/leonardo_work/RIVRD_OGS/OGSTM-BFM-SETUP/MASKS/med24v1_domain_cfg.nc"
+  mask_var: "tmask"
+  lon_var: "glamt"
+  lat_var: "gphit"
+
+Source_mesh:
+  file: "/leonardo_scratch/fast/RIVRD_OGS/V13C_QUID/MASKS/meshmask.nc"
+  mask_var: "tmask" 
+
