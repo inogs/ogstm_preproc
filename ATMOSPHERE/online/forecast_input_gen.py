@@ -1,4 +1,6 @@
 import argparse
+from bitsea.utilities.argparse_types import existing_dir_path, existing_file_path
+
 
 def argument():
     parser = argparse.ArgumentParser(description = '''
@@ -7,18 +9,18 @@ def argument():
     formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
     parser.add_argument(   '--inputfile', '-i',
-                                type = str,
+                                type = existing_file_path,
                                 required = True,
                                 help = ''' Input CMCC file'''
                                 )
     parser.add_argument(   '--maskfile', '-m',
-                                type = str,
+                                type = existing_file_path,
                                 required = True,
                                 help = ''' mask filename'''
                                 )
 
     parser.add_argument(   '--outdir', '-o',
-                                type = str,
+                                type = existing_dir_path,
                                 required = True,
                                 help = ''' path of the output optical dir '''
                                 )
@@ -28,31 +30,34 @@ def argument():
 args = argument()
 
 
-import os
 from datetime import datetime, timedelta
 from bitsea.commons import netcdf4
 import numpy as np
 from scipy import interpolate
 from bitsea.commons.mask import Mask
 import netCDF4
-from bitsea.commons.utils import addsep
 from bitsea.commons import genUserDateList as DL
+from bitsea.utilities.mpi_serial_interface import get_mpi_communicator
+from warnings import warn
 
 try:
     from mpi4py import MPI
-    comm  = MPI.COMM_WORLD
-    rank  = comm.Get_rank()
-    nranks =comm.size
-except:
-    rank   = 0
-    nranks = 1
+except Exception as e:
+    warn(
+        "mpi4py can not be imported. This code will run serially. The reason "
+        f"of the error was:\n{e}"
+    )
+
+communicator = get_mpi_communicator()
+rank = communicator.Get_rank()
+nranks = communicator.size
 
 
 inputfile=args.inputfile
-OUTDIR = addsep(args.outdir)
+OUTDIR = args.outdir
 
-basename=os.path.basename(inputfile)
-rundate=basename[:8]
+basename=inputfile.name
+rundate = basename[:8]
 
 df="%Y%m%d-%H:%M:%S"
 datestart_1h = datetime.strptime(rundate,"%Y%m%d")
@@ -117,75 +122,98 @@ def getframe(filename,var, timeframe):
     M2d_orig = readframe(filename, var, timeframe)
     return  interp(M2d_orig)
 
-def dumpfile(filename, maskObj, sp,msl, t2m,d2m, tcc,w10):
-    ncOUT   = netCDF4.Dataset(filename,"w");
 
-    ncOUT.createDimension('lon',jpi);
-    ncOUT.createDimension('lat',jpj);
+def dumpfile(filename, maskObj, sp, msl, t2m, d2m, tcc, wsp10, tclw, tco3):
+    ncOUT = netCDF4.Dataset(filename, "w")
 
-    ncvar=ncOUT.createVariable('lon','f',('lon',))
-    setattr(ncvar,'units','degrees')
-    setattr(ncvar,'long_name'    ,'longitude')
-    ncvar[:]=maskObj.xlevels[0,:]
-    ncvar=ncOUT.createVariable('lat','f',('lat',))
-    setattr(ncvar,'units','degrees')
-    setattr(ncvar,'long_name'    ,'latitude')
-    ncvar[:]=maskObj.ylevels[:,0]
+    ncOUT.createDimension('lon', jpi)
+    ncOUT.createDimension('lat', jpj)
 
+    ncvar = ncOUT.createVariable('lon', 'f', ('lon',))
+    setattr(ncvar, 'units', 'degrees')
+    setattr(ncvar, 'long_name', 'longitude')
+    ncvar[:] = maskObj.xlevels[0, :]
+    ncvar = ncOUT.createVariable('lat', 'f', ('lat',))
+    setattr(ncvar, 'units', 'degrees')
+    setattr(ncvar, 'long_name', 'latitude')
+    ncvar[:] = maskObj.ylevels[:, 0]
 
-    ncvar = ncOUT.createVariable('sp','f',('lat','lon'))
-    ncvar[:]=sp
-    setattr(ncvar, 'long_name',  'Surface pressure' )
-    setattr(ncvar, 'units','Pa' )
-    setattr(ncvar, 'code', 34 )
-    
+    ncvar = ncOUT.createVariable('sp', 'f', ('lat', 'lon'))
+    ncvar[:] = sp
+    setattr(ncvar, 'long_name', 'Surface pressure')
+    setattr(ncvar, 'units', 'Pa')
+    setattr(ncvar, 'code', 34)
 
-    ncvar = ncOUT.createVariable('msl','f',('lat','lon'))
-    setattr(ncvar, 'units','Pa' )
-    setattr(ncvar,'long_name','Mean sea-level pressure')
-    setattr(ncvar,'code',151)
+    ncvar = ncOUT.createVariable('msl', 'f', ('lat', 'lon'))
+    setattr(ncvar, 'units', 'Pa')
+    setattr(ncvar, 'long_name', 'Mean sea-level pressure')
+    setattr(ncvar, 'code', 151)
     ncvar[:] = msl
 
-    ncvar = ncOUT.createVariable('d2m','f',('lat','lon'))
-    setattr(ncvar,'units','K')
-    setattr(ncvar,'long_name','2 metre dewpoint temperature')
+    ncvar = ncOUT.createVariable('d2m', 'f', ('lat', 'lon'))
+    setattr(ncvar, 'units', 'K')
+    setattr(ncvar, 'long_name', '2 metre dewpoint temperature')
     setattr(ncvar, 'code', 168)
     ncvar[:] = d2m
 
-    ncvar = ncOUT.createVariable('t2m','f',('lat','lon'))
-    setattr(ncvar,'units','K')
-    setattr(ncvar,'long_name','2 metre temperature')
+    ncvar = ncOUT.createVariable('t2m', 'f', ('lat', 'lon'))
+    setattr(ncvar, 'units', 'K')
+    setattr(ncvar, 'long_name', '2 metre temperature')
     setattr(ncvar, 'code', 167)
     ncvar[:] = t2m
 
-    ncvar = ncOUT.createVariable('tcc','f',('lat','lon'))
-    setattr(ncvar,'units','%')
-    setattr(ncvar,'long_name','Total cloud cover')
+    ncvar = ncOUT.createVariable('tcc', 'f', ('lat', 'lon'))
+    setattr(ncvar, 'units', '%')
+    setattr(ncvar, 'long_name', 'Total cloud cover')
     setattr(ncvar, 'code', 164)
     ncvar[:] = tcc
 
-    ncvar = ncOUT.createVariable('w10','f',('lat','lon'))
-    setattr(ncvar,'units','m/s')
-    setattr(ncvar,'long_name','10 metre wind speed module')
-    setattr(ncvar,'code', '165 and 166')
-    ncvar[:] = w10
+    ncvar = ncOUT.createVariable('wsp10', 'f', ('lat', 'lon'))
+    ncvar[:] = wsp10
+    setattr(ncvar, 'long_name', '10 metre wind speed')
+    setattr(ncvar, 'units', 'm s**-1')
+    setattr(ncvar, 'description', 'Calculated as sqrt(u10**2 + v10**2)')
 
-    setattr(ncOUT, 'input_file', inputfile)
+    ncvar = ncOUT.createVariable('tco3', 'f', ('lat', 'lon'))
+    ncvar[:] = tco3
+    setattr(ncvar, 'long_name', 'Total column ozone')
+    setattr(ncvar, 'units', 'kg m**-2')
+    setattr(ncvar, 'code', 206)
+
+    ncvar = ncOUT.createVariable('tclw', 'f', ('lat', 'lon'))
+    ncvar[:] = tclw
+    setattr(ncvar, 'long_name', 'Total column liquid water')
+    setattr(ncvar, 'units', 'kg m**-2')
+    setattr(ncvar, 'code', 78)
+
+    setattr(ncOUT, 'input_file', str(inputfile))
+
     ncOUT.close()
 
 framelist=[ i for i in range(112) ]
 for iframe in framelist[rank::nranks]:
-    outfile = OUTDIR + Timelist[iframe].strftime("atm.%Y%m%d-%H:%M:%S.nc")
+    current_time = Timelist[iframe]
+    current_year = current_time.year
+    current_month = current_time.month
+
+    outdir = OUTDIR / current_year / current_month
+    (OUTDIR / current_year).mkdir(parents=False, exist_ok=True)
+    outdir.mkdir(parents=False, exist_ok=True)
+
+    outfile = outdir /  current_time.strftime("atm.%Y%m%d-%H:%M:%S.nc")
     print(outfile, flush=True)
 
-    msl = getframe(inputfile,'MSL' , iframe)
-    sp =  getframe(inputfile,'SP'  , iframe)
-    u10 = getframe(inputfile,'U10M', iframe)
-    v10 = getframe(inputfile,'V10M', iframe)
-    t2m = getframe(inputfile,'T2M' , iframe)
-    d2m = getframe(inputfile,'D2M' , iframe)
-    tcc = getframe(inputfile,'TCC' , iframe)
+    msl = getframe(inputfile, 'MSL', iframe)
+    sp = getframe(inputfile, 'SP', iframe)
+    u10 = getframe(inputfile, 'U10M', iframe)
+    v10 = getframe(inputfile, 'V10M', iframe)
 
-    w10 = np.sqrt(u10**2 + v10**2)
-    dumpfile(outfile, TheMask, sp,msl, t2m,d2m, tcc,w10)
+    w10 = np.sqrt(u10 ** 2 + v10 ** 2)
 
+    t2m = getframe(inputfile, 'T2M', iframe)
+    d2m = getframe(inputfile, 'D2M', iframe)
+    tcc = getframe(inputfile, 'TCC', iframe)
+    tclw = getframe(inputfile, 'TCLW', iframe)
+    tco3 = getframe(inputfile, 'TCO3', iframe)
+
+    dumpfile(outfile, TheMask, sp, msl, t2m, d2m, tcc, w10, tclw, tco3)
