@@ -1,12 +1,17 @@
 #! /bin/bash
 
-#SBATCH --job-name=Po
+#SBATCH --job-name=bc
+##SBATCH -N1
 #SBATCH -N2
+##SBATCH --ntasks-per-node=1
 #SBATCH --ntasks-per-node=48
 #SBATCH --time=00:30:00
-#SBATCH --mem=300gb
-#SBATCH --account=OGS_prod2528
-#SBATCH --partition=g100_usr_prod
+##SBATCH --mem=300gb
+#SBATCH --mem=30gb
+#SBATCH --account=OGS_test2528_0
+##SBATCH --partition=lrd_all_serial
+#SBATCH --partition=dcgp_usr_prod
+##SBATCH --partition=g100_usr_prod
 
 
 #source /g100_work/OGS23_PRACE_IT/COPERNICUS/sequence.sh

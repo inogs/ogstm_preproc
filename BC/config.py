@@ -38,11 +38,11 @@ variables=[[u'N1p', -8.0, -6.5],
  [u'O3h', -7.0,-5.6],
  [u'N6r', -8.0,-6.5]]
 
-#gib_season = (["0630-00:00:00"])
-#
-#RST_FILES ="/g100_work/OGS_prod100/OPA/V9C/RUNS_SETUP/PREPROC/IC/RST_2018/RST*nc"
-#
-#
+gib_season = (["0630-00:00:00"])
+
+RST_FILES ="/leonardo_scratch/fast/RIVRD_OGS/RST/RST*.nc"
+
+
 #river_data_sheet = ['KM3perYR_NOBLS',
 # 'DIP_KTperYR_NOBLS',
 # 'DIN_KTperYR_NOBLS',
