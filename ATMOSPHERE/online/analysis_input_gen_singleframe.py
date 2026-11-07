@@ -1,4 +1,5 @@
 import argparse
+from bitsea.utilities.argparse_types import existing_dir_path, existing_file_path
 
 def argument():
     parser = argparse.ArgumentParser(description = '''
@@ -9,18 +10,18 @@ def argument():
     formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
     parser.add_argument(   '--inputdir', '-i',
-                                type = str,
+                                type = existing_dir_path,
                                 required = True,
-                                help = ''' Input CMCC file'''
+                                help = ''' Input ECMWF dir provided by CMCC'''
                                 )
     parser.add_argument(   '--maskfile', '-m',
-                                type = str,
+                                type = existing_file_path,
                                 required = True,
                                 help = ''' mask filename'''
                                 )
 
     parser.add_argument(   '--outdir', '-o',
-                                type = str,
+                                type = existing_dir_path,
                                 required = True,
                                 help = ''' path of the output optical dir '''
                                 )
@@ -30,7 +31,6 @@ def argument():
 args = argument()
 
 
-import os
 from datetime import datetime, timedelta
 from bitsea.commons import netcdf4
 import numpy as np
@@ -38,15 +38,14 @@ from scipy import interpolate
 from bitsea.commons.mask import Mask
 from bitsea.commons.Timelist import TimeList
 import netCDF4
-from bitsea.commons.utils import addsep
 
 
 
 TheMask=Mask.from_file(args.maskfile)
 jpk,jpj,jpi = TheMask.shape
 
-INPUTDIR=addsep(args.inputdir)
-OUTDIR = addsep(args.outdir)
+INPUTDIR=args.inputdir
+OUTDIR = args.outdir
 
 TL = TimeList.fromfilenames(None, INPUTDIR, "*_an00-fv1?.00.nc", prefix="", dateformat="%Y%m%d")
 
@@ -96,79 +95,99 @@ def getframe(filename,var, timeframe):
     M2d_orig = readframe(filename, var, timeframe)
     return  interp(M2d_orig)
 
-def dumpfile(filename, maskObj, sp,msl, t2m,d2m, tcc,w10):
-    ncOUT   = netCDF4.Dataset(filename,"w");
 
-    ncOUT.createDimension('lon',jpi);
-    ncOUT.createDimension('lat',jpj);
+def dumpfile(filename, maskObj, sp, msl, t2m, d2m, tcc, wsp10, tclw, tco3):
+    ncOUT = netCDF4.Dataset(filename, "w");
 
-    ncvar=ncOUT.createVariable('lon','f',('lon',))
-    setattr(ncvar,'units','degrees')
-    setattr(ncvar,'long_name'    ,'longitude')
-    ncvar[:]=maskObj.xlevels[0,:]
-    ncvar=ncOUT.createVariable('lat','f',('lat',))
-    setattr(ncvar,'units','degrees')
-    setattr(ncvar,'long_name'    ,'latitude')
-    ncvar[:]=maskObj.ylevels[:,0]
+    ncOUT.createDimension('lon', jpi);
+    ncOUT.createDimension('lat', jpj);
 
+    ncvar = ncOUT.createVariable('lon', 'f', ('lon',))
+    setattr(ncvar, 'units', 'degrees')
+    setattr(ncvar, 'long_name', 'longitude')
+    ncvar[:] = maskObj.xlevels[0, :]
+    ncvar = ncOUT.createVariable('lat', 'f', ('lat',))
+    setattr(ncvar, 'units', 'degrees')
+    setattr(ncvar, 'long_name', 'latitude')
+    ncvar[:] = maskObj.ylevels[:, 0]
 
-    ncvar = ncOUT.createVariable('sp','f',('lat','lon'))
-    ncvar[:]=sp
-    setattr(ncvar, 'long_name',  'Surface pressure' )
-    setattr(ncvar, 'units','Pa' )
-    setattr(ncvar, 'code', 34 )
-    
+    ncvar = ncOUT.createVariable('sp', 'f', ('lat', 'lon'))
+    ncvar[:] = sp
+    setattr(ncvar, 'long_name', 'Surface pressure')
+    setattr(ncvar, 'units', 'Pa')
+    setattr(ncvar, 'code', 34)
 
-    ncvar = ncOUT.createVariable('msl','f',('lat','lon'))
-    setattr(ncvar, 'units','Pa' )
-    setattr(ncvar,'long_name','Mean sea-level pressure')
-    setattr(ncvar,'code',151)
+    ncvar = ncOUT.createVariable('msl', 'f', ('lat', 'lon'))
+    setattr(ncvar, 'units', 'Pa')
+    setattr(ncvar, 'long_name', 'Mean sea-level pressure')
+    setattr(ncvar, 'code', 151)
     ncvar[:] = msl
 
-    ncvar = ncOUT.createVariable('d2m','f',('lat','lon'))
-    setattr(ncvar,'units','K')
-    setattr(ncvar,'long_name','2 metre dewpoint temperature')
+    ncvar = ncOUT.createVariable('d2m', 'f', ('lat', 'lon'))
+    setattr(ncvar, 'units', 'K')
+    setattr(ncvar, 'long_name', '2 metre dewpoint temperature')
     setattr(ncvar, 'code', 168)
     ncvar[:] = d2m
 
-    ncvar = ncOUT.createVariable('t2m','f',('lat','lon'))
-    setattr(ncvar,'units','K')
-    setattr(ncvar,'long_name','2 metre temperature')
+    ncvar = ncOUT.createVariable('t2m', 'f', ('lat', 'lon'))
+    setattr(ncvar, 'units', 'K')
+    setattr(ncvar, 'long_name', '2 metre temperature')
     setattr(ncvar, 'code', 167)
     ncvar[:] = t2m
 
-    ncvar = ncOUT.createVariable('tcc','f',('lat','lon'))
-    setattr(ncvar,'units','%')
-    setattr(ncvar,'long_name','Total cloud cover')
+    ncvar = ncOUT.createVariable('tcc', 'f', ('lat', 'lon'))
+    setattr(ncvar, 'units', '%')
+    setattr(ncvar, 'long_name', 'Total cloud cover')
     setattr(ncvar, 'code', 164)
     ncvar[:] = tcc
 
-    ncvar = ncOUT.createVariable('w10','f',('lat','lon'))
-    setattr(ncvar,'units','m/s')
-    setattr(ncvar,'long_name','10 metre wind speed module')
-    setattr(ncvar,'code', '165 and 166')
-    ncvar[:] = w10
+    ncvar = ncOUT.createVariable('wsp10', 'f', ('lat', 'lon'))
+    ncvar[:] = wsp10
+    setattr(ncvar, 'long_name', '10 metre wind speed')
+    setattr(ncvar, 'units', 'm s**-1')
+    setattr(ncvar, 'description', 'Calculated as sqrt(u10**2 + v10**2)')
+
+    ncvar = ncOUT.createVariable('tco3', 'f', ('lat', 'lon'))
+    ncvar[:] = tco3
+    setattr(ncvar, 'long_name', 'Total column ozone')
+    setattr(ncvar, 'units', 'kg m**-2')
+    setattr(ncvar, 'code', 206)
+
+    ncvar = ncOUT.createVariable('tclw', 'f', ('lat', 'lon'))
+    ncvar[:] = tclw
+    setattr(ncvar, 'long_name', 'Total column liquid water')
+    setattr(ncvar, 'units', 'kg m**-2')
+    setattr(ncvar, 'code', 78)
 
     setattr(ncOUT, 'input_file', str(inputfile))
+
     ncOUT.close()
 
 
 for inputfile in TL.filelist:
-    yyyymmdd=os.path.basename(inputfile)[:8]
+    yyyymmdd=inputfile.name[:8]
     for iframe in range(nframes_in_day):
         d=datetime.strptime(yyyymmdd,'%Y%m%d') + timedelta(hours = (deltaH*iframe + deltaH/2))
-        outfile = OUTDIR + d.strftime("atm.%Y%m%d-%H:%M:%S.nc")
-        print(outfile)
+        yyyy=d.strftime('%Y')
+        mm  =d.strftime('%m')
+        outdir = OUTDIR / yyyy / mm
+        (OUTDIR / yyyy).mkdir(parents=False, exist_ok=True)
+        outdir.mkdir(parents=False, exist_ok=True)
+        outfile = outdir / d.strftime("atm.%Y%m%d-%H:%M:%S.nc")
+        print(outfile, flush=True)
 
 
         msl = getframe(inputfile,'MSL' , iframe)
         sp =  getframe(inputfile,'SP'  , iframe)
         u10 = getframe(inputfile,'U10M', iframe)
         v10 = getframe(inputfile,'V10M', iframe)
+
+        w10 = np.sqrt(u10**2 + v10**2)
+
         t2m = getframe(inputfile,'T2M' , iframe)
         d2m = getframe(inputfile,'D2M' , iframe)
         tcc = getframe(inputfile,'TCC' , iframe)
-    
-        w10 = np.sqrt(u10**2 + v10**2)
-        dumpfile(outfile, TheMask, sp,msl, t2m,d2m, tcc,w10)
-    
+        tclw = getframe(inputfile,'TCLW' , iframe)
+        tco3 = getframe(inputfile,'TCO3' , iframe)
+
+        dumpfile(outfile, TheMask, sp,msl, t2m,d2m, tcc,w10, tclw, tco3)

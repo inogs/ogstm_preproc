@@ -29,7 +29,6 @@ def argument():
 args = argument()
 
 
-import os
 from datetime import datetime, timedelta
 from bitsea.commons import netcdf4
 import numpy as np
@@ -37,14 +36,21 @@ from scipy import interpolate
 from bitsea.commons.mask import Mask
 from bitsea.commons.Timelist import TimeList
 import netCDF4
+from warnings import warn
+from bitsea.utilities.mpi_serial_interface import get_mpi_communicator
+
+
 try:
     from mpi4py import MPI
-    comm  = MPI.COMM_WORLD
-    rank  = comm.Get_rank()
-    nranks =comm.size
-except:
-    rank   = 0
-    nranks = 1
+except Exception as e:
+    warn(
+        "mpi4py can not be imported. This code will run serially. The reason "
+        f"of the error was:\n{e}"
+    )
+
+communicator = get_mpi_communicator()
+rank = communicator.Get_rank()
+nranks = communicator.size
 
 
 TheMask=Mask.from_file(args.maskfile)
@@ -182,18 +188,17 @@ for inputfile in TL.filelist[rank::nranks]:
         yyyy=d.strftime('%Y')
         mm  =d.strftime('%m')
         outdir = OUTDIR / yyyy / mm
-        (OUTDIR / yyyy).mkdir(parents=True, exist_ok=True)
-        outdir.mkdir(parents=True, exist_ok=True)
+        (OUTDIR / yyyy).mkdir(parents=False, exist_ok=True)
+        outdir.mkdir(parents=False, exist_ok=True)
         outfile = outdir / d.strftime("atm.%Y%m%d-%H:%M:%S.nc")
         print(outfile,flush=True)
-
 
         msl = getframe(inputfile,'MSL' , iframe)
         sp =  getframe(inputfile,'SP'  , iframe)
         u10 = getframe(inputfile,'U10M', iframe)
         v10 = getframe(inputfile,'V10M', iframe)
 
-        w10=(u10**2+v10**2)**0.5
+        w10 = np.sqrt(u10**2 + v10**2)
 
         t2m = getframe(inputfile,'T2M' , iframe)
         d2m = getframe(inputfile,'D2M' , iframe)
@@ -202,4 +207,3 @@ for inputfile in TL.filelist[rank::nranks]:
         tco3 = getframe(inputfile,'TCO3' , iframe)
 
         dumpfile(outfile, TheMask, sp,msl, t2m,d2m, tcc,w10,tclw,tco3)
-    
