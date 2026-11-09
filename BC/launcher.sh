@@ -16,9 +16,9 @@
 
 
 #source /g100_work/OGS23_PRACE_IT/COPERNICUS/sequence.sh
-#source /leonardo_work/OGS23_PRACE_IT_0/COPERNICUS/sequence.sh
-source /leonardo_work/OGS_test2528_0/ggalli/RIVIERADE/PYENVS/sequence.sh
-#export PYTHONPATH=/leonardo_work/OGS_test2528_0/ggalli/RIVIERADE/git/bit.sea/src:$PYTHONPATH
+source /leonardo_work/OGS23_PRACE_IT_0/COPERNICUS/sequence.sh
+#source /leonardo_work/OGS_test2528_0/ggalli/RIVIERADE/PYENVS/sequence.sh
+export PYTHONPATH=/leonardo_work/OGS_test2528_0/ggalli/RIVIERADE/git/bit.sea/src:$PYTHONPATH
 unset I_MPI_PMI_LIBRARY
 export UCX_TLS=ib
 export SLURM_PMIX_DIRECT_CONN_UCX=false
