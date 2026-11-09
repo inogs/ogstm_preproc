@@ -288,7 +288,8 @@ if __name__=="__main__":
                'kdepth_max': jpk_orig}
 
     # cut out gibraltar
-    lat_cut, lon_cut = M.getCutLocation(-8.7, 36.909)
+    #lat_cut, lon_cut = M.getCutLocation(-8.7, 36.909) #old cut location, a bit too east
+    lat_cut, lon_cut = M.getCutLocation(-8.33, 32.93)
     Cut_Loc['ilon_min'] = lon_cut
     # cut east of levantine
     #lat_cut, lon_cut = M.getCutLocation(33.82, None)
