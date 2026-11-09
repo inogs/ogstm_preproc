@@ -12,7 +12,7 @@ class bounmask():
         self.idx     = None
         self.idx_inv = None
         self.file = Path(conf.dir_out) / "bounmask.nc"
-        logging.info("bounmask object builded")
+        logging.info("bounmask object built")
         
 
     def generate(self,mask):

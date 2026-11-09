@@ -4,7 +4,8 @@
 ##SBATCH -N1
 #SBATCH -N2
 ##SBATCH --ntasks-per-node=1
-#SBATCH --ntasks-per-node=48
+##SBATCH --ntasks-per-node=48
+#SBATCH --ntasks-per-node=24
 #SBATCH --time=00:30:00
 ##SBATCH --mem=300gb
 #SBATCH --mem=30gb

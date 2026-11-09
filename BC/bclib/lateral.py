@@ -11,7 +11,7 @@ class lateral_bc:
         self._extract_information()
         self.season = conf.gib_season
         self._convert_information(maskobj)
-        logging.info("lateral_bc builded")
+        logging.info("lateral_bc built")
 
     def _extract_information(self):
         self.ncfile = nc.Dataset(self.path, 'r')
