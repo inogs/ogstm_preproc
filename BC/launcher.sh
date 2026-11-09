@@ -16,25 +16,27 @@
 
 
 #source /g100_work/OGS23_PRACE_IT/COPERNICUS/sequence.sh
-source /leonardo_work/OGS23_PRACE_IT_0/COPERNICUS/sequence.sh
+#source /leonardo_work/OGS23_PRACE_IT_0/COPERNICUS/sequence.sh
+source /leonardo_work/OGS_test2528_0/ggalli/RIVIERADE/PYENVS/sequence.sh
+#export PYTHONPATH=/leonardo_work/OGS_test2528_0/ggalli/RIVIERADE/git/bit.sea/src:$PYTHONPATH
 unset I_MPI_PMI_LIBRARY
 export UCX_TLS=ib
 export SLURM_PMIX_DIRECT_CONN_UCX=false
 source ../profile.inc
 
 #MASKFILE=/g100_work/OGS_test2528/V13C/QUID/SETUP/PREPROC/MASK/OGS/meshmask.nc
-MASKFILE=/leonardo_work/RIVRD_OGS/OGSTM-BFM-SETUP/MASKS/med24v1_domain_cfg.nc
-#MASKFILE_CMCC=/g100_work/OGS_test2528/V13C/QUID/SETUP/PREPROC/MASK/OGS/meshmask_CMCC.nc
-#INPUTBC=/g100_work/OGS_test2528/Benchmark/SETUP/PREPROC/BC/inputs/
+MASKFILE=/leonardo_scratch/fast/RIVRD_OGS/OGSTM-BFM-SETUP/MASKS/med24v1_domain_cfg.nc
+MASKFILE_CMCC=/leonardo_work/RIVRD_proc/CMCC/NEMO_RUN_TEST_1979_1988/med24v1_mesh_mask_BGC.nc
+INPUTBC=/leonardo_scratch/fast/RIVRD_OGS/V13C_QUID/INPUTBC/
 
-#INPUTDIR=$PWD/INPUT_BC_PROFILES
-#mkdir -p $INPUTDIR
-#for var in N1p N3n N5s O2o; do
-#    cp $INPUTBC/${var}.nc $INPUTDIR
-#done
+INPUTDIR=$PWD/INPUT_BC_PROFILES
+mkdir -p $INPUTDIR
+for var in N1p N3n N5s O2o O3c O3h; do
+    cp $INPUTBC/${var}.nc $INPUTDIR
+done
 #my_prex_or_die "python O3c_O3h_profiles.py -m $MASKFILE -M $MASKFILE_CMCC -o $INPUTDIR"
-#
-#my_prex_or_die "python write_VPnutrients.py -i $INPUTDIR -m $MASKFILE"
+
+my_prex_or_die "python write_VPnutrients.py -i $INPUTDIR -m $MASKFILE"
 my_prex_or_die "python main.py"
 
 #RESTARTSDIR=/g100_work/OGS_test2528/V13C/QUID/SETUP/PREPROC/IC/RST/

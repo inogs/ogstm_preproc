@@ -26,8 +26,8 @@ BOUN = bounmask(conf)
 BOUN.generate(TheMask)     # can be commented in case of test
 BOUN.write_netcdf(TheMask, all_variables=False)
 
-#G = gib(conf,TheMask)
-#G.generate(TheMask, BOUN, all_variables=False)
+G = gib(conf,TheMask)
+G.generate(TheMask, BOUN, all_variables=False)
 
 #dardanelles_generator.dump_files(TheMask, Path(conf.dir_out))
 
