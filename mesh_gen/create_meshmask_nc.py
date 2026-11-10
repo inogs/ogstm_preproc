@@ -1,5 +1,6 @@
 import numpy as np
 import netCDF4 as NC
+from os import path
 from flood_fill_ocean import flood_fill_nemo
 
 # Script to create OGSTM meshmask netCDF file
@@ -290,6 +291,8 @@ if __name__=="__main__":
     # cut out gibraltar
     #lat_cut, lon_cut = M.getCutLocation(-8.7, 36.909) #old cut location, a bit too east
     lat_cut, lon_cut = M.getCutLocation(-8.33, 32.93)
+    # save lon cut location to file
+    np.savetxt(path.dirname(mesh_out) + "/cmcc_lon_cut.csv", [lon_cut], delimiter=",")
     Cut_Loc['ilon_min'] = lon_cut
     # cut east of levantine
     #lat_cut, lon_cut = M.getCutLocation(33.82, None)

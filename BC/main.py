@@ -29,7 +29,7 @@ BOUN.write_netcdf(TheMask, all_variables=False)
 G = gib(conf,TheMask)
 G.generate(TheMask, BOUN, all_variables=False)
 
-#dardanelles_generator.dump_files(TheMask, Path(conf.dir_out))
+dardanelles_generator.dump_files(TheMask, Path(conf.dir_out))
 
 #if conf.Perseus_river:
 #    R = river(conf) # here excel is read
