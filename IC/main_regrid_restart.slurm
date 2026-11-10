@@ -3,7 +3,7 @@
 #SBATCH --job-name=rst
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --time=00:10:00
+#SBATCH --time=01:00:00
 #SBATCH --mem=24gb
 #SBATCH --account=OGS23_PRACE_IT_0
 ##SBATCH --partition=dcgp_usr_prod

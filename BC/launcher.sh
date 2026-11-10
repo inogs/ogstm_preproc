@@ -47,13 +47,13 @@ VALUES IN THE GIB FILE ARE THE SAME AS PROFILES IN INPUT_BC_PROFILES.
 my_prex_or_die "python write_VPnutrients.py -i $INPUTDIR -m $MASKFILE"
 my_prex_or_die "python main.py"
 
-#RESTARTSDIR=/g100_work/OGS_test2528/V13C/QUID/SETUP/PREPROC/IC/RST/
-#OUTDIR=/g100_work/OGS_test2528/V13C/QUID/SETUP/PREPROC/BC/out
-#
-#cd atlantic
-#my_prex_or_die "python atlantic_generator.py -i $INPUTBC -o $OUTDIR -m $MASKFILE --rst $RESTARTSDIR"
-#
-#
+RESTARTSDIR=/leonardo_scratch/fast/RIVRD_OGS/OGSTM-BFM-SETUP/RST/
+OUTDIR=/leonardo_scratch/fast/RIVRD_OGS/OGSTM-BFM-SETUP/BC/
+
+cd atlantic
+my_prex_or_die "python atlantic_generator.py -i $INPUTBC -o $OUTDIR -m $MASKFILE --rst $RESTARTSDIR"
+
+
 #cd ../EFAS
 #CMCC_MASK=/g100_work/OGS_test2528/V13C/QUID/SETUP/PREPROC/MASK/OGS/meshmask_CMCC.nc
 #FORCINGS=/g100_work/OGS_test2528/V13C/QUID/SETUP/PREPROC/FORCINGS/READY_FOR_MODEL/
