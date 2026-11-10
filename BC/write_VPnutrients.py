@@ -50,12 +50,12 @@ for var in ['N1p','N3n','N5s','O2o']:
 
 ncvar = ncOUT.createVariable('ALK','f',('lev2',))
 #ncvar[:] = netcdf4.readfile(INPUTDIR + "O3h.nc",'O3h')
-data = netcdf4.readfile(INPUTDIR + var + ".nc", var)
+data = netcdf4.readfile(INPUTDIR + "O3h.nc", "O3h")
 ncvar[:] = np.pad(data, (0, ncvar.shape[-1] - len(data)), mode='edge')
 
 ncvar = ncOUT.createVariable('DIC','f',('lev2',))
 #ncvar[:] = netcdf4.readfile(INPUTDIR + "O3c.nc",'O3c')
-data = netcdf4.readfile(INPUTDIR + var + ".nc", var)
+data = netcdf4.readfile(INPUTDIR + "O3c.nc", "O3c")
 ncvar[:] = np.pad(data, (0, ncvar.shape[-1] - len(data)), mode='edge')
 
 ncOUT.close()
