@@ -34,6 +34,15 @@ mkdir -p $INPUTDIR
 for var in N1p N3n N5s O2o O3c O3h; do
     cp $INPUTBC/${var}.nc $INPUTDIR
 done
+
+'''
+NOTE: 
+O3c_O3h_profiles.py DOES NOT WORK.
+NUTRIENTS SEEM ALLRIGHT, LIKE IN: 
+VALUES IN THE GIB FILE ARE THE SAME AS PROFILES IN INPUT_BC_PROFILES.
+O3c, O3h HAVE DIFFERENT VALUES IN THE GIB AND INPUT_BC_PROFILES FILES.
+'''
+
 #my_prex_or_die "python O3c_O3h_profiles.py -m $MASKFILE -M $MASKFILE_CMCC -o $INPUTDIR"
 
 my_prex_or_die "python write_VPnutrients.py -i $INPUTDIR -m $MASKFILE"
