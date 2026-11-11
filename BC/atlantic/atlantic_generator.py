@@ -31,6 +31,7 @@ def argument():
 
 args = argument()
 
+import xarray as xr
 from bitsea.commons.mask import Mask
 import numpy as np
 from bitsea.commons import netcdf4
@@ -46,19 +47,28 @@ MASKFILE=args.maskfile
 os.system("mkdir -p " + OUTPUTDIR)
 
 OpenMask=Mask.from_file(MASKFILE)
-nav_lon=OpenMask.xlevels
+#nav_lon=OpenMask.xlevels
+# [in the rivierade mesh] nav_lon has masked land domains, glamt does not.
+with xr.open_dataset(MASKFILE) as M:
+    nav_lon = M['glamt'].values[:].squeeze()
 B=OpenMask.bathymetry_in_cells()
 nav_lev=OpenMask.zlevels
 jpk, jpj, jpi = OpenMask.shape
 I=1
 
 lon_max_Atl=-6.125
-diff=abs(nav_lon[0,:]-lon_max_Atl)
-idx= np.where(diff == np.min(diff))
-jpi_Gib=idx[0][0] 
-arrAtl=B[:,0:jpi_Gib]
-maxLevel = np.max(arrAtl) 
-position = np.where(arrAtl == np.max(arrAtl))
+#diff=abs(nav_lon[0,:]-lon_max_Atl)
+#idx= np.where(diff == np.min(diff))
+#jpi_Gib=idx[0][0] 
+#arrAtl=B[:,0:jpi_Gib]
+#maxLevel = np.max(arrAtl) 
+#position = np.where(arrAtl == np.max(arrAtl))
+# Version supposedly robust on both
+# rectilinear and curvilinear meshes
+atlantic_mask = nav_lon < lon_max_Atl
+atlantic_mask = atlantic_mask & (B > 0) #exclude land
+maxLevel = np.max(B[atlantic_mask])
+position = np.where(atlantic_mask & (B == maxLevel))
 jpj_p=position[0][0]
 jpi_p=position[1][0]
 
@@ -75,6 +85,8 @@ for var in ALLVARS:
     if var in VARLIST:
         filename=INPUTDIR + var + ".nc"
         profile=netcdf4.readfile(filename,var)
+        # extend at depth if there's additional levels
+        profile = np.pad(profile, (0, jpk - len(profile)) , mode='edge')
         BOUNDARY_CONCENTRATION[var][:]=profile
     else:
         filename=RESTARTDIR + fileLIST[0][0:-6] + var + ".nc"
