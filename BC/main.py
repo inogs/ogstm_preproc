@@ -4,14 +4,15 @@ from bclib.bounmask import bounmask
 from bclib import atmosphere
 from bclib.gib import gib
 from bclib.co2 import co2atm
-from bclib.river import river
+#from bclib.river import river
 import config as conf
 import numpy as np
-from dardanelles import dardanelles_generator
+#from dardanelles import dardanelles_generator
 from pathlib import Path
 
 TheMask = Mask.from_file(conf.file_mask)
 
+# now main_co2.slurm does the CO2 surface boundary
 #CO2 =co2atm(conf)
 #CO2.generate(TheMask, plot=True)
 

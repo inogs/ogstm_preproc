@@ -1,13 +1,14 @@
 import numpy as np
+import matplotlib.pyplot as plt
 import logging
-from bitsea.commons.mask import Mask
 #from bitsea.commons.grid import RegularGrid
 import xarray as xr
+import xesmf as xe
 from scipy import interpolate
+from bitsea.commons.mask import Mask
 from bitsea.commons import netcdf4
 from bitsea.commons import genUserDateList as DL
 from pathlib import Path
-import matplotlib.pyplot as plt
 
 class co2atm():
     """
@@ -42,12 +43,36 @@ class co2atm():
         # avoiding coastal values larger than 10 ppm
         self.MapCO2_ZEROL = MapCO2_ZEROL.where(MapCO2_ZEROL < 10, other=10)
 
-        X,Y = np.meshgrid(longitude,latitude)
-        nPoints = X.size
+        self.X, self.Y = np.meshgrid(longitude,latitude)
+        nPoints = self.X.size
         Xpoints = np.zeros((nPoints,2),float)
-        Xpoints[:,0] = X.ravel()
-        Xpoints[:,1] = Y.ravel()
+        Xpoints[:,0] = self.X.ravel()
+        Xpoints[:,1] = self.Y.ravel()
         self.Xpoints = Xpoints
+
+    def regridder_2D(self):
+        conf = self.config
+        with xr.open_dataset(conf.file_mask) as M:
+            dst_grid = xr.Dataset({
+                        "lon": (("y", "x"), M['glamt'].values[:].squeeze()),
+                        "lat": (("y", "x"), M['gphit'].values[:].squeeze()),
+                        "mask": (("y", "x"), M['tmask'].values[0,0,:,:].astype(np.int32)),
+                        })
+        #
+        src_grid = xr.Dataset({"lon": (("y", "x"), self.X), 
+                               "lat": (("y", "x"), self.Y)})
+        #
+        regridder = xe.Regridder(
+                src_grid,
+                dst_grid,
+                method = "nearest_s2d",
+                periodic = False,
+                unmapped_to_nan=True,
+                filename="weights_co2_rgrd.nc",
+                reuse_weights=False,
+                )
+        return regridder
+
 
     def generate(self, TheMask: Mask, plot=False):
         """ Generate CO2 files for ogstm for the whole period of simulation, with monthly variability.
@@ -74,6 +99,8 @@ class co2atm():
         Monthly = DL.getTimeList(starttime, endtime, months=1)
         Timeseries = np.zeros(len(Monthly), dtype=float)
         Timeseries_Lampedusa = np.zeros(len(Monthly), dtype=float)
+
+        regridder = self.regridder_2D()
         for im, m in enumerate(Monthly):
             fileOUT = outdir / f"CO2_{m.strftime('%Y%m')}15-00:00:00.nc"
             print(fileOUT)
@@ -84,10 +111,11 @@ class co2atm():
             # now, adding space variability
             M2d = self.MapCO2_ZEROL + time_co2_value
             co2=M2d.values[0,-1::-1,:]
-            f = interpolate.LinearNDInterpolator(self.Xpoints, co2.ravel())
-            co2_24  = f(TheMask.xlevels, TheMask.ylevels)
+            #f = interpolate.LinearNDInterpolator(self.Xpoints, co2.ravel())
+            #co2_24  = f(TheMask.xlevels, TheMask.ylevels)
+            co2_24 = regridder(co2)
             Timeseries_Lampedusa[im] = co2_24[lamp_idx]
-            co2_24[landmask] = 1.e+20
+            #co2_24[landmask] = 1.e+20
             netcdf4.write_2d_file(co2_24,'CO2',fileOUT,TheMask)
         if plot:
             plt.figure(figsize=(10,5))
@@ -111,6 +139,10 @@ class co2atm():
         logging.info("CO2 files written - saving co2_timeseries.txt")
 
 if __name__ == "__main__":
+    # to make it import config
+    import sys
+    import os
+    sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
     import config as conf
     CO2 = co2atm(conf)
     CO2.generate(Mask.from_file(conf.file_mask))

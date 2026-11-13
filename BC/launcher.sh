@@ -14,11 +14,14 @@
 #SBATCH --partition=dcgp_usr_prod
 ##SBATCH --partition=g100_usr_prod
 
+cd $SLURM_SUBMIT_DIR
 
 #source /g100_work/OGS23_PRACE_IT/COPERNICUS/sequence.sh
 source /leonardo_work/OGS23_PRACE_IT_0/COPERNICUS/sequence.sh
 #source /leonardo_work/OGS_test2528_0/ggalli/RIVIERADE/PYENVS/sequence.sh
 export PYTHONPATH=/leonardo_work/OGS_test2528_0/ggalli/RIVIERADE/git/bit.sea/src:$PYTHONPATH
+
+
 unset I_MPI_PMI_LIBRARY
 export UCX_TLS=ib
 export SLURM_PMIX_DIRECT_CONN_UCX=false
@@ -35,12 +38,8 @@ for var in N1p N3n N5s O2o O3c O3h; do
     cp $INPUTBC/${var}.nc $INPUTDIR
 done
 
-'''
-NOTE: 
-O3c_O3h_profiles.py DOES NOT WORK.
-NUTRIENTS and CARBS SEEM ALLRIGHT, LIKE IN: 
-VALUES IN THE GIB FILE ARE THE SAME AS PROFILES IN INPUT_BC_PROFILES.
-'''
+# NOTE: 
+# O3c_O3h_profiles.py DOES NOT WORK.
 
 #my_prex_or_die "python O3c_O3h_profiles.py -m $MASKFILE -M $MASKFILE_CMCC -o $INPUTDIR"
 
