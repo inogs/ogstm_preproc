@@ -8,9 +8,6 @@
 #SBATCH --account=OGS_test2528
 #SBATCH --partition=g100_usr_prod
 
-export MODULEPATH=$MODULEPATH:"/g100_work/OGS23_PRACE_IT/modules"
-export PATH=$PATH:"/g100_work/OGS23_PRACE_IT/COPERNICUS/bin"
-
 source /g100_work/OGS23_PRACE_IT/COPERNICUS/sequence.sh
 unset I_MPI_PMI_LIBRARY
 export UCX_TLS=ib
