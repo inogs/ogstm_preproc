@@ -193,8 +193,8 @@ def dumpfile(filename, maskObj, sp, msl, t2m, d2m, tcc, wsp10, tclw, tco3):
 framelist=[ i for i in range(112) ]
 for iframe in framelist[rank::nranks]:
     current_time = Timelist[iframe]
-    current_year = current_time.year
-    current_month = current_time.month
+    current_year = current_time.strftime('%Y')
+    current_month = current_time.strftime('%m')
 
     outdir = OUTDIR / current_year / current_month
     (OUTDIR / current_year).mkdir(parents=False, exist_ok=True)
