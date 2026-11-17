@@ -15,8 +15,8 @@ export UCX_TLS=ib
 export SLURM_PMIX_DIRECT_CONN_UCX=false
 source ../profile.inc
 
-MASKFILE=/g100_work/OGS_test2528/V13C/QUID/SETUP/PREPROC/MASK/OGS/meshmask.nc
-MASKFILE_CMCC=/g100_work/OGS_test2528/V13C/QUID/SETUP/PREPROC/MASK/OGS/meshmask_CMCC.nc
+MASKFILE=/g100_work/OGS_test2528/ggalli00/REA27/qDEG_SETUP/MESH/meshmask_025_z125.nc
+MASKFILE_CMCC=/g100_work/OGS_test2528/ggalli00/REA27/qDEG_SETUP/MESH/meshmask_025_z141.nc
 INPUTBC=/g100_work/OGS_test2528/Benchmark/SETUP/PREPROC/BC/inputs/
 
 INPUTDIR=$PWD/INPUT_BC_PROFILES
@@ -29,15 +29,15 @@ my_prex_or_die "python O3c_O3h_profiles.py -m $MASKFILE -M $MASKFILE_CMCC -o $IN
 my_prex_or_die "python write_VPnutrients.py -i $INPUTDIR -m $MASKFILE"
 my_prex_or_die "python main.py"
 
-RESTARTSDIR=/g100_work/OGS_test2528/V13C/QUID/SETUP/PREPROC/IC/RST/
-OUTDIR=/g100_work/OGS_test2528/V13C/QUID/SETUP/PREPROC/BC/out
+RESTARTSDIR=/g100_work/OGS_test2528/ggalli00/REA27/qDEG_SETUP/RESTARTS/
+OUTDIR=/g100_work/OGS_test2528/ggalli00/REA27/qDEG_SETUP/BC/
 
 cd atlantic
 my_prex_or_die "python atlantic_generator.py -i $INPUTBC -o $OUTDIR -m $MASKFILE --rst $RESTARTSDIR"
 
 
-cd ../EFAS
-CMCC_MASK=/g100_work/OGS_test2528/V13C/QUID/SETUP/PREPROC/MASK/OGS/meshmask_CMCC.nc
-FORCINGS=/g100_work/OGS_test2528/V13C/QUID/SETUP/PREPROC/FORCINGS/READY_FOR_MODEL/
-my_prex_or_die "mpirun python river_generation.py -i $INPUTDIR -o $OUTDIR -m $MASKFILE -M $CMCC_MASK"
+#cd ../EFAS
+#CMCC_MASK=/g100_work/OGS_test2528/V13C/QUID/SETUP/PREPROC/MASK/OGS/meshmask_CMCC.nc
+#FORCINGS=/g100_work/OGS_test2528/V13C/QUID/SETUP/PREPROC/FORCINGS/READY_FOR_MODEL/
+#my_prex_or_die "mpirun python river_generation.py -i $INPUTDIR -o $OUTDIR -m $MASKFILE -M $CMCC_MASK"
 
