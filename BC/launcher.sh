@@ -5,7 +5,7 @@
 #SBATCH --ntasks-per-node=48
 #SBATCH --time=00:30:00
 #SBATCH --mem=300gb
-#SBATCH --account=OGS_prod2528
+#SBATCH --account=OGS_test2528
 #SBATCH --partition=g100_usr_prod
 
 
