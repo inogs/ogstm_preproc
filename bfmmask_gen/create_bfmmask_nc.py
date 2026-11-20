@@ -2,7 +2,7 @@ import re
 import numpy as np
 import netCDF4 as nc
 
-from commons.mask import Mask
+from bitsea.commons.mask import Mask
 
 
 
