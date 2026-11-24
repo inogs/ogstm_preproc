@@ -26,8 +26,6 @@ def argument():
 
 args = argument()
 
-import glob
-import os
 import xarray as xr
 
 try:
@@ -72,8 +70,7 @@ for filename in filelist[rank::nranks]:
 
     with xr.open_dataset(filename) as ds_file:
         print("rank %d processes %s" % (rank, filename), flush=True)
-        first_slice_name = str(ds_file.isel(time_counter=0).time_counter.values)
-        day = datetime.strptime(first_slice_name[:10], "%Y-%m-%d")
+        day = datetime.strptime(filename.name[1:9], "%Y%m%d")
         yyyy = day.strftime("%Y")
         mm = day.strftime("%m")
         outputdir = OUTPUTDIR / yyyy
@@ -92,7 +89,7 @@ for filename in filelist[rank::nranks]:
                 datetimestrings.append(f"{yyyymmdd}-{h:02d}:{m:02d}:00")
 
             # print("rank %d generates %d strings: %s" % (rank, nparts, datetimestrings), flush=True)
-        UVWT = os.path.basename(filename)[0]  # Estrae la prima lettera (T, U, V, W)
+        UVWT = filename.name[0]  # Estrae la prima lettera (T, U, V, W)
         for it in range(nparts):
             # genera il nome del file di output che indica l'ora centrale della finestra temporale
             if FORCETIMES:
@@ -112,7 +109,7 @@ for filename in filelist[rank::nranks]:
             ds_slice.to_netcdf(outputfile, mode="w", format="NETCDF4")
             ds_slice.close()
         if AVERAGEDIR is not None:
-            outputfile = AVERAGEDIR / os.path.basename(filename)
+            outputfile = AVERAGEDIR / filename.name
             print("rank %d generates %s" % (rank, outputfile), flush=True)
             # Calcola la media temporale su un arco temporale di 24h e salva il file
             ds_mean = ds_file.mean(dim="time_counter", keep_attrs=True).expand_dims("time_counter")
