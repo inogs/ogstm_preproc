@@ -2,11 +2,11 @@ from bitsea.commons.genUserDateList import getTimeList, getCouplesTimeList
 import writeSerialJob
 
 # USER SECTION #####################################
-AVE1 = getTimeList("20190101-00:00:00" , "20230101-00:00:00", days=1 )    
+AVE1 = getTimeList("19950101-00:00:00", "20050101-00:00:00", days=1)    
 
-AVE2 = getTimeList("20190107-00:00:00" , "20230101-00:00:00" ,days=7 )
+AVE2 = getTimeList("19950101-00:00:00", "20050101-00:00:00" , months=1)
 
-RST = getTimeList("20190107-00:00:00"  , "20230101-12:00:00", days=7  )
+RST = getTimeList("19950101-00:00:00", "20050101-00:00:00", months=1)
 
 ###################################################
 
