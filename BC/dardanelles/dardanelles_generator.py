@@ -23,7 +23,7 @@ def dump_files(OpenMask, OUTPUTDIR:Path):
         BOUNDARY = np.zeros((jpk,jpj,jpi), np.float32)
         for k in range(jpk):
             #BOUNDARY[k,235:238,I] = BOUNDARY_CONCENTRATION[var][0]
-            BOUNDARY[k,39,I] = BOUNDARY_CONCENTRATION[var][0]
+            BOUNDARY[k,40:42,I] = BOUNDARY_CONCENTRATION[var][0]
         BOUNDARY[~OpenMask.mask]=1.e+20
         outfile=OUTPUTDIR / "OPE_yyyy0630-00:00:00.nc"
         netcdf4.write_3d_file(BOUNDARY, var, outfile, OpenMask,compression=True)
